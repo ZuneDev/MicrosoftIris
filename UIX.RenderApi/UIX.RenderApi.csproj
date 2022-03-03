@@ -1,0 +1,518 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net35</TargetFramework>
+        <ProjectGuid>{CB2B7609-C7B8-4E2A-82D8-DD631B70B621}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AssemblyName>UIX.RenderApi</AssemblyName>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <LangVersion>9</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- <PackageReference Include="SkiaSharp" Version="2.80.3" /> -->
+    </ItemGroup>
+</Project>
+
+
+<!--<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CB2B7609-C7B8-4E2A-82D8-DD631B70B621}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>UIX.RenderApi</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ApplicationVersion>4.8.0.0</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IVector.cs" />
+    <Compile Include="KeyValueEntry.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="KeyValueEntry`2.cs" />
+    <Compile Include="Map`2.cs" />
+    <Compile Include="Vector.cs" />
+    <Compile Include="Vector`1.cs" />
+    <Compile Include="System\Collections\Generic\HashHelpers.cs" />
+    <Compile Include="Microsoft\Iris\Render\Key.cs" />
+    <Compile Include="Microsoft\Iris\Render\IActivatable.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISharedRenderObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimatable.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimation.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimationGroup.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimationInputProvider.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimationSystem.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRenderObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\IExternalAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\IKeyframeAnimation.cs" />
+    <Compile Include="Microsoft\Iris\Render\IDeferredInvokeItem.cs" />
+    <Compile Include="Microsoft\Iris\Render\IInputSystem.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRenderEngine.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRenderSession.cs" />
+    <Compile Include="Microsoft\Iris\Render\TrackerBase.cs" />
+    <Compile Include="Microsoft\Iris\Render\IDisplayManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\IDisplay.cs" />
+    <Compile Include="Microsoft\Iris\Render\IHwndHostWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRenderWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\IEffect.cs" />
+    <Compile Include="Microsoft\Iris\Render\IEffectTemplate.cs" />
+    <Compile Include="Microsoft\Iris\Render\IGraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\IVideoStream.cs" />
+    <Compile Include="Microsoft\Iris\Render\VideoStream.cs" />
+    <Compile Include="Microsoft\Iris\Render\IImage.cs" />
+    <Compile Include="Microsoft\Iris\Render\IGradient.cs" />
+    <Compile Include="Microsoft\Iris\Render\IVisual.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISprite.cs" />
+    <Compile Include="Microsoft\Iris\Render\ICamera.cs" />
+    <Compile Include="Microsoft\Iris\Render\IVisualContainer.cs" />
+    <Compile Include="Microsoft\Iris\Render\EngineType.cs" />
+    <Compile Include="Microsoft\Iris\Render\EngineInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\IrisEngineInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\AsyncNotifyHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\DebugCategory.cs" />
+    <Compile Include="Microsoft\Iris\Render\IDebug.cs" />
+    <Compile Include="Microsoft\Iris\Render\TvFormat.cs" />
+    <Compile Include="Microsoft\Iris\Render\IAnimationPropertyMap.cs" />
+    <Compile Include="Microsoft\Iris\Render\Orientation.cs" />
+    <Compile Include="Microsoft\Iris\Render\RelativeSpace.cs" />
+    <Compile Include="Microsoft\Iris\Render\GraphicsDeviceType.cs" />
+    <Compile Include="Microsoft\Iris\Render\GraphicsRenderingQuality.cs" />
+    <Compile Include="Microsoft\Iris\Render\BackBufferCapturedHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\ImageFormat.cs" />
+    <Compile Include="Microsoft\Iris\Render\ContentNotification.cs" />
+    <Compile Include="Microsoft\Iris\Render\ContentNotifyHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRawInputCallbacks.cs" />
+    <Compile Include="Microsoft\Iris\Render\DeferredInvokePriority.cs" />
+    <Compile Include="Microsoft\Iris\Render\IRenderHost.cs" />
+    <Compile Include="Microsoft\Iris\Render\FormCloseReason.cs" />
+    <Compile Include="Microsoft\Iris\Render\IconFlags.cs" />
+    <Compile Include="Microsoft\Iris\Render\WindowOptions.cs" />
+    <Compile Include="Microsoft\Iris\Render\FormPlacement.cs" />
+    <Compile Include="Microsoft\Iris\Render\ShadowEdgePart.cs" />
+    <Compile Include="Microsoft\Iris\Render\LocationChangedHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SizeChangedHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\MonitorChangedHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\WindowStateChangedHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\CloseHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\CloseRequestHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SysCommandHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\MouseIdleHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\ShowHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\ActivationChangeHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SessionActivateHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SessionConnectHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SetFocusHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\LoadHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\ForwardMessageHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\SoundDeviceType.cs" />
+    <Compile Include="Microsoft\Iris\Render\SoundDataFormat.cs" />
+    <Compile Include="Microsoft\Iris\Render\SoundCaps.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISoundBuffer.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISound.cs" />
+    <Compile Include="Microsoft\Iris\Render\ISoundData.cs" />
+    <Compile Include="Microsoft\Iris\Render\InvalidateContentHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\MouseOptions.cs" />
+    <Compile Include="Microsoft\Iris\Render\VisualOrder.cs" />
+    <Compile Include="Microsoft\Iris\Render\RenderApi.cs" />
+    <Compile Include="Microsoft\Iris\Render\RenderToken.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationEvent.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\BinaryOpCode.cs" />
+    <Compile Include="Microsoft\Iris\Render\BinaryOperation.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\LinearInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\ExponentialInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\LogarithmicInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\SCurveInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\SineInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\CosineInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\BezierInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\EaseInInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\EaseOutInterpolation.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationKeyframe.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationResetBehavior.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationStage.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationInputType.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationTypeChannel.cs" />
+    <Compile Include="Microsoft\Iris\Render\AnimationTypeMask.cs" />
+    <Compile Include="Microsoft\Iris\Render\CapturedAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\ConstantAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\ContinuousAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\ValueEventCondition.cs" />
+    <Compile Include="Microsoft\Iris\Render\ColorOperation.cs" />
+    <Compile Include="Microsoft\Iris\Render\AlphaOperation.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\BlendElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectOperation.cs" />
+    <Compile Include="Microsoft\Iris\Render\BrightnessElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\ColorElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\ComplexImageElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\ContrastElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\DesaturateElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\DestinationElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\EdgeDetectionElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectElementCacheKeys.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectInputType.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectLayer.cs" />
+    <Compile Include="Microsoft\Iris\Render\EffectOperationType.cs" />
+    <Compile Include="Microsoft\Iris\Render\EmbossDirection.cs" />
+    <Compile Include="Microsoft\Iris\Render\EmbossElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\HSLElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\HSVElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\GaussianBlurMode.cs" />
+    <Compile Include="Microsoft\Iris\Render\GaussianBlurElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\FilterMode.cs" />
+    <Compile Include="Microsoft\Iris\Render\ImageElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\InterpolateElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\InvAlphaElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\InvColorElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\InvertElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\LightShaftElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\PointLight2DElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\SepiaElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\SpotLight2DElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\VideoElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\AxisAngle.cs" />
+    <Compile Include="Microsoft\Iris\Render\ColorF.cs" />
+    <Compile Include="Microsoft\Iris\Render\CoordMap.cs" />
+    <Compile Include="Microsoft\Iris\Render\DisplayModeFlags.cs" />
+    <Compile Include="Microsoft\Iris\Render\DisplayMode.cs" />
+    <Compile Include="Microsoft\Iris\Render\FormStyleInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\HWND.cs" />
+    <Compile Include="Microsoft\Iris\Render\Inset.cs" />
+    <Compile Include="Microsoft\Iris\Render\Point.cs" />
+    <Compile Include="Microsoft\Iris\Render\Quaternion.cs" />
+    <Compile Include="Microsoft\Iris\Render\Rectangle.cs" />
+    <Compile Include="Microsoft\Iris\Render\Size.cs" />
+    <Compile Include="Microsoft\Iris\Render\SurfaceFormat.cs" />
+    <Compile Include="Microsoft\Iris\Render\SurfaceFormatInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Vector2.cs" />
+    <Compile Include="Microsoft\Iris\Render\Vector3.cs" />
+    <Compile Include="Microsoft\Iris\Render\Vector4.cs" />
+    <Compile Include="Microsoft\Iris\Render\WindowState.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\IActivatableObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\IAnimatableObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\Animation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\AnimationGroup.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\AnimationInputProvider.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\AnimationSystem.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\AnimationTarget.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\ExternalAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\KeyframeAnimation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Animation\ObjectAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\SharedRenderObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\RenderObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\CachedRenderObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\DeferredInvokeItem.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\DeferredHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\ByteBuilder.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\ObjectCache.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\ObjectCacheManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\ResourceTracker.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\SharedResource.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\SharedResourceArray.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\Debug2.cs" />
+    <Compile Include="Microsoft\Iris\Render\Common\SmartMap`1.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\IAnimationCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\IRenderCapsCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\IDeviceCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\IVideoPoolCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\ISoundBufferCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\ProtocolSplashRendering.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteRenderCaps.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteCamera.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteVisual.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteVisualContainer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteAnimationManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteAnimation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteExternalAnimationInput.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteAnimationInputProvider.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteWaitCursor.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteNullDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDx9EffectResource.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteEffect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDx9Effect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSprite.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDx9Sprite.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\LocalRenderCapsCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\LocalDeviceCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSurface.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSurfacePool.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\LocalVideoPoolCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteVideoPool.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteRasterizer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteGradient.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\LocalAnimationCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDx9Device.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteDynamicSurfaceFactory.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\LocalSoundBufferCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSoundBuffer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSound.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\RemoteSoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\ProtocolSplashRenderingNt.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteGdiDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteNtDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteGdiEffect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteGdiSprite.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteWinSoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Nt\RemoteDs8SoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Xenon\ProtocolSplashRenderingXenon.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Xenon\RemoteXeDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Rendering\Xenon\RemoteXAudSoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\IInputCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\IFormWindowCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\ProtocolSplashDesktop.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\RemoteInputRouter.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\LocalInputCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\LocalFormWindowCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\RemoteFormWindowBase.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\IDesktopManagerCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\IHwndHostWindowCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\ProtocolSplashDesktopNt.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\RemoteFormWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\RemoteHwndHostWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\RemoteDesktopManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\LocalHwndHostWindowCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Nt\LocalDesktopManagerCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Xenon\ProtocolSplashDesktopXenon.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Desktop\Xenon\RemoteFormWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\ProtocolSplashMessaging.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\RemoteDataBuffer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\RemoteContextRelay.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\RemoteBroker.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\RemoteContext.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\LocalRenderPortCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\IRenderPortCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\LocalDataBufferCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocols\Splash\Messaging\IDataBufferCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\IRenderHandleOwner.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\ProtocolInstance.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RemoteObject.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\BlobInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\ConnectionInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\LocalConnectionInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RemoteConnectionInfoBase.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RemoteConnectionInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RelayConnectionInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\DataBuffer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\DataBufferTracker.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\ContextID.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RenderException.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\TransportProtocol.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\ShutdownReason.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\EngineApi.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\HandleGroup.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\HandleTable.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\IChannel.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\LocalChannel.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MarshalHelper.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\Memory.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MessageHeap.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MessagingSession.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\ObjectCache.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RemoteChannel.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RenderPort.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\Message.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MessageBatchHeader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MessageBatchEntry.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\CallbackMessage.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RENDERHANDLE.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\RENDERGROUP.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\BLOBREF.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\MessageCookieLayout.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\TimeoutHandler.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\BatchCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Protocol\PortCallback.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\InputSystem.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\RenderCaps.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\RenderEngine.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\RenderSession.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\Bits.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\GraphicsCaps.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\SoundCaps.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\HRESULT.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\Math2.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\ObjectTracker.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\ObjectTrackerGroup.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\StackIListEnumerator.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\Win32Api.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\DisplayManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\Display.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\FormApi.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\HwndHostWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\RenderDisplayMode.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\RenderWindow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\KeyAllocator.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\DataCookie.cs" />
+    <Compile Include="Microsoft\Iris\Render\Internal\EventCookie.cs" />
+    <Compile Include="Microsoft\Iris\Render\Remote\ImageHeader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Remote\SoundHeader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\ITreeOwner.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Effect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\EffectPropertyType.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\EffectProperty.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\EffectTemplate.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VideoZoomMode.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\GraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9Effect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9TextureInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VariableScope.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\EffectRequirements.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EffectBuilder.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9ColorElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9ImageElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9ComplexImageElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9VideoElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9BlendElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9InterpolateElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9SpotLight2DElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9PointLight2DElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9DestinationElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EffectManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9DesaturateElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9InvColorElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9InvAlphaElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9GaussianBlurElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9HSVElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9HSLElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9BrightnessElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9ContrastElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9LightShaftElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9SepiaElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9InvertElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EmbossElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EdgeDetectionElement.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9VariableType.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9TextureRequirements.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VariableInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\TextureVariableInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EffectResource.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9EffectTemplate.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Dx9GraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\IVideoPoolNotification.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\ISurfaceContentOwner.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\NullGraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\IDynamicBlock.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DynamicBlock.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DynamicBucket.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DynamicPool.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DynamicRow.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\ImageLoadInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DataBufferCleanupInfo.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Image.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Surface.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\PoolAllocMethod.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\DynamicPoolSet.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\SurfaceManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\SurfacePoolAllocationResult.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\SurfacePool.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VideoPool.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\AncestorEnumerator.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Gradient.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\TreeNode.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Visual.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Sprite.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\TreeNodeCollection.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\TreeNodeEnumerator.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\Camera.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VisualContainer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\VisualPropertyManager.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\NtGraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\GdiEffect.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\GdiEffectType.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\GdiEffectTemplate.cs" />
+    <Compile Include="Microsoft\Iris\Render\Graphics\GdiGraphicsDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Sound\Sound.cs" />
+    <Compile Include="Microsoft\Iris\Render\Sound\SoundHeader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Sound\SoundBuffer.cs" />
+    <Compile Include="Microsoft\Iris\Render\Sound\SoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Sound\Ds8SoundDevice.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\CoordMapGenerator.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ExtensionsApi.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\DebugDefault.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\DebugNone.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\DebugCategoryEnabledSet.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\eDebug.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\eDebugApi.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\RegistryListener.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\TraceRegistryHelper.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageCache.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageCacheItem.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageCacheKey.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageLoader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageHeader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageData.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageInformation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\BitmapInformation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\GradientInformation.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\HSpBitmap.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ImageRequirements.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\SoundData.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\SoundLoader.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\DataTracker.cs" />
+    <Compile Include="Microsoft\Iris\Render\Extensions\ModuleManager.cs" />
+    <Compile Include="Microsoft\Iris\Input\IRawInputSite.cs" />
+    <Compile Include="Microsoft\Iris\Input\InputHandlerFlags.cs" />
+    <Compile Include="Microsoft\Iris\Input\InputDeviceType.cs" />
+    <Compile Include="Microsoft\Iris\Input\KeyboardMessageId.cs" />
+    <Compile Include="Microsoft\Iris\Input\Cursor.cs" />
+    <Compile Include="Microsoft\Iris\Input\CursorID.cs" />
+    <Compile Include="Microsoft\Iris\Input\InputModifiers.cs" />
+    <Compile Include="Microsoft\Iris\Input\KeyAction.cs" />
+    <Compile Include="Microsoft\Iris\Input\Keys.cs" />
+    <Compile Include="Microsoft\Iris\Input\MouseButtons.cs" />
+    <Compile Include="Microsoft\Iris\Input\RawDragData.cs" />
+    <Compile Include="Microsoft\Iris\Input\RawHidData.cs" />
+    <Compile Include="Microsoft\Iris\Input\RawKeyboardData.cs" />
+    <Compile Include="Microsoft\Iris\Input\RawMouseData.cs" />
+    <Compile Include="Microsoft\Iris\Library\InvariantString.cs" />
+    <Compile Include="Microsoft\Iris\Libraries\OS\RegistryKey.cs" />
+    <Compile Include="Microsoft\Iris\OS\Libraries\Win32Api.cs" />
+    <Compile Include="Cn\CodeGenNameAttribute.cs" />
+    <Compile Include="Cn\DisposeMethodAttribute.cs" />
+    <Compile Include="Cn\GCCollectSafeAttribute.cs" />
+    <Compile Include="Cn\PartialCollectAttribute.cs" />
+    <Compile Include="Cn\ReflectionAttribute.cs" />
+    <Compile Include="Cn\TypeInitializeDependencyAttribute.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>-->

@@ -77,9 +77,6 @@
       <HintPath>packages\System.Memory.4.5.4\lib\netstandard1.1\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.XML" />
-    <Reference Include="UIX.RenderApi">
-      <HintPath>..\lib\UIX.renderapi.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Microsoft\Iris\Markup\ManagedXmlReader.cs" />
@@ -1052,6 +1049,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj">
+      <Project>{cb2b7609-c7b8-4e2a-82d8-dd631b70b621}</Project>
+      <Name>UIX.RenderApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
