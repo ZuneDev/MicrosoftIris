@@ -7,6 +7,8 @@
         <AssemblyName>UIX.RenderApi</AssemblyName>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <LangVersion>9</LangVersion>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>D:\Repos\ZuneDev\MicrosoftIris\36MSApp1024.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
