@@ -377,7 +377,11 @@ namespace Microsoft.Iris.Accessibility
             return Help;
         }
 
+#if NET6_0_OR_GREATER
+        int IAccessible.get_accHelpTopic(ref string pszHelpFile, object varChild)
+#else
         int IAccessible.get_accHelpTopic(out string pszHelpFile, object varChild)
+#endif
         {
             VerifyProxyAccess();
             VerifySelfChildID(varChild);
@@ -461,14 +465,22 @@ namespace Microsoft.Iris.Accessibility
             DoDefaultAction();
         }
 
+#if NET6_0_OR_GREATER
+        void IAccessible.put_accName(object varChild, string pszName)
+#else
         void IAccessible.set_accName(object varChild, string pszName)
+#endif
         {
             VerifyProxyAccess();
             VerifySelfChildID(varChild);
             Name = pszName;
         }
 
+#if NET6_0_OR_GREATER
+        void IAccessible.put_accValue(object varChild, string pszValue)
+#else
         void IAccessible.set_accValue(object varChild, string pszValue)
+#endif
         {
             VerifyProxyAccess();
             VerifySelfChildID(varChild);
