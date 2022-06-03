@@ -7,15 +7,11 @@
         <AssemblyName>UIX.RenderApi</AssemblyName>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <LangVersion>9</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <SignAssembly>True</SignAssembly>
-        <AssemblyOriginatorKeyFile>D:\Repos\ZuneDev\MicrosoftIris\36MSApp1024.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
+        <Platforms>AnyCPU;x64;x86</Platforms>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-    <ItemGroup>
-        <!-- <PackageReference Include="SkiaSharp" Version="2.80.3" /> -->
-    </ItemGroup>
 </Project>
 
 
