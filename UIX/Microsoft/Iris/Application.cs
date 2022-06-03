@@ -37,6 +37,8 @@ namespace Microsoft.Iris
         private static Dictionary<int, IExternalAnimationInput> s_idToExternalAnimationInput;
         private static Dictionary<int, IAnimationInputProvider> s_animationProviders;
 
+        public static event Action Initialized;
+
         public static string Name
         {
             get => UIApplication.ApplicationName;
@@ -175,7 +177,9 @@ namespace Microsoft.Iris
             if (!s_EnableAnimations)
                 AnimationSystem.OverrideAnimationState(true);
             UIForm uiForm = new UIForm(s_session);
+
             s_initializationState = InitializationState.FullyInitialized;
+            Initialized?.Invoke();
         }
 
         private static void InitializeCommon(bool fullInitialization)
