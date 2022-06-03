@@ -1033,7 +1033,11 @@ namespace Microsoft.Iris.ViewItems
             uint num = 0;
             try
             {
-                using (ManagedXmlReader nativeXmlReader = new ManagedXmlReader(content, true))
+                // Wrap the content in a `root` element, because .NET's XML parser
+                // is more strict about root elements than XmlLite. Strings that contain
+                // more than one root element (i.e. "<keyword>term</keyword> <header>results</header>")
+                // will fail to parse.
+                using (ManagedXmlReader nativeXmlReader = new ManagedXmlReader($"<root>{content}</root>", true))
                 {
                     MarkedRange markedRange1 = null;
                     XmlNodeType nodeType;
