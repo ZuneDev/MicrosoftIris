@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net35;net6.0</TargetFrameworks>
+        <TargetFrameworks>net35;net40;net6.0</TargetFrameworks>
         <ProjectGuid>{78A8B08C-C0E9-4BAC-9AF6-58D3A55C05C9}</ProjectGuid>
         <ApplicationVersion>4.8.0.0</ApplicationVersion>
         <OutputType>Library</OutputType>
