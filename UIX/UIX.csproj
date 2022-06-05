@@ -33,6 +33,13 @@
         <None Include="packages.config" />
     </ItemGroup>
 
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+        <Reference Include="Accessibility" />
+
+        <None Include="app.config" />
+        <None Include="packages.config" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
