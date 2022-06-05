@@ -49,8 +49,8 @@ namespace Microsoft.Iris.Render.Protocol
         public unsafe void* Alloc(uint size)
         {
             size += this.allocExtraSize;
-            uint num = (uint)(sizeof(void*) - 1);
-            size = (uint)((int)size + (int)num & ~(int)num);
+            int num = sizeof(void*) - 1;
+            size = (uint)((int)size + num & ~num);
             MessageHeap.BlockInfo block = this.tailBlock;
             if (size > block.size - block.used)
             {
@@ -63,8 +63,8 @@ namespace Microsoft.Iris.Render.Protocol
                 }
                 block = this.CreateBlock(type, actualSize);
             }
-            this.ZeroMemoryBlock(block, block.used, this.allocExtraSize);
-            void* voidPtr = (void*)((int)block.data + ((int)block.used + (int)this.allocExtraSize));
+            this.ZeroMemoryBlock(block, block.used, allocExtraSize);
+            void* voidPtr = (void*)((nint)block.data + (block.used + allocExtraSize));
             block.used += size;
             ++this.key;
             return voidPtr;
@@ -170,7 +170,7 @@ namespace Microsoft.Iris.Render.Protocol
             {
                 if (p >= blockInfo.data)
                 {
-                    void* voidPtr = (void*)((int)blockInfo.data + (int)blockInfo.used);
+                    void* voidPtr = (void*)((nint)blockInfo.data + blockInfo.used);
                     if (p < voidPtr)
                         return blockInfo;
                 }
@@ -181,9 +181,9 @@ namespace Microsoft.Iris.Render.Protocol
         private unsafe void ZeroMemoryBlock(MessageHeap.BlockInfo block, uint offset, uint size)
         {
             Debug2.Validate(offset + size <= block.size, typeof(ArgumentOutOfRangeException), "Invalid memory range for block");
-            byte* numPtr1 = (byte*)((int)block.data + (int)offset);
-            for (byte* numPtr2 = numPtr1 + (int)size; numPtr1 < numPtr2; ++numPtr1)
-                *numPtr1 = 0;
+            byte* start = (byte*)((nint)block.data + offset);
+            for (byte* current = start + size; start < current; ++start)
+                *start = 0;
         }
 
         protected override void Invariant() => Debug2.Validate(!this.IsDisposed, typeof(InvalidOperationException), "MessageHeap has already been disposed");
