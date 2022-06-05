@@ -466,11 +466,11 @@ namespace Microsoft.Iris.Render.Protocol
             MessageHeap.Block block = this._currentMessageHeap.LookupBlock(pMethodMsg);
             Debug2.Throw((IntPtr)block.data != IntPtr.Zero, "message should be in current message heap");
             uint num = (uint)((ulong)((sbyte*)pMethodMsg - (sbyte*)block.data) - (ulong)sizeof(MessageBatchEntry));
-            if ((IntPtr)this._lastBatchEntry != IntPtr.Zero && (int)this._lastBatchBlockId == (int)block.id)
+            if ((IntPtr)_lastBatchEntry != IntPtr.Zero && _lastBatchBlockId == block.id)
                 this._lastBatchEntry->uOffsetNextEntry = num;
             else
                 ((MessageBatchHeader*)block.data)->uOffsetFirstEntry = num;
-            this._lastBatchEntry = (MessageBatchEntry*)((int)block.data + (int)num);
+            this._lastBatchEntry = (MessageBatchEntry*)block.data + num;
             this._lastBatchBlockId = block.id;
             ++this._uBatchedMessages;
             BatchCallback populateCallback = this._batchPopulateCallback;

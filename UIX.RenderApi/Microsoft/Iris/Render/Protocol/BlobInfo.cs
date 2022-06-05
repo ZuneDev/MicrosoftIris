@@ -78,7 +78,7 @@ namespace Microsoft.Iris.Render.Protocol
 
         public unsafe void Attach(Message* pMessage)
         {
-            byte* numPtr1 = (byte*)((uint)pMessage + this.m_blobsOffset);
+            byte* numPtr1 = (byte*)pMessage + this.m_blobsOffset;
             foreach (object obj in this.m_data)
             {
                 if (obj is string)
