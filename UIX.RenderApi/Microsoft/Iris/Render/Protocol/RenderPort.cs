@@ -470,7 +470,7 @@ namespace Microsoft.Iris.Render.Protocol
                 this._lastBatchEntry->uOffsetNextEntry = num;
             else
                 ((MessageBatchHeader*)block.data)->uOffsetFirstEntry = num;
-            this._lastBatchEntry = (MessageBatchEntry*)block.data + num;
+            this._lastBatchEntry = (MessageBatchEntry*)((nint)block.data + num);
             this._lastBatchBlockId = block.id;
             ++this._uBatchedMessages;
             BatchCallback populateCallback = this._batchPopulateCallback;

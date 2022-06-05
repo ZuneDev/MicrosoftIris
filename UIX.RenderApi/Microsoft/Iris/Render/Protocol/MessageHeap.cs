@@ -181,7 +181,7 @@ namespace Microsoft.Iris.Render.Protocol
         private unsafe void ZeroMemoryBlock(MessageHeap.BlockInfo block, uint offset, uint size)
         {
             Debug2.Validate(offset + size <= block.size, typeof(ArgumentOutOfRangeException), "Invalid memory range for block");
-            byte* start = (byte*)block.data + offset;
+            byte* start = (byte*)((nint)block.data + offset);
             for (byte* current = start + size; start < current; ++start)
                 *start = 0;
         }
