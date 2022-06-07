@@ -135,7 +135,7 @@ namespace Microsoft.Iris
             get => DllResources.StaticDllResourcesOnly;
         }
 
-        public static Debug.DebugSettings DebugSettings { get; set; }
+        public static Debug.DebugSettings DebugSettings { get; } = new();
 
         public static void Initialize()
         {
