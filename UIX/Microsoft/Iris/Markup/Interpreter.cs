@@ -25,7 +25,7 @@ namespace Microsoft.Iris.Markup
                 byteCodeReader = context.LoadResult.ObjectSection;
                 num = (long)((ulong)byteCodeReader.CurrentOffset);
                 byteCodeReader.CurrentOffset = context.InitialBytecodeOffset;
-                if (InterpreterContext.UseDecompile)
+                if (Application.DebugSettings.UseDecompiler)
                     result = RunDecompile(context, byteCodeReader);
                 else
                     result = Run(context, byteCodeReader);
@@ -1561,7 +1561,7 @@ namespace Microsoft.Iris.Markup
             }
 
             CleanUpXmlDoc();
-            InterpreterContext.DecompileResults.Add(XmlDoc);
+            Application.DebugSettings.DecompileResults.Add(XmlDoc);
             return result;
         }
 

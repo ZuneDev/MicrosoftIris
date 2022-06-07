@@ -145,7 +145,7 @@ namespace Microsoft.Iris.Queues
         {
             get
             {
-                if (_debugPipe == null && Application.IsDebug)
+                if (_debugPipe == null && Application.DebugSettings.OpenDebugPipe)
                 {
                     _debugPipe = new NamedPipeClientStream(System.Reflection.Assembly.GetExecutingAssembly().FullName);
                     _debugPipe.Connect();
@@ -180,7 +180,7 @@ namespace Microsoft.Iris.Queues
         /// <param name="message"></param>
         public static void SendDebugMessage(string message)
         {
-            if (Application.IsDebug && DebugPipe.IsConnected && DebugPipe.CanWrite)
+            if (Application.DebugSettings.OpenDebugPipe && DebugPipe.IsConnected && DebugPipe.CanWrite)
             {
                 DebugPipe.WriteByte(0x01);
                 byte[] buffer = System.Text.Encoding.Unicode.GetBytes(message);

@@ -19,8 +19,6 @@ namespace Microsoft.Iris.Markup
         private ParameterContext _parameterContext;
         private Map<object, object> _scopedLocals;
         private static Stack s_cache = new Stack();
-        public static bool UseDecompile = false;
-        public static List<System.Xml.XmlDocument> DecompileResults = new List<System.Xml.XmlDocument>();
 
         private InterpreterContext()
         {
