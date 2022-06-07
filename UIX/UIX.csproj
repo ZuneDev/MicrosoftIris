@@ -12,11 +12,18 @@
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
         <Platforms>AnyCPU;x64;x86</Platforms>
+
+        <UseZune5>false</UseZune5>
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\UIX.Debug\UIX.Debug.csproj" />
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
     </ItemGroup>
+
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+        <UseZune5>true</UseZune5>
+    </PropertyGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
         <Reference Include="Accessibility" />
@@ -39,8 +46,8 @@
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
     </ItemGroup>
 
-    <!--<PropertyGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-        <UseWindowsForms>true</UseWindowsForms>
-    </PropertyGroup>-->
+    <PropertyGroup Condition=" '$(UseZune5)' == 'true' ">
+        <ApplicationVersion>5.0.0.0</ApplicationVersion>
+        <DefineConstants>$(DefineConstants);ZUNE5</DefineConstants>
+    </PropertyGroup>
 </Project>

@@ -4,6 +4,7 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
+using Microsoft.Iris.Debug;
 using System;
 using System.IO;
 using System.IO.Pipes;
@@ -174,12 +175,19 @@ namespace Microsoft.Iris.Queues
             }
         }
 
+#if ZUNE5
+        private static Bridge Bridge { get; } = new(OwlCore.Remoting.RemotingMode.Host);
+#endif
+
         /// <summary>
         /// Sends a message via <see cref="debugPipe"/>
         /// </summary>
         /// <param name="message"></param>
         public static void SendDebugMessage(string message)
         {
+#if ZUNE5
+            Bridge.LogDispatcher(message);
+#else
             if (Application.DebugSettings.OpenDebugPipe && DebugPipe.IsConnected && DebugPipe.CanWrite)
             {
                 DebugPipe.WriteByte(0x01);
@@ -188,6 +196,7 @@ namespace Microsoft.Iris.Queues
                 DebugPipe.Write(buffer, 0, buffer.Length);
                 DebugPipe.Flush();
             }
+#endif
         }
     }
 }
