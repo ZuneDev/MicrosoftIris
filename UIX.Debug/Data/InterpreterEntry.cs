@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Iris.Debug.Data
 {
@@ -14,7 +14,16 @@ namespace Microsoft.Iris.Debug.Data
         public object OpCode { get; private set; }
         public OpCodeArgument[] Arguments { get; private set; }
 
-        public override string ToString() => $"{OpCode}({string.Join(", ", (IEnumerable<OpCodeArgument>)Arguments)})";
+        public override string ToString()
+        {
+            var args =
+#if ZUNE5
+                (System.Collections.Generic.IEnumerable<OpCodeArgument>)Arguments;
+#else
+                Arguments.Select(a => a.ToString()).ToArray();
+#endif
+            return $"{OpCode}({string.Join(", ", args)})";
+        }
     }
 
     public class OpCodeArgument
