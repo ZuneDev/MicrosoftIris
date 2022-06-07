@@ -12,6 +12,9 @@ namespace Microsoft.Iris.Debug
     {
         private readonly MemberRemote _memberRemote;
 
+        public event EventHandler<Data.InterpreterEntry> InterpreterStep;
+        public event Action<string> DispatcherStep;
+
         public Bridge(RemotingMode mode)
         {
             // Pass the instance you want to remote into MemberRemote() with an ID that is identical on both machines for that instance.
@@ -24,13 +27,13 @@ namespace Microsoft.Iris.Debug
         [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogInterpreterOpCode(object context, Data.InterpreterEntry entry)
         {
-            System.Diagnostics.Debug.WriteLine($"[HOST] [Interpreter] [{context}] {entry}");
+            InterpreterStep?.Invoke(context, new(entry));
         }
 
         [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogDispatcher(string message)
         {
-            System.Diagnostics.Debug.WriteLine($"[HOST] [Dispatcher] {message}");
+            DispatcherStep?.Invoke(message);
         }
 
         public void Dispose()
