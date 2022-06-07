@@ -840,9 +840,6 @@ namespace Microsoft.Iris.Markup
             }
         }
 
-        public static System.Collections.Generic.List<OpCode> ExecutedOpCodes { get; set; }
-            = new System.Collections.Generic.List<OpCode>();
-
         /// <summary>
         /// Attempts to generate source UIX from a compiled result
         /// </summary>
@@ -883,7 +880,8 @@ namespace Microsoft.Iris.Markup
             while (!flag)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                ExecutedOpCodes.Add(opCode);
+                var entry = new Debug.Data.InterpreterEntry(opCode);
+
                 switch (opCode)
                 {
                     case OpCode.ConstructObject:
@@ -897,6 +895,9 @@ namespace Microsoft.Iris.Markup
                             if (idxTilde >= 0)
                                 typeName = typeName.Substring(0, idxTilde);
                             var objXml = XmlDoc.CreateElement(typeName);
+
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "type", typeof(TypeSchema), typeSchema));
 
                             ReportErrorOnNull(obj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref flag))
@@ -1034,10 +1035,16 @@ namespace Microsoft.Iris.Markup
                         {
                             int num8 = reader.ReadUInt16();
                             SymbolReference symbolRef = symbolReferenceTable[num8];
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "symbolRef", typeof(SymbolReference), symbolRef));
+
                             object obj8 = context.ReadSymbol(symbolRef);
                             var objXml8 = XmlDoc.CreateElement(obj8.GetType().Name);
+
                             stack.Push(obj8);
                             xmlStack.Push(objXml8);
+                            entry.ReturnValues.Add(obj8);
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -1049,7 +1056,14 @@ namespace Microsoft.Iris.Markup
                             object value = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
                             int num9 = reader.ReadUInt16();
                             SymbolReference symbolRef2 = symbolReferenceTable[num9];
+
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "symbolRef", typeof(SymbolReference), symbolRef2));
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "value", typeof(object), value));
+
                             context.WriteSymbol(symbolRef2, value);
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -1549,10 +1563,12 @@ namespace Microsoft.Iris.Markup
                         }
                 }
 
+                Application.DebugSettings.Bridge.LogInterpreterOpCode(opCode, entry);
+
                 if (stack.Count != xmlStack.Count)
                     throw new InvalidOperationException(
                         $"Invalid stacks, stack:{stack.Count} != xmlStack{xmlStack.Count}! " +
-                        $"Check implementations for {opCode} and {ExecutedOpCodes[ExecutedOpCodes.Count - 2]}");
+                        $"Check implementations for {opCode}");
             }
             while (stack.Count > count)
             {

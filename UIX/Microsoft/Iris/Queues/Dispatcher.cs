@@ -175,10 +175,6 @@ namespace Microsoft.Iris.Queues
             }
         }
 
-#if ZUNE5
-        private static Bridge Bridge { get; } = new(OwlCore.Remoting.RemotingMode.Host);
-#endif
-
         /// <summary>
         /// Sends a message via <see cref="debugPipe"/>
         /// </summary>
@@ -186,7 +182,7 @@ namespace Microsoft.Iris.Queues
         public static void SendDebugMessage(string message)
         {
 #if ZUNE5
-            Bridge.LogDispatcher(message);
+            Application.DebugSettings.Bridge.LogDispatcher(message);
 #else
             if (Application.DebugSettings.OpenDebugPipe && DebugPipe.IsConnected && DebugPipe.CanWrite)
             {

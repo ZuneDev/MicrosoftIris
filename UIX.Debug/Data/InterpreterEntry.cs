@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.Iris.Debug.Data
@@ -8,17 +9,22 @@ namespace Microsoft.Iris.Debug.Data
         public InterpreterEntry(object opCode, params OpCodeArgument[] args)
         {
             OpCode = opCode;
-            Arguments = args;
+
+            if (args != null)
+                Arguments = args;
+            else
+                Arguments = new List<OpCodeArgument>();
         }
 
-        public object OpCode { get; private set; }
-        public OpCodeArgument[] Arguments { get; private set; }
+        public object OpCode { get; }
+        public IList<OpCodeArgument> Arguments { get; }
+        public IList<object> ReturnValues { get; } = new List<object>();
 
         public override string ToString()
         {
             var args =
 #if ZUNE5
-                (System.Collections.Generic.IEnumerable<OpCodeArgument>)Arguments;
+                Arguments;
 #else
                 Arguments.Select(a => a.ToString()).ToArray();
 #endif
@@ -28,8 +34,16 @@ namespace Microsoft.Iris.Debug.Data
 
     public class OpCodeArgument
     {
-        public Type Type { get; private set; }
-        public object Value { get; private set; }
+        public string Name { get; set; }
+        public Type Type { get; set; }
+        public object Value { get; set; }
+
+        public OpCodeArgument(string name, Type type, object value)
+        {
+            Name = name;
+            Type = type;
+            Value = value;
+        }
 
         public override string ToString() => $"{Type} {Value}";
     }

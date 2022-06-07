@@ -2,16 +2,13 @@
 
 using OwlCore.Remoting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Microsoft.Iris.Debug
 {
     [RemoteProperty]
     [RemoteMethod]
     [RemoteOptions(RemotingDirection.Bidirectional)]
-    public class Bridge : IDisposable
+    public class Bridge : IBridge, IDisposable
     {
         private readonly MemberRemote _memberRemote;
 
