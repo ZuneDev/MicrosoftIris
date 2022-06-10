@@ -181,7 +181,7 @@ namespace Microsoft.Iris.Queues
         /// <param name="message"></param>
         public static void SendDebugMessage(string message)
         {
-#if ZUNE5
+#if OPENZUNE
             Application.DebugSettings.Bridge.LogDispatcher(message);
 #else
             if (Application.DebugSettings.OpenDebugPipe && DebugPipe.IsConnected && DebugPipe.CanWrite)

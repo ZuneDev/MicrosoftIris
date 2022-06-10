@@ -23,7 +23,7 @@ namespace Microsoft.Iris.Debug.Data
         public override string ToString()
         {
             var args =
-#if ZUNE5
+#if OPENZUNE
                 Arguments;
 #else
                 Arguments.Select(a => a.ToString()).ToArray();

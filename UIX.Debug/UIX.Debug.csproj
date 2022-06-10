@@ -5,21 +5,21 @@
         <RootNamespace>Microsoft.Iris.Debug</RootNamespace>
         <LangVersion>latest</LangVersion>
 
-        <UseZune5>false</UseZune5>
+        <UseOpenZune>false</UseOpenZune>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0' ">
-        <UseZune5>true</UseZune5>
+        <UseOpenZune>true</UseOpenZune>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(UseZune5)' == 'true' ">
+    <ItemGroup Condition=" '$(UseOpenZune)' == 'true' ">
         <PackageReference Include="OwlCore" Version="0.0.67" />
         <PackageReference Include="Cauldron.BasicInterceptors" Version="3.2.3" />
     </ItemGroup>
 
-    <PropertyGroup Condition=" '$(UseZune5)' == 'true' ">
+    <PropertyGroup Condition=" '$(UseOpenZune)' == 'true' ">
         <ApplicationVersion>5.0.0.0</ApplicationVersion>
-        <DefineConstants>$(DefineConstants);ZUNE5</DefineConstants>
+        <DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
     </PropertyGroup>
 
 </Project>

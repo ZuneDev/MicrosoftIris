@@ -1,4 +1,4 @@
-﻿#if ZUNE5
+﻿#if OPENZUNE
 
 using OwlCore.Remoting;
 using OwlCore.Remoting.Transfer;

@@ -13,7 +13,7 @@
         <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
         <Platforms>AnyCPU;x64;x86</Platforms>
 
-        <UseZune5>false</UseZune5>
+        <UseOpenZune>false</UseOpenZune>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <UseZune5>true</UseZune5>
+        <UseOpenZune>true</UseOpenZune>
     </PropertyGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
@@ -46,8 +46,8 @@
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
     </ItemGroup>
 
-    <PropertyGroup Condition=" '$(UseZune5)' == 'true' ">
+    <PropertyGroup Condition=" '$(UseOpenZune)' == 'true' ">
         <ApplicationVersion>5.0.0.0</ApplicationVersion>
-        <DefineConstants>$(DefineConstants);ZUNE5</DefineConstants>
+        <DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
     </PropertyGroup>
 </Project>
