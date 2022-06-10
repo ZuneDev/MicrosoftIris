@@ -10,7 +10,7 @@ namespace Microsoft.Iris.Debug
         public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
         public Bridge Bridge { get; } =
-#if ZUNE
+#if OPENZUNE
             new(OwlCore.Remoting.RemotingMode.Host);
 #else
             new();
