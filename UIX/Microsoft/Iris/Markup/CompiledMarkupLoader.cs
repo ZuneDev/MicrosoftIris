@@ -495,6 +495,11 @@ namespace Microsoft.Iris.Markup
                     markupDataMapping.Mappings[index3] = dataMappingEntry;
                 }
                 dataMappingsTable[index1] = markupDataMapping;
+
+#if OPENZUNE
+                if (Application.DebugSettings.GenerateDataMappingModels)
+                    Application.DebugSettings.DataMappingModels.Add(markupDataMapping.GenerateModelCode());
+#endif
             }
             _loadResultTarget.SetDataMappingsTable(dataMappingsTable);
         }

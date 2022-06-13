@@ -9,6 +9,11 @@ namespace Microsoft.Iris.Debug
         public List<System.Xml.XmlDocument> DecompileResults { get; } = new List<System.Xml.XmlDocument>();
         public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
+#if OPENZUNE
+        public bool GenerateDataMappingModels { get; set; } = true;
+        public List<string> DataMappingModels { get; } = new List<string>();
+#endif
+
         public Bridge Bridge { get; } =
 #if OPENZUNE
             new(OwlCore.Remoting.RemotingMode.Host);

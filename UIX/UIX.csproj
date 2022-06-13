@@ -44,6 +44,8 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.2.0"/>
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(UseOpenZune)' == 'true' ">
