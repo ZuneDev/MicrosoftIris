@@ -15,7 +15,7 @@ namespace Microsoft.Iris.Debug
         public List<System.Xml.XmlDocument> DecompileResults { get; } = new List<System.Xml.XmlDocument>();
         public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
-        public bool GenerateDataMappingModels { get; set; } = true;
+        public bool GenerateDataMappingModels { get; set; } = false;
         public DataMappingModelsList DataMappingModels { get; } = new DataMappingModelsList();
 
         public Bridge Bridge { get; } =
