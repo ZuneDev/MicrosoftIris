@@ -66,7 +66,8 @@ namespace Microsoft.Iris.Markup
 
                 if (mapping.Source != null)
                 {
-                    string xmlElemAttribute = $"{indent}[XmlElement(\"{mapping.Source[1..]}\")]{newline}";
+                    string source = mapping.Source.Substring(1);
+                    string xmlElemAttribute = $"{indent}[XmlElement(\"{source}\")]{newline}";
                     properyDeclaration = xmlElemAttribute + properyDeclaration;
                 }
 
