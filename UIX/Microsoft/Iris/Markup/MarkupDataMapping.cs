@@ -4,6 +4,8 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Microsoft.Iris.Markup
@@ -54,7 +56,7 @@ namespace Microsoft.Iris.Markup
             const string indent = "    ";
             const string newline = "\r\n";
 
-            string start = $@"namespace Zune.Xml;{newline}{newline}public class {TargetType.Name}{newline}{{{newline}";
+            string start = $@"using System;{newline}using System.Collections.Generic;{newline}{newline}namespace Zune.Xml;{newline}{newline}public class {TargetType.Name}{newline}{{{newline}";
             string end = $@"}}{newline}";
 
             var sb = new StringBuilder(start);
@@ -62,21 +64,49 @@ namespace Microsoft.Iris.Markup
             foreach (var mapping in Mappings)
             {
                 string propertyType = mapping.Property.PropertyType.Name;
-                string properyDeclaration = $"{indent}public {propertyType} {mapping.Property.Name} {{ get; set; }}{newline}";
+                if (_knownTypeNames.TryGetValue(propertyType, out var knownTypeName))
+                    propertyType = knownTypeName;
+
+                string properyDeclaration = $"{indent}public {propertyType} {mapping.Property.Name} {{ get; set; }}";
 
                 if (mapping.Source != null)
                 {
-                    string source = mapping.Source.Substring(1);
+                    string source = mapping.Source.StartsWith("/") ? mapping.Source.Substring(1) : mapping.Source;
                     string xmlElemAttribute = $"{indent}[XmlElement(\"{source}\")]{newline}";
                     properyDeclaration = xmlElemAttribute + properyDeclaration;
                 }
 
-                sb.Append(properyDeclaration);
+                Type runtimeType = mapping.Property?.PropertyType?.RuntimeType;
+                if (runtimeType != null)
+                {
+                    object defaultValue = (runtimeType.IsValueType && Nullable.GetUnderlyingType(runtimeType) == null)
+                        ? Activator.CreateInstance(runtimeType)
+                        : null;
+                    string defaultValueStr = defaultValue?.ToString() ?? "null";
+
+                    if (defaultValueStr != (mapping.DefaultValue?.ToString() ?? "null"))
+                        properyDeclaration += $" = {defaultValueStr};";
+                }
+
+                sb.Append(properyDeclaration + newline + newline);
             }
 
             sb.Append(end);
 
             return sb.ToString();
         }
+
+        private static readonly Dictionary<string, string> _knownTypeNames = new Dictionary<string, string>()
+        {
+            { "Boolean", "bool" },
+            { "Int32", "int" },
+            { "UInt32", "uint" },
+            { "Int64", "long" },
+            { "UInt64", "ulong" },
+            { "Int16", "short" },
+            { "UInt16", "ushort" },
+            { "String", "string" },
+            { "List", "List<object>" },
+        };
     }
 }

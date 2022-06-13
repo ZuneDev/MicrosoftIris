@@ -498,7 +498,9 @@ namespace Microsoft.Iris.Markup
 
 #if OPENZUNE
                 if (Application.DebugSettings.GenerateDataMappingModels)
-                    Application.DebugSettings.DataMappingModels.Add(markupDataMapping.GenerateModelCode());
+                    Application.DebugSettings.DataMappingModels.Add(
+                        (markupDataMapping.Provider, markupDataMapping.TargetType.Name, markupDataMapping.GenerateModelCode())
+                    );
 #endif
             }
             _loadResultTarget.SetDataMappingsTable(dataMappingsTable);

@@ -11,7 +11,8 @@ namespace Microsoft.Iris.Debug
 
 #if OPENZUNE
         public bool GenerateDataMappingModels { get; set; } = true;
-        public List<string> DataMappingModels { get; } = new List<string>();
+        public List<(string Provider, string Type, string Code)> DataMappingModels { get; }
+            = new List<(string Provider, string Type, string Code)>();
 #endif
 
         public Bridge Bridge { get; } =
