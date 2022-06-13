@@ -496,12 +496,10 @@ namespace Microsoft.Iris.Markup
                 }
                 dataMappingsTable[index1] = markupDataMapping;
 
-#if OPENZUNE
                 if (Application.DebugSettings.GenerateDataMappingModels)
                     Application.DebugSettings.DataMappingModels.Add(
                         (markupDataMapping.Provider, markupDataMapping.TargetType.Name, markupDataMapping.GenerateModelCode())
                     );
-#endif
             }
             _loadResultTarget.SetDataMappingsTable(dataMappingsTable);
         }

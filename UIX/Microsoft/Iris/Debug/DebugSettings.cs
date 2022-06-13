@@ -9,11 +9,9 @@ namespace Microsoft.Iris.Debug
         public List<System.Xml.XmlDocument> DecompileResults { get; } = new List<System.Xml.XmlDocument>();
         public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
-#if OPENZUNE
         public bool GenerateDataMappingModels { get; set; } = true;
         public List<(string Provider, string Type, string Code)> DataMappingModels { get; }
             = new List<(string Provider, string Type, string Code)>();
-#endif
 
         public Bridge Bridge { get; } =
 #if OPENZUNE
