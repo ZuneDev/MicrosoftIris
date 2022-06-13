@@ -160,23 +160,23 @@ namespace Microsoft.Iris.Session
 
         public override string ToDebugPacketString()
         {
-            string packetString = string.Empty; ;
+            string packetString = _target.Target == null
+                ? string.Empty
+                : $"{_target.Target}.";
+
             switch (_callType)
             {
                 case CallType.Simple:
                     var simpleCallback = (SimpleCallback)_target;
-                    packetString = simpleCallback.Target.ToString() + "." + simpleCallback.Method.Name;
+                    packetString += simpleCallback.Method.Name;
                     break;
                 case CallType.OneParam:
                     var deferredHandler = (DeferredHandler)_target;
-                    string targetStr = deferredHandler.Target?.ToString();
-                    if (!string.IsNullOrEmpty(targetStr))
-                        packetString += targetStr + ".";
                     packetString += $"{deferredHandler.Method.Name}({_param})";
                     break;
                 case CallType.Event:
                     var eventHandler = (EventHandler)_target;
-                    packetString = $"{eventHandler.Target}.{eventHandler.Method.Name}({_param}, {_args})";
+                    packetString += $"{eventHandler.Method.Name}({_param}, {_args})";
                     break;
                 case CallType.RenderItem:
                     var deferredInvokeItem = (IDeferredInvokeItem)_param;
