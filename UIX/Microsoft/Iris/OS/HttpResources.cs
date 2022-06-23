@@ -18,6 +18,7 @@ namespace Microsoft.Iris.OS
         public static void Startup()
         {
             ResourceManager.Instance.RegisterSource("http", s_instance);
+            ResourceManager.Instance.RegisterSource("https", s_instance);
             NativeApi.SpHttpStartup();
         }
 
