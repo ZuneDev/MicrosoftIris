@@ -160,7 +160,7 @@ namespace Microsoft.Iris.Session
 
         public override string ToDebugPacketString()
         {
-            string packetString = _target.Target == null
+            string packetString = _target?.Target == null
                 ? string.Empty
                 : $"{_target.Target}.";
 
