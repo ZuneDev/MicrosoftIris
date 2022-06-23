@@ -435,7 +435,7 @@ namespace Microsoft.Iris.Input
                             InputItem inputItemB = UpdateDragOver(_inputManager.HitTestInput(_rawDropTargetSite, null));
                             if (inputItemB != null)
                                 return inputItemB;
-                            inputItemB.UpdateInputSite(_appDropTarget);
+                            inputItem.UpdateInputSite(_appDropTarget);
                             break;
                         }
                         break;
