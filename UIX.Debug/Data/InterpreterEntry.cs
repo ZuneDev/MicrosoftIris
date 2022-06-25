@@ -10,7 +10,7 @@ namespace Microsoft.Iris.Debug.Data
         {
             OpCode = opCode;
 
-            if (args != null)
+            if (args != null && args.Length > 0)
                 Arguments = args;
             else
                 Arguments = new List<OpCodeArgument>();
