@@ -44,6 +44,7 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
+        <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(UseOpenZune)' == 'true' ">

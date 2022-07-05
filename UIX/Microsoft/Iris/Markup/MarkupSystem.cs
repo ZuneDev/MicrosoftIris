@@ -56,6 +56,7 @@ namespace Microsoft.Iris.Markup
             AssemblyLoadResult.Startup();
             DllLoadResult.Startup();
             ResourceManager.Instance.RegisterSource("res", DllResources.Instance);
+            ResourceManager.Instance.RegisterSource(ClrDllResources.Scheme, ClrDllResources.Instance);
             HttpResources.Startup();
             ResourceManager.Instance.RegisterSource("file", FileResources.Instance);
         }
