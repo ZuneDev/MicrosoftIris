@@ -22,13 +22,14 @@ namespace Microsoft.Iris.Debug.Data
 
         public override string ToString()
         {
-            var args =
 #if OPENZUNE
-                Arguments;
+            var args = Arguments;
+            var ret = ReturnValues;
 #else
-                Arguments.Select(a => a.ToString()).ToArray();
+            var args = Arguments.Select(a => a.ToString()).ToArray();
+            var ret = ReturnValues.Select(a => a.ToString()).ToArray();
 #endif
-            return $"{OpCode}({string.Join(", ", args)})";
+            return $"{OpCode}({string.Join(", ", args)}) -> [{ReturnValues}]";
         }
     }
 

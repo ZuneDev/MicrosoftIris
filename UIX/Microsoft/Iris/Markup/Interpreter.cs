@@ -1022,6 +1022,7 @@ namespace Microsoft.Iris.Markup
                             TypeSchema typeSchema8 = (TypeSchema)stack.Pop();
                             object obj7 = stack.Pop();
                             typeSchema8.InitializeInstance(ref obj7);
+                            xmlStack.Pop();
                             var objXml7 = (XmlElement)xmlStack.Pop();
                             objXml7.SetAttribute("Name", typeSchema8.Name);
                             ReportErrorOnNull(obj7, "Initialize", typeSchema8.Name);
@@ -1055,6 +1056,7 @@ namespace Microsoft.Iris.Markup
                     case OpCode.WriteSymbolPeek:
                         {
                             object value = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
+                            if (opCode == OpCode.WriteSymbol) xmlStack.Pop();
                             int num9 = reader.ReadUInt16();
                             SymbolReference symbolRef2 = symbolReferenceTable[num9];
 
@@ -1088,6 +1090,7 @@ namespace Microsoft.Iris.Markup
                             if (isPropInitIndirect)
                             {
                                 typeSchema9 = (TypeSchema)stack.Pop();
+                                xmlStack.Pop();
                             }
                             int num11 = reader.ReadUInt16();
                             PropertySchema propertySchema = importTables.PropertyImports[num11];
@@ -1147,13 +1150,23 @@ namespace Microsoft.Iris.Markup
                                 var destObjXml = xmlStack.Peek();
                                 if (!IsDefaultValue(value2) && valueXml2 != null)
                                 {
-                                    // Create element if needed
-                                    if (destObjXml.SelectSingleNode(propertySchema.Name) is not XmlElement propXmlElem2)
+                                    if (propertySchema != null)
                                     {
-                                        propXmlElem2 = XmlDoc.CreateElement(propertySchema.Name);
-                                        destObjXml.AppendChild(propXmlElem2);
+                                        // Create element if needed
+                                        if (destObjXml.SelectSingleNode(propertySchema.Name) is not XmlElement propXmlElem2)
+                                        {
+                                            propXmlElem2 = XmlDoc.CreateElement(propertySchema.Name);
+                                            destObjXml.AppendChild(propXmlElem2);
+                                        }
+                                        propXmlElem2.AppendChild(valueXml2);
                                     }
-                                    propXmlElem2.AppendChild(valueXml2);
+                                    else
+                                    {
+                                        // Add straight to parent element
+                                        var valueXmlElem2 = XmlDoc.CreateElement("String");
+                                        valueXmlElem2.AppendChild(valueXml2);
+                                        destObjXml.AppendChild(valueXmlElem2);
+                                    }
                                 }
                             }
                             break;
@@ -1238,13 +1251,13 @@ namespace Microsoft.Iris.Markup
                             PropertySchema propertySchema4 = importTables.PropertyImports[num13];
 
                             object instance3 = null;
-                            XmlElement xmlInstance3 = null;
 
                             if (opCode != OpCode.PropertyGetStatic)
                             {
                                 bool pop = opCode == OpCode.PropertyGet;
                                 instance3 = pop ? stack.Pop() : stack.Peek();
-                                xmlInstance3 = (XmlElement)(pop ? xmlStack.Pop() : xmlStack.Peek());
+                                if (pop) xmlStack.Pop();
+
                                 ReportErrorOnNullOrDisposed(instance3, "Property Get", propertySchema4.Name, propertySchema4.Owner);
                                 if (ErrorsDetected(watermark, ref result, ref flag))
                                 {
@@ -1683,11 +1696,19 @@ namespace Microsoft.Iris.Markup
                     if (!prop.CanWrite || !prop.CanRead)
                         continue;
 
-                    object value = prop.GetValue(obj, null);
-                    if (IsDefaultValue(value))
-                        continue;
+                    try
+                    {
+                        object value = prop.GetValue(obj, null);
+                        if (IsDefaultValue(value))
+                            continue;
 
-                    SetXmlPropValue(objXml, prop.Name, value, recursionLevel - 1);
+                        SetXmlPropValue(objXml, prop.Name, value, recursionLevel - 1);
+                    }
+                    catch
+                    {
+                        // Ignore errors, sometimes things aren't initialized yet
+                        continue;
+                    }
                 }
 
                 return objXml;

@@ -5,9 +5,9 @@ using System;
 
 namespace Microsoft.Iris.Debug
 {
-    [RemoteProperty]
-    [RemoteMethod]
-    [RemoteOptions(RemotingDirection.Bidirectional)]
+    //[RemoteProperty]
+    //[RemoteMethod]
+    //[RemoteOptions(RemotingDirection.Bidirectional)]
     public class Bridge : IBridge, IDisposable
     {
         private readonly MemberRemote _memberRemote;
@@ -24,13 +24,13 @@ namespace Microsoft.Iris.Debug
             _memberRemote = new MemberRemote(this, typeof(Bridge).Assembly.FullName, handler);
         }
 
-        [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
+        //[RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogInterpreterOpCode(object context, Data.InterpreterEntry entry)
         {
             InterpreterStep?.Invoke(context, new(entry));
         }
 
-        [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
+        //[RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogDispatcher(string message)
         {
             DispatcherStep?.Invoke(message);

@@ -22,7 +22,7 @@ namespace Microsoft.Iris.Debug
 
         public Bridge Bridge { get; } =
 #if OPENZUNE
-            new(OwlCore.Remoting.RemotingMode.Host);
+            new(OwlCore.Remoting.RemotingMode.None);
 #else
             new();
 #endif
