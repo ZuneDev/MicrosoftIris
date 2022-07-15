@@ -16,7 +16,17 @@ namespace Microsoft.Iris.Markup
         private int _linePosition;
         private bool _beforeFirstAttribute;
 
-        public ManagedXmlReader(Resource resource) : this(false) => _reader = XmlReader.Create(resource.Uri);
+        public ManagedXmlReader(Resource resource) : this(false)
+        {
+            if (resource.Status != ResourceStatus.Available)
+                throw new InvalidOperationException("Resource must be available for reading");
+
+            var data = new byte[resource.Length];
+            Marshal.Copy(resource.Buffer, data, 0, (int)resource.Length);
+            var stream = new MemoryStream(data);
+
+            _reader = XmlReader.Create(stream);
+        }
 
         public ManagedXmlReader(string content, bool isFragment) : this(false) => _reader = XmlReader.Create(new StringReader(content));
 

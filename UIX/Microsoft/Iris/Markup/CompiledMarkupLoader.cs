@@ -37,7 +37,7 @@ namespace Microsoft.Iris.Markup
         {
             _loadResultTarget = loadResultTarget;
             _reader = new ByteCodeReader(resource.Buffer, resource.Length, false);
-            if (resource is DllResource)
+            if (resource is DllResource || resource is ClrDllResource)
                 _reader.MarkAsInFixedMemory();
             uint num1 = _reader.ReadUInt32();
             uint num2 = _reader.ReadUInt32();
