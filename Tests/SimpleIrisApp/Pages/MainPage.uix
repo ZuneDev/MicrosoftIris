@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UIX xmlns="http://schemas.microsoft.com/2007/uix">
+    <UI Name="Frame">
+        <Content>
+            <Panel Layout="VerticalFlow">
+                <Children>
+                    <Graphic Content="clr-res://SimpleIrisApp!ZuneDevLogo.png" StretchingPolicy="Uniform"
+                             SizingPolicy="SizeToContent" MaximumSize="140,0"/>
+
+                    <Text Content="Howdy from Microsoft Iris!" Font="Segoe UI,14" Color="White"/>
+                </Children>
+            </Panel>
+        </Content>
+    </UI>
+</UIX>
