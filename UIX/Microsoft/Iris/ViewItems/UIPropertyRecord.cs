@@ -8,7 +8,7 @@ using Microsoft.Iris.Markup;
 
 namespace Microsoft.Iris.ViewItems
 {
-    internal class UIPropertyRecord
+    public class UIPropertyRecord
     {
         public string Name;
         public object Value;

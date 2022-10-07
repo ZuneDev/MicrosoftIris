@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum OpCode : byte
+    public enum OpCode : byte
     {
         ConstructObject = 1,
         ConstructObjectIndirect = 2,

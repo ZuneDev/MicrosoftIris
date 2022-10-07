@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class Listeners : DisposableObject
+    public class Listeners : DisposableObject
     {
         protected Vector<Listener> _listenerList;
 

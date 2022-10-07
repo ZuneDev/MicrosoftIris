@@ -11,7 +11,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class MarkupTypeSchema : TypeSchema
+    public abstract class MarkupTypeSchema : TypeSchema
     {
         private const int c_TypeDepthShift = 27;
         private const uint c_ScriptOffsetMask = 134217727;

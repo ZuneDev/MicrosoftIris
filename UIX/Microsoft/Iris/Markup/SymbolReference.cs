@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal struct SymbolReference
+    public struct SymbolReference
     {
         private string _symbol;
         private SymbolOrigin _origin;

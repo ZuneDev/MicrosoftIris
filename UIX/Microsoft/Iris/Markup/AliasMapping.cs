@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class AliasMapping
+    public class AliasMapping
     {
         public string Alias;
         public LoadResult LoadResult;

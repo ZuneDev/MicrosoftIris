@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class OrphanedVisualCollection : DisposableObject
+    public class OrphanedVisualCollection : DisposableObject
     {
         private int _countEventsRemaining;
         private Vector<IVisual> _orphansList;

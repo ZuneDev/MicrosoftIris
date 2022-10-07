@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.RenderAPI.Audio
 {
-    internal enum SystemSoundEvent
+    public enum SystemSoundEvent
     {
         None,
         Asterisk,

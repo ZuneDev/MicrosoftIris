@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal class Camera : SharedDisposableObject, INotifyObject, IAnimatableOwner
+    public class Camera : SharedDisposableObject, INotifyObject, IAnimatableOwner
     {
         private ICamera _camera;
         private Vector3 _vEyeNoSend;

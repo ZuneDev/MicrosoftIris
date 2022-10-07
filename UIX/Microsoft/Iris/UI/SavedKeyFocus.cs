@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.UI
 {
-    internal class SavedKeyFocus
+    public class SavedKeyFocus
     {
         private object _payload;
 

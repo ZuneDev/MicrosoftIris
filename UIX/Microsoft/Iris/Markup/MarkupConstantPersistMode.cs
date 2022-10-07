@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum MarkupConstantPersistMode
+    public enum MarkupConstantPersistMode
     {
         Binary,
         FromString,

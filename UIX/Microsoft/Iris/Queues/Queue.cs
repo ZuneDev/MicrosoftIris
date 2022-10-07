@@ -8,7 +8,7 @@ using System;
 
 namespace Microsoft.Iris.Queues
 {
-    internal abstract class Queue
+    public abstract class Queue
     {
         public abstract QueueItem GetNextItem();
 

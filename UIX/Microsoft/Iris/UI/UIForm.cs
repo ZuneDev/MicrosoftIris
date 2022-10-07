@@ -17,7 +17,7 @@ using System;
 
 namespace Microsoft.Iris.UI
 {
-    internal class UIForm : Form, INotifyObject
+    public class UIForm : Form, INotifyObject
     {
         private DeferredHandler _initialLoadComplete;
         private string _initialSource;

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class StopCommandSet
+    public class StopCommandSet
     {
         private StopCommand[] _stopCommandsList;
 

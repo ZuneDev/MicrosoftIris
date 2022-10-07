@@ -8,5 +8,5 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.UI
 {
-    internal delegate void FormCloseRequestedHandler(FormCloseReason nReason, ref bool block);
+    public delegate void FormCloseRequestedHandler(FormCloseReason nReason, ref bool block);
 }

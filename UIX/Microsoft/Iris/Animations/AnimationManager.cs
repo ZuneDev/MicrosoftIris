@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class AnimationManager : IDisposable
+    public class AnimationManager : IDisposable
     {
         private IRenderSession _session;
         private Vector<OrphanedVisualCollection> _orphans;

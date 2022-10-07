@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class RelativeTo
+    public class RelativeTo
     {
         private IAnimatable _sourceObject;
         private int _sourceId;

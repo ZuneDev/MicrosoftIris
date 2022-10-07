@@ -8,7 +8,7 @@ using Microsoft.Iris.Markup;
 
 namespace Microsoft.Iris.Library
 {
-    internal class NotifyObjectBase : INotifyObject
+    public class NotifyObjectBase : INotifyObject
     {
         private NotifyService _notifier = new NotifyService();
 

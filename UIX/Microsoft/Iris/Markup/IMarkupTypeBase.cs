@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Iris.Markup
 {
-    internal interface IMarkupTypeBase : IDisposableOwner
+    public interface IMarkupTypeBase : IDisposableOwner
     {
         TypeSchema TypeSchema { get; }
 

@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Input
 {
-    internal abstract class MouseActionInfo : MouseInfo
+    public abstract class MouseActionInfo : MouseInfo
     {
         private IRawInputSite _naturalHit;
         private ICookedInputSite _naturalTarget;

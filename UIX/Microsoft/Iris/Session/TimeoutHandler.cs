@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate void TimeoutHandler();
+    public delegate void TimeoutHandler();
 }

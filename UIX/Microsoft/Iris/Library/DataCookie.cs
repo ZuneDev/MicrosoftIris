@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal struct DataCookie
+    public struct DataCookie
     {
         public static readonly DataCookie NULL = new DataCookie();
         private uint m_value;

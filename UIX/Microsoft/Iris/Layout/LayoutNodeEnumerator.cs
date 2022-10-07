@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Layout
 {
-    internal struct LayoutNodeEnumerator
+    public struct LayoutNodeEnumerator
     {
         private ILayoutNode _start;
         private ILayoutNode _current;

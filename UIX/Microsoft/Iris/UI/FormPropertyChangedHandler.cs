@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.UI
 {
-    internal delegate void FormPropertyChangedHandler(string notificationID);
+    public delegate void FormPropertyChangedHandler(string notificationID);
 }

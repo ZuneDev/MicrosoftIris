@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class ListenerNodeBase
+    public class ListenerNodeBase
     {
         protected ListenerNodeBase _next;
         protected ListenerNodeBase _prev;

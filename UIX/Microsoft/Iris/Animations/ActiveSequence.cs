@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class ActiveSequence : DisposableObject
+    public class ActiveSequence : DisposableObject
     {
         private UISession _session;
         private IAnimatable _animatableTarget;

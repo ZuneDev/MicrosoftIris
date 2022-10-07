@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Animations
 {
-    internal interface IAnimatableOwner
+    public interface IAnimatableOwner
     {
         IAnimatable AnimationTarget { get; }
     }

@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupDataTypeSchema : ClassTypeSchema
+    public class MarkupDataTypeSchema : ClassTypeSchema
     {
         public MarkupDataTypeSchema(MarkupLoadResult owner, string name)
           : base(owner, name)

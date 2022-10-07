@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.UI
 {
-    internal struct ViewItemID
+    public struct ViewItemID
     {
         private const int USE_STRING_PART = -1;
         private int _id;

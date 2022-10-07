@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupDataTypePropertySchema : ClassPropertySchema
+    public class MarkupDataTypePropertySchema : ClassPropertySchema
     {
         private TypeSchema _underlyingCollectionType;
 

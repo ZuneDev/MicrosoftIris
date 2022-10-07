@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Microsoft.Iris.Queues
 {
-    internal abstract class Dispatcher
+    public abstract class Dispatcher
     {
         private static Interconnect s_interconnect = new Interconnect();
         [ThreadStatic]

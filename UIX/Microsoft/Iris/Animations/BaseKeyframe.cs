@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Animations
 {
-    internal abstract class BaseKeyframe : ICloneable
+    public abstract class BaseKeyframe : ICloneable
     {
         private Interpolation _interpolation;
         private RelativeTo _relative;

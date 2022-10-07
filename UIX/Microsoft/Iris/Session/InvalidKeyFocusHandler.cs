@@ -8,5 +8,5 @@ using Microsoft.Iris.Input;
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate void InvalidKeyFocusHandler(ICookedInputSite lastKnownFocused);
+    public delegate void InvalidKeyFocusHandler(ICookedInputSite lastKnownFocused);
 }

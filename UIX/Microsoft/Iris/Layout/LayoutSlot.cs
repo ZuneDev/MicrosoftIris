@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Layout
 {
-    internal struct LayoutSlot
+    public struct LayoutSlot
     {
         private Size _bounds;
         private Point _offset;

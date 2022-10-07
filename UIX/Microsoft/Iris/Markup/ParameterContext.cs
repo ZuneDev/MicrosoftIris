@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal struct ParameterContext
+    public struct ParameterContext
     {
         private string[] _parameterNames;
         private object[] _parameterValues;

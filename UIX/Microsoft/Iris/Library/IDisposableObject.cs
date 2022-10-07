@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal interface IDisposableObject
+    public interface IDisposableObject
     {
         bool IsDisposed { get; }
 

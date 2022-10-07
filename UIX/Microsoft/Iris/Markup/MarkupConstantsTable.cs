@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupConstantsTable
+    public class MarkupConstantsTable
     {
         private object[] _runtimeList;
         private MarkupConstantPersist[] _persistList;

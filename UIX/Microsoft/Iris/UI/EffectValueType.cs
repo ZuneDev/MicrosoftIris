@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.UI
 {
-    internal enum EffectValueType
+    public enum EffectValueType
     {
         Int,
         Float,

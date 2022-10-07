@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal struct Color
+    public struct Color
     {
         private const int ARGBAlphaShift = 24;
         private const int ARGBRedShift = 16;

@@ -9,7 +9,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Layout
 {
-    internal struct AreaOfInterest
+    public struct AreaOfInterest
     {
         private Rectangle _rectangle;
         private Rectangle _displayRectangle;

@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Microsoft.Iris.RenderAPI.Drawing
 {
-    internal struct PointF
+    public struct PointF
     {
         private float x;
         private float y;

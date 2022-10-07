@@ -13,7 +13,7 @@ using System;
 
 namespace Microsoft.Iris.Layout
 {
-    internal class SharedSize : NotifyObjectBase
+    public class SharedSize : NotifyObjectBase
     {
         private Size _minimumSize;
         private Size _maximumSize;

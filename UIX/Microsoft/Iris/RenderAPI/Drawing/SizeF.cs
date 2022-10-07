@@ -11,7 +11,7 @@ using System.Text;
 namespace Microsoft.Iris.RenderAPI.Drawing
 {
     [Serializable]
-    internal struct SizeF
+    public struct SizeF
     {
         private float width;
         private float height;

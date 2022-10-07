@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace Microsoft.Iris.Library
 {
-    internal struct TreeNodeCollection : IList, ICollection, IEnumerable
+    public struct TreeNodeCollection : IList, ICollection, IEnumerable
     {
         private TreeNode _nodeSubject;
 

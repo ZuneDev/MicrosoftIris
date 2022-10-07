@@ -15,7 +15,7 @@ using System;
 
 namespace Microsoft.Iris.Input
 {
-    internal class InputManager : IRawInputCallbacks
+    public class InputManager : IRawInputCallbacks
     {
         private InputModifiers _HACK_sysModifiers;
         private UISession _session;

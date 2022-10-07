@@ -13,7 +13,7 @@ using Microsoft.Iris.UI;
 
 namespace Microsoft.Iris.ViewItems
 {
-    internal class Host : ViewItem, ISchemaInfo
+    public class Host : ViewItem, ISchemaInfo
     {
         private const string DefaultUI = "Default";
         private UIClassTypeSchema _typeRestriction;

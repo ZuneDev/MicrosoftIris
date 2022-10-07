@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.ViewItems
 {
-    internal enum HostStatus
+    public enum HostStatus
     {
         Normal,
         LoadingSource,

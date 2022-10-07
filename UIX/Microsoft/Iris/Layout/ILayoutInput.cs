@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Layout
 {
-    internal interface ILayoutInput
+    public interface ILayoutInput
     {
         DataCookie Data { get; }
     }

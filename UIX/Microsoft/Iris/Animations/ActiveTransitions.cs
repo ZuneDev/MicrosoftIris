@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Animations
 {
     [Flags]
-    internal enum ActiveTransitions
+    public enum ActiveTransitions
     {
         None = 0,
         Move = 1,

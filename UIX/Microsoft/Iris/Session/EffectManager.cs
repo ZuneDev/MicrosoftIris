@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Session
 {
-    internal class EffectManager : IDisposable
+    public class EffectManager : IDisposable
     {
         public const string ColorEffectProperty = "ColorElem.Color";
         public const string ImageEffectProperty = "ImageElem.Image";

@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Microsoft.Iris.Session
 {
-    internal class TimeoutManager
+    public class TimeoutManager
     {
         private TimeoutManager.PendingList _pending;
         private DateTime _lastSystemTime;
@@ -170,7 +170,7 @@ namespace Microsoft.Iris.Session
             }
         }
 
-        internal class PendingList : QueueItem.Chain
+        protected class PendingList : QueueItem.Chain
         {
             private TimeoutManager.PendingList.PendingItem _head;
 

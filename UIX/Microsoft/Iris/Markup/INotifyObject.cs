@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal interface INotifyObject
+    public interface INotifyObject
     {
         void AddListener(Listener listener);
     }

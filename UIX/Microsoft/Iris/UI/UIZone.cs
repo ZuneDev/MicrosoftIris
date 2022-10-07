@@ -17,7 +17,7 @@ using System;
 
 namespace Microsoft.Iris.UI
 {
-    internal class UIZone : DisposableObject
+    public class UIZone : DisposableObject
     {
         private SessionInputHandler sessionInputEvent;
         private UISession _parentSession;

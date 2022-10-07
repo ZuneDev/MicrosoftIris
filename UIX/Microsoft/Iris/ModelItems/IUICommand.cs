@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.ModelItems
 {
-    internal interface IUICommand
+    public interface IUICommand
     {
         bool Available { get; set; }
 

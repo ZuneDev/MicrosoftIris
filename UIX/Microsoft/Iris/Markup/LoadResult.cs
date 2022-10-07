@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class LoadResult : SharedDisposableObject
+    public abstract class LoadResult : SharedDisposableObject
     {
         private string _uri;
         protected string _uriUnderlying;

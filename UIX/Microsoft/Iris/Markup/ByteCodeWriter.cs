@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class ByteCodeWriter
+    public class ByteCodeWriter
     {
         private const int BLOCK_SIZE = 4096;
         private byte[] _scratch = new byte[8];

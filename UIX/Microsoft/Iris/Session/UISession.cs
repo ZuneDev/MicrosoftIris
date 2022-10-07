@@ -18,7 +18,7 @@ using System;
 
 namespace Microsoft.Iris.Session
 {
-    internal class UISession
+    public class UISession
     {
         private bool _rtl;
         private static UISession s_theOnlySession;

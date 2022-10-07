@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Microsoft.Iris.Session
 {
-    internal class UIDispatcher : Dispatcher, IDisposable, IRenderHost
+    public class UIDispatcher : Dispatcher, IDisposable, IRenderHost
     {
         private static Thread s_mainUIThread;
         private static bool s_exiting;

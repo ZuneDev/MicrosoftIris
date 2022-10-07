@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class Listener : ListenerNodeBase
+    public class Listener : ListenerNodeBase
     {
         protected string _watch;
 

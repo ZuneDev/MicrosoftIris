@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum LoadResultStatus
+    public enum LoadResultStatus
     {
         Loading,
         Success,

@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Layout
 {
-    internal interface ILayout
+    public interface ILayout
     {
         Size Measure(ILayoutNode layoutNode, Size constraint);
 

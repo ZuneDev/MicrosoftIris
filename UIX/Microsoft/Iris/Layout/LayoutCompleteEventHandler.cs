@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Layout
 {
-    internal delegate void LayoutCompleteEventHandler(object sender);
+    public delegate void LayoutCompleteEventHandler(object sender);
 }

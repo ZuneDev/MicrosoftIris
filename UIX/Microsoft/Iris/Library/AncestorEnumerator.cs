@@ -8,7 +8,7 @@ using System.Collections;
 
 namespace Microsoft.Iris.Library
 {
-    internal struct AncestorEnumerator : IEnumerator, IEnumerable
+    public struct AncestorEnumerator : IEnumerator, IEnumerable
     {
         private TreeNode _nodeStart;
         private TreeNode _nodeCurrent;

@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Input
 {
-    internal interface ICookedInputSite
+    public interface ICookedInputSite
     {
         IRawInputSite RawInputSource { get; }
 

@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal interface IZoneDisplayChild
+    public interface IZoneDisplayChild
     {
         TransformSet Transforms { get; }
     }

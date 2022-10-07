@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Session
 {
-    internal struct TransformSet
+    public struct TransformSet
     {
         public Vector3 positionPxlVector;
         public Vector3 sizePxlVector;

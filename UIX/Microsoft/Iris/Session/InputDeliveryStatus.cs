@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal enum InputDeliveryStatus
+    public enum InputDeliveryStatus
     {
         Normal,
         Truncated,

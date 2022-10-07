@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.UI
 {
-    internal delegate void FocusStateHandler(
+    public delegate void FocusStateHandler(
       UIClass updateUI,
       bool deepFocusFlag,
       bool directFocusFlag);

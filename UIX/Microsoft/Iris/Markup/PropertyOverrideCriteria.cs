@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class PropertyOverrideCriteria
+    public abstract class PropertyOverrideCriteria
     {
         public abstract Result Verify(PropertyOverrideCriteria baseCriteria);
     }

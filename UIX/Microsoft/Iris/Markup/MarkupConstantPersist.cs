@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal struct MarkupConstantPersist
+    public struct MarkupConstantPersist
     {
         public MarkupConstantPersistMode Mode;
         public object Data;

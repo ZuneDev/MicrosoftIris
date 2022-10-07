@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal class Interpolation
+    public class Interpolation
     {
         public static readonly Interpolation Default = new Interpolation(InterpolationType.Linear);
         private InterpolationType _type;

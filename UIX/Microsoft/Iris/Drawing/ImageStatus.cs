@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Drawing
 {
-    internal enum ImageStatus
+    public enum ImageStatus
     {
         PendingLoad,
         Loading,

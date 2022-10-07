@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate void DeferredHandler(object args);
+    public delegate void DeferredHandler(object args);
 }

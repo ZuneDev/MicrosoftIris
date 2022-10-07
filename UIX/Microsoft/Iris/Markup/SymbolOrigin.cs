@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum SymbolOrigin
+    public enum SymbolOrigin
     {
         None,
         Properties,

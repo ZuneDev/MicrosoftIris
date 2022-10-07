@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum LoadPass
+    public enum LoadPass
     {
         Invalid,
         DeclareTypes,

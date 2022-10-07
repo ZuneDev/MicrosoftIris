@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class MethodSchema : DisposableObject
+    public abstract class MethodSchema : DisposableObject
     {
         private TypeSchema _owner;
         public static MethodSchema[] EmptyList = new MethodSchema[0];

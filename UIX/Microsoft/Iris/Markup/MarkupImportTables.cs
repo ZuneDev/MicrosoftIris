@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupImportTables
+    public class MarkupImportTables
     {
         public TypeSchema[] TypeImports = TypeSchema.EmptyList;
         public ConstructorSchema[] ConstructorImports = ConstructorSchema.EmptyList;

@@ -11,7 +11,7 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Accessibility
 {
-    internal class Accessible : NotifyObjectBase
+    public class Accessible : NotifyObjectBase
     {
         private DynamicData _dataMap;
         private AccessibleProxy _proxy;

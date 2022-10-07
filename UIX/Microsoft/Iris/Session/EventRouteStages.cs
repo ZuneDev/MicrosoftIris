@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Session
 {
     [Flags]
-    internal enum EventRouteStages
+    public enum EventRouteStages
     {
         None = 0,
         Preview = 1,

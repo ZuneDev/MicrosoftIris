@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class SymbolRecord
+    public class SymbolRecord
     {
         public string Name;
         public TypeSchema Type;

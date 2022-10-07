@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class SourceMarkupImportTables
+    public class SourceMarkupImportTables
     {
         public Vector ImportedLoadResults = new Vector();
         public Vector ImportedTypes = new Vector();

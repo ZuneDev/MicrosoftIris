@@ -10,7 +10,7 @@ using Microsoft.Iris.UI;
 
 namespace Microsoft.Iris.Animations
 {
-    internal struct AnimationArgs
+    public struct AnimationArgs
     {
         public ViewItem ViewItem;
         public Vector3 OldPosition;

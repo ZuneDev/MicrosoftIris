@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Layout
 {
-    internal abstract class ExtendedLayoutOutput
+    public abstract class ExtendedLayoutOutput
     {
         public ExtendedLayoutOutput nextOutput;
 

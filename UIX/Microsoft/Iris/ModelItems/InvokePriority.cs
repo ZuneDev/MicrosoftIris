@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.ModelItems
 {
-    internal enum InvokePriority
+    public enum InvokePriority
     {
         Normal,
         Low,

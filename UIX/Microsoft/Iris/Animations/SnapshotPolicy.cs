@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal enum SnapshotPolicy
+    public enum SnapshotPolicy
     {
         Continuous,
         Once,

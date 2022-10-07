@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class NamedContentRecord
+    public class NamedContentRecord
     {
         public string Name;
         public uint Offset = uint.MaxValue;

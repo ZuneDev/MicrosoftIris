@@ -8,5 +8,5 @@ using Microsoft.Iris.Input;
 
 namespace Microsoft.Iris.UI
 {
-    internal delegate void InputEventHandler(UIClass sender, InputInfo info);
+    public delegate void InputEventHandler(UIClass sender, InputInfo info);
 }

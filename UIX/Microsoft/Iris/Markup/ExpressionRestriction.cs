@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum ExpressionRestriction
+    public enum ExpressionRestriction
     {
         None,
         ReadOnly,

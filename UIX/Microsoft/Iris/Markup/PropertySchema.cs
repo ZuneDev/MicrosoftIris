@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class PropertySchema : DisposableObject
+    public abstract class PropertySchema : DisposableObject
     {
         public static PropertySchema[] EmptyList = new PropertySchema[0];
         private TypeSchema _owner;

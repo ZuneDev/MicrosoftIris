@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Input
 {
-    internal abstract class InputInfo
+    public abstract class InputInfo
     {
         private static InputInfo.InfoPool[] s_pools;
         protected ICookedInputSite _target;

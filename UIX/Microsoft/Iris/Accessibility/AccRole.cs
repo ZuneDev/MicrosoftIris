@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Accessibility
 {
-    internal enum AccRole
+    public enum AccRole
     {
         None,
         TitleBar,

@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Queues
 {
-    internal abstract class QueueItem
+    public abstract class QueueItem
     {
         protected QueueItem _prev;
         protected QueueItem _next;
@@ -22,7 +22,7 @@ namespace Microsoft.Iris.Queues
 
         public virtual string ToDebugPacketString() => ToString();
 
-        internal class Chain
+        public class Chain
         {
             public virtual void Dispose()
             {
@@ -158,7 +158,7 @@ namespace Microsoft.Iris.Queues
             }
         }
 
-        internal sealed class FIFO : QueueItem.Chain
+        public sealed class FIFO : QueueItem.Chain
         {
             private QueueItem _tail;
 
@@ -217,7 +217,7 @@ namespace Microsoft.Iris.Queues
             }
         }
 
-        internal sealed class Stack : QueueItem.Chain
+        public sealed class Stack : QueueItem.Chain
         {
             private QueueItem _top;
 

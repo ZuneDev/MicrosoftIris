@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate bool LoopCondition();
+    public delegate bool LoopCondition();
 }

@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Layout
 {
     [Flags]
-    internal enum SharedSizePolicy
+    public enum SharedSizePolicy
     {
         ContributesToWidth = 1,
         ContributesToHeight = 2,

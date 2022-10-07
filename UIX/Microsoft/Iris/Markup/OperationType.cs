@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum OperationType
+    public enum OperationType
     {
         MathAdd = 1,
         MathSubtract = 2,

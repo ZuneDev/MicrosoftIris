@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal enum DispatchPriority
+    public enum DispatchPriority
     {
         Housekeeping,
         AppEventHigh,

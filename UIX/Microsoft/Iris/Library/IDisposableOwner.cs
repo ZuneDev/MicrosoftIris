@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal interface IDisposableOwner
+    public interface IDisposableOwner
     {
         void RegisterDisposable(IDisposableObject disposable);
 

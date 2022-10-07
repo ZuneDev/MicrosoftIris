@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Layout
 {
-    internal enum Alignment
+    public enum Alignment
     {
         Unspecified,
         Near,

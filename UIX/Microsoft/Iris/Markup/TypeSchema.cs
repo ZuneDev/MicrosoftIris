@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class TypeSchema : DisposableObject
+    public abstract class TypeSchema : DisposableObject
     {
         private LoadResult _owner;
         private ulong _id;

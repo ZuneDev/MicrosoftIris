@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal struct Rotation
+    public struct Rotation
     {
         private Vector3 _axis;
         private float _angleRad;

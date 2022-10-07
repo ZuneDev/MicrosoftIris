@@ -8,7 +8,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class EventSchema : DisposableObject
+    public abstract class EventSchema : DisposableObject
     {
         private TypeSchema _owner;
         public static EventSchema[] EmptyList = new EventSchema[0];

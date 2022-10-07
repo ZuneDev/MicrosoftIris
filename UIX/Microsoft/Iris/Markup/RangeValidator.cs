@@ -8,5 +8,5 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Markup
 {
-    internal delegate Result RangeValidator(object value);
+    public delegate Result RangeValidator(object value);
 }

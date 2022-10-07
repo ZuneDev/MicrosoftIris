@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupLineNumberTable
+    public class MarkupLineNumberTable
     {
         private const ulong OFFSET_MASK = 4194303;
         private const uint OFFSET_MAX = 4194303;

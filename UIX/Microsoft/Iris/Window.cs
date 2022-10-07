@@ -106,6 +106,8 @@ namespace Microsoft.Iris
 
         public bool MouseActive => !_form.MouseIsIdle;
 
+        public UIForm Form => _form;
+
         public string GetSavedPosition() => GetSavedPosition(false);
 
         public string GetSavedPosition(bool disallowMinimized)

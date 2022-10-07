@@ -11,7 +11,7 @@ using Microsoft.Iris.UI;
 
 namespace Microsoft.Iris.ViewItems
 {
-    internal class RootViewItem : Host
+    public class RootViewItem : Host
     {
         private bool _rootVisibleFlag;
 

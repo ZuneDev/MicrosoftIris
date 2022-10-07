@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal enum UiTask : uint
+    public enum UiTask : uint
     {
         Initialization = 1,
         LayoutComputation = 2,

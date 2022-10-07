@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Data
 {
-    internal delegate void ResourceAcquisitionCompleteHandler(Resource resource);
+    public delegate void ResourceAcquisitionCompleteHandler(Resource resource);
 }

@@ -12,7 +12,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class UIClassTypeSchema : MarkupTypeSchema, IDynamicConstructionSchema
+    public class UIClassTypeSchema : MarkupTypeSchema, IDynamicConstructionSchema
     {
         private NamedContentRecord[] _namedContentTable;
 

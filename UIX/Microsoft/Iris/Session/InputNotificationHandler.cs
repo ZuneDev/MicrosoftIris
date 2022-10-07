@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate void InputNotificationHandler(object sender, InputNotificationEventArgs args);
+    public delegate void InputNotificationHandler(object sender, InputNotificationEventArgs args);
 }

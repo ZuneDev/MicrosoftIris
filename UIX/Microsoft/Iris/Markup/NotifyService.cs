@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Markup
 {
-    internal struct NotifyService
+    public struct NotifyService
     {
         private ListenerRootNode _listenerRoot;
         private static Map s_canonicalizedStrings = new Map(2048);

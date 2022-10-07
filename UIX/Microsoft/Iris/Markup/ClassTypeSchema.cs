@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class ClassTypeSchema : MarkupTypeSchema
+    public class ClassTypeSchema : MarkupTypeSchema
     {
         private bool _isShared;
         private Class _sharedInstance;

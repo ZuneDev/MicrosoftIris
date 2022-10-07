@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal class EffectAnimation : AnimationTemplate, IAnimationProvider
+    public class EffectAnimation : AnimationTemplate, IAnimationProvider
     {
         AnimationEventType IAnimationProvider.Type => AnimationEventType.Idle;
 

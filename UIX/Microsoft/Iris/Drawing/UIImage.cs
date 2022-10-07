@@ -12,7 +12,7 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal abstract class UIImage : NotifyObjectBase
+    public abstract class UIImage : NotifyObjectBase
     {
         private static Size s_sizeMaximumSurface = new Size(-1, -1);
         protected string _source;

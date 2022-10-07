@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal struct Result
+    public struct Result
     {
         public static Result Success = new Result(null);
         private string _error;

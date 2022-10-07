@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupBinaryDataTable
+    public class MarkupBinaryDataTable
     {
         private string _uri;
         private Vector<string> _strings;

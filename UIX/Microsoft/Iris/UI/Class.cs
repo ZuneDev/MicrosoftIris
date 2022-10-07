@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.UI
 {
-    internal class Class :
+    public class Class :
       DisposableObject,
       INotifyObject,
       IMarkupTypeBase,

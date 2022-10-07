@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class AnimationHandle : NotifyObjectBase
+    public class AnimationHandle : NotifyObjectBase
     {
         private int _playing;
 

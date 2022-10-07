@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Layout
 {
     [Flags]
-    internal enum AreaOfInterestID
+    public enum AreaOfInterestID
     {
         Focus = 1,
         FocusOverride = 2,

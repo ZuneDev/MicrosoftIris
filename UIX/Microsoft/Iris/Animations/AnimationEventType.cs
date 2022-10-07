@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal enum AnimationEventType
+    public enum AnimationEventType
     {
         Show,
         Hide,

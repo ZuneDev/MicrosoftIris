@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal struct EventCookie
+    public struct EventCookie
     {
         public static readonly EventCookie NULL = new EventCookie();
         private uint m_value;

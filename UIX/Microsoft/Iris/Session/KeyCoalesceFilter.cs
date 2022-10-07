@@ -8,5 +8,5 @@ using Microsoft.Iris.Input;
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate bool KeyCoalesceFilter(Keys key);
+    public delegate bool KeyCoalesceFilter(Keys key);
 }

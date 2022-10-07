@@ -140,7 +140,7 @@ namespace Microsoft.Iris.Markup
         }
     }
 
-    internal class ByteCodeReader : DisposableObject
+    public class ByteCodeReader : DisposableObject
     {
         private static char[] s_scratchCharArray = new char[100];
         private unsafe byte* _buffer;

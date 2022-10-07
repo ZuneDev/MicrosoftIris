@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Input
 {
-    internal enum KeyFocusReason
+    public enum KeyFocusReason
     {
         Default,
         Directional,

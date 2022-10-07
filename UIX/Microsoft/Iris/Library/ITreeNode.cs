@@ -8,7 +8,7 @@ using Microsoft.Iris.UI;
 
 namespace Microsoft.Iris.Library
 {
-    internal interface ITreeNode
+    public interface ITreeNode
     {
         UIZone Zone { get; }
 

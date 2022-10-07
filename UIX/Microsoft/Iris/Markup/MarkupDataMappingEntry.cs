@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupDataMappingEntry
+    public class MarkupDataMappingEntry
     {
         private string _source;
         private string _target;

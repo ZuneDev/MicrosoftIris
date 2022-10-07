@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Accessibility
 {
-    internal enum AccessibleProperty
+    public enum AccessibleProperty
     {
         DefaultAction,
         DefaultActionCommand,

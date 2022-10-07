@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Drawing
 {
-    internal delegate void ContentLoadCompleteHandler(object owner, ImageStatus status);
+    public delegate void ContentLoadCompleteHandler(object owner, ImageStatus status);
 }

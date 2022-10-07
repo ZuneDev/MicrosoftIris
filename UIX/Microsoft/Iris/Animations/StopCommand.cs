@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal enum StopCommand
+    public enum StopCommand
     {
         LeaveCurrent,
         MoveToBegin,

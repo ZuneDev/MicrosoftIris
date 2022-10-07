@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupDataMapping
+    public class MarkupDataMapping
     {
         private string _name;
         private MarkupDataMappingEntry[] _mappings;

@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal enum AnimationType
+    public enum AnimationType
     {
         First = 0,
         Position = 0,

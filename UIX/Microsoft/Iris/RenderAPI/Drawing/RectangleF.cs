@@ -13,7 +13,7 @@ using System.Text;
 namespace Microsoft.Iris.RenderAPI.Drawing
 {
     [Serializable]
-    internal struct RectangleF
+    public struct RectangleF
     {
         public static readonly RectangleF Zero = new RectangleF(0.0f, 0.0f, 0.0f, 0.0f);
         private float x;

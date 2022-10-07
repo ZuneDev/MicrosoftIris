@@ -8,7 +8,7 @@ using Microsoft.Iris.Markup.UIX;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class MarkupPropertySchema : PropertySchema
+    public abstract class MarkupPropertySchema : PropertySchema
     {
         private string _name;
         protected TypeSchema _propertyType;

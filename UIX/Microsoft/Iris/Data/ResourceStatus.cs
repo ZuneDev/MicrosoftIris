@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Data
 {
-    internal enum ResourceStatus
+    public enum ResourceStatus
     {
         NeedsAcquire,
         Acquiring,

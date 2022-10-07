@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Iris.RenderAPI.Audio
 {
-    internal class SoundManager : IDisposable
+    public class SoundManager : IDisposable
     {
         private UISession _uiSession;
         private IRenderSession _renderSession;

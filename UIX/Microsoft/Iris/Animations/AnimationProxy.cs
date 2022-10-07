@@ -11,7 +11,7 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class AnimationProxy : DisposableObject
+    public class AnimationProxy : DisposableObject
     {
         private ActiveSequence _activeSequence;
         private IKeyframeAnimation _animation;

@@ -10,7 +10,7 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Markup
 {
-    internal abstract class MarkupLoadResult : LoadResult
+    public abstract class MarkupLoadResult : LoadResult
     {
         private LoadResult[] _dependenciesTable = EmptyList;
         private ByteCodeReader _reader;

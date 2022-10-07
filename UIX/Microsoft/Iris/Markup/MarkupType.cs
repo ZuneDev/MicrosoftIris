@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal enum MarkupType
+    public enum MarkupType
     {
         None,
         UI,

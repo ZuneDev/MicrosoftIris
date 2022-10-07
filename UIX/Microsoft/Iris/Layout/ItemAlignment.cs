@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Layout
 {
-    internal struct ItemAlignment
+    public struct ItemAlignment
     {
         private Alignment _horizontal;
         private Alignment _vertical;

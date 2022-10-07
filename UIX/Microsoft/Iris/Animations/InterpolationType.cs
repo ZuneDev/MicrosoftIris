@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal enum InterpolationType
+    public enum InterpolationType
     {
         Linear,
         SCurve,

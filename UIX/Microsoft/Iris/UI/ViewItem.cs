@@ -28,7 +28,7 @@ using System.Text;
 
 namespace Microsoft.Iris.UI
 {
-    internal abstract class ViewItem :
+    public abstract class ViewItem :
       Microsoft.Iris.Library.TreeNode,
       INotifyObject,
       INavigationSite,

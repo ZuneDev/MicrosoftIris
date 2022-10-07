@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.Library
 {
-    internal class DisposableObject : IDisposableObject
+    public class DisposableObject : IDisposableObject
     {
         private bool _isDisposed;
 

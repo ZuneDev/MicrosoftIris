@@ -9,7 +9,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.UI
 {
-    internal struct EffectValue
+    public struct EffectValue
     {
         private object _value;
         private EffectValueType _type;

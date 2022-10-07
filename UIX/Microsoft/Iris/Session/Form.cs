@@ -19,7 +19,7 @@ using System.Security;
 namespace Microsoft.Iris.Session
 {
     [SuppressUnmanagedCodeSecurity]
-    internal class Form : IModalSession
+    public class Form : IModalSession
     {
         private UISession m_session;
         private UIZone m_zone;

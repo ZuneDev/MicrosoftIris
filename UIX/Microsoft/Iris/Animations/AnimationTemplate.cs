@@ -13,7 +13,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Iris.Animations
 {
-    internal class AnimationTemplate : ICloneable
+    public class AnimationTemplate : ICloneable
     {
         private const float k_epsilon = 0.0001f;
         private const StopCommand k_defaultStopCommand = StopCommand.MoveToEnd;

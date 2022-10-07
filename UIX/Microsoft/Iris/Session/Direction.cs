@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal enum Direction
+    public enum Direction
     {
         North,
         South,

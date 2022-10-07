@@ -8,7 +8,7 @@ using Microsoft.Iris.Input;
 
 namespace Microsoft.Iris.Session
 {
-    internal struct InputNotificationEventArgs
+    public struct InputNotificationEventArgs
     {
         private EventRouteStages _handledStage;
         private InputInfo _info;

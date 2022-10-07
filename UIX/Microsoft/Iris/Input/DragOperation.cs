@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Input
 {
-    internal enum DragOperation
+    public enum DragOperation
     {
         Enter,
         Over,

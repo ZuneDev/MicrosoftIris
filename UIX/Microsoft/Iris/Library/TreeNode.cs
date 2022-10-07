@@ -10,7 +10,7 @@ using System;
 
 namespace Microsoft.Iris.Library
 {
-    internal abstract class TreeNode : DisposableObject, ITreeNode
+    public abstract class TreeNode : DisposableObject, ITreeNode
     {
         private static readonly DataCookie s_instanceIDProperty = DataCookie.ReserveSlot();
         private static readonly EventCookie s_deepParentChangeEvent = EventCookie.ReserveSlot();

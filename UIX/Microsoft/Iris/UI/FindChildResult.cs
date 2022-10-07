@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.UI
 {
-    internal enum FindChildResult
+    public enum FindChildResult
     {
         Success,
         Failure,

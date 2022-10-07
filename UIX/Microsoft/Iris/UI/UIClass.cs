@@ -26,7 +26,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Iris.UI
 {
-    internal class UIClass :
+    public class UIClass :
       Microsoft.Iris.Library.TreeNode,
       ICookedInputSite,
       IMarkupTypeBase,

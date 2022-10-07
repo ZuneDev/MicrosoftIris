@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Animations
 {
-    internal interface IAnimationProvider
+    public interface IAnimationProvider
     {
         AnimationTemplate Build(ref AnimationArgs args);
 

@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.Iris.Data
 {
-    internal abstract class Resource
+    public abstract class Resource
     {
         protected string _uri;
         private bool _forceSynchronous;

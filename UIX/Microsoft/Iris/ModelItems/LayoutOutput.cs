@@ -10,7 +10,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.ModelItems
 {
-    internal class LayoutOutput : NotifyObjectBase
+    public class LayoutOutput : NotifyObjectBase
     {
         private Size _size;
 

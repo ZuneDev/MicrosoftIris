@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Library
 {
-    internal class SharedDisposableObject : DisposableObject
+    public class SharedDisposableObject : DisposableObject
     {
         private int _usageCount;
 

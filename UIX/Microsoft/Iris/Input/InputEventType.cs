@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Input
 {
-    internal enum InputEventType
+    public enum InputEventType
     {
         Invalid,
         CommandDown,

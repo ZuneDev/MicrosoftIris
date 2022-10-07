@@ -9,5 +9,5 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.UI
 {
-    internal delegate void SessionInputHandler(InputInfo originalEvent, EventRouteStages handledStage);
+    public delegate void SessionInputHandler(InputInfo originalEvent, EventRouteStages handledStage);
 }

@@ -13,7 +13,7 @@ using System;
 
 namespace Microsoft.Iris.UI
 {
-    internal class EffectClass : Class
+    public class EffectClass : Class
     {
         private IEffectTemplate _effectTemplate;
         private Map<string, EffectValue> _properties;

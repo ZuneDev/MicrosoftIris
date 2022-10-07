@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupListeners : Listeners
+    public class MarkupListeners : Listeners
     {
         public MarkupListeners(int listenerCount)
           : base(listenerCount)

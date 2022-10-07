@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Navigation
 {
     [Flags]
-    internal enum NavigationPolicies
+    public enum NavigationPolicies
     {
         None = 0,
         Group = 1,
