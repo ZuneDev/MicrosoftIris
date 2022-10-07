@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup Condition=" '$(UseOpenZune)' == 'true' ">
-        <PackageReference Include="OwlCore" Version="0.0.67" />
+        <PackageReference Include="OwlCore" Version="0.0.71" />
         <PackageReference Include="Cauldron.BasicInterceptors" Version="3.2.3" />
     </ItemGroup>
 

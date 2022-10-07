@@ -5,9 +5,7 @@ using System;
 
 namespace Microsoft.Iris.Debug
 {
-    //[RemoteProperty]
-    //[RemoteMethod]
-    //[RemoteOptions(RemotingDirection.Bidirectional)]
+    [RemoteOptions(RemotingDirection.Bidirectional)]
     public class Bridge : IBridge, IDisposable
     {
         private readonly MemberRemote _memberRemote;
@@ -20,17 +18,17 @@ namespace Microsoft.Iris.Debug
             // Pass the instance you want to remote into MemberRemote() with an ID that is identical on both machines for that instance.
             // An instance will not receive member changes until you do this.
             // Optionally leave out the message handler. Uses the default set by MemberRemote.SetDefaultMessageHandler(handler);
-            IrisDebugRemoteMessageHandler handler = new(mode);
+            TcpRemoteMessageHandler handler = new(mode);
             _memberRemote = new MemberRemote(this, typeof(Bridge).Assembly.FullName, handler);
         }
 
-        //[RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
+        [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogInterpreterOpCode(object context, Data.InterpreterEntry entry)
         {
-            InterpreterStep?.Invoke(context, new(entry));
+            InterpreterStep?.Invoke(context, entry);
         }
 
-        //[RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
+        [RemoteMethod, RemoteOptions(RemotingDirection.HostToClient)]
         public void LogDispatcher(string message)
         {
             DispatcherStep?.Invoke(message);
