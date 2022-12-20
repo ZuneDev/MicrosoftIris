@@ -1,29 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net35;net40;net6.0</TargetFrameworks>
         <ProjectGuid>{78A8B08C-C0E9-4BAC-9AF6-58D3A55C05C9}</ProjectGuid>
-        <ApplicationVersion>4.8.0.0</ApplicationVersion>
         <OutputType>Library</OutputType>
         <AssemblyName>UIX</AssemblyName>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <LangVersion>9</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <SignAssembly>True</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
-        <Platforms>AnyCPU;x64;x86</Platforms>
-
-        <UseOpenZune>false</UseOpenZune>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\UIX.Debug\UIX.Debug.csproj" />
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
     </ItemGroup>
-
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-        <UseOpenZune>true</UseOpenZune>
-    </PropertyGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net35' ">
         <Reference Include="Accessibility" />
@@ -41,14 +29,9 @@
         <None Include="packages.config" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('net6.0')) ">
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
         <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
     </ItemGroup>
-
-    <PropertyGroup Condition=" '$(UseOpenZune)' == 'true' ">
-        <ApplicationVersion>5.0.0.0</ApplicationVersion>
-        <DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
-    </PropertyGroup>
 </Project>
