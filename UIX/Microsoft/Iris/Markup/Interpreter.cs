@@ -26,7 +26,7 @@ namespace Microsoft.Iris.Markup
                 byteCodeReader = context.LoadResult.ObjectSection;
                 num = (long)((ulong)byteCodeReader.CurrentOffset);
                 byteCodeReader.CurrentOffset = context.InitialBytecodeOffset;
-                if (Application.DebugSettings.UseDecompiler)
+                if (Application.DebugSettings.UseDecompiler || Application.DebugSettings.Breakpoints.Contains(context.ToString()))
                     result = RunDecompile(context, byteCodeReader);
                 else
                     result = Run(context, byteCodeReader);
@@ -380,6 +380,10 @@ namespace Microsoft.Iris.Markup
                                     break;
                                 }
                             }
+
+                            //if (methodSchema.Name == "PlayItems")
+                            //    System.Diagnostics.Debugger.Break();
+
                             object obj11 = methodSchema.Invoke(instance4, array2);
                             if (!ErrorsDetected(watermark, ref result, ref flag))
                             {
@@ -1311,6 +1315,10 @@ namespace Microsoft.Iris.Markup
                                     break;
                                 }
                             }
+
+                            if (methodSchema.Name == "PlayOrPreview")
+                                System.Diagnostics.Debugger.Break();
+
                             object obj11 = methodSchema.Invoke(instance4, array2);
                             if (!ErrorsDetected(watermark, ref result, ref flag))
                             {

@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Collections.Generic;
+using System.Xml;
 
 #if NET40_OR_GREATER || NET6_0_OR_GREATER
 using DataMappingModelsList = System.Collections.ObjectModel.ObservableCollection<Microsoft.Iris.Debug.DataMappingModel>;
@@ -19,6 +20,8 @@ namespace Microsoft.Iris.Debug
 
         public bool GenerateDataMappingModels { get; set; } = false;
         public DataMappingModelsList DataMappingModels { get; } = new DataMappingModelsList();
+
+        public List<string> Breakpoints { get; } = new List<string>();
 
         public Bridge Bridge { get; } =
 #if OPENZUNE
