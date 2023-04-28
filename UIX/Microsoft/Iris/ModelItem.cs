@@ -264,7 +264,7 @@ namespace Microsoft.Iris
             SetData(s_ownedObjectsProperty, null);
         }
 
-        private Vector<ModelItem> GetOwnedObjects(bool createIfNoneFlag)
+        public Vector<ModelItem> GetOwnedObjects(bool createIfNoneFlag)
         {
             Vector<ModelItem> vector = (Vector<ModelItem>)GetData(s_ownedObjectsProperty);
             if (vector == null && createIfNoneFlag)
