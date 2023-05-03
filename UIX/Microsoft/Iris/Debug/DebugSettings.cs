@@ -23,12 +23,7 @@ namespace Microsoft.Iris.Debug
 
         public List<string> Breakpoints { get; } = new List<string>();
 
-        public Bridge Bridge { get; } =
-#if OPENZUNE
-            new(OwlCore.Remoting.RemotingMode.None);
-#else
-            new();
-#endif
+        public Bridge Bridge { get; } = new();
     }
 
     public class DecompilationResult
