@@ -3,49 +3,27 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-        <ApplicationVersion>4.9.0.0</ApplicationVersion>
+		<ApplicationVersion>5.0.0.0</ApplicationVersion>
 		<AssemblyVersion>$(ApplicationVersion)</AssemblyVersion>
 		<FileVersion>$(ApplicationVersion)</FileVersion>
         <LangVersion>latest</LangVersion>
 
-        <TargetFrameworks>net35;net40;net6.0;net6.0-windows10.0.22000</TargetFrameworks>
+		<DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
+		
+        <TargetFrameworks>net461;net6.0;net6.0-windows10.0.22000</TargetFrameworks>
         <Platforms>AnyCPU;x64;x86</Platforms>
 
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
         <DelaySign>True</DelaySign>
-
-        <UseOpenZune>False</UseOpenZune>
     </PropertyGroup>
 
 	<Choose>
 		<When Condition=" $(TargetFramework.StartsWith('net6.0-windows')) ">
 			<PropertyGroup>
-				<UseOpenZune>True</UseOpenZune>
-
 				<DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows10'))">$(DefineConstants);WINDOWS10</DefineConstants>
 				<DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows8'))">$(DefineConstants);WINDOWS8</DefineConstants>
 			</PropertyGroup>
 		</When>
-
-		<When Condition=" $(TargetFramework.StartsWith('net6.0')) ">
-			<PropertyGroup>
-				<UseOpenZune>True</UseOpenZune>
-			</PropertyGroup>
-		</When>
-
-		<!--
-            .NET Core 3.1 is only used to target Windows 8/8.1
-        -->
-		<When Condition=" $(TargetFramework.StartsWith('netcoreapp')) ">
-			<PropertyGroup>
-				<UseOpenZune>True</UseOpenZune>
-			</PropertyGroup>
-		</When>
 	</Choose>
-
-	<PropertyGroup Condition="$(UseOpenZune)">
-		<ApplicationVersion>5.0.0.0</ApplicationVersion>
-		<DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
-	</PropertyGroup>
 </Project>

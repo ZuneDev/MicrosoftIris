@@ -1,6 +1,4 @@
-﻿#if OPENZUNE
-
-using System;
+﻿using System;
 
 namespace Microsoft.Iris.Debug
 {
@@ -20,5 +18,3 @@ namespace Microsoft.Iris.Debug
         }
     }
 }
-
-#endif
