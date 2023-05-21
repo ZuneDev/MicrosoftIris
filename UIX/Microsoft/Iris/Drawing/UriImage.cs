@@ -11,13 +11,20 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal sealed class UriImage : UIImage
+    public sealed class UriImage : UIImage
     {
         private ImageCacheKey _cacheKey;
+        private Resource _resource;
 
         public UriImage()
           : base(Inset.Zero, Size.Zero, false, false)
         {
+        }
+
+        public UriImage(Resource resource, string identifier, Inset nineGrid, Size maximumSize, bool flippable)
+          : this(identifier, nineGrid, maximumSize, flippable, false)
+        {
+            _resource = resource;
         }
 
         public UriImage(string source, Inset nineGrid, Size maximumSize, bool flippable)
@@ -25,12 +32,7 @@ namespace Microsoft.Iris.Drawing
         {
         }
 
-        public UriImage(
-          string source,
-          Inset nineGrid,
-          Size maximumSize,
-          bool flippable,
-          bool antialiasEdges)
+        public UriImage(string source, Inset nineGrid, Size maximumSize, bool flippable, bool antialiasEdges)
           : base(nineGrid, maximumSize, flippable, antialiasEdges)
         {
             Source = source;
@@ -41,8 +43,15 @@ namespace Microsoft.Iris.Drawing
             ResourceImageItem resourceImageItem = GetResourceFromCache();
             if (resourceImageItem == null)
             {
-                resourceImageItem = new ResourceImageItem(UISession.Default.RenderSession, Source, ClampSize(_maximumSize), IsFlipped, _antialiasEdges);
+                var renderSession = UISession.Default.RenderSession;
+                var size = ClampSize(_maximumSize);
+                if (_resource != null)
+                    resourceImageItem = new ResourceImageItem(renderSession, _resource, size, Source, IsFlipped, _antialiasEdges);
+                else
+                    resourceImageItem = new ResourceImageItem(renderSession, Source, size, IsFlipped, _antialiasEdges);
+
                 resourceImageItem.LoadCompleteHandler += new ContentLoadCompleteHandler(OnLoadComplete);
+
                 ScavengeImageCache.Instance.Add(_cacheKey, resourceImageItem);
                 SetStatus(resourceImageItem.Status);
                 _contentSize = new Size(0, 0);

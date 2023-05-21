@@ -23,10 +23,16 @@ namespace Microsoft.Iris.Drawing
           Size maxSize,
           bool flippable,
           bool antialiasEdges)
-          : base(renderSession, source, maxSize, flippable, antialiasEdges)
+          : this(renderSession, ResourceManager.Instance.GetResource(source), maxSize, source, flippable, antialiasEdges)
         {
-            _source = source;
-            _resource = ResourceManager.Instance.GetResource(_source);
+
+        }
+
+        internal ResourceImageItem(IRenderSession renderSession, Resource resource, Size maxSize, string identifier, bool flippable, bool antialiasEdges)
+          : base(renderSession, identifier, maxSize, flippable, antialiasEdges)
+        {
+            _source = identifier;
+            _resource = resource;
         }
 
         protected override void OnDispose()
