@@ -90,6 +90,20 @@ namespace Microsoft.Iris
             return null;
         }
 
+        public virtual bool TryGetProperty<T>(string propertyName, out T value)
+        {
+            try
+            {
+                value = (T)GetProperty(propertyName);
+                return true;
+            }
+            catch
+            {
+                value = default;
+                return false;
+            }
+        }
+
         public virtual void SetProperty(string propertyName, object value)
         {
             bool flag1 = false;
