@@ -3,27 +3,27 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-		<ApplicationVersion>5.0.0.0</ApplicationVersion>
-		<AssemblyVersion>$(ApplicationVersion)</AssemblyVersion>
-		<FileVersion>$(ApplicationVersion)</FileVersion>
+        <ApplicationVersion>5.0.0.0</ApplicationVersion>
+        <AssemblyVersion>$(ApplicationVersion)</AssemblyVersion>
+        <FileVersion>$(ApplicationVersion)</FileVersion>
         <LangVersion>latest</LangVersion>
 
-		<DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
-		
+        <DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
+        
         <TargetFrameworks>net461;net6.0;net6.0-windows10.0.22000</TargetFrameworks>
         <Platforms>AnyCPU;x64;x86</Platforms>
 
         <SignAssembly>True</SignAssembly>
-        <AssemblyOriginatorKeyFile>..\36MSApp1024.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\36MSApp1024.snk</AssemblyOriginatorKeyFile>
         <DelaySign>True</DelaySign>
     </PropertyGroup>
 
-	<Choose>
-		<When Condition=" $(TargetFramework.StartsWith('net6.0-windows')) ">
-			<PropertyGroup>
-				<DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows10'))">$(DefineConstants);WINDOWS10</DefineConstants>
-				<DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows8'))">$(DefineConstants);WINDOWS8</DefineConstants>
-			</PropertyGroup>
-		</When>
-	</Choose>
+    <Choose>
+        <When Condition=" $(TargetFramework.StartsWith('net6.0-windows')) ">
+            <PropertyGroup>
+                <DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows10'))">$(DefineConstants);WINDOWS10</DefineConstants>
+                <DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows8'))">$(DefineConstants);WINDOWS8</DefineConstants>
+            </PropertyGroup>
+        </When>
+    </Choose>
 </Project>
