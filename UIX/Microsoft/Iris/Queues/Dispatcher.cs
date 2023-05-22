@@ -73,7 +73,7 @@ namespace Microsoft.Iris.Queues
                     QueueItem nextItem = queue.GetNextItem();
                     if (nextItem != null)
                     {
-                        SendDebugMessage(nextItem.ToDebugPacketString());
+                        BridgeServer.Current.LogDispatcher(nextItem.ToDebugPacketString());
                         nextItem.Dispatch();
                     }
                     else
@@ -140,59 +140,6 @@ namespace Microsoft.Iris.Queues
                 _feeder.RecycleFIFOs(recycled);
             }
             return flag;
-        }
-
-        private static NamedPipeClientStream DebugPipe
-        {
-            get
-            {
-                if (_debugPipe == null && Application.DebugSettings.OpenDebugPipe)
-                {
-                    _debugPipe = new NamedPipeClientStream(System.Reflection.Assembly.GetExecutingAssembly().FullName);
-                    _debugPipe.Connect();
-                }
-                return _debugPipe;
-            }
-        }
-
-        private static BinaryWriter DebugPipeWriter
-        {
-            get
-            {
-                if (_debugPipe != null && _debugPipeWriter == null)
-                    _debugPipeWriter = new BinaryWriter(DebugPipe);
-                return _debugPipeWriter;
-            }
-        }
-
-        private static BinaryReader DebugPipeReader
-        {
-            get
-            {
-                if (_debugPipe != null && _debugPipeReader == null)
-                    _debugPipeReader = new BinaryReader(DebugPipe);
-                return _debugPipeReader;
-            }
-        }
-
-        /// <summary>
-        /// Sends a message via <see cref="debugPipe"/>
-        /// </summary>
-        /// <param name="message"></param>
-        public static void SendDebugMessage(string message)
-        {
-#if OPENZUNE
-            Application.DebugSettings.Bridge.LogDispatcher(message);
-#else
-            if (Application.DebugSettings.OpenDebugPipe && DebugPipe.IsConnected && DebugPipe.CanWrite)
-            {
-                DebugPipe.WriteByte(0x01);
-                byte[] buffer = System.Text.Encoding.Unicode.GetBytes(message);
-                DebugPipe.Write(BitConverter.GetBytes(buffer.Length), 0, sizeof(int));
-                DebugPipe.Write(buffer, 0, buffer.Length);
-                DebugPipe.Flush();
-            }
-#endif
         }
     }
 }

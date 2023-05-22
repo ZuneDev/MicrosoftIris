@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CoreRemoting;
+using System.Collections.Generic;
 using System.Xml;
 
 #if NET40_OR_GREATER || NET6_0_OR_GREATER
@@ -14,7 +15,6 @@ namespace Microsoft.Iris.Debug
     public class DebugSettings
     {
         public bool UseDecompiler { get; set; } = false;
-        public bool OpenDebugPipe { get; set; } = false;
         public DecompileResultList DecompileResults { get; } = new DecompileResultList();
         public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
@@ -23,7 +23,7 @@ namespace Microsoft.Iris.Debug
 
         public List<string> Breakpoints { get; } = new List<string>();
 
-        public Bridge Bridge { get; } = new();
+        public ServerConfig DebugServerConfig { get; set; }
     }
 
     public class DecompilationResult

@@ -1,51 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Microsoft.Iris.Debug.Data
+namespace Microsoft.Iris.Debug.Data;
+
+public class InterpreterEntry
 {
-    public class InterpreterEntry
+    public InterpreterEntry(object opCode, params OpCodeArgument[] args)
     {
-        public InterpreterEntry(object opCode, params OpCodeArgument[] args)
-        {
-            OpCode = opCode;
+        OpCode = opCode;
 
-            if (args != null && args.Length > 0)
-                Arguments = args;
-            else
-                Arguments = new List<OpCodeArgument>();
-        }
-
-        public object OpCode { get; }
-        public IList<OpCodeArgument> Arguments { get; }
-        public IList<object> ReturnValues { get; } = new List<object>();
-
-        public override string ToString()
-        {
-#if OPENZUNE
-            var args = Arguments;
-            var ret = ReturnValues;
-#else
-            var args = Arguments.Select(a => a.ToString()).ToArray();
-            var ret = ReturnValues.Select(a => a.ToString()).ToArray();
-#endif
-            return $"{OpCode}({string.Join(", ", args)}) -> [{ReturnValues}]";
-        }
+        if (args != null && args.Length > 0)
+            Arguments = args;
+        else
+            Arguments = new List<OpCodeArgument>();
     }
 
-    public class OpCodeArgument
+    public object OpCode { get; }
+    public IList<OpCodeArgument> Arguments { get; }
+    public IList<object> ReturnValues { get; } = new List<object>();
+
+    public override string ToString()
     {
-        public string Name { get; set; }
-        public Type Type { get; set; }
-        public object Value { get; set; }
-
-        public OpCodeArgument(string name, Type type, object value)
-        {
-            Name = name;
-            Type = type;
-            Value = value;
-        }
-
-        public override string ToString() => $"{Type} {Value}";
+        return $"{OpCode}({string.Join(", ", Arguments)}) -> [{ReturnValues}]";
     }
+}
+
+public class OpCodeArgument
+{
+    public string Name { get; set; }
+    public Type Type { get; set; }
+    public object Value { get; set; }
+
+    public OpCodeArgument(string name, Type type, object value)
+    {
+        Name = name;
+        Type = type;
+        Value = value;
+    }
+
+    public override string ToString() => $"{Type} {Value}";
 }

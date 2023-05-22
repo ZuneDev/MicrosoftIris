@@ -185,7 +185,10 @@ namespace Microsoft.Iris
         private static void InitializeCommon(bool fullInitialization)
         {
             ErrorManager.OnErrors += new NotifyErrorBatch(NotifyErrorBatchHandler);
+
             Debug.Trace.Initialize();
+            Debug.BridgeServer.Start(null);
+
             MarkupSystem.Startup(!fullInitialization);
             StaticServices.Initialize();
         }

@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
+		<PackageReference Include="CoreRemoting" Version="1.1.14" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
