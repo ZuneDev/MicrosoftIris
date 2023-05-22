@@ -9,7 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\UIX.Debug\UIX.Debug.csproj" />
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
     </ItemGroup>
 

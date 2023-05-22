@@ -8,8 +8,4 @@
         <Platforms>x86;x64</Platforms>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\UIX.Debug\UIX.Debug.csproj" />
-    </ItemGroup>
-
 </Project>
