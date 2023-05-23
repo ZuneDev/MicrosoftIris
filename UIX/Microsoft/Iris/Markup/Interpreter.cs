@@ -66,7 +66,7 @@ namespace Microsoft.Iris.Markup
             bool errorsDetected = false;
             object result = null;
             bool wasInDebugState = false;
-            bool debugging = BridgeServer.Current != null;
+            bool debugging = Application.Debugger != null;
 
             while (!errorsDetected)
             {
@@ -670,7 +670,7 @@ namespace Microsoft.Iris.Markup
                         }
                 }
 
-                BridgeServer.Current?.LogInterpreterOpCode(opCode, entry);
+                Application.Debugger?.LogInterpreterOpCode(opCode, entry);
             }
             while (stack.Count > count)
             {
@@ -1630,7 +1630,7 @@ namespace Microsoft.Iris.Markup
                         }
                 }
 
-                BridgeServer.Current?.LogInterpreterOpCode(opCode, entry);
+                Application.Debugger?.LogInterpreterOpCode(opCode, entry);
 
                 if (stack.Count != xmlStack.Count)
                     throw new InvalidOperationException(

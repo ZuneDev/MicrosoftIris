@@ -73,7 +73,7 @@ namespace Microsoft.Iris.Queues
                     QueueItem nextItem = queue.GetNextItem();
                     if (nextItem != null)
                     {
-                        BridgeServer.Current.LogDispatcher(nextItem.ToDebugPacketString());
+                        Application.Debugger.LogDispatcher(nextItem.ToDebugPacketString());
                         nextItem.Dispatch();
                     }
                     else

@@ -1,5 +1,4 @@
-﻿using CoreRemoting;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 
 #if NET40_OR_GREATER || NET6_0_OR_GREATER
@@ -23,7 +22,7 @@ namespace Microsoft.Iris.Debug
 
         public List<string> Breakpoints { get; } = new List<string>();
 
-        public ServerConfig DebugServerConfig { get; set; }
+        public string DebugConnectionUri { get; set; }
     }
 
     public class DecompilationResult

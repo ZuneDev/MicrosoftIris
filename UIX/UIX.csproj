@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
-		<PackageReference Include="CoreRemoting" Version="1.1.14" />
+		<PackageReference Include="NetMQ" Version="4.0.1.12" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">

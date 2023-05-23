@@ -6,6 +6,7 @@
 
 using Microsoft.Iris.Animations;
 using Microsoft.Iris.Data;
+using Microsoft.Iris.Debug;
 using Microsoft.Iris.Input;
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup;
@@ -135,7 +136,11 @@ namespace Microsoft.Iris
             get => DllResources.StaticDllResourcesOnly;
         }
 
-        public static Debug.DebugSettings DebugSettings { get; } = new();
+        public static DebugSettings DebugSettings { get; } = new();
+
+        internal static IDebuggerServer Debugger { get; private set; }
+
+        public static event EventHandler DebuggerServerReady;
 
         public static void Initialize()
         {
@@ -187,7 +192,12 @@ namespace Microsoft.Iris
             ErrorManager.OnErrors += new NotifyErrorBatch(NotifyErrorBatchHandler);
 
             Debug.Trace.Initialize();
-            Debug.BridgeServer.Start(null);
+
+            if (DebugSettings.DebugConnectionUri != null)
+            {
+                Debugger = new ZmqDebuggerServer(DebugSettings.DebugConnectionUri);
+                DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
+            }
 
             MarkupSystem.Startup(!fullInitialization);
             StaticServices.Initialize();
