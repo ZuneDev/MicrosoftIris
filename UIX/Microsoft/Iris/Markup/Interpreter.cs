@@ -71,7 +71,7 @@ namespace Microsoft.Iris.Markup
             while (!errorsDetected)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                Debug.Data.InterpreterEntry entry = new(opCode);
+                Debug.Data.InterpreterEntry entry = new(opCode, reader.CurrentOffset, loadResult.Uri);
 
                 // Fetch line and column numbers from the table
                 if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
@@ -696,7 +696,7 @@ namespace Microsoft.Iris.Markup
                         }
                 }
 
-                Application.Debugger?.LogInterpreterOpCode(opCode, entry);
+                Application.Debugger?.LogInterpreterOpCode(context, entry);
             }
             while (stack.Count > count)
             {
@@ -918,7 +918,7 @@ namespace Microsoft.Iris.Markup
             while (!flag)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                var entry = new Debug.Data.InterpreterEntry(opCode);
+                var entry = new Debug.Data.InterpreterEntry(opCode, reader.CurrentOffset, loadResult.Uri);
 
                 switch (opCode)
                 {

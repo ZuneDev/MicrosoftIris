@@ -1,31 +1,49 @@
 ﻿using Microsoft.Iris.Markup;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
 
 [Serializable]
 public class InterpreterEntry
 {
-    public InterpreterEntry(OpCode opCode, params OpCodeArgument[] args)
+    public InterpreterEntry(OpCode opCode, uint offset, string loadUri, params OpCodeArgument[] args)
     {
         OpCode = opCode;
+        Offset = offset;
+        LoadUri = loadUri;
 
         if (args != null && args.Length > 0)
             Arguments = args;
-        else
-            Arguments = new List<OpCodeArgument>();
     }
 
     public OpCode OpCode { get; }
+
+    public uint Offset { get; }
+
+    public string LoadUri { get; }
+
     public IList<OpCodeArgument> Arguments { get; }
+
     public IList<object> ReturnValues { get; } = new List<object>();
 
     public override string ToString()
     {
-        return $"{OpCode}({string.Join(", ", Arguments)}) -> [{string.Join(", ", ReturnValues)}]";
+        StringBuilder sb = new($"[{LoadUri} @ 0x{Offset:X}] {OpCode}({string.Join(", ", Arguments)})");
+
+        if (ReturnValues.Count > 0)
+        {
+            sb.Append(" -> ");
+
+            if (ReturnValues.Count == 1)
+                sb.Append(ReturnValues[0]);
+            else
+                sb.Append($"[{string.Join(", ", ReturnValues)}]");
+        }
+
+        return sb.ToString();
     }
 }
 
