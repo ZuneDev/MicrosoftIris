@@ -6,10 +6,11 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Microsoft.Iris.Library
 {
-    public struct TreeNodeCollection : IList, ICollection, IEnumerable
+    public struct TreeNodeCollection : IList, ICollection, IEnumerable, IList<TreeNode>
     {
         private TreeNode _nodeSubject;
 
@@ -19,11 +20,11 @@ namespace Microsoft.Iris.Library
 
         bool ICollection.IsSynchronized => false;
 
-        object ICollection.SyncRoot => (object)null;
+        object ICollection.SyncRoot => null;
 
         bool IList.IsFixedSize => false;
 
-        bool IList.IsReadOnly => false;
+        public bool IsReadOnly => false;
 
         object IList.this[int index]
         {
@@ -53,7 +54,7 @@ namespace Microsoft.Iris.Library
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public TreeNodeEnumerator GetEnumerator() => new TreeNodeEnumerator(_nodeSubject);
+        public IEnumerator<TreeNode> GetEnumerator() => new TreeNodeEnumerator(_nodeSubject);
 
         void ICollection.CopyTo(Array destList, int destIndex)
         {
@@ -112,5 +113,11 @@ namespace Microsoft.Iris.Library
         public void Remove(TreeNode nodeChild) => nodeChild.ChangeParent(null);
 
         public void RemoveAt(int removeAtIndex) => this[removeAtIndex].ChangeParent(null);
+
+        bool ICollection<TreeNode>.Remove(TreeNode item)
+        {
+            Remove(item);
+            return true;
+        }
     }
 }

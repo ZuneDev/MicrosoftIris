@@ -5,10 +5,11 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Microsoft.Iris.Library
 {
-    public struct TreeNodeEnumerator : IEnumerator
+    public struct TreeNodeEnumerator : IEnumerator<TreeNode>
     {
         private TreeNode _nodeParent;
         private TreeNode _nodeCurrent;
@@ -38,6 +39,10 @@ namespace Microsoft.Iris.Library
                 return false;
             _nodeNext = _nodeNext.NextSibling;
             return true;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }
