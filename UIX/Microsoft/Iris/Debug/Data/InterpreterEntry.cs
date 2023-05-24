@@ -17,6 +17,8 @@ public class InterpreterEntry
 
         if (args != null && args.Length > 0)
             Arguments = args;
+        else
+            Arguments = new List<OpCodeArgument>();
     }
 
     public OpCode OpCode { get; }
