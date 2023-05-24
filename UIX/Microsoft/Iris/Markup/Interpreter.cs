@@ -26,7 +26,7 @@ namespace Microsoft.Iris.Markup
                 byteCodeReader = context.LoadResult.ObjectSection;
                 num = (long)(ulong)byteCodeReader.CurrentOffset;
                 byteCodeReader.CurrentOffset = context.InitialBytecodeOffset;
-                if (Application.DebugSettings.UseDecompiler || Application.DebugSettings.Breakpoints.Contains(context.ToString()))
+                if (Application.DebugSettings.UseDecompiler)
                     result = RunDecompile(context, byteCodeReader);
                 else
                     result = Run(context, byteCodeReader);

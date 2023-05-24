@@ -20,7 +20,7 @@ namespace Microsoft.Iris.Debug
         public bool GenerateDataMappingModels { get; set; } = false;
         public DataMappingModelsList DataMappingModels { get; } = new DataMappingModelsList();
 
-        public List<string> Breakpoints { get; } = new List<string>();
+        public List<Breakpoint> Breakpoints { get; } = new();
 
         public string DebugConnectionUri { get; set; }
     }
@@ -39,7 +39,7 @@ namespace Microsoft.Iris.Debug
 
     public class DataMappingModel
     {
-        internal DataMappingModel(string provider, string type, string generatedCode)
+        public DataMappingModel(string provider, string type, string generatedCode)
         {
             Provider = provider;
             Type = type;
