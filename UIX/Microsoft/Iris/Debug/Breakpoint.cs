@@ -29,4 +29,6 @@ public struct Breakpoint : IEquatable<Breakpoint>
     public static bool operator !=(Breakpoint left, Breakpoint right) => !(left == right);
 
     public override bool Equals(object obj) => obj is Breakpoint bp && Equals(bp);
+
+    public override string ToString() => $"{(Enabled ? '+' : '-')} {Uri} ({Line}, {Column})";
 }
