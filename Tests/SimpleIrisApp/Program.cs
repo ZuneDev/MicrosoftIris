@@ -20,6 +20,8 @@ internal class Program
 
         Application.DebugSettings.DebugConnectionUri = args.Length >= 2
             ? args[1] : "tcp://127.0.0.1:5556";
+
+        Application.DebugSettings.Breakpoints.Add(new("clr-res://SimpleIrisApp!MainPage.uix", 3, 22));
 #endif
 
         Console.WriteLine("Initializing Iris...");

@@ -73,6 +73,16 @@ namespace Microsoft.Iris.Markup
                 OpCode opCode = (OpCode)reader.ReadByte();
                 Debug.Data.InterpreterEntry entry = new(opCode);
 
+                // Fetch line and column numbers from the table
+                if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
+                {
+                    // Check if a breakpoint has been set at this location
+                    bool shouldBreak = Application.DebugSettings.Breakpoints
+                        .Any(b => b.Line == line && b.Column == column && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase));
+                    if (shouldBreak)
+                        System.Diagnostics.Debugger.Break();
+                }
+
                 switch (opCode)
                 {
                     case OpCode.ConstructObject:

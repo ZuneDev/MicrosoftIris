@@ -17,7 +17,7 @@ internal class Program
 
         Debugger = new ZmqDebuggerClient(connectionString);
         Debugger.DispatcherStep += Debugger_DispatcherStep;
-        Debugger.InterpreterStep += Debugger_InterpreterStep;
+        //Debugger.InterpreterStep += Debugger_InterpreterStep;
 
         Console.WriteLine("Listening for debug messages. Press Ctrl-C to exit.");
         Console.ReadLine();
@@ -36,6 +36,6 @@ internal class Program
 
     private static void Debugger_InterpreterStep(object? sender, InterpreterEntry e)
     {
-        Console.WriteLine(e);
+        
     }
 }

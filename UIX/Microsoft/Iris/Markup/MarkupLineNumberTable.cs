@@ -42,7 +42,7 @@ namespace Microsoft.Iris.Markup
             _lookupTable = null;
         }
 
-        public void Lookup(uint offset, out int line, out int column)
+        public bool TryLookup(uint offset, out int line, out int column)
         {
             int length = _runtimeList.Length;
             int index = 0;
@@ -52,11 +52,13 @@ namespace Microsoft.Iris.Markup
             {
                 line = UnpackLine(_runtimeList[index]);
                 column = UnpackColumn(_runtimeList[index]);
+                return true;
             }
             else
             {
                 line = -1;
                 column = -1;
+                return false;
             }
         }
 
@@ -69,10 +71,10 @@ namespace Microsoft.Iris.Markup
 
         private static ulong Pack(uint offset, int line, int column) => (ulong)(offset | (long)line << 22 | (long)column << 43);
 
-        private static uint UnpackOffset(ulong value) => (uint)(value & 4194303UL);
+        private static uint UnpackOffset(ulong value) => (uint)(value & 0x3F_FFFFUL);
 
-        private static int UnpackLine(ulong value) => (int)((value & 8796088827904UL) >> 22);
+        private static int UnpackLine(ulong value) => (int)((value & 0x7FF_FFC0_0000UL) >> 22);
 
-        private static int UnpackColumn(ulong value) => (int)((value & 18446735277616529408UL) >> 43);
+        private static int UnpackColumn(ulong value) => (int)((value & 0xFFFF_F800_0000_0000UL) >> 43);
     }
 }

@@ -31,7 +31,7 @@ namespace Microsoft.Iris.Markup
             uint currentOffset = _loadResult.ObjectSection.CurrentOffset;
             if (currentOffset > 0U)
                 --currentOffset;
-            _loadResult.LineNumberTable.Lookup(currentOffset, out line, out column);
+            _loadResult.LineNumberTable.TryLookup(currentOffset, out line, out column);
         }
 
         public IMarkupTypeBase Instance => _instance;
