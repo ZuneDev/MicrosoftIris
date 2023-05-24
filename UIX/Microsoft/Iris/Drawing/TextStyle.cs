@@ -217,14 +217,10 @@ namespace Microsoft.Iris.Drawing
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (_flags[1])
-                info.AddValue(nameof(FontFace), FontFace);
-            if (_flags[2])
-                info.AddValue(nameof(FontSize), FontSize);
-            if (_flags[32])
-                info.AddValue(nameof(LineSpacing), LineSpacing);
-            if (_flags[64])
-                info.AddValue(nameof(Color), Color);
+            info.AddValue(nameof(FontFace), FontFace);
+            info.AddValue(nameof(FontSize), FontSize);
+            info.AddValue(nameof(LineSpacing), LineSpacing);
+            info.AddValue(nameof(Color), Color);
 
             info.AddValue("flags", _flags.Data);
         }
