@@ -62,6 +62,6 @@ public class OpCodeArgument : ISerializable
         info.AddValue(nameof(Name), Name);
         info.AddValue(nameof(Type), Type.FullName);
         info.AddValue(nameof(CanSerializeValue), CanSerializeValue);
-        info.AddValue(nameof(Value), CanSerializeValue ? Value : Value.ToString());
+        info.AddValue(nameof(Value), CanSerializeValue ? Value : Value?.ToString());
     }
 }

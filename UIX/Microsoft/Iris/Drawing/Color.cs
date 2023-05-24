@@ -6,11 +6,13 @@
 
 using Microsoft.Iris.Render;
 using System;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
-    public struct Color
+    [Serializable]
+    public struct Color : ISerializable
     {
         private const int ARGBAlphaShift = 24;
         private const int ARGBRedShift = 16;
@@ -27,6 +29,11 @@ namespace Microsoft.Iris.Drawing
         public Color(float alpha, float red, float green, float blue) => this = FromArgb(alpha, red, green, blue);
 
         internal Color(uint value) => this.value = value;
+
+        internal Color(SerializationInfo info, StreamingContext context)
+        {
+            value = info.GetUInt32(nameof(Value));
+        }
 
         public byte R
         {
@@ -192,7 +199,7 @@ namespace Microsoft.Iris.Drawing
 
         internal int ToArgb() => (int)Value;
 
-        internal ColorF RenderConvert() => new ColorF(A, R, G, B);
+        internal ColorF RenderConvert() => new(A, R, G, B);
 
         public override string ToString()
         {
@@ -218,10 +225,15 @@ namespace Microsoft.Iris.Drawing
 
         public override int GetHashCode() => value.GetHashCode();
 
-        internal static Color Transparent => new Color(0U);
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Value), Value);
+        }
 
-        internal static Color Black => new Color(4278190080U);
+        internal static Color Transparent => new(0U);
 
-        internal static Color White => new Color(uint.MaxValue);
+        internal static Color Black => new(0xFF00_0000U);
+
+        internal static Color White => new(uint.MaxValue);
     }
 }

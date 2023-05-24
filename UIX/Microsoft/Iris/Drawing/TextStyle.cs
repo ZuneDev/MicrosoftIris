@@ -6,11 +6,13 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
-    internal class TextStyle
+    [Serializable]
+    internal class TextStyle : ISerializable
     {
         private BitVector32 _flags;
         private string _fontFace;
@@ -20,6 +22,18 @@ namespace Microsoft.Iris.Drawing
         private float _characterSpacing;
         private Color _textColor;
         private bool _fragment;
+
+        public TextStyle() { }
+
+        protected TextStyle(SerializationInfo info, StreamingContext context)
+        {
+            FontFace = info.GetString(nameof(FontFace));
+            FontSize = info.GetSingle(nameof(FontSize));
+            LineSpacing = info.GetSingle(nameof(LineSpacing));
+            Color = (Color)info.GetValue(nameof(Color), typeof(Color));
+
+            _flags = new(info.GetInt32("flags"));
+        }
 
         public bool IsInitialized() => _flags.Data != 0;
 
@@ -199,6 +213,20 @@ namespace Microsoft.Iris.Drawing
             }
             stringBuilder.Append(" }");
             return stringBuilder.ToString();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            if (_flags[1])
+                info.AddValue(nameof(FontFace), FontFace);
+            if (_flags[2])
+                info.AddValue(nameof(FontSize), FontSize);
+            if (_flags[32])
+                info.AddValue(nameof(LineSpacing), LineSpacing);
+            if (_flags[64])
+                info.AddValue(nameof(Color), Color);
+
+            info.AddValue("flags", _flags.Data);
         }
 
         [Flags]
