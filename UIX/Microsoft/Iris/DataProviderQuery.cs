@@ -94,7 +94,14 @@ namespace Microsoft.Iris
         {
             try
             {
-                value = (T)GetProperty(propertyName);
+                var obj = GetProperty(propertyName);
+                if (obj == null)
+                {
+                    value = default;
+                    return false;
+                }
+
+                value = (T)obj;
                 return true;
             }
             catch
