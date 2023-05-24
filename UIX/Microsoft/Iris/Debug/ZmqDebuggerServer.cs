@@ -1,6 +1,8 @@
 ﻿using NetMQ;
 using NetMQ.Sockets;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Microsoft.Iris.Debug;
@@ -22,7 +24,10 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
 
     public void LogInterpreterOpCode(object context, Data.InterpreterEntry entry)
     {
-        SendDebuggerMessage(DebuggerMessageType.InterpreterOpCode, entry.ToString());
+        using MemoryStream entryStream = new();
+        new BinaryFormatter().Serialize(entryStream, entry);
+
+        SendDebuggerMessage(DebuggerMessageType.InterpreterOpCode, entryStream.ToArray());
     }
 
     public void LogDispatcher(string message)

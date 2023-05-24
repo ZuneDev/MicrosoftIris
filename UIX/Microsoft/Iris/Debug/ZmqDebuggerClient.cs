@@ -2,6 +2,8 @@
 using NetMQ;
 using NetMQ.Sockets;
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
 namespace Microsoft.Iris.Debug;
@@ -34,8 +36,11 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
             switch (type)
             {
                 case DebuggerMessageType.InterpreterOpCode:
-                    string entry = Encoding.Unicode.GetString(bytes);
-                    InterpreterStep?.Invoke(this, null);
+                    {
+                        using MemoryStream stream = new(bytes);
+                        var entry = (InterpreterEntry)new BinaryFormatter().Deserialize(stream);
+                        InterpreterStep?.Invoke(this, entry);
+                    }
                     break;
 
                 case DebuggerMessageType.DispatcherStep:
@@ -46,7 +51,7 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
         }
     }
 
-    private DebuggerMessageType RecieveDebuggerMessage(SubscriberSocket socket, out byte[] bytes)
+    private static DebuggerMessageType RecieveDebuggerMessage(SubscriberSocket socket, out byte[] bytes)
     {
         var frames = socket.ReceiveMultipartBytes(2);
 

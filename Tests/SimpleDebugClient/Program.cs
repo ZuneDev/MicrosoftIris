@@ -8,7 +8,7 @@ internal class Program
 {
     static IDebuggerClient? Debugger { get; set; }
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         string connectionString = args.Length >= 2
             ? args[1] : "tcp://127.0.0.1:5556";
@@ -17,10 +17,12 @@ internal class Program
 
         Debugger = new ZmqDebuggerClient(connectionString);
         Debugger.DispatcherStep += Debugger_DispatcherStep;
-        //Debugger.InterpreterStep += Debugger_InterpreterStep;
+        Debugger.InterpreterStep += Debugger_InterpreterStep;
 
         Console.WriteLine("Listening for debug messages. Press Ctrl-C to exit.");
         Console.ReadLine();
+
+        return 0;
     }
 
     private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)

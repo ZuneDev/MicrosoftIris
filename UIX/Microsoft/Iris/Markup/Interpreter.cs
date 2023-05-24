@@ -90,6 +90,10 @@ namespace Microsoft.Iris.Markup
                             int num = reader.ReadUInt16();
                             TypeSchema typeSchema = importTables.TypeImports[num];
                             object obj = typeSchema.ConstructDefault();
+                            
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "type", typeof(TypeSchema), typeSchema));
+                                
                             ReportErrorOnNull(obj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
@@ -210,7 +214,12 @@ namespace Microsoft.Iris.Markup
                             int num8 = reader.ReadUInt16();
                             SymbolReference symbolRef = symbolReferenceTable[num8];
                             object obj8 = context.ReadSymbol(symbolRef);
+
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "symbolRef", typeof(SymbolReference), symbolRef));
+
                             stack.Push(obj8);
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -222,7 +231,14 @@ namespace Microsoft.Iris.Markup
                             object value = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
                             int num9 = reader.ReadUInt16();
                             SymbolReference symbolRef2 = symbolReferenceTable[num9];
+
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "symbolRef", typeof(SymbolReference), symbolRef2));
+                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
+                                "value", typeof(object), value));
+
                             context.WriteSymbol(symbolRef2, value);
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
