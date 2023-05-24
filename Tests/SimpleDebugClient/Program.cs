@@ -33,7 +33,7 @@ internal class Program
 
     private static void Debugger_DispatcherStep(string obj)
     {
-        Console.WriteLine(obj);
+        Console.WriteLine($"[Dispatcher] {obj}");
     }
 
     private static void Debugger_InterpreterStep(object? sender, InterpreterEntry e)
