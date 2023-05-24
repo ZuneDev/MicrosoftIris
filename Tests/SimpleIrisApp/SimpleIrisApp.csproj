@@ -2,18 +2,14 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <Platforms>x86;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Assets\*.*" />
-        <EmbeddedResource Include="Pages\*.*" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\..\UIX\UIX.csproj" />
+        
+		<EmbeddedResource Include="Assets\*.*" />
+        <EmbeddedResource Include="Pages\*.*" />
     </ItemGroup>
 
     <Target Name="CopyCustomContent" AfterTargets="AfterBuild">

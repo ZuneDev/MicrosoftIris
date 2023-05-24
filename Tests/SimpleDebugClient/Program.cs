@@ -1,25 +1,41 @@
 ﻿using Microsoft.Iris.Debug;
+using Microsoft.Iris.Debug.Data;
+using System;
 
-namespace SimpleDebugClient
+namespace SimpleDebugClient;
+
+internal class Program
 {
-    internal class Program
+    static IDebuggerClient? Debugger { get; set; }
+
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Bridge bridge = new(OwlCore.Remoting.RemotingMode.Client);
+        string connectionString = args.Length >= 2
+            ? args[1] : "tcp://127.0.0.1:5556";
 
-            Console.WriteLine("Listening for debug messages. Press ENTER to exit.");
-            Console.ReadLine();
-        }
+        Console.CancelKeyPress += Console_CancelKeyPress;
 
-        private static void Bridge_DispatcherStep(string obj)
-        {
-            Console.WriteLine(obj);
-        }
+        Debugger = new ZmqDebuggerClient(connectionString);
+        Debugger.DispatcherStep += Debugger_DispatcherStep;
+        Debugger.InterpreterStep += Debugger_InterpreterStep;
 
-        private static void Bridge_InterpreterStep(object? sender, Microsoft.Iris.Debug.Data.InterpreterEntry e)
-        {
-            Console.WriteLine(e);
-        }
+        Console.WriteLine("Listening for debug messages. Press Ctrl-C to exit.");
+        Console.ReadLine();
+    }
+
+    private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+    {
+        if (Debugger is IDisposable debugger)
+            debugger.Dispose();
+    }
+
+    private static void Debugger_DispatcherStep(string obj)
+    {
+        Console.WriteLine(obj);
+    }
+
+    private static void Debugger_InterpreterStep(object? sender, InterpreterEntry e)
+    {
+        Console.WriteLine(e);
     }
 }
