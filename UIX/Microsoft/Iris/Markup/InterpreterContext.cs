@@ -18,15 +18,15 @@ namespace Microsoft.Iris.Markup
         private uint _initialBytecodeOffset;
         private ParameterContext _parameterContext;
         private Map<object, object> _scopedLocals;
-        private static Stack s_cache = new Stack();
+        private static Stack s_cache = new();
 
         private InterpreterContext()
         {
         }
 
-        string IErrorContextSource.GetErrorContextDescription() => _type.Owner.ErrorContextUri;
+        public string GetErrorContextDescription() => _type.Owner.ErrorContextUri;
 
-        void IErrorContextSource.GetErrorPosition(ref int line, ref int column)
+        public void GetErrorPosition(ref int line, ref int column)
         {
             uint currentOffset = _loadResult.ObjectSection.CurrentOffset;
             if (currentOffset > 0U)
@@ -65,8 +65,7 @@ namespace Microsoft.Iris.Markup
             switch (symbolRef.Origin)
             {
                 case SymbolOrigin.ScopedLocal:
-                    if (_scopedLocals == null)
-                        _scopedLocals = new Map<object, object>();
+                    _scopedLocals ??= new Map<object, object>();
                     _scopedLocals[symbolRef.Symbol] = value;
                     break;
                 case SymbolOrigin.Parameter:
@@ -94,8 +93,7 @@ namespace Microsoft.Iris.Markup
             InterpreterContext interpreterContext = null;
             if (s_cache.Count != 0)
                 interpreterContext = (InterpreterContext)s_cache.Pop();
-            if (interpreterContext == null)
-                interpreterContext = new InterpreterContext();
+            interpreterContext ??= new InterpreterContext();
             interpreterContext._instance = instance;
             interpreterContext._initialBytecodeOffset = initialBytecodeOffset;
             interpreterContext._type = type;
@@ -120,8 +118,8 @@ namespace Microsoft.Iris.Markup
         {
             int line = 0;
             int column = 0;
-            ((IErrorContextSource)this).GetErrorPosition(ref line, ref column);
-            return string.Format("{0} ({1}, {2})", ((IErrorContextSource)this).GetErrorContextDescription(), line, column);
+            GetErrorPosition(ref line, ref column);
+            return $"{GetErrorContextDescription()} ({line}, {column})";
         }
     }
 }
