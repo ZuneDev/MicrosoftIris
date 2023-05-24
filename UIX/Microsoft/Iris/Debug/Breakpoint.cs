@@ -4,11 +4,12 @@ namespace Microsoft.Iris.Debug;
 
 public struct Breakpoint : IEquatable<Breakpoint>
 {
-    public Breakpoint(string uri, int line, int column)
+    public Breakpoint(string uri, int line, int column, bool enabled = true)
     {
         Uri = uri;
         Line = line;
         Column = column;
+        Enabled = enabled;
     }
 
     public string Uri { get; set; }
@@ -16,6 +17,8 @@ public struct Breakpoint : IEquatable<Breakpoint>
     public int Line { get; set; }
 
     public int Column { get; set; }
+
+    public bool Enabled { get; set; }
 
     public bool Equals(string uri, int line, int column) => uri == Uri && line == Line && column == Column;
 

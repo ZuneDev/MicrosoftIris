@@ -76,10 +76,14 @@ namespace Microsoft.Iris.Markup
                 // Fetch line and column numbers from the table
                 if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
                 {
+                    bool ShouldBreak(Breakpoint b)
+                        => b.Enabled
+                        && b.Line == line && b.Column == column
+                        && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase);
+
                     // Check if a breakpoint has been set at this location
-                    bool shouldBreak = Application.DebugSettings.Breakpoints
-                        .Any(b => b.Line == line && b.Column == column && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase));
-                    if (shouldBreak)
+                    bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
+                    if (shouldBreakHere)
                         System.Diagnostics.Debugger.Break();
                 }
 
