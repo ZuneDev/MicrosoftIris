@@ -2,6 +2,7 @@
 using NetMQ.Sockets;
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -13,11 +14,14 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
 
     private readonly PublisherSocket _pubSocket;
     private readonly byte[][] _messageFrame = new byte[2][];
+    private readonly IFormatter _formatter;
 
     public ZmqDebuggerServer(string connectionUri)
     {
         _pubSocket = new();
         _pubSocket.Bind(connectionUri);
+
+        _formatter = CreateFormatter();
 
         Current = this;
     }
@@ -25,7 +29,7 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
     public void LogInterpreterOpCode(object context, Data.InterpreterEntry entry)
     {
         using MemoryStream entryStream = new();
-        new BinaryFormatter().Serialize(entryStream, entry);
+        _formatter.Serialize(entryStream, entry);
 
         SendDebuggerMessage(DebuggerMessageType.InterpreterOpCode, entryStream.ToArray());
     }
@@ -50,4 +54,6 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
 
         _pubSocket.SendMultipartBytes(_messageFrame);
     }
+
+    internal static IFormatter CreateFormatter() => new BinaryFormatter(new FallbackSurrogateSelector(), new(StreamingContextStates.Remoting));
 }
