@@ -41,12 +41,21 @@ internal class BsonFormatter : IFormatter
         {
             CloseInput = false
         };
+
+        // If the type is accessible from the current domain,
+        // create an instance of it.
+        var typeName = _serializer.Deserialize<string>(reader);
+        var type = Type.GetType(typeName);
+        if (type != null)
+            return _serializer.Deserialize(reader, type);
+
         return _serializer.Deserialize(reader);
     }
 
     public void Serialize(Stream serializationStream, object graph)
     {
         using BsonDataWriter writer = new(serializationStream);
+        _serializer.Serialize(writer, graph?.GetType().FullName);
         _serializer.Serialize(writer, graph);
         writer.Flush();
     }
