@@ -55,5 +55,5 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
         _pubSocket.SendMultipartBytes(_messageFrame);
     }
 
-    internal static IFormatter CreateFormatter() => new BinaryFormatter(new FallbackSurrogateSelector(), new(StreamingContextStates.Remoting));
+    internal static IFormatter CreateFormatter() => new BsonFormatter(new StreamingContext(StreamingContextStates.Remoting));
 }
