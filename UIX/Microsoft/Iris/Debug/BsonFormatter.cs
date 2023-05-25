@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Debug;
@@ -37,30 +40,27 @@ internal class BsonFormatter : IFormatter
 
     public object Deserialize(Stream serializationStream)
     {
-        using BsonDataReader reader = new(serializationStream)
+        using JsonTextReader reader = new(new StreamReader(serializationStream))
         {
             CloseInput = false
         };
 
+        var package = (JArray)_serializer.Deserialize(reader);
+
         // If the type is accessible from the current domain,
         // create an instance of it.
-        var typeName = reader.ReadAsString();
+        var typeName = package[0].Value<string>();
         var type = Type.GetType(typeName);
         if (type != null)
-            return _serializer.Deserialize(reader, type);
+            return package[1].ToObject(type, _serializer);
 
-        return _serializer.Deserialize(reader);
+        return package[1];
     }
 
     public void Serialize(Stream serializationStream, object graph)
     {
-        using BsonDataWriter writer = new(serializationStream);
-
-        writer.WriteStartArray();
-        writer.WriteValue(graph?.GetType().FullName);
-        _serializer.Serialize(writer, graph);
-        writer.WriteEndArray();
-
+        using JsonTextWriter writer = new(new StreamWriter(serializationStream));
+        _serializer.Serialize(writer, new[] { graph?.GetType().FullName, graph });
         writer.Flush();
     }
 }
@@ -75,12 +75,15 @@ internal class BsonFallbackConverter : JsonConverter
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        if (objectType == typeof(uint))
-            return Convert.ToUInt32(existingValue);
-        else if (objectType == typeof(ulong))
-            return Convert.ToUInt64(existingValue);
-        else
-            return existingValue?.ToString();
+        if (existingValue != null)
+        {
+            if (objectType == typeof(uint))
+                return Convert.ToUInt32(existingValue);
+            else if (objectType == typeof(ulong))
+                return Convert.ToUInt64(existingValue);
+        }
+        
+        return existingValue?.ToString();
     }
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
