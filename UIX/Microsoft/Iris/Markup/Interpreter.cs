@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using Microsoft.Iris.Debug;
+using Microsoft.Iris.Debug.Data;
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup.UIX;
 using Microsoft.Iris.Session;
@@ -71,7 +72,7 @@ namespace Microsoft.Iris.Markup
             while (!errorsDetected)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                Debug.Data.InterpreterEntry entry = new(opCode, reader.CurrentOffset, loadResult.Uri);
+                InterpreterEntry entry = new(opCode, reader.CurrentOffset, loadResult.Uri);
 
                 // Fetch line and column numbers from the table
                 if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
@@ -91,138 +92,194 @@ namespace Microsoft.Iris.Markup
                 {
                     case OpCode.ConstructObject:
                         {
-                            int num = reader.ReadUInt16();
-                            TypeSchema typeSchema = importTables.TypeImports[num];
-                            object obj = typeSchema.ConstructDefault();
-                            
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "type", typeof(TypeSchema), typeSchema));
+                            int typeIndex = reader.ReadUInt16();
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+                            entry.Parameters.Add(new InterpreterObject("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.TypeImports));
+
+                            object newObj = typeSchema.ConstructDefault();
                                 
-                            ReportErrorOnNull(obj, "Construction", typeSchema.Name);
+                            ReportErrorOnNull(newObj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                RegisterDisposable(obj, typeSchema, instance);
-                                stack.Push(obj);
+                                RegisterDisposable(newObj, typeSchema, instance);
+
+                                stack.Push(newObj);
+                                entry.ReturnValues.Add(new(newObj));
                             }
                             break;
                         }
                     case OpCode.ConstructObjectIndirect:
                         {
-                            int num2 = reader.ReadUInt16();
-                            TypeSchema typeSchema2 = importTables.TypeImports[num2];
-                            TypeSchema typeSchema3 = (TypeSchema)stack.Pop();
-                            if (!typeSchema2.IsAssignableFrom(typeSchema3))
+                            int assignmentTypeIndex = reader.ReadUInt16();
+                            TypeSchema assignmentTypeSchema = importTables.TypeImports[assignmentTypeIndex];
+                            entry.Parameters.Add(new("assignmentType", typeof(TypeSchema),
+                                assignmentTypeSchema, InstructionObjectSource.TypeImports, assignmentTypeIndex));
+
+                            TypeSchema targetTypeSchema = (TypeSchema)stack.Pop();
+                            entry.Parameters.Add(new("targetType", typeof(TypeSchema),
+                                targetTypeSchema, InstructionObjectSource.Stack));
+
+                            if (!assignmentTypeSchema.IsAssignableFrom(targetTypeSchema))
                             {
-                                ErrorManager.ReportError("Script runtime failure: Dynamic construction type override failed. Attempting to construct '{0}' in place of '{1}'", (typeSchema3 != null) ? typeSchema3.Name : "null", typeSchema2.Name);
+                                ErrorManager.ReportError("Script runtime failure: Dynamic construction type override failed. Attempting to construct '{0}' in place of '{1}'", (targetTypeSchema != null) ? targetTypeSchema.Name : "null", assignmentTypeSchema.Name);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
-                                {
                                     break;
-                                }
                             }
-                            IDynamicConstructionSchema dynamicConstructionSchema = typeSchema3 as IDynamicConstructionSchema;
-                            object obj2;
-                            if (dynamicConstructionSchema != null)
-                            {
-                                obj2 = dynamicConstructionSchema.ConstructDefault(typeSchema2);
-                            }
-                            else
-                            {
-                                obj2 = typeSchema3.ConstructDefault();
-                            }
-                            ReportErrorOnNull(obj2, "Construction", typeSchema3.Name);
+
+                            object newObj = targetTypeSchema is IDynamicConstructionSchema dynamicConstructionSchema
+                                ? dynamicConstructionSchema.ConstructDefault(assignmentTypeSchema)
+                                : targetTypeSchema.ConstructDefault();
+
+                            ReportErrorOnNull(newObj, "Construction", targetTypeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                RegisterDisposable(obj2, typeSchema3, instance);
-                                stack.Push(obj2);
+                                RegisterDisposable(newObj, targetTypeSchema, instance);
+
+                                stack.Push(newObj);
+                                entry.ReturnValues.Add(new(newObj));
                             }
                             break;
                         }
                     case OpCode.ConstructObjectParam:
                         {
-                            int num3 = reader.ReadUInt16();
-                            TypeSchema typeSchema4 = importTables.TypeImports[num3];
-                            int num4 = reader.ReadUInt16();
-                            ConstructorSchema constructorSchema = importTables.ConstructorImports[num4];
-                            int i = constructorSchema.ParameterTypes.Length;
-                            object[] array = ParameterListAllocator.Alloc(i);
-                            for (i--; i >= 0; i--)
-                            {
-                                array[i] = stack.Pop();
-                            }
-                            object obj3 = constructorSchema.Construct(array);
-                            ReportErrorOnNull(obj3, "Construction", typeSchema4.Name);
+                            int targetTypeIndex = reader.ReadUInt16();
+                            TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
+
+                            int constructorIndex = reader.ReadUInt16();
+                            ConstructorSchema constructorSchema = importTables.ConstructorImports[constructorIndex];
+
+                            int parameterCount = constructorSchema.ParameterTypes.Length;
+                            object[] array = ParameterListAllocator.Alloc(parameterCount);
+                            for (parameterCount--; parameterCount >= 0; parameterCount--)
+                                array[parameterCount] = stack.Pop();
+                            entry.Parameters.Add(new("ctorParams", typeof(object[]),
+                                array, InstructionObjectSource.Stack));
+
+                            object newObj = constructorSchema.Construct(array);
+
+                            ReportErrorOnNull(newObj, "Construction", targetTypeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                RegisterDisposable(obj3, typeSchema4, instance);
-                                stack.Push(obj3);
+                                RegisterDisposable(newObj, targetTypeSchema, instance);
+
+                                stack.Push(newObj);
+                                entry.ReturnValues.Add(new(newObj));
+
                                 ParameterListAllocator.Free(array);
                             }
                             break;
                         }
                     case OpCode.ConstructFromString:
                         {
-                            int num5 = reader.ReadUInt16();
-                            TypeSchema typeSchema5 = importTables.TypeImports[num5];
-                            int index = reader.ReadUInt16();
-                            string from = (string)constantsTable.Get(index);
-                            object obj4;
-                            typeSchema5.TypeConverter(from, StringSchema.Type, out obj4);
-                            ReportErrorOnNull(obj4, "Construction", typeSchema5.Name);
+                            int typeIndex = reader.ReadUInt16();
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+                            entry.Parameters.Add(new("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.TypeImports, typeIndex));
+
+                            int stringIndex = reader.ReadUInt16();
+                            string fromString = (string)constantsTable.Get(stringIndex);
+                            entry.Parameters.Add(new("fromString", typeof(string),
+                                fromString, InstructionObjectSource.Constants, stringIndex));
+
+                            typeSchema.TypeConverter(fromString, StringSchema.Type, out object newObj);
+
+                            ReportErrorOnNull(newObj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                RegisterDisposable(obj4, typeSchema5, instance);
-                                stack.Push(obj4);
+                                RegisterDisposable(newObj, typeSchema, instance);
+
+                                stack.Push(newObj);
+                                entry.ReturnValues.Add(new(newObj));
                             }
                             break;
                         }
                     case OpCode.ConstructFromBinary:
                         {
-                            int num6 = reader.ReadUInt16();
-                            TypeSchema typeSchema6 = importTables.TypeImports[num6];
-                            object obj5 = typeSchema6.DecodeBinary(reader);
-                            ReportErrorOnNull(obj5, "Construction", typeSchema6.Name);
+                            int typeIndex = reader.ReadUInt16();
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+                            entry.Parameters.Add(new("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.TypeImports, typeIndex));
+
+                            uint blobStart = reader.CurrentOffset;
+                            object newObj = typeSchema.DecodeBinary(reader);
+                            if (debugging)
+                            {
+                                // Potentially expensive operation, only do this if a debugger is attached
+                                uint blobEnd = reader.CurrentOffset;
+                                uint blobLength = blobEnd - blobStart;
+
+                                byte[] blob = new byte[blobLength];
+                                reader.CurrentOffset = blobStart;
+                                while (reader.CurrentOffset < blobEnd)
+                                    blob[reader.CurrentOffset - blobStart] = reader.ReadByte();
+
+                                entry.Parameters.Add(new("blob", typeof(byte[]),
+                                    blob, InstructionObjectSource.Inline, 0));
+                            }
+
+                            ReportErrorOnNull(newObj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                RegisterDisposable(obj5, typeSchema6, instance);
-                                stack.Push(obj5);
+                                RegisterDisposable(newObj, typeSchema, instance);
+
+                                stack.Push(newObj);
+                                entry.ReturnValues.Add(new(newObj));
                             }
                             break;
                         }
                     case OpCode.InitializeInstance:
                         {
-                            int num7 = reader.ReadUInt16();
-                            TypeSchema typeSchema7 = importTables.TypeImports[num7];
-                            object obj6 = stack.Pop();
-                            typeSchema7.InitializeInstance(ref obj6);
-                            ReportErrorOnNull(obj6, "Initialize", typeSchema7.Name);
+                            int typeIndex = reader.ReadUInt16();
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+                            entry.Parameters.Add(new("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.TypeImports, typeIndex));
+
+                            object objToInit = stack.Pop();
+                            entry.Parameters.Add(new("objToInit", typeof(object),
+                                objToInit, InstructionObjectSource.Stack));
+
+                            typeSchema.InitializeInstance(ref objToInit);
+
+                            ReportErrorOnNull(objToInit, "Initialize", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                stack.Push(obj6);
+                                stack.Push(objToInit);
+                                entry.ReturnValues.Add(new(objToInit));
                             }
                             break;
                         }
                     case OpCode.InitializeInstanceIndirect:
                         {
-                            TypeSchema typeSchema8 = (TypeSchema)stack.Pop();
-                            object obj7 = stack.Pop();
-                            typeSchema8.InitializeInstance(ref obj7);
-                            ReportErrorOnNull(obj7, "Initialize", typeSchema8.Name);
+                            TypeSchema typeSchema = (TypeSchema)stack.Pop();
+                            entry.Parameters.Add(new("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.Stack));
+
+                            object objToInit = stack.Pop();
+                            entry.Parameters.Add(new("objToInit", typeof(object),
+                                objToInit, InstructionObjectSource.Stack));
+
+                            typeSchema.InitializeInstance(ref objToInit);
+
+                            ReportErrorOnNull(objToInit, "Initialize", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                stack.Push(obj7);
+                                stack.Push(objToInit);
+                                entry.ReturnValues.Add(new(objToInit));
                             }
                             break;
                         }
                     case OpCode.LookupSymbol:
                         {
-                            int num8 = reader.ReadUInt16();
-                            SymbolReference symbolRef = symbolReferenceTable[num8];
-                            object obj8 = context.ReadSymbol(symbolRef);
+                            int symbolRefIndex = reader.ReadUInt16();
+                            SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
+                            entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
+                                symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
 
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "symbolRef", typeof(SymbolReference), symbolRef));
+                            object symbol = context.ReadSymbol(symbolRef);
 
-                            stack.Push(obj8);
+                            stack.Push(symbol);
+                            entry.ReturnValues.Add(new(symbol));
 
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
@@ -232,16 +289,16 @@ namespace Microsoft.Iris.Markup
                     case OpCode.WriteSymbol:
                     case OpCode.WriteSymbolPeek:
                         {
-                            object value = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
-                            int num9 = reader.ReadUInt16();
-                            SymbolReference symbolRef2 = symbolReferenceTable[num9];
+                            object symbol = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
+                            entry.Parameters.Add(new("symbol", typeof(object),
+                                symbol, InstructionObjectSource.Stack));
 
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "symbolRef", typeof(SymbolReference), symbolRef2));
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "value", typeof(object), value));
+                            int symbolRefIndex = reader.ReadUInt16();
+                            SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
+                            entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
+                                symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
 
-                            context.WriteSymbol(symbolRef2, value);
+                            context.WriteSymbol(symbolRef, symbol);
 
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
@@ -250,9 +307,13 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.ClearSymbol:
                         {
-                            int num10 = reader.ReadUInt16();
-                            SymbolReference symbolRef3 = symbolReferenceTable[num10];
-                            context.ClearSymbol(symbolRef3);
+                            int symbolRefIndex = reader.ReadUInt16();
+                            SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
+                            entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
+                                symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
+
+                            context.ClearSymbol(symbolRef);
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -261,29 +322,41 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyInitialize:
                     case OpCode.PropertyInitializeIndirect:
                         {
-                            bool flag2 = opCode == OpCode.PropertyInitializeIndirect;
-                            TypeSchema typeSchema9 = null;
-                            if (flag2)
+                            bool isIndirect = opCode == OpCode.PropertyInitializeIndirect;
+                            TypeSchema parentTypeSchema = null;
+                            if (isIndirect)
                             {
-                                typeSchema9 = (TypeSchema)stack.Pop();
+                                parentTypeSchema = (TypeSchema)stack.Pop();
+                                entry.Parameters.Add(new("parentType", typeof(TypeSchema),
+                                    parentTypeSchema, InstructionObjectSource.Stack));
                             }
-                            int num11 = reader.ReadUInt16();
-                            PropertySchema propertySchema = importTables.PropertyImports[num11];
-                            object obj9 = stack.Pop();
-                            object obj10 = stack.Pop();
-                            ReportErrorOnNull(obj10, "Property Set", propertySchema.Name);
+
+                            int propertyIndex = reader.ReadUInt16();
+                            PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
+                            entry.Parameters.Add(new("property", typeof(PropertySchema),
+                                propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
+
+                            object propertyValue = stack.Pop();
+                            entry.Parameters.Add(new("value", typeof(object),
+                                propertyValue, InstructionObjectSource.Stack));
+
+                            object parentObj = stack.Pop();
+                            entry.Parameters.Add(new("parent", typeof(object),
+                                parentObj, InstructionObjectSource.Stack));
+
+                            ReportErrorOnNull(parentObj, "Property Set", propertySchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                if (flag2)
+                                if (isIndirect)
                                 {
-                                    PropertySchema propertySchema2 = typeSchema9.FindPropertyDeep(propertySchema.Name);
-                                    if (propertySchema2 != propertySchema)
+                                    PropertySchema inheritedPropertySchema = parentTypeSchema.FindPropertyDeep(propertySchema.Name);
+                                    if (inheritedPropertySchema != propertySchema)
                                     {
-                                        TypeSchema propertyType = propertySchema2.PropertyType;
-                                        if (!propertyType.IsAssignableFrom(obj9))
+                                        TypeSchema propertyType = inheritedPropertySchema.PropertyType;
+                                        if (!propertyType.IsAssignableFrom(propertyValue))
                                         {
-                                            string param = TypeSchema.NameFromInstance(obj9);
-                                            ErrorManager.ReportError("Script runtime failure: Incompatible value for property '{0}' supplied (expecting values of type '{1}' but got '{2}') while constructing runtime replacement type '{3}' (original type '{4}')", propertySchema.Name, propertyType.Name, param, typeSchema9.Name, propertySchema.Owner.Name);
+                                            string param = TypeSchema.NameFromInstance(propertyValue);
+                                            ErrorManager.ReportError("Script runtime failure: Incompatible value for property '{0}' supplied (expecting values of type '{1}' but got '{2}') while constructing runtime replacement type '{3}' (original type '{4}')", propertySchema.Name, propertyType.Name, param, parentTypeSchema.Name, propertySchema.Owner.Name);
                                             result = ScriptError;
                                         }
                                         if (ErrorsDetected(watermark, ref result, ref errorsDetected))
@@ -292,23 +365,35 @@ namespace Microsoft.Iris.Markup
                                         }
                                     }
                                 }
-                                propertySchema.SetValue(ref obj10, obj9);
+
+                                propertySchema.SetValue(ref parentObj, propertyValue);
+
                                 if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
-                                    stack.Push(obj10);
+                                    stack.Push(parentObj);
+                                    entry.ReturnValues.Add(new(parentObj));
                                 }
                             }
                             break;
                         }
                     case OpCode.PropertyListAdd:
                         {
+                            object objToAdd = stack.Pop();
+                            entry.Parameters.Add(new("objToAdd", typeof(object),
+                                objToAdd, InstructionObjectSource.Stack));
+
                             int propertyIndex = reader.ReadUInt16();
-                            object value2 = stack.Pop();
-                            object collection = GetCollection(stack.Peek(), importTables, propertyIndex);
+                            object collection = GetCollection(stack.Peek(), importTables, propertyIndex, out var propertySchema);
+                            entry.Parameters.Add(new("collection", typeof(IList),
+                                collection, InstructionObjectSource.Dynamic));
+                            if (propertySchema != null)
+                                entry.Parameters.Add(new("collectionProperty", typeof(PropertySchema),
+                                    propertySchema, InstructionObjectSource.TypeImports, propertyIndex));
+
                             ReportErrorOnNull(collection, "List Add");
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                ((IList)collection).Add(value2);
+                                ((IList)collection).Add(objToAdd);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                 }
@@ -317,15 +402,28 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.PropertyDictionaryAdd:
                         {
-                            int propertyIndex2 = reader.ReadUInt16();
-                            int index2 = reader.ReadUInt16();
-                            string key = (string)constantsTable.Get(index2);
-                            object value3 = stack.Pop();
-                            object collection2 = GetCollection(stack.Peek(), importTables, propertyIndex2);
-                            ReportErrorOnNull(collection2, "Dictionary Add");
+                            int propertyIndex = reader.ReadUInt16();
+
+                            int keyIndex = reader.ReadUInt16();
+                            string key = (string)constantsTable.Get(keyIndex);
+                            entry.Parameters.Add(new("key", typeof(string),
+                                key, InstructionObjectSource.Constants, keyIndex));
+
+                            object objToAdd = stack.Pop();
+                            entry.Parameters.Add(new("objToAdd", typeof(object),
+                                objToAdd, InstructionObjectSource.Stack));
+
+                            object dictionary = GetCollection(stack.Peek(), importTables, propertyIndex, out var propertySchema);
+                            entry.Parameters.Add(new("dictionary", typeof(IDictionary),
+                                dictionary, InstructionObjectSource.Dynamic));
+                            if (propertySchema != null)
+                                entry.Parameters.Add(new("dictionaryProperty", typeof(PropertySchema),
+                                    propertySchema, InstructionObjectSource.TypeImports, propertyIndex));
+
+                            ReportErrorOnNull(dictionary, "Dictionary Add");
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                ((IDictionary)collection2)[key] = value3;
+                                ((IDictionary)dictionary)[key] = objToAdd;
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                 }
@@ -335,20 +433,32 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyAssign:
                     case OpCode.PropertyAssignStatic:
                         {
-                            int num12 = reader.ReadUInt16();
-                            PropertySchema propertySchema3 = importTables.PropertyImports[num12];
-                            object instance2 = null;
+                            int propertyIndex = reader.ReadUInt16();
+                            PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
+                            entry.Parameters.Add(new("property", typeof(PropertySchema),
+                                propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
+
+                            object parentObj = null;
+
                             if (opCode == OpCode.PropertyAssign)
                             {
-                                instance2 = stack.Pop();
-                                ReportErrorOnNullOrDisposed(instance2, "Property Set", propertySchema3.Name, propertySchema3.Owner);
+                                parentObj = stack.Pop();
+                                entry.Parameters.Add(new("parent", typeof(object),
+                                    parentObj, InstructionObjectSource.Stack));
+
+                                ReportErrorOnNullOrDisposed(parentObj, "Property Set", propertySchema.Name, propertySchema.Owner);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                     break;
                                 }
                             }
-                            object value4 = stack.Peek();
-                            propertySchema3.SetValue(ref instance2, value4);
+
+                            object propertyValue = stack.Peek();
+                            entry.Parameters.Add(new("value", typeof(object),
+                                propertyValue, InstructionObjectSource.Stack, 1));
+
+                            propertySchema.SetValue(ref parentObj, propertyValue);
+
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected) && Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -358,22 +468,32 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyGetPeek:
                     case OpCode.PropertyGetStatic:
                         {
-                            int num13 = reader.ReadUInt16();
-                            PropertySchema propertySchema4 = importTables.PropertyImports[num13];
-                            object instance3 = null;
+                            int propertyIndex = reader.ReadUInt16();
+                            PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
+                            entry.Parameters.Add(new("property", typeof(PropertySchema),
+                                propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
+
+                            object parentObj = null;
+
                             if (opCode != OpCode.PropertyGetStatic)
                             {
-                                instance3 = ((opCode == OpCode.PropertyGet) ? stack.Pop() : stack.Peek());
-                                ReportErrorOnNullOrDisposed(instance3, "Property Get", propertySchema4.Name, propertySchema4.Owner);
+                                parentObj = opCode == OpCode.PropertyGet ? stack.Pop() : stack.Peek();
+                                entry.Parameters.Add(new("parent", typeof(object),
+                                    parentObj, InstructionObjectSource.Stack));
+
+                                ReportErrorOnNullOrDisposed(parentObj, "Property Get", propertySchema.Name, propertySchema.Owner);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                     break;
                                 }
                             }
-                            object value5 = propertySchema4.GetValue(instance3);
+
+                            object propertyValue = propertySchema.GetValue(parentObj);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                stack.Push(value5);
+                                stack.Push(propertyValue);
+                                entry.ReturnValues.Add(new(propertyValue));
+
                                 if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                                 {
                                 }
@@ -386,74 +506,82 @@ namespace Microsoft.Iris.Markup
                     case OpCode.MethodInvokePushLastParam:
                     case OpCode.MethodInvokeStaticPushLastParam:
                         {
-                            int num14 = reader.ReadUInt16();
-                            MethodSchema methodSchema = importTables.MethodImports[num14];
-                            int j = methodSchema.ParameterTypes.Length;
-                            object[] array2 = ParameterListAllocator.Alloc(j);
-                            for (j--; j >= 0; j--)
+                            int methodIndex = reader.ReadUInt16();
+                            MethodSchema methodSchema = importTables.MethodImports[methodIndex];
+
+                            int parameterCount = methodSchema.ParameterTypes.Length;
+                            object[] parameters = ParameterListAllocator.Alloc(parameterCount);
+                            for (parameterCount--; parameterCount >= 0; parameterCount--)
+                                parameters[parameterCount] = stack.Pop();
+                            entry.Parameters.Add(new("parameters", typeof(object[]),
+                                parameters, InstructionObjectSource.Stack));
+
+                            object parentObj = null;
+                            bool isStatic = opCode == OpCode.MethodInvokeStatic || opCode == OpCode.MethodInvokeStaticPushLastParam;
+                            bool peek = opCode == OpCode.MethodInvokePeek;
+                            bool pushLastParam = opCode == OpCode.MethodInvokePushLastParam || opCode == OpCode.MethodInvokeStaticPushLastParam;
+
+                            if (!isStatic)
                             {
-                                array2[j] = stack.Pop();
-                            }
-                            object instance4 = null;
-                            bool flag3 = opCode != OpCode.MethodInvokeStatic && opCode != OpCode.MethodInvokeStaticPushLastParam;
-                            bool flag4 = opCode == OpCode.MethodInvokePeek;
-                            bool flag5 = opCode == OpCode.MethodInvokePushLastParam || opCode == OpCode.MethodInvokeStaticPushLastParam;
-                            if (flag3)
-                            {
-                                if (!flag4)
-                                {
-                                    instance4 = stack.Pop();
-                                }
-                                else
-                                {
-                                    instance4 = stack.Peek();
-                                }
-                                ReportErrorOnNullOrDisposed(instance4, "Method Invoke", methodSchema.Name, methodSchema.Owner);
+                                parentObj = !peek ? stack.Pop() : stack.Peek();
+                                entry.Parameters.Add(new("parent", typeof(object),
+                                    parentObj, InstructionObjectSource.Stack));
+
+                                ReportErrorOnNullOrDisposed(parentObj, "Method Invoke", methodSchema.Name, methodSchema.Owner);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                     break;
                                 }
                             }
 
-                            object obj11 = methodSchema.Invoke(instance4, array2);
+                            object methodResult = methodSchema.Invoke(parentObj, parameters);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                if (!flag5)
+                                if (!pushLastParam)
                                 {
                                     if (methodSchema.ReturnType != VoidSchema.Type)
                                     {
-                                        stack.Push(obj11);
+                                        stack.Push(methodResult);
+                                        entry.ReturnValues.Add(new(methodResult));
                                     }
                                 }
                                 else
                                 {
-                                    stack.Push(array2[array2.Length - 1]);
+                                    stack.Push(parameters[parameters.Length - 1]);
                                 }
-                                ParameterListAllocator.Free(array2);
+
+                                ParameterListAllocator.Free(parameters);
                             }
                             break;
                         }
                     case OpCode.VerifyTypeCast:
                         {
-                            int num15 = reader.ReadUInt16();
-                            TypeSchema typeSchema10 = importTables.TypeImports[num15];
-                            object obj12 = stack.Peek();
-                            if (obj12 != null)
+                            int typeIndex = reader.ReadUInt16();
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+                            entry.Parameters.Add(new("type", typeof(TypeSchema),
+                                typeSchema, InstructionObjectSource.TypeImports, typeIndex));
+
+                            object objToCheck = stack.Peek();
+                            entry.Parameters.Add(new("objToCheck", typeof(object),
+                                objToCheck, InstructionObjectSource.Stack, 1));
+
+                            if (objToCheck != null)
                             {
-                                if (!typeSchema10.IsAssignableFrom(obj12))
+                                if (!typeSchema.IsAssignableFrom(objToCheck))
                                 {
-                                    string param2 = TypeSchema.NameFromInstance(obj12);
-                                    string name = typeSchema10.Name;
-                                    ErrorManager.ReportError("Script runtime failure: Invalid type cast while attempting to cast an instance with a runtime type of '{0}' to '{1}'", param2, name);
+                                    string runtimeTypeName = TypeSchema.NameFromInstance(objToCheck);
+                                    string name = typeSchema.Name;
+                                    ErrorManager.ReportError("Script runtime failure: Invalid type cast while attempting to cast an instance with a runtime type of '{0}' to '{1}'", runtimeTypeName, name);
                                     result = ScriptError;
                                 }
+
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                 }
                             }
-                            else if (!typeSchema10.IsNullAssignable)
+                            else if (!typeSchema.IsNullAssignable)
                             {
-                                ReportErrorOnNull(obj12, "Verify Type Cast", typeSchema10.Name);
+                                ReportErrorOnNull(objToCheck, "Verify Type Cast", typeSchema.Name);
                                 if (ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                 }
@@ -462,42 +590,65 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.ConvertType:
                         {
-                            int num16 = reader.ReadUInt16();
-                            TypeSchema typeSchema11 = importTables.TypeImports[num16];
-                            int num17 = reader.ReadUInt16();
-                            TypeSchema fromType = importTables.TypeImports[num17];
-                            object obj13 = stack.Pop();
-                            ReportErrorOnNull(obj13, "Type Conversion", typeSchema11.Name);
+                            int toTypeIndex = reader.ReadUInt16();
+                            TypeSchema toTypeSchema = importTables.TypeImports[toTypeIndex];
+                            entry.Parameters.Add(new("toType", typeof(TypeSchema),
+                                toTypeSchema, InstructionObjectSource.TypeImports, toTypeIndex));
+
+                            int fromTypeIndex = reader.ReadUInt16();
+                            TypeSchema fromTypeSchema = importTables.TypeImports[fromTypeIndex];
+                            entry.Parameters.Add(new("fromType", typeof(TypeSchema),
+                                fromTypeSchema, InstructionObjectSource.TypeImports, fromTypeIndex));
+
+                            object objToConvert = stack.Pop();
+                            entry.Parameters.Add(new("objToConvert", typeof(object),
+                                objToConvert, InstructionObjectSource.Stack));
+
+                            ReportErrorOnNull(objToConvert, "Type Conversion", toTypeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                object obj14;
-                                Result result2 = typeSchema11.TypeConverter(obj13, fromType, out obj14);
-                                if (result2.Failed)
-                                {
-                                    ErrorManager.ReportError("Script runtime failure: Type conversion failed while attempting to convert to '{0}' ({1})", typeSchema11.Name, result2.Error);
-                                }
+                                Result castResult = toTypeSchema.TypeConverter(objToConvert, fromTypeSchema, out object obj14);
+                                if (castResult.Failed)
+                                    ErrorManager.ReportError("Script runtime failure: Type conversion failed while attempting to convert to '{0}' ({1})", toTypeSchema.Name, castResult.Error);
+
                                 if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                                 {
                                     stack.Push(obj14);
+                                    entry.ReturnValues.Add(new(obj14));
                                 }
                             }
                             break;
                         }
                     case OpCode.Operation:
                         {
-                            int num18 = reader.ReadUInt16();
-                            TypeSchema typeSchema12 = importTables.TypeImports[num18];
+                            int opHostIndex = reader.ReadUInt16();
+                            TypeSchema opHost = importTables.TypeImports[opHostIndex];
+                            entry.Parameters.Add(new("opHost", typeof(TypeSchema),
+                                opHost, InstructionObjectSource.TypeImports, opHostIndex));
+
                             OperationType op = (OperationType)reader.ReadByte();
+                            entry.Parameters.Add(new("op", typeof(OperationType),
+                                op, InstructionObjectSource.Inline));
+
                             object right = null;
                             if (!TypeSchema.IsUnaryOperation(op))
                             {
                                 right = stack.Pop();
+                                entry.Parameters.Add(new("right", typeof(object),
+                                    right, InstructionObjectSource.Stack));
                             }
+
                             object left = stack.Pop();
-                            object obj15 = typeSchema12.PerformOperationDeep(left, right, op);
+                            entry.Parameters.Add(new("left", typeof(object),
+                                left, InstructionObjectSource.Stack));
+
+                            object opResult = opHost.PerformOperationDeep(left, right, op);
+
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                stack.Push(obj15);
+                                stack.Push(opResult);
+                                entry.ReturnValues.Add(new(opResult));
+
                                 if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                                 {
                                 }
@@ -506,15 +657,22 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.IsCheck:
                         {
-                            int num19 = reader.ReadUInt16();
-                            TypeSchema typeSchema13 = importTables.TypeImports[num19];
-                            object obj16 = stack.Pop();
-                            bool value6 = false;
-                            if (obj16 != null)
-                            {
-                                value6 = typeSchema13.IsAssignableFrom(obj16);
-                            }
-                            stack.Push(BooleanBoxes.Box(value6));
+                            int targetTypeIndex = reader.ReadUInt16();
+                            TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
+                            entry.Parameters.Add(new("targetType", typeof(TypeSchema),
+                                targetTypeSchema, InstructionObjectSource.TypeImports, targetTypeIndex));
+
+                            object objToCheck = stack.Pop();
+                            entry.Parameters.Add(new("objToCheck", typeof(object),
+                                objToCheck, InstructionObjectSource.Stack));
+
+                            bool checkResult = false;
+                            if (objToCheck != null)
+                                checkResult = targetTypeSchema.IsAssignableFrom(objToCheck);
+
+                            stack.Push(BooleanBoxes.Box(checkResult));
+                            entry.ReturnValues.Add(new(checkResult));
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -522,14 +680,27 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.As:
                         {
-                            int num20 = reader.ReadUInt16();
-                            TypeSchema typeSchema14 = importTables.TypeImports[num20];
-                            object obj17 = stack.Peek();
-                            if (obj17 != null && !typeSchema14.IsAssignableFrom(obj17))
+                            int targetTypeIndex = reader.ReadUInt16();
+                            TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
+                            entry.Parameters.Add(new("targetType", typeof(TypeSchema),
+                                targetTypeSchema, InstructionObjectSource.TypeImports, targetTypeIndex));
+
+                            object objToCheck = stack.Peek();
+                            entry.Parameters.Add(new("objToCheck", typeof(object),
+                                objToCheck, InstructionObjectSource.Stack, 1));
+
+                            if (objToCheck != null && !targetTypeSchema.IsAssignableFrom(objToCheck))
                             {
                                 stack.Pop();
                                 stack.Push(null);
                             }
+                            else if (debugging)
+                            {
+                                // The opcode isn't implemented like this,
+                                // but technically As returns a value.
+                                entry.ReturnValues.Add(new(objToCheck));
+                            }
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -537,31 +708,45 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.TypeOf:
                         {
-                            int num21 = reader.ReadUInt16();
-                            TypeSchema obj18 = importTables.TypeImports[num21];
-                            stack.Push(obj18);
+                            int typeIndex = reader.ReadUInt16();
+                            entry.Parameters.Add(new("typeIndex", typeof(ushort),
+                                typeIndex, InstructionObjectSource.Inline));
+
+                            TypeSchema typeSchema = importTables.TypeImports[typeIndex];
+
+                            stack.Push(typeSchema);
+                            entry.ReturnValues.Add(new(typeSchema));
                             break;
                         }
                     case OpCode.PushNull:
                         stack.Push(null);
+                        entry.ReturnValues.Add(new(null));
                         break;
                     case OpCode.PushConstant:
                         {
-                            int index3 = reader.ReadUInt16();
-                            object obj19 = constantsTable.Get(index3);
-                            stack.Push(obj19);
+                            int constantIndex = reader.ReadUInt16();
+                            entry.Parameters.Add(new("constantIndex", typeof(ushort),
+                                constantIndex, InstructionObjectSource.Inline));
+
+                            object constant = constantsTable.Get(constantIndex);
+
+                            stack.Push(constant);
+                            entry.ReturnValues.Add(new(constant));
                             break;
                         }
                     case OpCode.PushThis:
                         stack.Push(instance);
+                        entry.ReturnValues.Add(new(instance));
                         break;
                     case OpCode.DiscardValue:
                         stack.Pop();
                         break;
                     case OpCode.ReturnValue:
                         {
-                            object obj20 = stack.Pop();
-                            result = obj20;
+                            object thisResult = stack.Pop();
+                            entry.ReturnValues.Add(new(thisResult));
+
+                            result = thisResult;
                             errorsDetected = true;
                             break;
                         }
@@ -573,14 +758,19 @@ namespace Microsoft.Iris.Markup
                     case OpCode.JumpIfFalsePeek:
                     case OpCode.JumpIfTruePeek:
                         {
-                            uint currentOffset = reader.ReadUInt32();
-                            object obj21 = (opCode == OpCode.JumpIfFalse) ? stack.Pop() : stack.Peek();
-                            bool flag6 = (bool)obj21;
-                            bool flag7 = opCode == OpCode.JumpIfTruePeek;
-                            Trace.IsCategoryEnabled(TraceCategory.Markup);
-                            if (flag7 == flag6)
+                            uint jumpTo = reader.ReadUInt32();
+                            entry.Parameters.Add(new("jumpTo", typeof(uint),
+                                jumpTo, InstructionObjectSource.Inline));
+
+                            bool value = (bool)((opCode == OpCode.JumpIfFalse) ? stack.Pop() : stack.Peek());
+                            entry.Parameters.Add(new("value", typeof(bool),
+                                value, InstructionObjectSource.Stack));
+
+                            bool jumpIfTrue = opCode == OpCode.JumpIfTruePeek;
+                            if (jumpIfTrue == value)
                             {
-                                reader.CurrentOffset = currentOffset;
+                                reader.CurrentOffset = jumpTo;
+
                                 if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                                 {
                                 }
@@ -589,19 +779,34 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.JumpIfDictionaryContains:
                         {
-                            ushort propertyIndex3 = reader.ReadUInt16();
-                            ushort index4 = reader.ReadUInt16();
-                            uint currentOffset2 = reader.ReadUInt32();
-                            string key2 = (string)constantsTable.Get(index4);
-                            object collection3 = GetCollection(stack.Peek(), importTables, propertyIndex3);
-                            ReportErrorOnNull(collection3, "Dictionary Contains");
+                            ushort propertyIndex = reader.ReadUInt16();
+                            ushort keyIndex = reader.ReadUInt16();
+
+                            uint jumpTo = reader.ReadUInt32();
+                            entry.Parameters.Add(new("jumpTo", typeof(uint),
+                                jumpTo, InstructionObjectSource.Inline));
+
+                            string key = (string)constantsTable.Get(keyIndex);
+                            entry.Parameters.Add(new("key", typeof(string),
+                                key, InstructionObjectSource.Constants, keyIndex));
+
+                            object dictionary = GetCollection(stack.Peek(), importTables, propertyIndex, out var propertySchema);
+                            entry.Parameters.Add(new("dictionary", typeof(IDictionary),
+                                dictionary, InstructionObjectSource.Dynamic));
+                            if (propertySchema != null)
+                                entry.Parameters.Add(new("dictionaryProperty", typeof(PropertySchema),
+                                    propertySchema, InstructionObjectSource.TypeImports, propertyIndex));
+
+                            ReportErrorOnNull(dictionary, "Dictionary Contains");
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
-                                bool flag8 = ((IDictionary)collection3).Contains(key2);
+                                bool dictionaryContains = ((IDictionary)dictionary).Contains(key);
+
                                 Trace.IsCategoryEnabled(TraceCategory.Markup);
-                                if (flag8)
+                                if (dictionaryContains)
                                 {
-                                    reader.CurrentOffset = currentOffset2;
+                                    reader.CurrentOffset = jumpTo;
+
                                     if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                                     {
                                     }
@@ -611,12 +816,19 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.JumpIfNullPeek:
                         {
-                            uint currentOffset3 = reader.ReadUInt32();
-                            object obj22 = stack.Peek();
+                            uint jumpTo = reader.ReadUInt32();
+                            entry.Parameters.Add(new("jumpTo", typeof(uint),
+                                jumpTo, InstructionObjectSource.Inline));
+
+                            object objToCheck = stack.Peek();
+                            entry.Parameters.Add(new("objToCheck", typeof(object),
+                                objToCheck, InstructionObjectSource.Stack));
+
                             Trace.IsCategoryEnabled(TraceCategory.Markup);
-                            if (obj22 == null)
+                            if (objToCheck == null)
                             {
-                                reader.CurrentOffset = currentOffset3;
+                                reader.CurrentOffset = jumpTo;
+
                                 if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                                 {
                                 }
@@ -625,8 +837,12 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.Jump:
                         {
-                            uint currentOffset4 = reader.ReadUInt32();
-                            reader.CurrentOffset = currentOffset4;
+                            uint jumpTo = reader.ReadUInt32();
+                            entry.Parameters.Add(new("jumpTo", typeof(uint),
+                                jumpTo, InstructionObjectSource.Inline));
+
+                            reader.CurrentOffset = jumpTo;
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -635,9 +851,12 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructListenerStorage:
                         {
                             int listenerCount = reader.ReadUInt16();
+                            entry.Parameters.Add(new("listenerCount", typeof(int),
+                                listenerCount, InstructionObjectSource.Inline));
+
                             if (instance.Listeners == null)
                             {
-                                MarkupListeners markupListeners = new MarkupListeners(listenerCount);
+                                MarkupListeners markupListeners = new(listenerCount);
                                 markupListeners.DeclareOwner(instance);
                                 instance.Listeners = markupListeners;
                             }
@@ -645,6 +864,7 @@ namespace Microsoft.Iris.Markup
                             {
                                 instance.Listeners.AddEntries(listenerCount);
                             }
+
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
                             }
@@ -653,35 +873,56 @@ namespace Microsoft.Iris.Markup
                     case OpCode.Listen:
                     case OpCode.DestructiveListen:
                         {
-                            int index5 = reader.ReadUInt16();
+                            int listenerIndex = reader.ReadUInt16();
+                            entry.Parameters.Add(new("listenerIndex", typeof(int),
+                                listenerIndex, InstructionObjectSource.Inline));
+
                             ListenerType listenerType = (ListenerType)reader.ReadByte();
-                            int num22 = reader.ReadUInt16();
-                            uint scriptOffset = reader.ReadUInt32();
+                            entry.Parameters.Add(new("listenerType", typeof(ListenerType),
+                                listenerType, InstructionObjectSource.Inline));
+
+                            int watchIndex = reader.ReadUInt16();
+
+                            uint handlerOffset = reader.ReadUInt32();
+                            entry.Parameters.Add(new("handlerOffset", typeof(uint),
+                                handlerOffset, InstructionObjectSource.Inline));
+
                             uint refreshOffset = uint.MaxValue;
                             if (opCode == OpCode.DestructiveListen)
                             {
                                 refreshOffset = reader.ReadUInt32();
+                                entry.Parameters.Add(new("refreshOffset", typeof(uint),
+                                    refreshOffset, InstructionObjectSource.Inline));
                             }
+                            
                             string watch = null;
+                            InstructionObjectSource watchSource = InstructionObjectSource.Dynamic;
                             switch (listenerType)
                             {
                                 case ListenerType.Property:
-                                    watch = importTables.PropertyImports[num22].Name;
+                                    watch = importTables.PropertyImports[watchIndex].Name;
+                                    watchSource = InstructionObjectSource.PropertyImports;
                                     break;
                                 case ListenerType.Event:
-                                    watch = importTables.EventImports[num22].Name;
+                                    watch = importTables.EventImports[watchIndex].Name;
+                                    watchSource = InstructionObjectSource.EventImports;
                                     break;
                                 case ListenerType.Symbol:
-                                    watch = symbolReferenceTable[num22].Symbol;
+                                    watch = symbolReferenceTable[watchIndex].Symbol;
+                                    watchSource = InstructionObjectSource.SymbolReference;
                                     break;
                             }
-                            object obj23 = stack.Peek();
-                            if (obj23 != null)
+                            entry.Parameters.Add(new("watch", typeof(string),
+                                watch, watchSource, watchIndex));
+
+                            object handlerObj = stack.Peek();
+                            entry.Parameters.Add(new("handlerObj", typeof(object),
+                                handlerObj, InstructionObjectSource.Stack, 1));
+
+                            if (handlerObj is INotifyObject notifier)
                             {
-                                INotifyObject notifier = (INotifyObject)obj23;
-                                Trace.IsCategoryEnabled(TraceCategory.Markup);
                                 MarkupListeners listeners = instance.Listeners;
-                                listeners.RefreshListener(index5, notifier, watch, instance, scriptOffset, refreshOffset);
+                                listeners.RefreshListener(listenerIndex, notifier, watch, instance, handlerOffset, refreshOffset);
                             }
                             else
                             {
@@ -692,6 +933,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.EnterDebugState:
                         {
                             int breakpointIndex = reader.ReadInt32();
+                            entry.Parameters.Add(new("breakpointIndex", typeof(int),
+                                breakpointIndex, InstructionObjectSource.Inline));
+
                             if (MarkupSystem.IsDebuggingEnabled(2))
                             {
                                 wasInDebugState = MarkupDebugHelper.EnterDebugState(wasInDebugState, loadResult, breakpointIndex, instance.Storage);
@@ -733,21 +977,20 @@ namespace Microsoft.Iris.Markup
         }
 
         // Token: 0x06000F25 RID: 3877 RVA: 0x0002ADF0 File Offset: 0x00029DF0
-        private static object GetCollection(object stackInstance, MarkupImportTables importTables, int propertyIndex)
+        private static object GetCollection(object stackInstance, MarkupImportTables importTables, int propertyIndex, out PropertySchema propertySchema)
         {
             object result = null;
-            if (propertyIndex == 65535)
+            if (propertyIndex == 0xFFFF)
             {
                 result = stackInstance;
+                propertySchema = null;
             }
             else
             {
-                PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
+                propertySchema = importTables.PropertyImports[propertyIndex];
                 ReportErrorOnNull(stackInstance, "Property Get", propertySchema.Name);
                 if (stackInstance != null)
-                {
                     result = propertySchema.GetValue(stackInstance);
-                }
             }
             return result;
         }
@@ -922,7 +1165,6 @@ namespace Microsoft.Iris.Markup
             while (!flag)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                var entry = new Debug.Data.InterpreterEntry(opCode, reader.CurrentOffset, loadResult.Uri);
 
                 switch (opCode)
                 {
@@ -937,9 +1179,6 @@ namespace Microsoft.Iris.Markup
                             if (idxTilde >= 0)
                                 typeName = typeName.Substring(0, idxTilde);
                             var objXml = XmlDoc.CreateElement(typeName);
-
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "type", typeof(TypeSchema), typeSchema));
 
                             ReportErrorOnNull(obj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref flag))
@@ -1078,15 +1317,12 @@ namespace Microsoft.Iris.Markup
                         {
                             int num8 = reader.ReadUInt16();
                             SymbolReference symbolRef = symbolReferenceTable[num8];
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "symbolRef", typeof(SymbolReference), symbolRef));
 
                             object obj8 = context.ReadSymbol(symbolRef);
                             var objXml8 = GenerateXmlRepresentation(obj8);
 
                             stack.Push(obj8);
                             xmlStack.Push(objXml8);
-                            entry.ReturnValues.Add(obj8);
 
                             if (Trace.IsCategoryEnabled(TraceCategory.Markup))
                             {
@@ -1100,11 +1336,6 @@ namespace Microsoft.Iris.Markup
                             if (opCode == OpCode.WriteSymbol) xmlStack.Pop();
                             int num9 = reader.ReadUInt16();
                             SymbolReference symbolRef2 = symbolReferenceTable[num9];
-
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "symbolRef", typeof(SymbolReference), symbolRef2));
-                            entry.Arguments.Add(new Debug.Data.OpCodeArgument(
-                                "value", typeof(object), value));
 
                             context.WriteSymbol(symbolRef2, value);
 
@@ -1553,7 +1784,7 @@ namespace Microsoft.Iris.Markup
                             ushort index4 = reader.ReadUInt16();
                             uint currentOffset2 = reader.ReadUInt32();
                             string key2 = (string)constantsTable.Get(index4);
-                            object collection3 = GetCollection(stack.Peek(), importTables, propertyIndex3);
+                            object collection3 = GetCollection(stack.Peek(), importTables, propertyIndex3, out _);
                             ReportErrorOnNull(collection3, "Dictionary Contains");
                             if (!ErrorsDetected(watermark, ref result, ref flag))
                             {
@@ -1659,8 +1890,6 @@ namespace Microsoft.Iris.Markup
                             break;
                         }
                 }
-
-                Application.Debugger?.LogInterpreterOpCode(opCode, entry);
 
                 if (stack.Count != xmlStack.Count)
                     throw new InvalidOperationException(
