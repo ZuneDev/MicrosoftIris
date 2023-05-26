@@ -9,6 +9,7 @@ using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup;
 using System;
 using System.Collections;
+using System.Linq;
 
 namespace Microsoft.Iris.ModelItems
 {
@@ -108,6 +109,6 @@ namespace Microsoft.Iris.ModelItems
             ContentsChanged(this, new UIListContentsChangedArgs(type, oldIndex, newIndex));
         }
 
-        public override string ToString() => $"{{NotifyList Source=[{string.Join(", ", _source)}]}}";
+        public override string ToString() => $"{{NotifyList Source=[{string.Join(", ", _source.Cast<object>().ToArray())}]}}";
     }
 }
