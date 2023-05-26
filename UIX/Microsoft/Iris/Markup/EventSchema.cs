@@ -10,8 +10,8 @@ namespace Microsoft.Iris.Markup
 {
     public abstract class EventSchema : DisposableObject
     {
-        private TypeSchema _owner;
-        public static EventSchema[] EmptyList = new EventSchema[0];
+        private readonly TypeSchema _owner;
+        public readonly static EventSchema[] EmptyList = System.Array.Empty<EventSchema>();
 
         public EventSchema(TypeSchema owner)
         {
@@ -22,5 +22,7 @@ namespace Microsoft.Iris.Markup
         public TypeSchema Owner => _owner;
 
         public abstract string Name { get; }
+
+        public override string ToString() => $"{_owner.Name}.{Name}";
     }
 }

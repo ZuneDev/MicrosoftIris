@@ -270,5 +270,7 @@ namespace Microsoft.Iris.Render.Graphics
         }
 
         internal delegate void ContentReloadedHandler(Image image);
+
+        public override string ToString() => $"{{Image {Identifier} {Format} {Size}}}";
     }
 }

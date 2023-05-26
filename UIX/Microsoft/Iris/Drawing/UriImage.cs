@@ -119,5 +119,7 @@ namespace Microsoft.Iris.Drawing
         {
             ScavengeImageCache.Instance.RemoveData(new ImageCacheKey(source, maximumSize, flippable, antialiasEdges));
         }
+
+        public override string ToString() => $"{{UriImage '{Source}' {RenderImage?.ToString() ?? "null"}}}";
     }
 }

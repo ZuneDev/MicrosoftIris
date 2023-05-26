@@ -1378,7 +1378,7 @@ namespace Microsoft.Iris.UI
 
         internal void SetEventContext(EventContext eventContext) => _eventContext = eventContext;
 
-        public override string ToString() => _typeSchema.ToString();
+        public override string ToString() => $"UI[{_typeSchema.Name}]";
 
         private class SavedFocusState
         {

@@ -107,5 +107,7 @@ namespace Microsoft.Iris.ModelItems
                 return;
             ContentsChanged(this, new UIListContentsChangedArgs(type, oldIndex, newIndex));
         }
+
+        public override string ToString() => $"{{NotifyList Source=[{string.Join(", ", _source)}]}}";
     }
 }

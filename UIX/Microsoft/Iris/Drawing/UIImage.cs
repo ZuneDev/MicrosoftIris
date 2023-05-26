@@ -190,5 +190,7 @@ namespace Microsoft.Iris.Drawing
         }
 
         public event ContentLoadCompleteHandler LoadComplete;
+
+        public override string ToString() => $"{{UIImage {RenderImage?.ToString() ?? "null"}}}";
     }
 }

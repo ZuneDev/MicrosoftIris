@@ -4,8 +4,6 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
-using System.Text;
-
 namespace Microsoft.Iris.Drawing
 {
     internal sealed class Font
@@ -76,17 +74,6 @@ namespace Microsoft.Iris.Drawing
 
         public override int GetHashCode() => _fontName.GetHashCode() ^ _fontHeight.GetHashCode() ^ _altFontHeight.GetHashCode() ^ _fontStyle.GetHashCode();
 
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("{Font \"");
-            stringBuilder.Append(_fontName);
-            stringBuilder.Append("\" ");
-            stringBuilder.Append(_fontHeight);
-            stringBuilder.Append("pt ");
-            stringBuilder.Append(_fontStyle);
-            stringBuilder.Append("}");
-            return stringBuilder.ToString();
-        }
+        public override string ToString() => $"{{Font \"{_fontName}\" {_fontHeight}pt {_fontStyle}}}";
     }
 }

@@ -11,10 +11,10 @@ namespace Microsoft.Iris.Markup
 {
     internal class UIXTypeSchema : TypeSchema
     {
-        private short _typeID;
-        private short _baseTypeID;
-        private string _name;
-        private string _alternateName;
+        private readonly short _typeID;
+        private readonly short _baseTypeID;
+        private readonly string _name;
+        private readonly string _alternateName;
         private TypeSchema _baseType;
         private DefaultConstructHandler _defaultConstructor;
         private ConstructorSchema[] _constructors;
@@ -28,9 +28,9 @@ namespace Microsoft.Iris.Markup
         private PerformOperationHandler _performOperation;
         private SupportsOperationHandler _supportsOperation;
         private FindCanonicalInstanceHandler _findCanonicalInstance;
-        private Type _instanceType;
-        private UIXTypeFlags _flags;
-        private static object[] EmptyParameterList = new object[0];
+        private readonly Type _instanceType;
+        private readonly UIXTypeFlags _flags;
+        private static readonly object[] EmptyParameterList = Array.Empty<object>();
 
         public UIXTypeSchema(
           short typeID,

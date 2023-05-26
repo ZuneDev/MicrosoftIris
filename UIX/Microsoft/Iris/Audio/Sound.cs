@@ -59,5 +59,7 @@ namespace Microsoft.Iris.Audio
             sound.Play();
             sound.UnregisterUsage(this);
         }
+
+        public override string ToString() => $"{{Sound {SystemSoundEvent} '{Source}'}}";
     }
 }

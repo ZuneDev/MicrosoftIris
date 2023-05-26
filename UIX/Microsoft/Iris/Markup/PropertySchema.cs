@@ -10,8 +10,8 @@ namespace Microsoft.Iris.Markup
 {
     public abstract class PropertySchema : DisposableObject
     {
-        public static PropertySchema[] EmptyList = new PropertySchema[0];
-        private TypeSchema _owner;
+        public readonly static PropertySchema[] EmptyList = System.Array.Empty<PropertySchema>();
+        private readonly TypeSchema _owner;
 
         public PropertySchema(TypeSchema owner)
         {
@@ -44,5 +44,7 @@ namespace Microsoft.Iris.Markup
         public abstract object GetValue(object instance);
 
         public abstract void SetValue(ref object instance, object value);
+
+        public override string ToString() => $"{Owner.Name}.{Name}";
     }
 }

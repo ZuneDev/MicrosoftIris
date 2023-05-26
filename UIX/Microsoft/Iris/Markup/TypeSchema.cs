@@ -12,12 +12,12 @@ namespace Microsoft.Iris.Markup
 {
     public abstract class TypeSchema : DisposableObject
     {
-        private LoadResult _owner;
-        private ulong _id;
+        private readonly LoadResult _owner;
+        private readonly ulong _id;
         private Vector<TypeSchema> _equivalents;
         private static ulong s_uniqueId;
-        private static Map<ulong, TypeSchema> s_idToTypeSchema = new Map<ulong, TypeSchema>();
-        public static TypeSchema[] EmptyList = new TypeSchema[0];
+        private readonly static Map<ulong, TypeSchema> s_idToTypeSchema = new();
+        public readonly static TypeSchema[] EmptyList = Array.Empty<TypeSchema>();
 
         public TypeSchema(LoadResult owner)
         {
@@ -232,7 +232,7 @@ namespace Microsoft.Iris.Markup
 
         public void ShareEquivalents(Vector<TypeSchema> equivalents) => _equivalents = equivalents;
 
-        public virtual string ErrorContextDescription => string.Format("{0} (Owner='{1}')", Name, Owner.Uri ?? "Unavailable");
+        public virtual string ErrorContextDescription => $"{Name} (Owner='{Owner.Uri ?? "Unavailable"}')";
 
         public static string NameFromInstance(object instance) => !(instance is ISchemaInfo schemaInfo) ? instance.GetType().Name : schemaInfo.TypeSchema.Name;
 
@@ -244,5 +244,7 @@ namespace Microsoft.Iris.Markup
             s_idToTypeSchema.TryGetValue(id, out typeSchema);
             return typeSchema;
         }
+
+        public override string ToString() => $"typeof({Name})";
     }
 }

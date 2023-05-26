@@ -20,5 +20,7 @@ namespace Microsoft.Iris.Markup
         public string Symbol => _symbol;
 
         public SymbolOrigin Origin => _origin;
+
+        public override string ToString() => Symbol;
     }
 }

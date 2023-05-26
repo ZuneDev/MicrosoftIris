@@ -73,7 +73,7 @@ namespace Microsoft.Iris.Render
 
         public override int GetHashCode() => this.Width ^ this.Height;
 
-        public override string ToString() => base.ToString();
+        public override string ToString() => $"({Width} x {Height})";
 
         public Point ToPoint() => new Point(this.Width, this.Height);
 

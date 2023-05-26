@@ -11,6 +11,8 @@ namespace Microsoft.Iris.Markup
         public string Name;
         public TypeSchema Type;
         public SymbolOrigin SymbolOrigin;
-        public static SymbolRecord[] EmptyList = new SymbolRecord[0];
+        public readonly static SymbolRecord[] EmptyList = System.Array.Empty<SymbolRecord>();
+
+        public override string ToString() => $"{Type} {Name}";
     }
 }
