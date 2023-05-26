@@ -8,27 +8,24 @@ namespace Microsoft.Iris.Debug.Data;
 [Serializable]
 public class InterpreterEntry
 {
-    public InterpreterEntry(OpCode opCode, uint offset, string loadUri, params InterpreterObject[] args)
+    public InterpreterEntry() { }
+
+    public InterpreterEntry(OpCode opCode, uint offset, string loadUri)
     {
         OpCode = opCode;
         Offset = offset;
         LoadUri = loadUri;
-
-        if (args != null && args.Length > 0)
-            Parameters = args;
-        else
-            Parameters = new List<InterpreterObject>();
     }
 
-    public OpCode OpCode { get; }
+    public OpCode OpCode { get; set; }
 
-    public uint Offset { get; }
+    public uint Offset { get; set; }
 
-    public string LoadUri { get; }
+    public string LoadUri { get; set; }
 
-    public IList<InterpreterObject> Parameters { get; }
+    public List<InterpreterObject> Parameters { get; } = new();
 
-    public IList<InterpreterObject> ReturnValues { get; } = new List<InterpreterObject>();
+    public List<InterpreterObject> ReturnValues { get; } = new();
 
     public override string ToString()
     {

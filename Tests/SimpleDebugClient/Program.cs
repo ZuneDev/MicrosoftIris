@@ -38,6 +38,6 @@ internal class Program
 
     private static void Debugger_InterpreterStep(object? sender, InterpreterEntry e)
     {
-        
+        Console.WriteLine($"[Interpreter] {e}");
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Debug.Data;
 
@@ -25,11 +24,13 @@ public class InterpreterObject
         TableIndex = tableIndex;
     }
 
-    public InterpreterObject(object value) : this(null, value?.GetType() ?? typeof(object), value, InstructionObjectSource.Dynamic)
+    public InterpreterObject(object value) : this(null, value?.GetType(), value, InstructionObjectSource.Dynamic)
     {
     }
 
-    public override string ToString() => $"{Type} {Value}";
+    public InterpreterObject() { }
+
+    public override string ToString() => string.Join(" ", Type?.Name, Value?.ToString() ?? "NULL");
 }
 
 /// <summary>

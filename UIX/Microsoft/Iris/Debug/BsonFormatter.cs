@@ -2,9 +2,7 @@
 using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Debug;
@@ -40,28 +38,43 @@ internal class BsonFormatter : IFormatter
 
     public object Deserialize(Stream serializationStream)
     {
-        using JsonTextReader reader = new(new StreamReader(serializationStream))
+        using BsonDataReader reader = new(serializationStream)
         {
             CloseInput = false
         };
 
-        var package = (JArray)_serializer.Deserialize(reader);
-
-        // If the type is accessible from the current domain,
-        // create an instance of it.
-        var typeName = package[0].Value<string>();
-        var type = Type.GetType(typeName);
-        if (type != null)
-            return package[1].ToObject(type, _serializer);
-
-        return package[1];
+        BsonPackage package = new(_serializer, reader);
+        return package.Object ?? package.SerializedObject;
     }
 
     public void Serialize(Stream serializationStream, object graph)
     {
-        using JsonTextWriter writer = new(new StreamWriter(serializationStream));
+        using BsonDataWriter writer = new(serializationStream);
         _serializer.Serialize(writer, new[] { graph?.GetType().FullName, graph });
         writer.Flush();
+    }
+
+    private class BsonPackage
+    {
+        public BsonPackage(JsonSerializer serializer, JsonReader reader)
+        {
+            var package = (JObject)serializer.Deserialize(reader);
+
+            TypeName = package["0"].Value<string>();
+            SerializedObject = (JObject)package["1"];
+
+            // If the type is accessible from the current domain,
+            // create an instance of it.
+            var type = Type.GetType(TypeName);
+            if (type != null)
+                Object = SerializedObject.ToObject(type, serializer);
+        }
+
+        public string TypeName { get; set; }
+
+        public JObject SerializedObject { get; set; }
+
+        public object Object { get; set; }
     }
 }
 
@@ -70,20 +83,36 @@ internal class BsonFallbackConverter : JsonConverter
     public override bool CanConvert(Type objectType)
     {
         return !objectType.Attributes.HasFlag(System.Reflection.TypeAttributes.Serializable)
-            || objectType == typeof(uint) || objectType == typeof(ulong);
+            || objectType.IsEnum || objectType == typeof(uint) || objectType == typeof(ulong)
+            || objectType == typeof(Type);
     }
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type objectType, object jsonValue, JsonSerializer serializer)
     {
-        if (existingValue != null)
+        jsonValue = reader.Value;
+        if (objectType == reader.ValueType)
+            return jsonValue;
+
+        if (objectType == typeof(uint))
+            return BitConverter.ToUInt32((byte[])jsonValue, 0);
+        else if (objectType == typeof(ulong))
+            return BitConverter.ToUInt64((byte[])jsonValue, 0);
+        else if (objectType.IsEnum)
         {
-            if (objectType == typeof(uint))
-                return Convert.ToUInt32(existingValue);
-            else if (objectType == typeof(ulong))
-                return Convert.ToUInt64(existingValue);
+            if (reader.ValueType == typeof(string))
+                return Enum.Parse(objectType, (string)reader.Value);
+
+            return Enum.ToObject(objectType, reader.Value);
+        }
+        else if (objectType == typeof(Type))
+        {
+            if (jsonValue is not string typeName)
+                return null;
+
+            return Type.GetType(typeName);
         }
         
-        return existingValue?.ToString();
+        return jsonValue?.ToString();
     }
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
