@@ -7,9 +7,11 @@
 using Microsoft.Iris.Data;
 using Microsoft.Iris.Session;
 using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
+    [Serializable]
     internal class CompiledMarkupLoadResult : MarkupLoadResult
     {
         private Resource _resource;
@@ -23,6 +25,10 @@ namespace Microsoft.Iris.Markup
             if (uri != resource.Uri)
                 _uriUnderlying = resource.Uri;
             _loader = CompiledMarkupLoader.Load(this, resource);
+        }
+
+        protected CompiledMarkupLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
 
         public override bool IsSource => false;

@@ -7,18 +7,28 @@
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Session;
 using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
-    public abstract class LoadResult : SharedDisposableObject
+    [Serializable]
+    public abstract class LoadResult : SharedDisposableObject, ISerializable
     {
-        private string _uri;
+        private readonly string _uri;
         protected string _uriUnderlying;
         private uint _islandReferences;
         private string _compilerReferenceName;
-        public static LoadResult[] EmptyList = new LoadResult[0];
+        public static readonly LoadResult[] EmptyList = Array.Empty<LoadResult>();
 
         public LoadResult(string uri) => _uri = uri;
+
+        protected LoadResult(SerializationInfo info, StreamingContext context)
+        {
+            _uri = info.GetString(nameof(Uri));
+            _uriUnderlying = info.GetString(nameof(UnderlyingUri));
+            _islandReferences = info.GetUInt32(nameof(IslandReferences));
+            _compilerReferenceName = info.GetString("CompilerReferenceName");
+        }
 
         protected override void OnDispose() => base.OnDispose();
 
@@ -113,5 +123,17 @@ namespace Microsoft.Iris.Markup
         public virtual string GetCompilerReferenceName() => _compilerReferenceName;
 
         public override string ToString() => _uri;
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(nameof(Uri), Uri);
+            info.AddValue(nameof(UnderlyingUri), UnderlyingUri);
+            info.AddValue(nameof(IslandReferences), IslandReferences);
+            info.AddValue(nameof(Status), Status);
+            info.AddValue(nameof(Cachable), Cachable);
+            info.AddValue(nameof(Dependencies), Dependencies);
+            info.AddValue(nameof(ExportTable), ExportTable);
+            info.AddValue("CompilerReferenceName", GetCompilerReferenceName());
+        }
     }
 }

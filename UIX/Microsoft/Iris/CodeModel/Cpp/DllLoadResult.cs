@@ -13,6 +13,7 @@ using System;
 
 namespace Microsoft.Iris.CodeModel.Cpp
 {
+    [Serializable]
     internal class DllLoadResult : LoadResult
     {
         private DllLoadResultFactory _source;
@@ -21,7 +22,7 @@ namespace Microsoft.Iris.CodeModel.Cpp
         private IntPtr _schema;
         private Map<uint, TypeSchema> _userDefinedTypes;
         private Map<uint, TypeSchema> _intrinsicTypes;
-        private static Map<uint, DllLoadResult.IntrinsicTypeData> s_intrinsicData;
+        private static Map<uint, IntrinsicTypeData> s_intrinsicData;
         private ushort _component;
         private static ushort s_nextID = 1;
         private static LoadResult s_objectContext;
@@ -35,18 +36,18 @@ namespace Microsoft.Iris.CodeModel.Cpp
 
         private static void LoadIntrinsicTypeData()
         {
-            s_intrinsicData = new Map<uint, DllLoadResult.IntrinsicTypeData>();
-            s_intrinsicData[4294967294U] = new DllLoadResult.IntrinsicTypeData(BooleanSchema.Type);
-            s_intrinsicData[4294967293U] = new DllLoadResult.IntrinsicTypeData(ByteSchema.Type);
-            s_intrinsicData[4294967292U] = new DllLoadResult.IntrinsicTypeData(DoubleSchema.Type);
-            s_intrinsicData[4294967285U] = new DllLoadResult.IntrinsicTypeData(ListSchema.Type, typeof(DllProxyList));
-            s_intrinsicData[4294967284U] = new DllLoadResult.IntrinsicTypeData(ImageSchema.Type);
-            s_intrinsicData[4294967283U] = new DllLoadResult.IntrinsicTypeData(Int32Schema.Type);
-            s_intrinsicData[4294967282U] = new DllLoadResult.IntrinsicTypeData(Int64Schema.Type);
-            s_intrinsicData[4294967280U] = new DllLoadResult.IntrinsicTypeData(ObjectSchema.Type);
-            s_intrinsicData[4294967279U] = new DllLoadResult.IntrinsicTypeData(SingleSchema.Type);
-            s_intrinsicData[4294967278U] = new DllLoadResult.IntrinsicTypeData(StringSchema.Type);
-            s_intrinsicData[4294967277U] = new DllLoadResult.IntrinsicTypeData(VoidSchema.Type);
+            s_intrinsicData = new Map<uint, IntrinsicTypeData>();
+            s_intrinsicData[4294967294U] = new IntrinsicTypeData(BooleanSchema.Type);
+            s_intrinsicData[4294967293U] = new IntrinsicTypeData(ByteSchema.Type);
+            s_intrinsicData[4294967292U] = new IntrinsicTypeData(DoubleSchema.Type);
+            s_intrinsicData[4294967285U] = new IntrinsicTypeData(ListSchema.Type, typeof(DllProxyList));
+            s_intrinsicData[4294967284U] = new IntrinsicTypeData(ImageSchema.Type);
+            s_intrinsicData[4294967283U] = new IntrinsicTypeData(Int32Schema.Type);
+            s_intrinsicData[4294967282U] = new IntrinsicTypeData(Int64Schema.Type);
+            s_intrinsicData[4294967280U] = new IntrinsicTypeData(ObjectSchema.Type);
+            s_intrinsicData[4294967279U] = new IntrinsicTypeData(SingleSchema.Type);
+            s_intrinsicData[4294967278U] = new IntrinsicTypeData(StringSchema.Type);
+            s_intrinsicData[4294967277U] = new IntrinsicTypeData(VoidSchema.Type);
         }
 
         public static void Shutdown() => DllProxyServices.Shutdown();
@@ -90,7 +91,7 @@ namespace Microsoft.Iris.CodeModel.Cpp
             if (_intrinsicTypes == null)
                 _intrinsicTypes = new Map<uint, TypeSchema>();
             TypeSchema typeSchema;
-            DllLoadResult.IntrinsicTypeData intrinsicTypeData;
+            IntrinsicTypeData intrinsicTypeData;
             if (!_intrinsicTypes.TryGetValue(typeID, out typeSchema) && s_intrinsicData.TryGetValue(typeID, out intrinsicTypeData))
             {
                 typeSchema = !intrinsicTypeData.DemandCreateTypeSchema ? intrinsicTypeData.FrameworkEquivalent : new DllIntrinsicTypeSchema(this, typeID, intrinsicTypeData.FrameworkEquivalent);
@@ -304,7 +305,7 @@ namespace Microsoft.Iris.CodeModel.Cpp
             }
             else
             {
-                DllLoadResult.IntrinsicTypeData intrinsicTypeData;
+                IntrinsicTypeData intrinsicTypeData;
                 if (s_intrinsicData.TryGetValue(marshalAs, out intrinsicTypeData))
                     type = intrinsicTypeData.MarshalAsRuntimeType;
             }

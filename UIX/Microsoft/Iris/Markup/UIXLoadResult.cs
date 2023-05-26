@@ -6,14 +6,22 @@
 
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup.UIX;
+using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
+    [Serializable]
     internal class UIXLoadResult : LoadResult
     {
         public UIXLoadResult(string uri)
           : base(uri)
         {
+        }
+
+        protected UIXLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            UIXLoadResultExports.ExportTable = info.GetValue<TypeSchema[]>(nameof(ExportTable));
         }
 
         public static void InitializeStatics() => UIXLoadResultExports.InitializeStatics();

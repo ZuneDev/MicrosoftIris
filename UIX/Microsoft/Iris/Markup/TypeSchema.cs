@@ -7,6 +7,7 @@
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup.UIX;
 using System;
+using System.Linq;
 
 namespace Microsoft.Iris.Markup
 {
@@ -243,6 +244,50 @@ namespace Microsoft.Iris.Markup
             TypeSchema typeSchema;
             s_idToTypeSchema.TryGetValue(id, out typeSchema);
             return typeSchema;
+        }
+
+        private static bool IsBasicType(TypeSchema type) =>
+            type == null || type.RuntimeType.Assembly.FullName.Contains("CoreLib") || type.Properties.Length == 0;
+
+        public static void GenerateModelCode(TypeSchema dataType)
+        {
+            string code =
+                "using Microsoft.Iris.Markup;\r\n\r\n" +
+                "namespace Microsoft.Zune.Schemas;\r\n\r\n" +
+                "public class " + dataType.Name;
+
+            if (!IsBasicType(dataType.Base))
+            {
+                code += $" : {dataType.Base.Name}";
+                GenerateModelCode(dataType.Base);
+            }
+            else
+            {
+                code += $" : MarkupDataType";
+            }
+
+            code += "\r\n{\r\n";
+            code += $"    public {dataType.Name}(MarkupTypeSchema schema) : base(schema)\r\n";
+            code += "    {\r\n";
+            code += "    }\r\n\r\n";
+
+            foreach (var prop in dataType.Properties)
+            {
+                string propType = prop.PropertyType.AlternateName ?? prop.PropertyType.Name;
+
+                code += $"    public {propType} {prop.Name}\r\n";
+                code += "    {\r\n";
+                code += $"        get => GetProperty<{propType}>();\r\n";
+                code += $"        set => SetProperty(value);\r\n";
+                code += "    }\r\n\r\n";
+
+                if (!IsBasicType(prop.PropertyType) && !Application.DebugSettings.DataMappingModels.Any(m => m.Type == propType))
+                    GenerateModelCode(prop.PropertyType);
+            }
+
+            code += "}";
+
+            Application.DebugSettings.DataMappingModels.Add(new(dataType.RuntimeType.Name, dataType.Name, code));
         }
 
         public override string ToString() => $"typeof({Name})";

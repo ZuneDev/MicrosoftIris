@@ -5,9 +5,12 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Markup;
+using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.UI
 {
+    [Serializable]
     internal class RootLoadResult : MarkupLoadResult
     {
         public UIClassTypeSchema RootType;
@@ -15,6 +18,11 @@ namespace Microsoft.Iris.UI
         public RootLoadResult(string name)
           : base(name)
           => RootType = new UIClassTypeSchema(this, name);
+
+        protected RootLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            RootType = info.GetValue<UIClassTypeSchema>(nameof(RootType));
+        }
 
         protected override void OnDispose()
         {
@@ -32,5 +40,12 @@ namespace Microsoft.Iris.UI
         public override MarkupConstantsTable ConstantsTable => (MarkupConstantsTable)null;
 
         public override MarkupImportTables ImportTables => (MarkupImportTables)null;
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue(nameof(RootType), RootType);
+        }
     }
 }

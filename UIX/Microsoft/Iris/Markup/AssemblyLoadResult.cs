@@ -15,9 +15,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
+    [Serializable]
     internal class AssemblyLoadResult : LoadResult
     {
         private const string c_AssemblyProtocol = "assembly://";
@@ -30,13 +32,19 @@ namespace Microsoft.Iris.Markup
         public static TypeSchema DictionaryTypeSchema;
         public static TypeSchema CommandTypeSchema;
         public static TypeSchema ValueRangeTypeSchema;
-        private static Map s_typeCache = new Map(32);
-        private static Map<AssemblyLoadResult.MapAssemblyKey, AssemblyLoadResult> s_assemblyCache = new Map<AssemblyLoadResult.MapAssemblyKey, AssemblyLoadResult>();
+        private static Map s_typeCache = new(32);
+        private static Map<MapAssemblyKey, AssemblyLoadResult> s_assemblyCache = new();
+
+        protected AssemblyLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _namespace = info.GetString(nameof(Namespace));
+            _assembly = info.GetValue<Assembly>(nameof(Assembly));
+        }
 
         private static LoadResult Create(string uri)
         {
             LoadResult loadResult = null;
-            string valueName = uri.Substring("assembly://".Length);
+            string valueName = uri.Substring(c_AssemblyProtocol.Length);
             if (valueName.IndexOf('/') == -1)
             {
                 ErrorManager.ReportError("Invalid assembly reference '{0}'.  URI must contain a forward slash after the assembly name", uri);
@@ -78,7 +86,7 @@ namespace Microsoft.Iris.Markup
         public static void Startup()
         {
             AssemblyObjectProxyHelper.InitializeStatics();
-            MarkupSystem.RegisterFactoryByProtocol("assembly://", new CreateLoadResultHandler(Create));
+            MarkupSystem.RegisterFactoryByProtocol(c_AssemblyProtocol, new CreateLoadResultHandler(Create));
             Map typeCache1 = s_typeCache;
             Type type1 = typeof(object);
             FrameworkCompatibleAssemblyPrimitiveTypeSchema primitiveTypeSchema;
@@ -135,16 +143,16 @@ namespace Microsoft.Iris.Markup
             TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(Type)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(Type), typeof(TypeSchema), null, ObjectTypeSchema)), TypeSchemaDefinition.Type);
             TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(VideoStream)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(VideoStream))), VideoStreamSchema.Type);
             TypeSchema producer4;
-            s_typeCache[typeof(Microsoft.Iris.Choice)] = (FrameworkCompatibleAssemblyTypeSchema)(producer4 = new FrameworkCompatibleAssemblyTypeSchema(typeof(Microsoft.Iris.Choice)));
+            s_typeCache[typeof(Choice)] = (FrameworkCompatibleAssemblyTypeSchema)(producer4 = new FrameworkCompatibleAssemblyTypeSchema(typeof(Choice)));
             TypeSchema.RegisterOneWayEquivalence(producer4, ChoiceSchema.Type);
             TypeSchema.RegisterOneWayEquivalence(producer4, ValueRangeSchema.Type);
-            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(Microsoft.Iris.BooleanChoice)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(Microsoft.Iris.BooleanChoice))), BooleanChoiceSchema.Type);
+            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(BooleanChoice)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(BooleanChoice))), BooleanChoiceSchema.Type);
             TypeSchema producer5;
-            s_typeCache[typeof(Microsoft.Iris.RangedValue)] = (FrameworkCompatibleAssemblyTypeSchema)(producer5 = new FrameworkCompatibleAssemblyTypeSchema(typeof(Microsoft.Iris.RangedValue)));
+            s_typeCache[typeof(RangedValue)] = (FrameworkCompatibleAssemblyTypeSchema)(producer5 = new FrameworkCompatibleAssemblyTypeSchema(typeof(RangedValue)));
             TypeSchema.RegisterOneWayEquivalence(producer5, RangedValueSchema.Type);
             TypeSchema.RegisterOneWayEquivalence(producer5, ValueRangeSchema.Type);
-            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(Microsoft.Iris.IntRangedValue)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(Microsoft.Iris.IntRangedValue))), IntRangedValueSchema.Type);
-            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(Microsoft.Iris.ByteRangedValue)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(Microsoft.Iris.ByteRangedValue))), ByteRangedValueSchema.Type);
+            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(IntRangedValue)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(IntRangedValue))), IntRangedValueSchema.Type);
+            TypeSchema.RegisterOneWayEquivalence((TypeSchema)(s_typeCache[typeof(ByteRangedValue)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(ByteRangedValue))), ByteRangedValueSchema.Type);
             TypeSchema.RegisterTwoWayEquivalence((TypeSchema)(s_typeCache[typeof(DataProviderQuery)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(DataProviderQuery), typeof(MarkupDataQuery))), MarkupDataQueryInstanceSchema.Type);
             TypeSchema.RegisterTwoWayEquivalence((TypeSchema)(s_typeCache[typeof(DataProviderObject)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(DataProviderObject), typeof(MarkupDataType))), MarkupDataTypeInstanceSchema.Type);
             TypeSchema.RegisterTwoWayEquivalence((TypeSchema)(s_typeCache[typeof(DataProviderQueryStatus)] = new FrameworkCompatibleAssemblyTypeSchema(typeof(DataProviderQueryStatus))), UIXLoadResultExports.DataQueryStatusType);
@@ -182,11 +190,11 @@ namespace Microsoft.Iris.Markup
 
         public static AssemblyLoadResult MapAssembly(Assembly assembly, string ns)
         {
-            AssemblyLoadResult.MapAssemblyKey key = new AssemblyLoadResult.MapAssemblyKey(assembly, ns);
+            MapAssemblyKey key = new MapAssemblyKey(assembly, ns);
             AssemblyLoadResult assemblyLoadResult;
             if (!s_assemblyCache.TryGetValue(key, out assemblyLoadResult))
             {
-                string uri = "assembly://" + assembly.FullName;
+                string uri = c_AssemblyProtocol + assembly.FullName;
                 if (ns != null)
                     uri = uri + "/" + ns;
                 assemblyLoadResult = new AssemblyLoadResult(assembly, ns, uri);
@@ -313,7 +321,7 @@ namespace Microsoft.Iris.Markup
             return assembly;
         }
 
-        public override string GetCompilerReferenceName() => base.GetCompilerReferenceName() ?? string.Format("{0}{1}/{2}", "assembly://", _assembly.GetName().Name, _namespace);
+        public override string GetCompilerReferenceName() => base.GetCompilerReferenceName() ?? $"{c_AssemblyProtocol}{_assembly.GetName().Name}/{_namespace}";
 
         internal Assembly Assembly => _assembly;
 
@@ -325,6 +333,14 @@ namespace Microsoft.Iris.Markup
             if (ns == null)
                 return;
             _namespacePrefix = ns + ".";
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue(nameof(Namespace), Namespace);
+            info.AddValue(nameof(Assembly), Assembly);
         }
 
         internal struct MapAssemblyKey
@@ -340,7 +356,7 @@ namespace Microsoft.Iris.Markup
 
             public override bool Equals(object obj)
             {
-                AssemblyLoadResult.MapAssemblyKey mapAssemblyKey = (AssemblyLoadResult.MapAssemblyKey)obj;
+                MapAssemblyKey mapAssemblyKey = (MapAssemblyKey)obj;
                 return _assembly == mapAssemblyKey._assembly && _namespace == mapAssemblyKey._namespace;
             }
 

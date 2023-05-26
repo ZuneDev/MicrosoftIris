@@ -7,9 +7,12 @@
 using Microsoft.Iris.Data;
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Session;
+using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
+    [Serializable]
     public abstract class MarkupLoadResult : LoadResult
     {
         private LoadResult[] _dependenciesTable = EmptyList;
@@ -27,6 +30,16 @@ namespace Microsoft.Iris.Markup
         public MarkupLoadResult(string uri)
           : base(uri)
           => _status = LoadResultStatus.Loading;
+
+        protected MarkupLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _dependenciesTable = info.GetValue<LoadResult[]>(nameof(Dependencies));
+            _exportTable = info.GetValue<TypeSchema[]>(nameof(ExportTable));
+            _aliasTable = info.GetValue<AliasMapping[]>(nameof(AliasTable));
+            _dataMappingsTable = info.GetValue<MarkupDataMapping[]>(nameof(DataMappingsTable));
+            _binaryDataTable = info.GetValue<MarkupBinaryDataTable>(nameof(BinaryDataTable));
+            _lineNumberTable = info.GetValue<MarkupLineNumberTable>(nameof(LineNumberTable));
+        }
 
         private void OnLoaded()
         {
@@ -176,5 +189,18 @@ namespace Microsoft.Iris.Markup
         }
 
         public virtual void MarkLoadFailed() => _status = LoadResultStatus.Error;
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue(nameof(IsSource), IsSource);
+            info.AddValue(nameof(ImportTables), ImportTables);
+            info.AddValue(nameof(AliasTable), AliasTable);
+            info.AddValue(nameof(DataMappingsTable), DataMappingsTable);
+            info.AddValue(nameof(BinaryDataTable), BinaryDataTable);
+            info.AddValue(nameof(ConstantsTable), ConstantsTable);
+            info.AddValue(nameof(LineNumberTable), LineNumberTable);
+        }
     }
 }

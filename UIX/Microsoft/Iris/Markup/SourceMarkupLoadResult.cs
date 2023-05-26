@@ -7,9 +7,12 @@
 using Microsoft.Iris.Data;
 using Microsoft.Iris.Markup.Validation;
 using Microsoft.Iris.Session;
+using System;
+using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Markup
 {
+    [Serializable]
     internal class SourceMarkupLoadResult : MarkupLoadResult
     {
         private MarkupConstantsTable _constantsTable;
@@ -30,6 +33,12 @@ namespace Microsoft.Iris.Markup
         public SourceMarkupLoadResult(string uri)
           : base(uri)
         {
+        }
+
+        protected SourceMarkupLoadResult(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+            _constantsTable = info.GetValue<MarkupConstantsTable>(nameof(ConstantsTable));
+            _importTables = info.GetValue<MarkupImportTables>(nameof(ImportTables));
         }
 
         public override bool IsSource => true;
@@ -80,5 +89,12 @@ namespace Microsoft.Iris.Markup
         public void SetConstantsTable(MarkupConstantsTable constantsTable) => _constantsTable = constantsTable;
 
         public void SetImportTables(MarkupImportTables importTables) => _importTables = importTables;
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+
+            info.AddValue(nameof(_resource), _resource);
+        }
     }
 }
