@@ -2,6 +2,7 @@
 using NetMQ;
 using NetMQ.Sockets;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
@@ -10,14 +11,19 @@ namespace Microsoft.Iris.Debug;
 
 public class ZmqDebuggerClient : IDebuggerClient, IDisposable
 {
+    private List<byte[]> _frames = new(2);
     private readonly SubscriberSocket _subSocket;
     private readonly IFormatter _formatter;
+
+    public string ConnectionUri { get; }
 
     public event EventHandler<InterpreterEntry> InterpreterStep;
     public event Action<string> DispatcherStep;
 
     public ZmqDebuggerClient(string connectionUri)
     {
+        ConnectionUri = connectionUri;
+
         _subSocket = new();
         _subSocket.Connect(connectionUri);
         _subSocket.SubscribeToAnyTopic();
@@ -34,7 +40,10 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
     {
         while (!_subSocket.IsDisposed)
         {
-            var type = RecieveDebuggerMessage(_subSocket, out var bytes);
+            DebuggerMessageType type;
+            byte[] bytes;
+            while (!TryRecieveDebuggerMessage(out type, out bytes))
+                ;
 
             switch (type)
             {
@@ -54,11 +63,17 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
         }
     }
 
-    private static DebuggerMessageType RecieveDebuggerMessage(SubscriberSocket socket, out byte[] bytes)
+    private bool TryRecieveDebuggerMessage(out DebuggerMessageType type, out byte[] bytes)
     {
-        var frames = socket.ReceiveMultipartBytes(2);
+        if (!_subSocket.IsDisposed && _subSocket.TryReceiveMultipartBytes(ref _frames, 2))
+        {
+            type = (DebuggerMessageType)BitConverter.ToInt32(_frames[0], 0);
+            bytes = _frames[1];
+            return true;
+        }
 
-        bytes = frames[1];
-        return (DebuggerMessageType)BitConverter.ToInt32(frames[0], 0);
+        type = default;
+        bytes = null;
+        return false;
     }
 }
