@@ -17,8 +17,7 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
 
     public ZmqDebuggerServer(string connectionUri)
     {
-        _socket = new();
-        _socket.Bind(connectionUri ?? DebugRemoting.DEFAULT_TCP_SERVER_URI);
+        _socket = new(connectionUri ?? DebugRemoting.DEFAULT_TCP_SERVER_URI);
 
         _formatter = DebugRemoting.CreateBsonFormatter();
 
