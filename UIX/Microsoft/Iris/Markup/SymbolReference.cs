@@ -4,23 +4,25 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
-namespace Microsoft.Iris.Markup
+using System;
+
+namespace Microsoft.Iris.Markup;
+
+[Serializable]
+public struct SymbolReference
 {
-    public struct SymbolReference
+    private string _symbol;
+    private SymbolOrigin _origin;
+
+    public SymbolReference(string symbol, SymbolOrigin origin)
     {
-        private string _symbol;
-        private SymbolOrigin _origin;
-
-        public SymbolReference(string symbol, SymbolOrigin origin)
-        {
-            _origin = origin;
-            _symbol = NotifyService.CanonicalizeString(symbol);
-        }
-
-        public string Symbol => _symbol;
-
-        public SymbolOrigin Origin => _origin;
-
-        public override string ToString() => Symbol;
+        _origin = origin;
+        _symbol = NotifyService.CanonicalizeString(symbol);
     }
+
+    public string Symbol => _symbol;
+
+    public SymbolOrigin Origin => _origin;
+
+    public override string ToString() => Symbol;
 }
