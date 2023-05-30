@@ -195,7 +195,7 @@ namespace Microsoft.Iris
 
             if (DebugSettings.DebugConnectionUri != null)
             {
-                Debugger = new ZmqDebuggerServer(DebugSettings.DebugConnectionUri);
+                Debugger = new Debug.NetMQ.ZmqDebuggerServer(DebugSettings.DebugConnectionUri);
                 DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
             }
 
