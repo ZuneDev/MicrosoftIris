@@ -79,13 +79,15 @@ namespace Microsoft.Iris.Markup
                 {
                     bool ShouldBreak(Breakpoint b)
                         => b.Enabled
-                        && b.Line == line && b.Column == column
-                        && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase);
+                        && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase)
+                        && (b.Offset == reader.CurrentOffset || (b.Line == line && b.Column == column));
 
                     // Check if a breakpoint has been set at this location
                     bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
                     if (shouldBreakHere)
+                    {
                         System.Diagnostics.Debugger.Break();
+                    }
                 }
 
                 switch (opCode)
