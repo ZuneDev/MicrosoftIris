@@ -7,9 +7,9 @@ namespace Microsoft.Iris.Debug;
 /// </summary>
 public static class DebugRemoting
 {
-    public const string DEFAULT_TCP_CLIENT_URI = ">tcp://127.0.0.1:5555,@tcp://127.0.0.1:55556";
+    public const string DEFAULT_TCP_CLIENT_URI = "tcp://127.0.0.1:5555";
 
-    public const string DEFAULT_TCP_SERVER_URI = "@tcp://127.0.0.1:5555,>tcp://127.0.0.1:55556";
+    public const string DEFAULT_TCP_SERVER_URI = "tcp://127.0.0.1:5555";
 
     internal static IFormatter CreateBsonFormatter() => new BsonFormatter(new StreamingContext(StreamingContextStates.Remoting));
 }
