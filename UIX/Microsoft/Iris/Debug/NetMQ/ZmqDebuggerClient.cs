@@ -25,9 +25,7 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
     {
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_CLIENT_URI;
 
-        _socket = new();
-        _socket.Connect(connectionUri);
-
+        _socket = new(connectionUri);
         _formatter = DebugRemoting.CreateBsonFormatter();
 
         System.Threading.Thread th = new(MessageRecieveLoop);
