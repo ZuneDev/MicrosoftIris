@@ -3,25 +3,24 @@ using NetMQ.Sockets;
 using System;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace Microsoft.Iris.Debug;
+namespace Microsoft.Iris.Debug.NetMQ;
 
 internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
 {
     public static IDebuggerServer Current { get; private set; }
 
-    private readonly PublisherSocket _pubSocket;
+    private readonly PairSocket _socket;
     private readonly byte[][] _messageFrame = new byte[2][];
     private readonly IFormatter _formatter;
 
     public ZmqDebuggerServer(string connectionUri)
     {
-        _pubSocket = new();
-        _pubSocket.Bind(connectionUri);
+        _socket = new();
+        _socket.Bind(connectionUri ?? DebugRemoting.DEFAULT_TCP_SERVER_URI);
 
-        _formatter = CreateFormatter();
+        _formatter = DebugRemoting.CreateBsonFormatter();
 
         Current = this;
     }
@@ -39,7 +38,7 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
         SendDebuggerMessage(DebuggerMessageType.DispatcherStep, message);
     }
 
-    public void Dispose() => _pubSocket.Dispose();
+    public void Dispose() => _socket.Dispose();
 
     private void SendDebuggerMessage(DebuggerMessageType type, string message, Encoding encoding = null)
     {
@@ -52,8 +51,6 @@ internal class ZmqDebuggerServer : IDebuggerServer, IDisposable
         _messageFrame[0] = BitConverter.GetBytes((int)type);
         _messageFrame[1] = bytes;
 
-        _pubSocket.SendMultipartBytes(_messageFrame);
+        _socket.SendMultipartBytes(_messageFrame);
     }
-
-    internal static IFormatter CreateFormatter() => new BsonFormatter(new StreamingContext(StreamingContextStates.Remoting));
 }
