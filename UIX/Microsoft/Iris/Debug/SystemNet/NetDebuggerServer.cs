@@ -19,6 +19,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
     private readonly TcpListener _listener;
     private readonly IFormatter _formatter;
     private Socket _socket;
+    private bool _disposed = false;
 
     public NetDebuggerServer(string connectionUri) : this(new Uri(connectionUri))
     {
@@ -54,6 +55,10 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
         _listener.Stop();
         _socket?.Dispose();
     }
@@ -94,7 +99,8 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
     private void ConnectLoop()
     {
-        while (!_listener.Pending()) ;
+        while (!_listener.Pending())
+            if (_disposed) return;
 
         _socket = _listener.AcceptSocket();
 

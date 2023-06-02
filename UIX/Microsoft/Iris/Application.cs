@@ -195,7 +195,7 @@ namespace Microsoft.Iris
 
             if (DebugSettings.DebugConnectionUri != null)
             {
-                Debugger = new Debug.NetMQ.ZmqDebuggerServer(DebugSettings.DebugConnectionUri);
+                Debugger = new Debug.SystemNet.NetDebuggerServer(DebugSettings.DebugConnectionUri);
                 DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
             }
 
@@ -309,7 +309,11 @@ namespace Microsoft.Iris
             if (s_initializationState == InitializationState.InitializedWithoutUI)
                 RenderApi.ShutdownForToolOnly();
             StaticServices.Uninitialize();
+
             Debug.Trace.Shutdown();
+            if (Debugger is IDisposable disposable)
+                disposable.Dispose();
+
             ErrorManager.OnErrors -= new NotifyErrorBatch(NotifyErrorBatchHandler);
             s_initializationState = InitializationState.NotInitialized;
         }
