@@ -1,24 +1,35 @@
 ﻿using Microsoft.Iris.Debug.Data;
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Microsoft.Iris.Debug.SystemNet;
 
 public class NetDebuggerClient : IDebuggerClient, IDisposable
 {
+    private readonly Socket _socket;
+    private readonly ConcurrentQueue<byte[]> _outQueue = new();
+    private readonly IFormatter _formatter;
+    private InterpreterCommand _uibCommand = InterpreterCommand.Continue;
+
     public Uri ConnectionUri { get; }
 
-    private readonly Socket _socket;
-    private readonly Queue<byte[]> _queue;
-    private readonly IFormatter _formatter;
+    public InterpreterCommand DebuggerCommand
+    {
+        get => _uibCommand;
+        set
+        {
+            var data = new[] { (byte)value };
+            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, data));
+            _uibCommand = value;
+        }
+    }
 
     public event EventHandler<InterpreterEntry> InterpreterStep;
     public event Action<string> DispatcherStep;
+    public event Action<InterpreterCommand> InterpreterStateChanged;
 
     public NetDebuggerClient(string connectionUri) : this(new Uri(connectionUri))
     {
@@ -30,18 +41,31 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
         _socket = new(SocketType.Stream, ProtocolType.Tcp);
         _formatter = DebugRemoting.CreateBsonFormatter();
 
-        System.Threading.Thread connectThread = new(ConnectLoop);
+        System.Threading.Thread connectThread = new(ConnectLoop) { IsBackground = true };
         connectThread.Start();
     }
 
-    public void Dispose() => _socket.Dispose();
+    public void Dispose()
+    {
+        if (_socket != null)
+        {
+            if (_socket.Connected)
+                _socket.Disconnect(false);
+            _socket.Close();
+        }
+    }
+
+    public void UpdateBreakpoint(Breakpoint breakpoint)
+    {
+        QueueDebuggerMessage(new(0, DebuggerMessageType.UpdateBreakpoint, breakpoint.Serialize(_formatter)));
+    }
 
     private void QueueDebuggerMessage(DebuggerMessageFrame frame)
     {
-        _queue.Enqueue(frame.ToBytes());
+        _outQueue.Enqueue(frame.ToBytes());
     }
 
-    private void MessageRecieveLoop()
+    private void MessageReceiveLoop()
     {
         while (_socket.Connected)
         {
@@ -52,11 +76,8 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
             switch (frame.Type)
             {
                 case DebuggerMessageType.InterpreterOpCode:
-                    {
-                        using MemoryStream stream = new(frame.Data);
-                        var entry = (InterpreterEntry)_formatter.Deserialize(stream);
-                        InterpreterStep?.Invoke(this, entry);
-                    }
+                    var entry = frame.DeserializeData<InterpreterEntry>(_formatter);
+                    InterpreterStep?.Invoke(this, entry);
                     break;
 
                 case DebuggerMessageType.DispatcherStep:
@@ -64,10 +85,27 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
                     DispatcherStep?.Invoke(message);
                     break;
 
+                case DebuggerMessageType.InterpreterCommand:
+                    _uibCommand = (InterpreterCommand)frame.Data[0];
+                    InterpreterStateChanged?.Invoke(_uibCommand);
+                    break;
+
                 default:
                     Trace.WriteLine(TraceCategory.MarkupDebug, "Recieved unknown debugger message of type '{0}'.", frame.Type);
                     break;
             }
+        }
+    }
+
+    private void MessageSendLoop()
+    {
+        while (_socket.Connected)
+        {
+            byte[] frameBytes;
+            while (!_outQueue.TryDequeue(out frameBytes)) ;
+
+            _socket.Send(BitConverter.GetBytes(frameBytes.Length));
+            _socket.Send(frameBytes);
         }
     }
 
@@ -83,7 +121,9 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
             catch { }
         }
 
-        System.Threading.Thread receiveThread = new(MessageRecieveLoop);
+        System.Threading.Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
+        System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };
         receiveThread.Start();
+        sendThread.Start();
     }
 }

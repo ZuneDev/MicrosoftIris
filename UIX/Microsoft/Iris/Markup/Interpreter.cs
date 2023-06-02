@@ -78,17 +78,20 @@ namespace Microsoft.Iris.Markup
                 if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
                 {
                     bool ShouldBreak(Breakpoint b)
-                        => b.Enabled
-                        && b.Uri.Equals(loadResult.Uri, StringComparison.OrdinalIgnoreCase)
-                        && (b.Offset == reader.CurrentOffset || (b.Line == line && b.Column == column));
+                        => b.Enabled && b.Equals(loadResult.Uri, line, column, reader.CurrentOffset);
 
                     // Check if a breakpoint has been set at this location
                     bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
                     if (shouldBreakHere)
                     {
-                        System.Diagnostics.Debugger.Break();
+                        Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+                        //System.Diagnostics.Debugger.Break();
                     }
                 }
+
+                while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
+                if (Application.Debugger.DebuggerCommand == InterpreterCommand.Step)
+                    Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
 
                 switch (opCode)
                 {

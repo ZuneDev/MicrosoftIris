@@ -1,7 +1,6 @@
 ﻿using Microsoft.Iris.Debug.Data;
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
 
@@ -11,13 +10,25 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 {
     public static IDebuggerServer Current { get; private set; }
 
-    public Uri ConnectionUri { get; }
-
     private readonly ConcurrentQueue<byte[]> _outQueue = new();
     private readonly TcpListener _listener;
     private readonly IFormatter _formatter;
     private Socket _socket;
     private bool _disposed = false;
+    private InterpreterCommand _uibCommand = InterpreterCommand.Continue;
+
+    public Uri ConnectionUri { get; }
+
+    public InterpreterCommand DebuggerCommand
+    {
+        get => _uibCommand;
+        set
+        {
+            var data = new[] { (byte)value };
+            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, data));
+            _uibCommand = value;
+        }
+    }
 
     public NetDebuggerServer(string connectionUri) : this(new Uri(connectionUri))
     {
@@ -32,7 +43,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
         _formatter = DebugRemoting.CreateBsonFormatter();
 
-        System.Threading.Thread connectThread = new(ConnectLoop);
+        System.Threading.Thread connectThread = new(ConnectLoop) { IsBackground = true };
         connectThread.Start();
 
         Current = this;
@@ -40,10 +51,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
     public void LogInterpreterOpCode(object context, InterpreterEntry entry)
     {
-        using MemoryStream entryStream = new();
-        _formatter.Serialize(entryStream, entry);
-
-        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterOpCode, entryStream.ToArray()));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterOpCode, entry.Serialize(_formatter)));
     }
 
     public void LogDispatcher(string message)
@@ -66,16 +74,28 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         _outQueue.Enqueue(frame.ToBytes());
     }
 
-    private void MessageRecieveLoop()
+    private void MessageReceiveLoop()
     {
         while (_socket.Connected)
         {
             DebuggerMessageFrame frame;
             while ((frame = DebugRemoting.ReceiveDebuggerMessage(_socket)) == null)
-                ;
+                if (!_socket.Connected) return;
 
             switch (frame.Type)
             {
+                case DebuggerMessageType.UpdateBreakpoint:
+                    var breakpoint = frame.DeserializeData<Breakpoint>(_formatter);
+                    if (breakpoint.Enabled)
+                        Application.DebugSettings.Breakpoints.Add(breakpoint);
+                    else
+                        Application.DebugSettings.Breakpoints.Remove(breakpoint);
+                    break;
+
+                case DebuggerMessageType.InterpreterCommand:
+                    _uibCommand = (InterpreterCommand)frame.Data[0];
+                    break;
+
                 default:
                     Trace.WriteLine(TraceCategory.MarkupDebug, "Recieved unknown debugger message of type '{0}'.", frame.Type);
                     break;
@@ -90,8 +110,12 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
             byte[] frameBytes;
             while (!_outQueue.TryDequeue(out frameBytes)) ;
 
-            _socket.Send(BitConverter.GetBytes(frameBytes.Length));
-            _socket.Send(frameBytes);
+            try
+            {
+                _socket.Send(BitConverter.GetBytes(frameBytes.Length));
+                _socket.Send(frameBytes);
+            }
+            catch (SocketException) { }
         }
     }
 
@@ -102,8 +126,8 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
         _socket = _listener.AcceptSocket();
 
-        System.Threading.Thread receiveThread = new(MessageRecieveLoop);
-        System.Threading.Thread sendThread = new(MessageSendLoop);
+        System.Threading.Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
+        System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };
         receiveThread.Start();
         sendThread.Start();
     }

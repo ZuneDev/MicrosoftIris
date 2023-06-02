@@ -10,6 +10,10 @@ public interface IDebuggerClient
     /// </summary>
     Uri ConnectionUri { get; }
 
+    InterpreterCommand DebuggerCommand { get; set; }
+
+    event Action<InterpreterCommand> InterpreterStateChanged;
+
     /// <summary>
     /// Fired when the UIX interpreter steps forward.
     /// </summary>
@@ -19,4 +23,6 @@ public interface IDebuggerClient
     /// Fired when the UIX dispatcher executes another call from the queue.
     /// </summary>
     event Action<string> DispatcherStep;
+
+    void UpdateBreakpoint(Breakpoint breakpoint);
 }
