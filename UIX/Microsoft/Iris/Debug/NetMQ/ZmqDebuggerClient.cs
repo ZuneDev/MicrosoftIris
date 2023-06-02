@@ -1,4 +1,3 @@
-﻿using Microsoft.Iris.Debug;
 using Microsoft.Iris.Debug.Data;
 using NetMQ;
 using NetMQ.Sockets;
@@ -16,14 +15,14 @@ public class ZmqDebuggerClient : IDebuggerClient, IDisposable
     private readonly PairSocket _socket;
     private readonly IFormatter _formatter;
 
-    public string ConnectionUri { get; }
+    public Uri ConnectionUri { get; }
 
     public event EventHandler<InterpreterEntry> InterpreterStep;
     public event Action<string> DispatcherStep;
 
     public ZmqDebuggerClient(string connectionUri)
     {
-        ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_CLIENT_URI;
+        ConnectionUri = new(connectionUri ?? DebugRemoting.DEFAULT_TCP_CLIENT_URI);
 
         _socket = new(connectionUri);
         _formatter = DebugRemoting.CreateBsonFormatter();

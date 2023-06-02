@@ -8,7 +8,7 @@ public interface IDebuggerClient
     /// <summary>
     /// The URI the client is connected to.
     /// </summary>
-    string ConnectionUri { get; }
+    Uri ConnectionUri { get; }
 
     /// <summary>
     /// Fired when the UIX interpreter steps forward.

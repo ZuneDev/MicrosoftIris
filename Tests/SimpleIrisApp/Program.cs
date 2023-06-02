@@ -1,4 +1,5 @@
 ﻿using Microsoft.Iris;
+using Microsoft.Iris.Debug;
 using System;
 
 namespace SimpleIrisApp;
@@ -19,7 +20,7 @@ internal class Program
         };
 
         Application.DebugSettings.DebugConnectionUri = args.Length >= 2
-            ? args[1] : "tcp://127.0.0.1:5556";
+            ? args[1] : DebugRemoting.DEFAULT_TCP_URI.OriginalString;
 
         Application.DebugSettings.Breakpoints.Add(new("clr-res://SimpleIrisApp!MainPage.uix", 3, 22));
 #endif

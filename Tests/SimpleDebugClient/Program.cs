@@ -1,5 +1,6 @@
 ﻿using Microsoft.Iris.Debug;
 using Microsoft.Iris.Debug.Data;
+using Microsoft.Iris.Debug.SystemNet;
 using System;
 
 namespace SimpleDebugClient;
@@ -10,12 +11,12 @@ internal class Program
 
     static int Main(string[] args)
     {
-        string connectionString = args.Length >= 2
-            ? args[1] : "tcp://127.0.0.1:5556";
+        var connectionString = args.Length >= 2
+            ? new Uri(args[1]) : DebugRemoting.DEFAULT_TCP_URI;
 
         Console.CancelKeyPress += Console_CancelKeyPress;
 
-        Debugger = new ZmqDebuggerClient(connectionString);
+        Debugger = new NetDebuggerClient(connectionString);
         Debugger.DispatcherStep += Debugger_DispatcherStep;
         Debugger.InterpreterStep += Debugger_InterpreterStep;
 
