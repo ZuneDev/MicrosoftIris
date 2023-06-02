@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
@@ -40,5 +39,12 @@ public static class DebugRemoting
         {
             return null;
         }
+    }
+
+    internal static byte[] Serialize(this object obj, IFormatter formatter)
+    {
+        using MemoryStream dataStream = new();
+        formatter.Serialize(dataStream, obj);
+        return dataStream.ToArray();
     }
 }

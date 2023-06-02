@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
@@ -54,4 +56,10 @@ public class DebuggerMessageFrame
     }
 
     public string GetDataAsString(Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(Data);
+
+    public T DeserializeData<T>(IFormatter formatter)
+    {
+        using MemoryStream stream = new(Data);
+        return (T)formatter.Deserialize(stream);
+    }
 }
