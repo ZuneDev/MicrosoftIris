@@ -1,11 +1,9 @@
 ﻿using Microsoft.Iris.Debug.Data;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Microsoft.Iris.Debug.SystemNet;
 
@@ -15,7 +13,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
     public Uri ConnectionUri { get; }
 
-    private readonly Queue<byte[]> _outQueue = new();
+    private readonly ConcurrentQueue<byte[]> _outQueue = new();
     private readonly TcpListener _listener;
     private readonly IFormatter _formatter;
     private Socket _socket;
@@ -89,9 +87,9 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
     {
         while (_socket.Connected)
         {
-            while (_outQueue.Count == 0) ;
+            byte[] frameBytes;
+            while (!_outQueue.TryDequeue(out frameBytes)) ;
 
-            var frameBytes = _outQueue.Dequeue();
             _socket.Send(BitConverter.GetBytes(frameBytes.Length));
             _socket.Send(frameBytes);
         }
