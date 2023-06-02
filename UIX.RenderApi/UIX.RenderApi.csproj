@@ -4,6 +4,7 @@
         <ProjectGuid>{CB2B7609-C7B8-4E2A-82D8-DD631B70B621}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AssemblyName>UIX.RenderApi</AssemblyName>
+        <RootNamespace></RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>

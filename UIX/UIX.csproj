@@ -4,6 +4,7 @@
         <ProjectGuid>{78A8B08C-C0E9-4BAC-9AF6-58D3A55C05C9}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AssemblyName>UIX</AssemblyName>
+		<RootNamespace></RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
