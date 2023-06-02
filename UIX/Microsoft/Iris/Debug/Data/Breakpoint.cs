@@ -3,6 +3,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
 
+[Serializable]
 public struct Breakpoint : IEquatable<Breakpoint>
 {
     public Breakpoint(string uri, int line, int column, bool enabled = true) : this(uri, enabled)
@@ -32,7 +33,16 @@ public struct Breakpoint : IEquatable<Breakpoint>
 
     public bool Enabled { get; set; }
 
-    public bool Equals(string uri, int line, int column) => uri == Uri && line == Line && column == Column;
+    public bool Equals(string uri, int line, int column, uint offset = uint.MaxValue)
+    {
+        if (!Uri.Equals(uri, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (Offset != uint.MaxValue && offset != uint.MaxValue)
+            return Offset == offset;
+        else
+            return line == Line && column == Column;
+    }
 
     public bool Equals(Breakpoint other) => Equals(other.Uri, other.Line, other.Column);
 
