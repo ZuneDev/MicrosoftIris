@@ -33,6 +33,7 @@ internal class Program
         Application.Window.RequestLoad("clr-res://SimpleIrisApp!MainPage.uix#Frame");
 
         Application.Run(OnInitialLoadComplete);
+        Application.Shutdown();
     }
 
     static void OnInitialLoadComplete(object arg)
