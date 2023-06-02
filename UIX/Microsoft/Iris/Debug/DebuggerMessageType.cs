@@ -6,4 +6,7 @@ public enum DebuggerMessageType : int
 
     InterpreterOpCode,
     DispatcherStep,
+
+    UpdateBreakpoint,
+    InterpreterCommand,
 }
