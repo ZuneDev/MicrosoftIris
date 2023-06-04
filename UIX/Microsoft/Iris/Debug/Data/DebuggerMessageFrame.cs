@@ -25,7 +25,14 @@ public class DebuggerMessageFrame
     {
         TransactionId = BitConverter.ToInt64(bytes, 0);
         Type = (DebuggerMessageType)BitConverter.ToInt32(bytes, sizeof(long));
-        Data = bytes.AsSpan(sizeof(long) + sizeof(DebuggerMessageType)).ToArray();
+
+        int dataOffset = sizeof(long) + sizeof(DebuggerMessageType);
+#if NETCOREAPP2_1_OR_GREATER
+        Data = bytes.AsSpan(dataOffset).ToArray();
+#else
+        Data = new byte[bytes.Length - dataOffset];
+        bytes.CopyTo(Data, dataOffset);
+#endif
     }
 
     public long TransactionId { get; set; }
