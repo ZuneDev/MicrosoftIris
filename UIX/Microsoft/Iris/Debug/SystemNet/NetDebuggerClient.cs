@@ -31,7 +31,7 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
     public event Action<string> DispatcherStep;
     public event Action<InterpreterCommand> InterpreterStateChanged;
 
-    public NetDebuggerClient(string connectionUri) : this(new Uri(connectionUri))
+    public NetDebuggerClient(string connectionUri) : this(connectionUri is null ? null : new Uri(connectionUri))
     {
     }
 
