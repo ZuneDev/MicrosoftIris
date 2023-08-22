@@ -5,11 +5,25 @@ namespace Microsoft.Iris.Debug.Data;
 [Serializable]
 public class InterpreterObject
 {
+    private object _value;
+
     public string Name { get; set; }
 
     public Type Type { get; set; }
 
-    public object Value { get; set; }
+    public object Value
+    {
+        get => _value;
+        set
+        {
+            if (Type == typeof(uint))
+                _value = BitConverter.ToUInt32((byte[])value, 0);
+            else if (Type == typeof(ulong))
+                _value = BitConverter.ToUInt64((byte[])value, 0);
+            else
+                _value = value;
+        }
+    }
 
     public InstructionObjectSource Source { get; set; }
 

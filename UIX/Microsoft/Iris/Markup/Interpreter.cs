@@ -100,7 +100,7 @@ namespace Microsoft.Iris.Markup
                             int typeIndex = reader.ReadUInt16();
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new InterpreterObject("type", typeof(TypeSchema),
-                                typeSchema, InstructionObjectSource.TypeImports));
+                                typeSchema, InstructionObjectSource.TypeImports, typeIndex));
 
                             object newObj = typeSchema.ConstructDefault();
                                 
