@@ -16,12 +16,17 @@ public class InterpreterObject
         get => _value;
         set
         {
-            if (Type == typeof(uint))
-                _value = BitConverter.ToUInt32((byte[])value, 0);
-            else if (Type == typeof(ulong))
-                _value = BitConverter.ToUInt64((byte[])value, 0);
+            if (value is byte[] bytes)
+            {
+                if (Type == typeof(uint))
+                    _value = BitConverter.ToUInt32(bytes, 0);
+                else if (Type == typeof(ulong))
+                    _value = BitConverter.ToUInt64(bytes, 0);
+            }
             else
+            {
                 _value = value;
+            }
         }
     }
 
