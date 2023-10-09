@@ -44,7 +44,7 @@ namespace Microsoft.Iris.Markup
             }
             return result;
         }
-
+        
         // Token: 0x06000F22 RID: 3874 RVA: 0x00029EF8 File Offset: 0x00028EF8
         private static object Run(InterpreterContext context, ByteCodeReader reader)
         {
@@ -68,6 +68,21 @@ namespace Microsoft.Iris.Markup
             object result = null;
             bool wasInDebugState = false;
             bool debugging = Application.Debugger != null;
+            
+            void OnDecode(InterpreterEntry entry)
+            {
+                if (!debugging) return;
+                
+                Application.Debugger.LogInterpreterDecode(context, entry.Instruction);
+                
+                // Stop execution while the debugger is in break mode
+                while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
+
+                // If the debugger requested a single step, immediately set the debugger
+                // to break again for the next instruction
+                if (Application.Debugger.DebuggerCommand == InterpreterCommand.Step)
+                    Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+            }
 
             while (!errorsDetected)
             {
@@ -87,14 +102,6 @@ namespace Microsoft.Iris.Markup
                         if (shouldBreakHere)
                             Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
                     }
-
-                    // Stop exeuction while the debugger is in break mode
-                    while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
-
-                    // If the debugger requested a single step, immediately set the debugger
-                    // to break again for the next instruction
-                    if (Application.Debugger.DebuggerCommand == InterpreterCommand.Step)
-                        Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
                 }
 
                 switch (opCode)
@@ -102,6 +109,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructObject:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(typeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new InterpreterObject("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
@@ -121,6 +131,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructObjectIndirect:
                         {
                             int assignmentTypeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(assignmentTypeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema assignmentTypeSchema = importTables.TypeImports[assignmentTypeIndex];
                             entry.Parameters.Add(new("assignmentType", typeof(TypeSchema),
                                 assignmentTypeSchema, InstructionObjectSource.TypeImports, assignmentTypeIndex));
@@ -153,9 +166,13 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructObjectParam:
                         {
                             int targetTypeIndex = reader.ReadUInt16();
-                            TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
-
                             int constructorIndex = reader.ReadUInt16();
+                            
+                            entry.Instruction.Operands.Add(targetTypeIndex);
+                            entry.Instruction.Operands.Add(constructorIndex);
+                            OnDecode(entry);
+                            
+                            TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
                             ConstructorSchema constructorSchema = importTables.ConstructorImports[constructorIndex];
 
                             int parameterCount = constructorSchema.ParameterTypes.Length;
@@ -182,11 +199,16 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructFromString:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            int stringIndex = reader.ReadUInt16();
+                            
+                            entry.Instruction.Operands.Add(typeIndex);
+                            entry.Instruction.Operands.Add(stringIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
 
-                            int stringIndex = reader.ReadUInt16();
                             string fromString = (string)constantsTable.Get(stringIndex);
                             entry.Parameters.Add(new("fromString", typeof(string),
                                 fromString, InstructionObjectSource.Constants, stringIndex));
@@ -206,6 +228,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructFromBinary:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(typeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
@@ -240,6 +265,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.InitializeInstance:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(typeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
@@ -260,6 +288,8 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.InitializeInstanceIndirect:
                         {
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = (TypeSchema)stack.Pop();
                             entry.Parameters.Add(new("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.Stack));
@@ -281,6 +311,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.LookupSymbol:
                         {
                             int symbolRefIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(symbolRefIndex);
+                            OnDecode(entry);
+                            
                             SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
                             entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
                                 symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
@@ -298,11 +331,14 @@ namespace Microsoft.Iris.Markup
                     case OpCode.WriteSymbol:
                     case OpCode.WriteSymbolPeek:
                         {
+                            int symbolRefIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(symbolRefIndex);
+                            OnDecode(entry);
+                            
                             object symbol = (opCode == OpCode.WriteSymbolPeek) ? stack.Peek() : stack.Pop();
                             entry.Parameters.Add(new("symbol", typeof(object),
                                 symbol, InstructionObjectSource.Stack));
 
-                            int symbolRefIndex = reader.ReadUInt16();
                             SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
                             entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
                                 symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
@@ -317,6 +353,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ClearSymbol:
                         {
                             int symbolRefIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(symbolRefIndex);
+                            OnDecode(entry);
+                            
                             SymbolReference symbolRef = symbolReferenceTable[symbolRefIndex];
                             entry.Parameters.Add(new("symbolRef", typeof(SymbolReference),
                                 symbolRef, InstructionObjectSource.SymbolReference, symbolRefIndex));
@@ -331,6 +370,10 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyInitialize:
                     case OpCode.PropertyInitializeIndirect:
                         {
+                            int propertyIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            OnDecode(entry);
+                            
                             bool isIndirect = opCode == OpCode.PropertyInitializeIndirect;
                             TypeSchema parentTypeSchema = null;
                             if (isIndirect)
@@ -340,7 +383,6 @@ namespace Microsoft.Iris.Markup
                                     parentTypeSchema, InstructionObjectSource.Stack));
                             }
 
-                            int propertyIndex = reader.ReadUInt16();
                             PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
                             entry.Parameters.Add(new("property", typeof(PropertySchema),
                                 propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
@@ -387,11 +429,14 @@ namespace Microsoft.Iris.Markup
                         }
                     case OpCode.PropertyListAdd:
                         {
+                            int propertyIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            OnDecode(entry);
+                            
                             object objToAdd = stack.Pop();
                             entry.Parameters.Add(new("objToAdd", typeof(object),
                                 objToAdd, InstructionObjectSource.Stack));
 
-                            int propertyIndex = reader.ReadUInt16();
                             object collection = GetCollection(stack.Peek(), importTables, propertyIndex, out var propertySchema);
                             entry.Parameters.Add(new("collection", typeof(IList),
                                 collection, InstructionObjectSource.Dynamic));
@@ -412,8 +457,12 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyDictionaryAdd:
                         {
                             int propertyIndex = reader.ReadUInt16();
-
                             int keyIndex = reader.ReadUInt16();
+                            
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            entry.Instruction.Operands.Add(keyIndex);
+                            OnDecode(entry);
+
                             string key = (string)constantsTable.Get(keyIndex);
                             entry.Parameters.Add(new("key", typeof(string),
                                 key, InstructionObjectSource.Constants, keyIndex));
@@ -443,6 +492,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyAssignStatic:
                         {
                             int propertyIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            OnDecode(entry);
+                            
                             PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
                             entry.Parameters.Add(new("property", typeof(PropertySchema),
                                 propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
@@ -478,6 +530,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.PropertyGetStatic:
                         {
                             int propertyIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            OnDecode(entry);
+                            
                             PropertySchema propertySchema = importTables.PropertyImports[propertyIndex];
                             entry.Parameters.Add(new("property", typeof(PropertySchema),
                                 propertySchema, InstructionObjectSource.PropertyImports, propertyIndex));
@@ -516,6 +571,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.MethodInvokeStaticPushLastParam:
                         {
                             int methodIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(methodIndex);
+                            OnDecode(entry);
+                            
                             MethodSchema methodSchema = importTables.MethodImports[methodIndex];
 
                             int parameterCount = methodSchema.ParameterTypes.Length;
@@ -566,6 +624,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.VerifyTypeCast:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(typeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema typeSchema = importTables.TypeImports[typeIndex];
                             entry.Parameters.Add(new("type", typeof(TypeSchema),
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
@@ -600,11 +661,16 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConvertType:
                         {
                             int toTypeIndex = reader.ReadUInt16();
+                            int fromTypeIndex = reader.ReadUInt16();
+                            
+                            entry.Instruction.Operands.Add(toTypeIndex);
+                            entry.Instruction.Operands.Add(fromTypeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema toTypeSchema = importTables.TypeImports[toTypeIndex];
                             entry.Parameters.Add(new("toType", typeof(TypeSchema),
                                 toTypeSchema, InstructionObjectSource.TypeImports, toTypeIndex));
 
-                            int fromTypeIndex = reader.ReadUInt16();
                             TypeSchema fromTypeSchema = importTables.TypeImports[fromTypeIndex];
                             entry.Parameters.Add(new("fromType", typeof(TypeSchema),
                                 fromTypeSchema, InstructionObjectSource.TypeImports, fromTypeIndex));
@@ -631,11 +697,16 @@ namespace Microsoft.Iris.Markup
                     case OpCode.Operation:
                         {
                             int opHostIndex = reader.ReadUInt16();
+                            OperationType op = (OperationType)reader.ReadByte();
+                            
+                            entry.Instruction.Operands.Add(opHostIndex);
+                            entry.Instruction.Operands.Add(op);
+                            OnDecode(entry);
+                            
                             TypeSchema opHost = importTables.TypeImports[opHostIndex];
                             entry.Parameters.Add(new("opHost", typeof(TypeSchema),
                                 opHost, InstructionObjectSource.TypeImports, opHostIndex));
 
-                            OperationType op = (OperationType)reader.ReadByte();
                             entry.Parameters.Add(new("op", typeof(OperationType),
                                 op, InstructionObjectSource.Inline));
 
@@ -667,6 +738,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.IsCheck:
                         {
                             int targetTypeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(targetTypeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
                             entry.Parameters.Add(new("targetType", typeof(TypeSchema),
                                 targetTypeSchema, InstructionObjectSource.TypeImports, targetTypeIndex));
@@ -690,6 +764,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.As:
                         {
                             int targetTypeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(targetTypeIndex);
+                            OnDecode(entry);
+                            
                             TypeSchema targetTypeSchema = importTables.TypeImports[targetTypeIndex];
                             entry.Parameters.Add(new("targetType", typeof(TypeSchema),
                                 targetTypeSchema, InstructionObjectSource.TypeImports, targetTypeIndex));
@@ -718,6 +795,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.TypeOf:
                         {
                             int typeIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(typeIndex);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("typeIndex", typeof(ushort),
                                 typeIndex, InstructionObjectSource.Inline));
 
@@ -728,12 +808,16 @@ namespace Microsoft.Iris.Markup
                             break;
                         }
                     case OpCode.PushNull:
+                        OnDecode(entry);
                         stack.Push(null);
                         entry.ReturnValues.Add(new(null));
                         break;
                     case OpCode.PushConstant:
                         {
                             int constantIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(constantIndex);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("constantIndex", typeof(ushort),
                                 constantIndex, InstructionObjectSource.Inline));
 
@@ -744,14 +828,18 @@ namespace Microsoft.Iris.Markup
                             break;
                         }
                     case OpCode.PushThis:
+                        OnDecode(entry);
                         stack.Push(instance);
                         entry.ReturnValues.Add(new(instance));
                         break;
                     case OpCode.DiscardValue:
+                        OnDecode(entry);
                         stack.Pop();
                         break;
                     case OpCode.ReturnValue:
                         {
+                            OnDecode(entry);
+                            
                             object thisResult = stack.Pop();
                             entry.ReturnValues.Add(new(thisResult));
 
@@ -760,6 +848,7 @@ namespace Microsoft.Iris.Markup
                             break;
                         }
                     case OpCode.ReturnVoid:
+                        OnDecode(entry);
                         result = VoidReturnValue;
                         errorsDetected = true;
                         break;
@@ -768,6 +857,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.JumpIfTruePeek:
                         {
                             uint jumpTo = reader.ReadUInt32();
+                            entry.Instruction.Operands.Add(jumpTo);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("jumpTo", typeof(uint),
                                 jumpTo, InstructionObjectSource.Inline));
 
@@ -790,8 +882,13 @@ namespace Microsoft.Iris.Markup
                         {
                             ushort propertyIndex = reader.ReadUInt16();
                             ushort keyIndex = reader.ReadUInt16();
-
                             uint jumpTo = reader.ReadUInt32();
+                            
+                            entry.Instruction.Operands.Add(propertyIndex);
+                            entry.Instruction.Operands.Add(keyIndex);
+                            entry.Instruction.Operands.Add(jumpTo);
+                            OnDecode(entry);
+
                             entry.Parameters.Add(new("jumpTo", typeof(uint),
                                 jumpTo, InstructionObjectSource.Inline));
 
@@ -826,6 +923,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.JumpIfNullPeek:
                         {
                             uint jumpTo = reader.ReadUInt32();
+                            entry.Instruction.Operands.Add(jumpTo);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("jumpTo", typeof(uint),
                                 jumpTo, InstructionObjectSource.Inline));
 
@@ -847,6 +947,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.Jump:
                         {
                             uint jumpTo = reader.ReadUInt32();
+                            entry.Instruction.Operands.Add(jumpTo);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("jumpTo", typeof(uint),
                                 jumpTo, InstructionObjectSource.Inline));
 
@@ -860,6 +963,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.ConstructListenerStorage:
                         {
                             int listenerCount = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(listenerCount);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("listenerCount", typeof(int),
                                 listenerCount, InstructionObjectSource.Inline));
 
@@ -883,16 +989,20 @@ namespace Microsoft.Iris.Markup
                     case OpCode.DestructiveListen:
                         {
                             int listenerIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(listenerIndex);
                             entry.Parameters.Add(new("listenerIndex", typeof(int),
                                 listenerIndex, InstructionObjectSource.Inline));
 
                             ListenerType listenerType = (ListenerType)reader.ReadByte();
+                            entry.Instruction.Operands.Add(listenerType);
                             entry.Parameters.Add(new("listenerType", typeof(ListenerType),
                                 listenerType, InstructionObjectSource.Inline));
 
                             int watchIndex = reader.ReadUInt16();
+                            entry.Instruction.Operands.Add(watchIndex);
 
                             uint handlerOffset = reader.ReadUInt32();
+                            entry.Instruction.Operands.Add(handlerOffset);
                             entry.Parameters.Add(new("handlerOffset", typeof(uint),
                                 handlerOffset, InstructionObjectSource.Inline));
 
@@ -900,9 +1010,12 @@ namespace Microsoft.Iris.Markup
                             if (opCode == OpCode.DestructiveListen)
                             {
                                 refreshOffset = reader.ReadUInt32();
+                                entry.Instruction.Operands.Add(refreshOffset);
                                 entry.Parameters.Add(new("refreshOffset", typeof(uint),
                                     refreshOffset, InstructionObjectSource.Inline));
                             }
+                            
+                            OnDecode(entry);
                             
                             string watch = null;
                             InstructionObjectSource watchSource = InstructionObjectSource.Dynamic;
@@ -942,6 +1055,9 @@ namespace Microsoft.Iris.Markup
                     case OpCode.EnterDebugState:
                         {
                             int breakpointIndex = reader.ReadInt32();
+                            entry.Instruction.Operands.Add(breakpointIndex);
+                            OnDecode(entry);
+                            
                             entry.Parameters.Add(new("breakpointIndex", typeof(int),
                                 breakpointIndex, InstructionObjectSource.Inline));
 
@@ -953,7 +1069,7 @@ namespace Microsoft.Iris.Markup
                         }
                 }
 
-                Application.Debugger?.LogInterpreterOpCode(context, entry);
+                Application.Debugger?.LogInterpreterExecute(context, entry);
             }
             while (stack.Count > count)
             {

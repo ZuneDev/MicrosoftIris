@@ -27,7 +27,8 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
         }
     }
 
-    public event EventHandler<InterpreterEntry> InterpreterStep;
+    public event EventHandler<InterpreterInstruction> InterpreterDecode;
+    public event EventHandler<InterpreterEntry> InterpreterExecute;
     public event Action<string> DispatcherStep;
     public event Action<InterpreterCommand> InterpreterStateChanged;
 
@@ -75,9 +76,14 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
 
             switch (frame.Type)
             {
-                case DebuggerMessageType.InterpreterOpCode:
-                    var entry = frame.DeserializeData<InterpreterEntry>(_formatter);
-                    InterpreterStep?.Invoke(this, entry);
+                case DebuggerMessageType.InterpreterDecode:
+                    var decEntry = frame.DeserializeData<InterpreterInstruction>(_formatter);
+                    InterpreterDecode?.Invoke(this, decEntry);
+                    break;
+                
+                case DebuggerMessageType.InterpreterExecute:
+                    var execEntry = frame.DeserializeData<InterpreterEntry>(_formatter);
+                    InterpreterExecute?.Invoke(this, execEntry);
                     break;
 
                 case DebuggerMessageType.DispatcherStep:
@@ -91,7 +97,7 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
                     break;
 
                 default:
-                    Trace.WriteLine(TraceCategory.MarkupDebug, "Recieved unknown debugger message of type '{0}'.", frame.Type);
+                    Trace.WriteLine(TraceCategory.MarkupDebug, "Received unknown debugger message of type '{0}'.", frame.Type);
                     break;
             }
         }

@@ -4,7 +4,8 @@ public enum DebuggerMessageType : int
 {
     Null = 0,
 
-    InterpreterOpCode,
+    InterpreterDecode,
+    InterpreterExecute,
     DispatcherStep,
 
     UpdateBreakpoint,

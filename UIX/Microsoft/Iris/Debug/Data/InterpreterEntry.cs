@@ -1,5 +1,4 @@
-﻿using Microsoft.Iris.Markup;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,27 +14,26 @@ public class InterpreterEntry : IComparable<InterpreterEntry>
         Instruction = instruction;
     }
 
-    public InterpreterInstruction Instruction { get; }
+    public InterpreterInstruction Instruction { get; set; }
 
     public List<InterpreterObject> Parameters { get; } = new();
 
     public List<InterpreterObject> ReturnValues { get; } = new();
 
-    public string InstructionString => ToInstructionString();
-
     public override string ToString()
     {
-        StringBuilder sb = new($"[{LoadUri} @ 0x{Offset:X}] {OpCode}({string.Join(", ", Parameters)})");
+        StringBuilder sb = new($"[{Instruction.LoadUri} @ 0x{Instruction.Offset:X}] " +
+            $"{Instruction.OpCode}({string.Join(", ", Parameters)})");
 
-        if (ReturnValues.Count > 0)
-        {
-            sb.Append(" -> ");
+        if (ReturnValues.Count <= 0)
+            return sb.ToString();
+        
+        sb.Append(" -> ");
 
-            if (ReturnValues.Count == 1)
-                sb.Append(ReturnValues[0]);
-            else
-                sb.Append($"[{string.Join(", ", ReturnValues)}]");
-        }
+        if (ReturnValues.Count == 1)
+            sb.Append(ReturnValues[0]);
+        else
+            sb.Append($"[{string.Join(", ", ReturnValues)}]");
 
         return sb.ToString();
     }

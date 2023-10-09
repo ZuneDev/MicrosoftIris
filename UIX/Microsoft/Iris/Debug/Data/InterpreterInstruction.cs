@@ -1,11 +1,14 @@
 ﻿using Microsoft.Iris.Markup;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Iris.Debug.Data;
 
 [Serializable]
 public class InterpreterInstruction : IComparable<InterpreterInstruction>
 {
+    public InterpreterInstruction() { }
+
     public InterpreterInstruction(OpCode opCode, uint offset, string loadUri)
     {
         OpCode = opCode;
@@ -19,11 +22,15 @@ public class InterpreterInstruction : IComparable<InterpreterInstruction>
 
     public string LoadUri { get; set; }
 
+    public List<object> Operands { get; } = new();
+
     public int CompareTo(InterpreterInstruction other)
     {
-        int stringCmp = LoadUri.CompareTo(other.LoadUri);
+        var stringCmp = string.Compare(LoadUri, other.LoadUri, StringComparison.Ordinal);
         return stringCmp != 0
             ? stringCmp
             : Offset.CompareTo(other.Offset);
     }
+
+    public override string ToString() => $"[0x{Offset:X}] {OpCode} {string.Join(", ", Operands)}";
 }

@@ -49,9 +49,14 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         Current = this;
     }
 
-    public void LogInterpreterOpCode(object context, InterpreterEntry entry)
+    public void LogInterpreterDecode(object context, InterpreterInstruction instruction)
     {
-        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterOpCode, entry.Serialize(_formatter)));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterDecode, instruction.Serialize(_formatter)));
+    }
+
+    public void LogInterpreterExecute(object context, InterpreterEntry entry)
+    {
+        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterExecute, entry.Serialize(_formatter)));
     }
 
     public void LogDispatcher(string message)
