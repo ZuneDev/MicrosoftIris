@@ -10,24 +10,18 @@ public class InterpreterEntry : IComparable<InterpreterEntry>
 {
     public InterpreterEntry() { }
 
-    public InterpreterEntry(OpCode opCode, uint offset, string loadUri)
+    public InterpreterEntry(InterpreterInstruction instruction)
     {
-        OpCode = opCode;
-        Offset = offset;
-        LoadUri = loadUri;
+        Instruction = instruction;
     }
 
-    public OpCode OpCode { get; set; }
-
-    public uint Offset { get; set; }
-
-    public string LoadUri { get; set; }
-
-    public string InstructionString => ToInstructionString();
+    public InterpreterInstruction Instruction { get; }
 
     public List<InterpreterObject> Parameters { get; } = new();
 
     public List<InterpreterObject> ReturnValues { get; } = new();
+
+    public string InstructionString => ToInstructionString();
 
     public override string ToString()
     {
@@ -49,9 +43,9 @@ public class InterpreterEntry : IComparable<InterpreterEntry>
     public string ToInstructionString()
     {
         StringBuilder sb = new();
-        sb.AppendFormat("0x{0:X4}", Offset);
+        sb.AppendFormat("0x{0:X4}", Instruction.Offset);
         sb.Append('\t');
-        sb.Append(OpCode);
+        sb.Append(Instruction.OpCode);
         sb.Append(' ', 2);
 
         for (int p = 0; p < Parameters.Count; ++p)
@@ -61,27 +55,11 @@ public class InterpreterEntry : IComparable<InterpreterEntry>
             if (p != 0)
                 sb.Append(", ");
 
-            if (param.Source == InstructionObjectSource.Inline)
-                sb.Append(param.Value ?? "NULL");
-            else
-                sb.Append(param.Source);
-
-            if (param.TableIndex != -1)
-            {
-                sb.Append('[');
-                sb.Append(param.TableIndex);
-                sb.Append(']');
-            }
+            param.ToString(sb, false);
         }
 
         return sb.ToString();
     }
 
-    public int CompareTo(InterpreterEntry other)
-    {
-        int stringCmp = LoadUri.CompareTo(other.LoadUri);
-        return stringCmp != 0
-            ? stringCmp
-            : Offset.CompareTo(other.Offset);
-    }
+    public int CompareTo(InterpreterEntry other) => Instruction.CompareTo(other.Instruction);
 }

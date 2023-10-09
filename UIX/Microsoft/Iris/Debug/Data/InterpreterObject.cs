@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
 
@@ -49,7 +50,33 @@ public class InterpreterObject
 
     public InterpreterObject() { }
 
-    public override string ToString() => string.Join(" ", Type?.Name, Value?.ToString() ?? "NULL");
+    public override string ToString()
+    {
+        StringBuilder sb = new();
+        ToString(sb, true);
+        return sb.ToString();
+    }
+
+    public void ToString(StringBuilder sb, bool includeType = false)
+    {
+        if (includeType)
+        {
+            sb.Append(Type?.Name);
+            sb.Append(' ');
+        }
+
+        if (Source == InstructionObjectSource.Inline)
+            sb.Append(Value ?? "NULL");
+        else
+            sb.Append(Source);
+
+        if (TableIndex != -1)
+        {
+            sb.Append('[');
+            sb.Append(TableIndex);
+            sb.Append(']');
+        }
+    }
 }
 
 /// <summary>
