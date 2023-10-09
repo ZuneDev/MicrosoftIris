@@ -72,26 +72,30 @@ namespace Microsoft.Iris.Markup
             while (!errorsDetected)
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
-                InterpreterEntry entry = new(opCode, reader.CurrentOffset, loadResult.Uri);
+                InterpreterEntry entry = new(new(opCode, reader.CurrentOffset, loadResult.Uri));
 
-                // Fetch line and column numbers from the table
-                if (debugging && context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
+                if (debugging)
                 {
-                    bool ShouldBreak(Breakpoint b)
-                        => b.Enabled && b.Equals(loadResult.Uri, line, column, reader.CurrentOffset);
-
-                    // Check if a breakpoint has been set at this location
-                    bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
-                    if (shouldBreakHere)
+                    // Fetch line and column numbers from the table
+                    if (context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
                     {
-                        Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
-                        //System.Diagnostics.Debugger.Break();
-                    }
-                }
+                        bool ShouldBreak(Breakpoint b)
+                            => b.Enabled && b.Equals(loadResult.Uri, line, column, reader.CurrentOffset);
 
-                while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
-                if (Application.Debugger.DebuggerCommand == InterpreterCommand.Step)
-                    Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+                        // Check if a breakpoint has been set at this location
+                        bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
+                        if (shouldBreakHere)
+                            Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+                    }
+
+                    // Stop exeuction while the debugger is in break mode
+                    while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
+
+                    // If the debugger requested a single step, immediately set the debugger
+                    // to break again for the next instruction
+                    if (Application.Debugger.DebuggerCommand == InterpreterCommand.Step)
+                        Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+                }
 
                 switch (opCode)
                 {
@@ -103,7 +107,7 @@ namespace Microsoft.Iris.Markup
                                 typeSchema, InstructionObjectSource.TypeImports, typeIndex));
 
                             object newObj = typeSchema.ConstructDefault();
-                                
+                            
                             ReportErrorOnNull(newObj, "Construction", typeSchema.Name);
                             if (!ErrorsDetected(watermark, ref result, ref errorsDetected))
                             {
