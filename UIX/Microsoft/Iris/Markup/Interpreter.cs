@@ -74,7 +74,19 @@ namespace Microsoft.Iris.Markup
                 if (!debugging) return;
                 
                 Application.Debugger.LogInterpreterDecode(context, entry.Instruction);
-                
+
+                // Fetch line and column numbers from the table
+                int line = -1, column = -1;
+                context.LoadResult.LineNumberTable.TryLookup(entry.Instruction.Offset, out line, out column);
+
+                bool ShouldBreak(Breakpoint b) =>
+                    b.Enabled && b.Equals(loadResult.Uri, line, column, entry.Instruction.Offset);
+
+                // Check if a breakpoint has been set at this location
+                bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
+                if (shouldBreakHere)
+                    Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
+
                 // Stop execution while the debugger is in break mode
                 while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
 
@@ -88,21 +100,6 @@ namespace Microsoft.Iris.Markup
             {
                 OpCode opCode = (OpCode)reader.ReadByte();
                 InterpreterEntry entry = new(new(opCode, reader.CurrentOffset, loadResult.Uri));
-
-                if (debugging)
-                {
-                    // Fetch line and column numbers from the table
-                    if (context.LoadResult.LineNumberTable.TryLookup(reader.CurrentOffset, out int line, out int column))
-                    {
-                        bool ShouldBreak(Breakpoint b)
-                            => b.Enabled && b.Equals(loadResult.Uri, line, column, reader.CurrentOffset);
-
-                        // Check if a breakpoint has been set at this location
-                        bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
-                        if (shouldBreakHere)
-                            Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
-                    }
-                }
 
                 switch (opCode)
                 {
