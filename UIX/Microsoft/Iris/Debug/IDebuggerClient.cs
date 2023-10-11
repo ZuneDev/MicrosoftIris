@@ -3,15 +3,8 @@ using System;
 
 namespace Microsoft.Iris.Debug;
 
-public interface IDebuggerClient
+public interface IDebuggerClient : IDebuggerState
 {
-    /// <summary>
-    /// The URI the client is connected to.
-    /// </summary>
-    Uri ConnectionUri { get; }
-
-    InterpreterCommand DebuggerCommand { get; set; }
-
     event Action<InterpreterCommand> InterpreterStateChanged;
 
     /// <summary>

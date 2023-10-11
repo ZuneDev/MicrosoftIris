@@ -15,7 +15,9 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
     private readonly IFormatter _formatter;
     private Socket _socket;
     private bool _disposed = false;
-    private InterpreterCommand _uibCommand = InterpreterCommand.Continue;
+    private InterpreterCommand _uibCommand;
+
+    public event Action<IDebuggerState, object> Connected;
 
     public Uri ConnectionUri { get; }
 
@@ -130,6 +132,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
             if (_disposed) return;
 
         _socket = _listener.AcceptSocket();
+        Connected?.Invoke(this, _socket);
 
         System.Threading.Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
         System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };

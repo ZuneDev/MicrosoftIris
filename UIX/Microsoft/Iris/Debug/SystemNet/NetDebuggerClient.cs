@@ -12,7 +12,7 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
     private readonly Socket _socket;
     private readonly ConcurrentQueue<byte[]> _outQueue = new();
     private readonly IFormatter _formatter;
-    private InterpreterCommand _uibCommand = InterpreterCommand.Continue;
+    private InterpreterCommand _uibCommand;
 
     public Uri ConnectionUri { get; }
 
@@ -31,6 +31,7 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
     public event EventHandler<InterpreterEntry> InterpreterExecute;
     public event Action<string> DispatcherStep;
     public event Action<InterpreterCommand> InterpreterStateChanged;
+    public event Action<IDebuggerState, object> Connected;
 
     public NetDebuggerClient(string connectionUri) : this(connectionUri is null ? null : new Uri(connectionUri))
     {
@@ -126,6 +127,8 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
             }
             catch { }
         }
+
+        Connected?.Invoke(this, _socket);
 
         System.Threading.Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
         System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };

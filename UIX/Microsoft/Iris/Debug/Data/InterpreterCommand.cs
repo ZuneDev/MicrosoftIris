@@ -2,7 +2,7 @@
 
 public enum InterpreterCommand : byte
 {
-    Continue,
     Break,
+    Continue,
     Step,
 }

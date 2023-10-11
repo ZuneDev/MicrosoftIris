@@ -2,10 +2,8 @@
 
 namespace Microsoft.Iris.Debug;
 
-internal interface IDebuggerServer
+internal interface IDebuggerServer : IDebuggerState
 {
-    InterpreterCommand DebuggerCommand { get; set; }
-
     /// <summary>
     /// Logs the context, opcode, and operands of an instruction
     /// decoded by <c>Microsoft.Iris.Markup.Interpreter</c>.
