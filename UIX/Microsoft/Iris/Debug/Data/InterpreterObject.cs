@@ -57,7 +57,7 @@ public class InterpreterObject
         return sb.ToString();
     }
 
-    public void ToString(StringBuilder sb, bool includeType = false)
+    public void ToString(StringBuilder sb, bool includeType = false, bool includeSource = false)
     {
         if (includeType)
         {
@@ -65,16 +65,23 @@ public class InterpreterObject
             sb.Append(' ');
         }
 
-        if (Source == InstructionObjectSource.Inline)
-            sb.Append(Value ?? "NULL");
-        else
-            sb.Append(Source);
-
-        if (TableIndex != -1)
+        if (includeSource)
         {
-            sb.Append('[');
-            sb.Append(TableIndex);
-            sb.Append(']');
+            if (Source == InstructionObjectSource.Inline)
+                sb.Append(Value ?? "NULL");
+            else
+                sb.Append(Source);
+
+            if (TableIndex != -1)
+            {
+                sb.Append('[');
+                sb.Append(TableIndex);
+                sb.Append(']');
+            }
+        }
+        else
+        {
+            sb.Append(Value ?? "NULL");
         }
     }
 }
