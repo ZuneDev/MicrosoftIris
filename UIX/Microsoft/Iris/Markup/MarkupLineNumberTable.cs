@@ -4,20 +4,18 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
-using System.Diagnostics;
-
 namespace Microsoft.Iris.Markup
 {
     public class MarkupLineNumberTable
     {
-        private const ulong OFFSET_MASK = 4194303;
-        private const uint OFFSET_MAX = 4194303;
-        private const ulong LINE_MASK = 8796088827904;
+        private const ulong OFFSET_MASK = 0x3F_FFFFUL;
+        private const uint OFFSET_MAX = 0x3F_FFFF;
+        private const ulong LINE_MASK = 0x7FF_FFC0_0000UL;
         private const int LINE_SHIFT = 22;
-        private const uint LINE_MAX = 2097151;
-        private const ulong COLUMN_MASK = 18446735277616529408;
+        private const uint LINE_MAX = 0x1F_FFFF;
+        private const ulong COLUMN_MASK = 0xFFFF_F800_0000_0000UL;
         private const int COLUMN_SHIFT = 43;
-        private const uint COLUMN_MAX = 2097151;
+        private const uint COLUMN_MAX = 0x1F_FFFF;
         private Vector<ulong> _lookupTable;
         private ulong[] _runtimeList;
 
@@ -64,17 +62,25 @@ namespace Microsoft.Iris.Markup
 
         internal ulong[] PersistList => _runtimeList;
 
-        [Conditional("DEBUG")]
-        public void DEBUG_DumpTable()
+        public Vector<Debug.Data.MarkupLineNumberEntry> DumpTable()
         {
+            Vector<Debug.Data.MarkupLineNumberEntry> knownLines = new();
+
+            for (int index = 0; index < _runtimeList.Length; ++index)
+            {
+                var value = _runtimeList[index];
+                knownLines.Add(new(UnpackOffset(value), UnpackLine(value), UnpackColumn(value)));
+            }
+
+            return knownLines;
         }
 
-        private static ulong Pack(uint offset, int line, int column) => (ulong)(offset | (long)line << 22 | (long)column << 43);
+        private static ulong Pack(uint offset, int line, int column) => (ulong)(offset | (long)line << LINE_SHIFT | (long)column << COLUMN_SHIFT);
 
-        private static uint UnpackOffset(ulong value) => (uint)(value & 0x3F_FFFFUL);
+        private static uint UnpackOffset(ulong value) => (uint)(value & OFFSET_MASK);
 
-        private static int UnpackLine(ulong value) => (int)((value & 0x7FF_FFC0_0000UL) >> 22);
+        private static int UnpackLine(ulong value) => (int)((value & LINE_MASK) >> LINE_SHIFT);
 
-        private static int UnpackColumn(ulong value) => (int)((value & 0xFFFF_F800_0000_0000UL) >> 43);
+        private static int UnpackColumn(ulong value) => (int)((value & COLUMN_MASK) >> COLUMN_SHIFT);
     }
 }

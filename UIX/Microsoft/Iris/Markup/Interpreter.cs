@@ -68,6 +68,8 @@ namespace Microsoft.Iris.Markup
             object result = null;
             bool wasInDebugState = false;
             bool debugging = Application.Debugger != null;
+
+            context.LoadResult.LineNumberTable.DumpTable();
             
             void OnDecode(InterpreterEntry entry)
             {
