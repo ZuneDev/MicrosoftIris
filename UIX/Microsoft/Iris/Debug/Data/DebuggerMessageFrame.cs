@@ -1,28 +1,38 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
 
 public class DebuggerMessageFrame
 {
-    public DebuggerMessageFrame() { }
+    private readonly IFormatter _formatter;
+    private object _value;
+    private byte[] _data;
 
-    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, byte[] data)
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, IFormatter formatter)
     {
+        _formatter = formatter;
         TransactionId = transactionId;
         Type = type;
+    }
+
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, object value, IFormatter formatter)
+        : this(transactionId, type, formatter)
+    {
+        Value = value;
+    }
+
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, byte[] data, IFormatter formatter)
+        : this(transactionId, type, formatter)
+    {
         Data = data;
     }
 
-    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, string message, Encoding encoding = null)
-        : this(transactionId, type, (encoding ?? Encoding.UTF8).GetBytes(message))
+    public DebuggerMessageFrame(byte[] bytes, IFormatter formatter)
     {
-    }
+        _formatter = formatter;
 
-    public DebuggerMessageFrame(byte[] bytes)
-    {
         TransactionId = BitConverter.ToInt64(bytes, 0);
         Type = (DebuggerMessageType)BitConverter.ToInt32(bytes, sizeof(long));
 
@@ -39,7 +49,46 @@ public class DebuggerMessageFrame
 
     public DebuggerMessageType Type { get; set; }
 
-    public byte[] Data { get; set; }
+    public object Value
+    {
+        get
+        {
+            if (_value is null)
+            {
+                if (_data is null) throw new ArgumentException("Either a value or data must be specified.");
+
+                using MemoryStream stream = new(_data);
+                _value = _formatter.Deserialize(stream);
+            }
+
+            return _value;
+        }
+        set
+        {
+            _value = value;
+            _data = null;
+        }
+    }
+
+    public byte[] Data
+    {
+        get
+        {
+            if (_data is null)
+            {
+                if (_value is null) throw new ArgumentException("Either a value or data must be specified.");
+
+                _data = _value.Serialize(_formatter);
+            }
+
+            return _data;
+        }
+        set
+        {
+            _data = value;
+            _value = default;
+        }
+    }
 
     public byte[] ToBytes()
     {
@@ -62,11 +111,33 @@ public class DebuggerMessageFrame
         return bytes;
     }
 
-    public string GetDataAsString(Encoding encoding = null) => (encoding ?? Encoding.UTF8).GetString(Data);
-
-    public T DeserializeData<T>(IFormatter formatter)
+    public virtual T GetValue<T>(IFormatter formatter = null)
     {
         using MemoryStream stream = new(Data);
-        return (T)formatter.Deserialize(stream);
+        return (T)(formatter ?? _formatter).Deserialize(stream);
     }
+
+    public DebuggerMessageFrame<T> Deserialize<T>(IFormatter formatter = null)
+        => new(TransactionId, Type, GetValue<T>(formatter), formatter ?? _formatter);
+}
+
+public class DebuggerMessageFrame<T> : DebuggerMessageFrame
+{
+    public DebuggerMessageFrame(byte[] bytes, IFormatter formatter) : base(bytes, formatter)
+    {
+    }
+
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, IFormatter formatter) : base(transactionId, type, formatter)
+    {
+    }
+
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, T value, IFormatter formatter) : base(transactionId, type, value, formatter)
+    {
+    }
+
+    public DebuggerMessageFrame(long transactionId, DebuggerMessageType type, byte[] data, IFormatter formatter) : base(transactionId, type, data, formatter)
+    {
+    }
+
+    public T GetValue() => (T)Value;
 }

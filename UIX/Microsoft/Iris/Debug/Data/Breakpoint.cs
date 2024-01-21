@@ -52,12 +52,18 @@ public struct Breakpoint : IEquatable<Breakpoint>
 
     public override bool Equals(object obj) => obj is Breakpoint bp && Equals(bp);
 
-    public override string ToString()
+    public override string ToString() => ToString(true);
+
+    public string ToString(bool includeEnabled)
     {
         StringBuilder sb = new();
 
-        sb.Append(Enabled ? '+' : '-');
-        sb.Append(' ');
+        if (includeEnabled)
+        {
+            sb.Append(Enabled ? '+' : '-');
+            sb.Append(' ');
+        }
+
         sb.Append(Uri);
         sb.Append(' ');
 
@@ -69,5 +75,5 @@ public struct Breakpoint : IEquatable<Breakpoint>
         return sb.ToString();
     }
 
-    public override int GetHashCode() => ToString().GetHashCode();
+    public override int GetHashCode() => ToString(false).GetHashCode();
 }

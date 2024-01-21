@@ -17,7 +17,7 @@ public static class DebugRemoting
 
     internal static IFormatter CreateBsonFormatter() => new BsonFormatter(new StreamingContext(StreamingContextStates.Remoting));
 
-    internal static Data.DebuggerMessageFrame ReceiveDebuggerMessage(Socket socket)
+    internal static Data.DebuggerMessageFrame ReceiveDebuggerMessage(Socket socket, IFormatter formatter)
     {
         try
         {
@@ -33,7 +33,7 @@ public static class DebugRemoting
             byte[] frameBytes = new byte[frameLength];
             socket.Receive(frameBytes, frameLength, SocketFlags.None);
 
-            return new(frameBytes);
+            return new(frameBytes, formatter);
         }
         catch (SocketException)
         {

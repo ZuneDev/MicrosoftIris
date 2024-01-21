@@ -10,4 +10,6 @@ public enum DebuggerMessageType : int
 
     UpdateBreakpoint,
     InterpreterCommand,
+
+    LineNumberTable,
 }

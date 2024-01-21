@@ -62,14 +62,14 @@ namespace Microsoft.Iris.Markup
 
         internal ulong[] PersistList => _runtimeList;
 
-        public Vector<Debug.Data.MarkupLineNumberEntry> DumpTable()
+        public Debug.Data.MarkupLineNumberEntry[] DumpTable()
         {
-            Vector<Debug.Data.MarkupLineNumberEntry> knownLines = new();
+            var knownLines = new Debug.Data.MarkupLineNumberEntry[_runtimeList.Length];
 
             for (int index = 0; index < _runtimeList.Length; ++index)
             {
                 var value = _runtimeList[index];
-                knownLines.Add(new(UnpackOffset(value), UnpackLine(value), UnpackColumn(value)));
+                knownLines[index] = new(UnpackOffset(value), UnpackLine(value), UnpackColumn(value));
             }
 
             return knownLines;

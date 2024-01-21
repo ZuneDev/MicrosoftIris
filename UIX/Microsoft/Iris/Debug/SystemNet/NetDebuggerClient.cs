@@ -11,8 +11,11 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
 {
     private readonly Socket _socket;
     private readonly ConcurrentQueue<byte[]> _outQueue = new();
+    private readonly ConcurrentDictionary<long, Action<object>> _requests = new();
     private readonly IFormatter _formatter;
+
     private InterpreterCommand _uibCommand;
+    private long _nextFreeTransactionId = 1;
 
     public Uri ConnectionUri { get; }
 
@@ -21,8 +24,7 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
         get => _uibCommand;
         set
         {
-            var data = new[] { (byte)value };
-            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, data));
+            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, value, _formatter));
             _uibCommand = value;
         }
     }
@@ -57,9 +59,16 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
         }
     }
 
+    public void RequestLineNumberTable(string uri, Action<MarkupLineNumberEntry[]> callback)
+    {
+        DebuggerMessageFrame frame = new(GetNextTransactionId(), DebuggerMessageType.LineNumberTable, uri, _formatter);
+        _requests.TryAdd(frame.TransactionId, o => callback((MarkupLineNumberEntry[])o));
+        QueueDebuggerMessage(frame);
+    }
+
     public void UpdateBreakpoint(Breakpoint breakpoint)
     {
-        QueueDebuggerMessage(new(0, DebuggerMessageType.UpdateBreakpoint, breakpoint.Serialize(_formatter)));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.UpdateBreakpoint, breakpoint, _formatter));
     }
 
     private void QueueDebuggerMessage(DebuggerMessageFrame frame)
@@ -67,34 +76,53 @@ public class NetDebuggerClient : IDebuggerClient, IDisposable
         _outQueue.Enqueue(frame.ToBytes());
     }
 
+    private long GetNextTransactionId()
+    {
+        var currentId = _nextFreeTransactionId;
+
+        if (currentId == -1)
+            _nextFreeTransactionId += 2;
+        else if (currentId == long.MaxValue)
+            _nextFreeTransactionId = long.MinValue;
+        else
+            ++_nextFreeTransactionId;
+
+        return currentId;
+    }
+
     private void MessageReceiveLoop()
     {
         while (_socket.Connected)
         {
             DebuggerMessageFrame frame;
-            while ((frame = DebugRemoting.ReceiveDebuggerMessage(_socket)) == null)
+            while ((frame = DebugRemoting.ReceiveDebuggerMessage(_socket, _formatter)) == null)
                 if (!_socket.Connected) return;
 
             switch (frame.Type)
             {
                 case DebuggerMessageType.InterpreterDecode:
-                    var decEntry = frame.DeserializeData<InterpreterInstruction>(_formatter);
+                    var decEntry = frame.GetValue<InterpreterInstruction>();
                     InterpreterDecode?.Invoke(this, decEntry);
                     break;
-                
+
                 case DebuggerMessageType.InterpreterExecute:
-                    var execEntry = frame.DeserializeData<InterpreterEntry>(_formatter);
+                    var execEntry = frame.GetValue<InterpreterEntry>();
                     InterpreterExecute?.Invoke(this, execEntry);
                     break;
 
                 case DebuggerMessageType.DispatcherStep:
-                    string message = frame.GetDataAsString();
+                    string message = frame.GetValue<string>();
                     DispatcherStep?.Invoke(message);
                     break;
 
                 case DebuggerMessageType.InterpreterCommand:
-                    _uibCommand = (InterpreterCommand)frame.Data[0];
+                    _uibCommand = frame.GetValue<InterpreterCommand>();
                     InterpreterStateChanged?.Invoke(_uibCommand);
+                    break;
+
+                case DebuggerMessageType.LineNumberTable:
+                    if (_requests.TryRemove(frame.TransactionId, out var callback))
+                        callback(frame.GetValue<MarkupLineNumberEntry[]>());
                     break;
 
                 default:

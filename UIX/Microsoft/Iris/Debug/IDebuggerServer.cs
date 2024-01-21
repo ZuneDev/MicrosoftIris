@@ -5,6 +5,11 @@ namespace Microsoft.Iris.Debug;
 internal interface IDebuggerServer : IDebuggerState
 {
     /// <summary>
+    /// Sends the requested line number table.
+    /// </summary>
+    MarkupLineNumberEntry[] OnLineNumberTableRequested(string uri);
+
+    /// <summary>
     /// Logs the context, opcode, and operands of an instruction
     /// decoded by <c>Microsoft.Iris.Markup.Interpreter</c>.
     /// </summary>

@@ -61,7 +61,7 @@ internal class BsonFormatter : IFormatter
             var package = (JObject)serializer.Deserialize(reader);
 
             TypeName = package["0"].Value<string>();
-            SerializedObject = (JObject)package["1"];
+            SerializedObject = package["1"];
 
             // If the type is accessible from the current domain,
             // create an instance of it.
@@ -72,7 +72,7 @@ internal class BsonFormatter : IFormatter
 
         public string TypeName { get; set; }
 
-        public JObject SerializedObject { get; set; }
+        public JToken SerializedObject { get; set; }
 
         public object Object { get; set; }
     }

@@ -23,4 +23,10 @@ public interface IDebuggerClient : IDebuggerState
     event Action<string> DispatcherStep;
 
     void UpdateBreakpoint(Breakpoint breakpoint);
+
+    /// <summary>
+    /// Requests the line number table for the given UIX file.
+    /// </summary>
+    /// <param name="uri">The URI of the file to get information for.</param>
+    void RequestLineNumberTable(string uri, Action<MarkupLineNumberEntry[]> callback);
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Iris.Debug.Data;
+using Microsoft.Iris.Markup;
 using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
@@ -26,8 +27,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         get => _uibCommand;
         set
         {
-            var data = new[] { (byte)value };
-            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, data));
+            QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterCommand, value, _formatter));
             _uibCommand = value;
         }
     }
@@ -51,19 +51,27 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         Current = this;
     }
 
+    public MarkupLineNumberEntry[] OnLineNumberTableRequested(string uri)
+    {
+        var loadResult = LoadResultCache.Read(uri) as MarkupLoadResult;
+        var lineNumberTable = loadResult.LineNumberTable.DumpTable();
+
+        return lineNumberTable;
+    }
+
     public void LogInterpreterDecode(object context, InterpreterInstruction instruction)
     {
-        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterDecode, instruction.Serialize(_formatter)));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterDecode, instruction, _formatter));
     }
 
     public void LogInterpreterExecute(object context, InterpreterEntry entry)
     {
-        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterExecute, entry.Serialize(_formatter)));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterExecute, entry, _formatter));
     }
 
     public void LogDispatcher(string message)
     {
-        QueueDebuggerMessage(new(0, DebuggerMessageType.DispatcherStep, message));
+        QueueDebuggerMessage(new(0, DebuggerMessageType.DispatcherStep, message, _formatter));
     }
 
     public void Dispose()
@@ -86,13 +94,13 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         while (_socket.Connected)
         {
             DebuggerMessageFrame frame;
-            while ((frame = DebugRemoting.ReceiveDebuggerMessage(_socket)) == null)
+            while ((frame = DebugRemoting.ReceiveDebuggerMessage(_socket, _formatter)) == null)
                 if (!_socket.Connected) return;
 
             switch (frame.Type)
             {
                 case DebuggerMessageType.UpdateBreakpoint:
-                    var breakpoint = frame.DeserializeData<Breakpoint>(_formatter);
+                    var breakpoint = frame.GetValue<Breakpoint>();
                     if (breakpoint.Enabled)
                         Application.DebugSettings.Breakpoints.Add(breakpoint);
                     else
@@ -100,7 +108,16 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
                     break;
 
                 case DebuggerMessageType.InterpreterCommand:
-                    _uibCommand = (InterpreterCommand)frame.Data[0];
+                    _uibCommand = frame.GetValue<InterpreterCommand>();
+                    break;
+
+                case DebuggerMessageType.LineNumberTable:
+                    var lineNumberTable = OnLineNumberTableRequested(frame.GetValue<string>());
+
+                    DebuggerMessageFrame<MarkupLineNumberEntry[]> responseFrame =
+                        new(frame.TransactionId, DebuggerMessageType.LineNumberTable, lineNumberTable, _formatter);
+
+                    QueueDebuggerMessage(responseFrame);
                     break;
 
                 default:
