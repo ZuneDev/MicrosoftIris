@@ -92,6 +92,8 @@ namespace Microsoft.Iris.Markup
                 loadResult.Load(LoadPass.PopulatePublicModel);
                 loadResult.Load(LoadPass.Full);
                 loadResult.Load(LoadPass.Done);
+
+                NewMarkupLoaded?.Invoke(null, loadResult);
             }
             ErrorManager.ExitContext();
             return loadResult;
@@ -137,8 +139,6 @@ namespace Microsoft.Iris.Markup
                     if (loadResult.UnderlyingUri != null)
                         LoadResultCache.Write(loadResult.UnderlyingUri, loadResult);
                 }
-
-                NewMarkupLoaded?.Invoke(null, loadResult);
             }
             loadResult?.AddReference(islandId);
             ErrorManager.ExitContext();
