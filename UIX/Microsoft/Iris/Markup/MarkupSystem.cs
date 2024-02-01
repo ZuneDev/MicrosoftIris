@@ -15,14 +15,14 @@ using System;
 
 namespace Microsoft.Iris.Markup
 {
-    internal static class MarkupSystem
+    public static class MarkupSystem
     {
         public const string RootTag = "UIX";
         public const string SchemaVersion = "http://schemas.microsoft.com/2007/uix";
         public const string DataSchemaRootTag = "DataSchema";
         public const string DataSchemaVersion = "http://schemas.microsoft.com/2007/uixdata";
-        public static UIXLoadResult UIXGlobal;
-        public static RootLoadResult RootGlobal;
+        internal static UIXLoadResult UIXGlobal;
+        internal static RootLoadResult RootGlobal;
         public static bool CompileMode;
         public static bool TrackAdditionalMetadata;
         public static bool MarkupSystemActive;
@@ -180,7 +180,7 @@ namespace Microsoft.Iris.Markup
 
         public static void UnloadAll() => LoadResultCache.Clear();
 
-        public static bool RegisterFactoryByProtocol(string protocol, CreateLoadResultHandler handler)
+        internal static bool RegisterFactoryByProtocol(string protocol, CreateLoadResultHandler handler)
         {
             if (protocol.EndsWith("://", StringComparison.Ordinal))
                 protocol = protocol.Substring(0, protocol.Length - 3);
@@ -203,7 +203,7 @@ namespace Microsoft.Iris.Markup
             return flag;
         }
 
-        public static bool RegisterFactoryByExtension(string extension, CreateLoadResultHandler handler)
+        internal static bool RegisterFactoryByExtension(string extension, CreateLoadResultHandler handler)
         {
             bool flag = true;
             if (!extension.StartsWith(".", StringComparison.Ordinal))
