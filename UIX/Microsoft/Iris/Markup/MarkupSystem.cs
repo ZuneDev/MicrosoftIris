@@ -33,6 +33,8 @@ namespace Microsoft.Iris.Markup
         private static uint s_rootIslandId;
         private static uint s_activeIslands;
 
+        public static event EventHandler<LoadResult> NewMarkupLoaded;
+
         public static void Startup(bool compileMode)
         {
             MarkupSystemActive = true;
@@ -135,6 +137,8 @@ namespace Microsoft.Iris.Markup
                     if (loadResult.UnderlyingUri != null)
                         LoadResultCache.Write(loadResult.UnderlyingUri, loadResult);
                 }
+
+                NewMarkupLoaded?.Invoke(null, loadResult);
             }
             loadResult?.AddReference(islandId);
             ErrorManager.ExitContext();
