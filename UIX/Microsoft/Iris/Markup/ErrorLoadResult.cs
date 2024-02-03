@@ -9,14 +9,14 @@ using System;
 namespace Microsoft.Iris.Markup
 {
     [Serializable]
-    internal class ErrorLoadResult : LoadResult
+    public class ErrorLoadResult : LoadResult
     {
         public ErrorLoadResult(string uri)
           : base(uri)
         {
         }
 
-        public override TypeSchema FindType(string name) => (TypeSchema)null;
+        public override TypeSchema FindType(string name) => null;
 
         public override LoadResultStatus Status => LoadResultStatus.Error;
     }

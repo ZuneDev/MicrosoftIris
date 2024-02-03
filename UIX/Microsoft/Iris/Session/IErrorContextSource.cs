@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal interface IErrorContextSource
+    public interface IErrorContextSource
     {
         string GetErrorContextDescription();
 

@@ -184,7 +184,7 @@ namespace Microsoft.Iris.Markup
 
         public static void UnloadAll() => LoadResultCache.Clear();
 
-        internal static bool RegisterFactoryByProtocol(string protocol, CreateLoadResultHandler handler)
+        public static bool RegisterFactoryByProtocol(string protocol, CreateLoadResultHandler handler)
         {
             if (protocol.EndsWith("://", StringComparison.Ordinal))
                 protocol = protocol.Substring(0, protocol.Length - 3);
@@ -207,7 +207,7 @@ namespace Microsoft.Iris.Markup
             return flag;
         }
 
-        internal static bool RegisterFactoryByExtension(string extension, CreateLoadResultHandler handler)
+        public static bool RegisterFactoryByExtension(string extension, CreateLoadResultHandler handler)
         {
             bool flag = true;
             if (!extension.StartsWith(".", StringComparison.Ordinal))

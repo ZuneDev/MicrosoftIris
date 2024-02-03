@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal struct ErrorWatermark
+    public struct ErrorWatermark
     {
         private uint _currentErrorCount;
 

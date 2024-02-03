@@ -8,5 +8,5 @@ using System.Collections;
 
 namespace Microsoft.Iris.Session
 {
-    internal delegate void NotifyErrorBatch(IList errors);
+    public delegate void NotifyErrorBatch(IList errors);
 }

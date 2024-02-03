@@ -6,5 +6,5 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal delegate LoadResult CreateLoadResultHandler(string uri);
+    public delegate LoadResult CreateLoadResultHandler(string uri);
 }

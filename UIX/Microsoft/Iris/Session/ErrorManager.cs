@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Iris.Session
 {
-    internal static class ErrorManager
+    public static class ErrorManager
     {
         private static uint s_totalErrorsReported;
         private static Stack<ErrorManager.Context> s_contextStack = new Stack<ErrorManager.Context>();
