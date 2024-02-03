@@ -21,7 +21,7 @@ namespace Microsoft.Iris.Markup
         public const string SchemaVersion = "http://schemas.microsoft.com/2007/uix";
         public const string DataSchemaRootTag = "DataSchema";
         public const string DataSchemaVersion = "http://schemas.microsoft.com/2007/uixdata";
-        internal static UIXLoadResult UIXGlobal;
+        public static UIXLoadResult UIXGlobal;
         internal static RootLoadResult RootGlobal;
         public static bool CompileMode;
         public static bool TrackAdditionalMetadata;

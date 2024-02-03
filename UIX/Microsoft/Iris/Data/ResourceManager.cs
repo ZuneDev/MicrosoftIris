@@ -9,7 +9,7 @@ using System;
 
 namespace Microsoft.Iris.Data
 {
-    internal sealed class ResourceManager
+    public sealed class ResourceManager
     {
         internal const string ProtocolSeparator = "://";
         private Vector<ResourceManager.UriRedirect> _redirects;

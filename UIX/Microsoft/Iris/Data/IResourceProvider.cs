@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Data
 {
-    internal interface IResourceProvider
+    public interface IResourceProvider
     {
         Resource GetResource(string hierarchicalPart, string uri, bool forceSynchronous);
     }

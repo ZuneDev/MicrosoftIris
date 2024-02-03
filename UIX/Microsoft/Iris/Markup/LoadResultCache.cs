@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Iris.Markup
 {
-    internal static class LoadResultCache
+    public static class LoadResultCache
     {
         private static Dictionary<string, LoadResult> s_cache = new Dictionary<string, LoadResult>(InvariantString.OrdinalIgnoreCaseComparer);
 

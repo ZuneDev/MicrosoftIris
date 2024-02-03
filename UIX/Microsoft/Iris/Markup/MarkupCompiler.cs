@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class MarkupCompiler
+    public class MarkupCompiler
     {
         private ByteCodeWriter _writer;
         private MarkupLoadResult _loadResult;

@@ -12,7 +12,7 @@ using System.Runtime.Serialization;
 namespace Microsoft.Iris.Markup
 {
     [Serializable]
-    internal class UIXLoadResult : LoadResult
+    public class UIXLoadResult : LoadResult
     {
         public UIXLoadResult(string uri)
           : base(uri)
