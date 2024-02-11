@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Session
 {
-    internal class ErrorRecord
+    public class ErrorRecord
     {
         public string Context;
         public string Message;
