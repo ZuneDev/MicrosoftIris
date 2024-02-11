@@ -52,7 +52,26 @@ namespace Microsoft.Iris.Markup
                 return new EffectClassTypeSchema(owner, name);
             if (markupTypeDefinition == DataTypeSchema.Type)
                 return new MarkupDataTypeSchema(owner, name);
-            return markupTypeDefinition == DataQuerySchema.Type ? new MarkupDataQuerySchema(owner, name) : null;
+            if (markupTypeDefinition == DataQuerySchema.Type)
+                return new MarkupDataQuerySchema(owner, name);
+            
+            return null;
+        }
+
+        public static MarkupTypeSchema Build(MarkupType markupType, MarkupLoadResult owner, string name)
+        {
+            if (markupType == MarkupType.Class)
+                return new ClassTypeSchema(owner, name);
+            if (markupType == MarkupType.UI)
+                return new UIClassTypeSchema(owner, name);
+            if (markupType == MarkupType.Effect)
+                return new EffectClassTypeSchema(owner, name);
+            if (markupType == MarkupType.DataType)
+                return new MarkupDataTypeSchema(owner, name);
+            if (markupType == MarkupType.DataQuery)
+                return new MarkupDataQuerySchema(owner, name);
+            
+            return null;
         }
 
         public MarkupTypeSchema(MarkupLoadResult owner, string name)
