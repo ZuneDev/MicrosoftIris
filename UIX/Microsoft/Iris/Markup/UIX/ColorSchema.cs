@@ -283,7 +283,7 @@ namespace Microsoft.Iris.Markup.UIX
             uint num;
             if (!s_NameToColorMap.TryGetValue(str.ToLowerInvariant(), out num))
                 return Result.Fail("Unable to convert \"{0}\" to type '{1}'", str, "Color");
-            Color color = new Color(num);
+            Color color = new(num);
             instanceObj = color;
             return Result.Success;
         }
@@ -346,685 +346,190 @@ namespace Microsoft.Iris.Markup.UIX
             return ConvertFromString(parameter1, out instanceObj1).Failed ? parameter2 : instanceObj1;
         }
 
-        static ColorSchema() => s_NameToColorMap = new Dictionary<string, uint>(153)
-    {
-      {
-        "aliceblue",
-        4293982463U
-      },
-      {
-        "antiquewhite",
-        4294634455U
-      },
-      {
-        "aqua",
-        4278255615U
-      },
-      {
-        "aquamarine",
-        4286578644U
-      },
-      {
-        "azure",
-        4293984255U
-      },
-      {
-        "beige",
-        4294309340U
-      },
-      {
-        "bisque",
-        4294960324U
-      },
-      {
-        "black",
-        4278190080U
-      },
-      {
-        "blanchedalmond",
-        4294962125U
-      },
-      {
-        "blue",
-        4278190335U
-      },
-      {
-        "blueviolet",
-        4287245282U
-      },
-      {
-        "brown",
-        4289014314U
-      },
-      {
-        "burlywood",
-        4292786311U
-      },
-      {
-        "cadetblue",
-        4284456608U
-      },
-      {
-        "chartreuse",
-        4286578432U
-      },
-      {
-        "chocolate",
-        4291979550U
-      },
-      {
-        "coral",
-        4294934352U
-      },
-      {
-        "cornflowerblue",
-        4284782061U
-      },
-      {
-        "cornsilk",
-        4294965468U
-      },
-      {
-        "crimson",
-        4292613180U
-      },
-      {
-        "cyan",
-        4278255615U
-      },
-      {
-        "darkblue",
-        4278190219U
-      },
-      {
-        "darkcyan",
-        4278225803U
-      },
-      {
-        "darkgoldenrod",
-        4290283019U
-      },
-      {
-        "darkgray",
-        4289309097U
-      },
-      {
-        "darkgreen",
-        4278215680U
-      },
-      {
-        "darkgrey",
-        4289309097U
-      },
-      {
-        "darkkhaki",
-        4290623339U
-      },
-      {
-        "darkmagenta",
-        4287299723U
-      },
-      {
-        "darkolivegreen",
-        4283788079U
-      },
-      {
-        "darkorange",
-        4294937600U
-      },
-      {
-        "darkorchid",
-        4288230092U
-      },
-      {
-        "darkred",
-        4287299584U
-      },
-      {
-        "darksalmon",
-        4293498490U
-      },
-      {
-        "darkseagreen",
-        4287609999U
-      },
-      {
-        "darkslateblue",
-        4282924427U
-      },
-      {
-        "darkslategray",
-        4281290575U
-      },
-      {
-        "darkslategrey",
-        4281290575U
-      },
-      {
-        "darkturquoise",
-        4278243025U
-      },
-      {
-        "darkviolet",
-        4287889619U
-      },
-      {
-        "deeppink",
-        4294907027U
-      },
-      {
-        "deepskyblue",
-        4278239231U
-      },
-      {
-        "dimgray",
-        4285098345U
-      },
-      {
-        "dimgrey",
-        4285098345U
-      },
-      {
-        "dodgerblue",
-        4280193279U
-      },
-      {
-        "feldspar",
-        4291924597U
-      },
-      {
-        "firebrick",
-        4289864226U
-      },
-      {
-        "floralwhite",
-        4294966000U
-      },
-      {
-        "forestgreen",
-        4280453922U
-      },
-      {
-        "fuchsia",
-        4294902015U
-      },
-      {
-        "gainsboro",
-        4292664540U
-      },
-      {
-        "ghostwhite",
-        4294506751U
-      },
-      {
-        "gold",
-        4294956800U
-      },
-      {
-        "goldenrod",
-        4292519200U
-      },
-      {
-        "gray",
-        4286611584U
-      },
-      {
-        "green",
-        4278222848U
-      },
-      {
-        "greenyellow",
-        4289593135U
-      },
-      {
-        "grey",
-        4286611584U
-      },
-      {
-        "honeydew",
-        4293984240U
-      },
-      {
-        "hotpink",
-        4294928820U
-      },
-      {
-        "indianred",
-        4291648604U
-      },
-      {
-        "indigo",
-        4283105410U
-      },
-      {
-        "ivory",
-        4294967280U
-      },
-      {
-        "khaki",
-        4293977740U
-      },
-      {
-        "lavender",
-        4293322490U
-      },
-      {
-        "lavenderblush",
-        4294963445U
-      },
-      {
-        "lawngreen",
-        4286381056U
-      },
-      {
-        "lemonchiffon",
-        4294965965U
-      },
-      {
-        "lightblue",
-        4289583334U
-      },
-      {
-        "lightcoral",
-        4293951616U
-      },
-      {
-        "lightcyan",
-        4292935679U
-      },
-      {
-        "lightgoldenrodyellow",
-        4294638290U
-      },
-      {
-        "lightgray",
-        4292072403U
-      },
-      {
-        "lightgreen",
-        4287688336U
-      },
-      {
-        "lightgrey",
-        4292072403U
-      },
-      {
-        "lightpink",
-        4294948545U
-      },
-      {
-        "lightsalmon",
-        4294942842U
-      },
-      {
-        "lightseagreen",
-        4280332970U
-      },
-      {
-        "lightskyblue",
-        4287090426U
-      },
-      {
-        "lightslateblue",
-        4286869759U
-      },
-      {
-        "lightslategray",
-        4286023833U
-      },
-      {
-        "lightslategrey",
-        4286023833U
-      },
-      {
-        "lightsteelblue",
-        4289774814U
-      },
-      {
-        "lightyellow",
-        4294967264U
-      },
-      {
-        "lime",
-        4278255360U
-      },
-      {
-        "limegreen",
-        4281519410U
-      },
-      {
-        "linen",
-        4294635750U
-      },
-      {
-        "magenta",
-        4294902015U
-      },
-      {
-        "maroon",
-        4286578688U
-      },
-      {
-        "mediumaquamarine",
-        4284927402U
-      },
-      {
-        "mediumblue",
-        4278190285U
-      },
-      {
-        "mediumorchid",
-        4290401747U
-      },
-      {
-        "mediumpurple",
-        4287852760U
-      },
-      {
-        "mediumseagreen",
-        4282168177U
-      },
-      {
-        "mediumslateblue",
-        4286277870U
-      },
-      {
-        "mediumspringgreen",
-        4278254234U
-      },
-      {
-        "mediumturquoise",
-        4282962380U
-      },
-      {
-        "mediumvioletred",
-        4291237253U
-      },
-      {
-        "midnightblue",
-        4279834992U
-      },
-      {
-        "mintcream",
-        4294311930U
-      },
-      {
-        "mistyrose",
-        4294960353U
-      },
-      {
-        "moccasin",
-        4294960309U
-      },
-      {
-        "navajowhite",
-        4294958765U
-      },
-      {
-        "navy",
-        4278190208U
-      },
-      {
-        "oldlace",
-        4294833638U
-      },
-      {
-        "olive",
-        4286611456U
-      },
-      {
-        "olivedrab",
-        4285238819U
-      },
-      {
-        "orange",
-        4294944000U
-      },
-      {
-        "orangered",
-        4294919424U
-      },
-      {
-        "orchid",
-        4292505814U
-      },
-      {
-        "palegoldenrod",
-        4293847210U
-      },
-      {
-        "palegreen",
-        4288215960U
-      },
-      {
-        "paleturquoise",
-        4289720046U
-      },
-      {
-        "palevioletred",
-        4292374675U
-      },
-      {
-        "papayawhip",
-        4294963157U
-      },
-      {
-        "peachpuff",
-        4294957753U
-      },
-      {
-        "peru",
-        4291659071U
-      },
-      {
-        "pink",
-        4294951115U
-      },
-      {
-        "plum",
-        4292714717U
-      },
-      {
-        "powderblue",
-        4289781990U
-      },
-      {
-        "purple",
-        4286578816U
-      },
-      {
-        "red",
-        4294901760U
-      },
-      {
-        "rosybrown",
-        4290547599U
-      },
-      {
-        "royalblue",
-        4282477025U
-      },
-      {
-        "saddlebrown",
-        4287317267U
-      },
-      {
-        "salmon",
-        4294606962U
-      },
-      {
-        "sandybrown",
-        4294222944U
-      },
-      {
-        "seagreen",
-        4281240407U
-      },
-      {
-        "seashell",
-        4294964718U
-      },
-      {
-        "sienna",
-        4288696877U
-      },
-      {
-        "silver",
-        4290822336U
-      },
-      {
-        "skyblue",
-        4287090411U
-      },
-      {
-        "slateblue",
-        4285160141U
-      },
-      {
-        "slategray",
-        4285563024U
-      },
-      {
-        "slategrey",
-        4285563024U
-      },
-      {
-        "snow",
-        4294966010U
-      },
-      {
-        "springgreen",
-        4278255487U
-      },
-      {
-        "steelblue",
-        4282811060U
-      },
-      {
-        "tvblack",
-        4279242768U
-      },
-      {
-        "tvwhite",
-        4293651435U
-      },
-      {
-        "tan",
-        4291998860U
-      },
-      {
-        "teal",
-        4278222976U
-      },
-      {
-        "thistle",
-        4292394968U
-      },
-      {
-        "tomato",
-        4294927175U
-      },
-      {
-        "transparent",
-        0U
-      },
-      {
-        "turquoise",
-        4282441936U
-      },
-      {
-        "violet",
-        4293821166U
-      },
-      {
-        "violetred",
-        4291829904U
-      },
-      {
-        "wheat",
-        4294303411U
-      },
-      {
-        "white",
-        uint.MaxValue
-      },
-      {
-        "whitesmoke",
-        4294309365U
-      },
-      {
-        "yellow",
-        4294967040U
-      },
-      {
-        "yellowgreen",
-        4288335154U
-      }
-    };
+        static ColorSchema() => s_NameToColorMap = new()
+        {
+            ["aliceblue"] = 4293982463U,
+            ["antiquewhite"] = 4294634455U,
+            ["aqua"] = 4278255615U,
+            ["aquamarine"] = 4286578644U,
+            ["azure"] = 4293984255U,
+            ["beige"] = 4294309340U,
+            ["bisque"] = 4294960324U,
+            ["black"] = 4278190080U,
+            ["blanchedalmond"] = 4294962125U,
+            ["blue"] = 4278190335U,
+            ["blueviolet"] = 4287245282U,
+            ["brown"] = 4289014314U,
+            ["burlywood"] = 4292786311U,
+            ["cadetblue"] = 4284456608U,
+            ["chartreuse"] = 4286578432U,
+            ["chocolate"] = 4291979550U,
+            ["coral"] = 4294934352U,
+            ["cornflowerblue"] = 4284782061U,
+            ["cornsilk"] = 4294965468U,
+            ["crimson"] = 4292613180U,
+            ["cyan"] = 4278255615U,
+            ["darkblue"] = 4278190219U,
+            ["darkcyan"] = 4278225803U,
+            ["darkgoldenrod"] = 4290283019U,
+            ["darkgray"] = 4289309097U,
+            ["darkgreen"] = 4278215680U,
+            ["darkgrey"] = 4289309097U,
+            ["darkkhaki"] = 4290623339U,
+            ["darkmagenta"] = 4287299723U,
+            ["darkolivegreen"] = 4283788079U,
+            ["darkorange"] = 4294937600U,
+            ["darkorchid"] = 4288230092U,
+            ["darkred"] = 4287299584U,
+            ["darksalmon"] = 4293498490U,
+            ["darkseagreen"] = 4287609999U,
+            ["darkslateblue"] = 4282924427U,
+            ["darkslategray"] = 4281290575U,
+            ["darkslategrey"] = 4281290575U,
+            ["darkturquoise"] = 4278243025U,
+            ["darkviolet"] = 4287889619U,
+            ["deeppink"] = 4294907027U,
+            ["deepskyblue"] = 4278239231U,
+            ["dimgray"] = 4285098345U,
+            ["dimgrey"] = 4285098345U,
+            ["dodgerblue"] = 4280193279U,
+            ["feldspar"] = 4291924597U,
+            ["firebrick"] = 4289864226U,
+            ["floralwhite"] = 4294966000U,
+            ["forestgreen"] = 4280453922U,
+            ["fuchsia"] = 4294902015U,
+            ["gainsboro"] = 4292664540U,
+            ["ghostwhite"] = 4294506751U,
+            ["gold"] = 4294956800U,
+            ["goldenrod"] = 4292519200U,
+            ["gray"] = 4286611584U,
+            ["green"] = 4278222848U,
+            ["greenyellow"] = 4289593135U,
+            ["grey"] = 4286611584U,
+            ["honeydew"] = 4293984240U,
+            ["hotpink"] = 4294928820U,
+            ["indianred"] = 4291648604U,
+            ["indigo"] = 4283105410U,
+            ["ivory"] = 4294967280U,
+            ["khaki"] = 4293977740U,
+            ["lavender"] = 4293322490U,
+            ["lavenderblush"] = 4294963445U,
+            ["lawngreen"] = 4286381056U,
+            ["lemonchiffon"] = 4294965965U,
+            ["lightblue"] = 4289583334U,
+            ["lightcoral"] = 4293951616U,
+            ["lightcyan"] = 4292935679U,
+            ["lightgoldenrodyellow"] = 4294638290U,
+            ["lightgray"] = 4292072403U,
+            ["lightgreen"] = 4287688336U,
+            ["lightgrey"] = 4292072403U,
+            ["lightpink"] = 4294948545U,
+            ["lightsalmon"] = 4294942842U,
+            ["lightseagreen"] = 4280332970U,
+            ["lightskyblue"] = 4287090426U,
+            ["lightslateblue"] = 4286869759U,
+            ["lightslategray"] = 4286023833U,
+            ["lightslategrey"] = 4286023833U,
+            ["lightsteelblue"] = 4289774814U,
+            ["lightyellow"] = 4294967264U,
+            ["lime"] = 4278255360U,
+            ["limegreen"] = 4281519410U,
+            ["linen"] = 4294635750U,
+            ["magenta"] = 4294902015U,
+            ["maroon"] = 4286578688U,
+            ["mediumaquamarine"] = 4284927402U,
+            ["mediumblue"] = 4278190285U,
+            ["mediumorchid"] = 4290401747U,
+            ["mediumpurple"] = 4287852760U,
+            ["mediumseagreen"] = 4282168177U,
+            ["mediumslateblue"] = 4286277870U,
+            ["mediumspringgreen"] = 4278254234U,
+            ["mediumturquoise"] = 4282962380U,
+            ["mediumvioletred"] = 4291237253U,
+            ["midnightblue"] = 4279834992U,
+            ["mintcream"] = 4294311930U,
+            ["mistyrose"] = 4294960353U,
+            ["moccasin"] = 4294960309U,
+            ["navajowhite"] = 4294958765U,
+            ["navy"] = 4278190208U,
+            ["oldlace"] = 4294833638U,
+            ["olive"] = 4286611456U,
+            ["olivedrab"] = 4285238819U,
+            ["orange"] = 4294944000U,
+            ["orangered"] = 4294919424U,
+            ["orchid"] = 4292505814U,
+            ["palegoldenrod"] = 4293847210U,
+            ["palegreen"] = 4288215960U,
+            ["paleturquoise"] = 4289720046U,
+            ["palevioletred"] = 4292374675U,
+            ["papayawhip"] = 4294963157U,
+            ["peachpuff"] = 4294957753U,
+            ["peru"] = 4291659071U,
+            ["pink"] = 4294951115U,
+            ["plum"] = 4292714717U,
+            ["powderblue"] = 4289781990U,
+            ["purple"] = 4286578816U,
+            ["red"] = 4294901760U,
+            ["rosybrown"] = 4290547599U,
+            ["royalblue"] = 4282477025U,
+            ["saddlebrown"] = 4287317267U,
+            ["salmon"] = 4294606962U,
+            ["sandybrown"] = 4294222944U,
+            ["seagreen"] = 4281240407U,
+            ["seashell"] = 4294964718U,
+            ["sienna"] = 4288696877U,
+            ["silver"] = 4290822336U,
+            ["skyblue"] = 4287090411U,
+            ["slateblue"] = 4285160141U,
+            ["slategray"] = 4285563024U,
+            ["slategrey"] = 4285563024U,
+            ["snow"] = 4294966010U,
+            ["springgreen"] = 4278255487U,
+            ["steelblue"] = 4282811060U,
+            ["tvblack"] = 4279242768U,
+            ["tvwhite"] = 4293651435U,
+            ["tan"] = 4291998860U,
+            ["teal"] = 4278222976U,
+            ["thistle"] = 4292394968U,
+            ["tomato"] = 4294927175U,
+            ["transparent"] = 0U,
+            ["turquoise"] = 4282441936U,
+            ["violet"] = 4293821166U,
+            ["violetred"] = 4291829904U,
+            ["wheat"] = 4294303411U,
+            ["white"] = uint.MaxValue,
+            ["whitesmoke"] = 4294309365U,
+            ["yellow"] = 4294967040U,
+            ["yellowgreen"] = 4288335154U
+        };
 
-        public static void Pass1Initialize() => Type = new UIXTypeSchema(35, "Color", null, 153, typeof(Color), UIXTypeFlags.Immutable);
+        public static void Pass1Initialize() => Type = new UIXTypeSchema(UIXTypeID.Color, "Color", null, UIXTypeID.Object, typeof(Color), UIXTypeFlags.Immutable);
 
         public static void Pass2Initialize()
         {
-            UIXPropertySchema uixPropertySchema1 = new UIXPropertySchema(35, "Alpha", 194, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetAlpha), new SetValueHandler(SetAlpha), false);
-            UIXPropertySchema uixPropertySchema2 = new UIXPropertySchema(35, "Red", 194, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetRed), new SetValueHandler(SetRed), false);
-            UIXPropertySchema uixPropertySchema3 = new UIXPropertySchema(35, "Green", 194, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetGreen), new SetValueHandler(SetGreen), false);
-            UIXPropertySchema uixPropertySchema4 = new UIXPropertySchema(35, "Blue", 194, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetBlue), new SetValueHandler(SetBlue), false);
-            UIXPropertySchema uixPropertySchema5 = new UIXPropertySchema(35, "A", 19, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetA), new SetValueHandler(SetA), false);
-            UIXPropertySchema uixPropertySchema6 = new UIXPropertySchema(35, "R", 19, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetR), new SetValueHandler(SetR), false);
-            UIXPropertySchema uixPropertySchema7 = new UIXPropertySchema(35, "G", 19, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetG), new SetValueHandler(SetG), false);
-            UIXPropertySchema uixPropertySchema8 = new UIXPropertySchema(35, "B", 19, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetB), new SetValueHandler(SetB), false);
-            UIXConstructorSchema constructorSchema1 = new UIXConstructorSchema(35, new short[4]
-            {
-         194,
-         194,
-         194,
-         194
-            }, new ConstructHandler(ConstructAlphaRedGreenBlue));
-            UIXConstructorSchema constructorSchema2 = new UIXConstructorSchema(35, new short[4]
-            {
-         19,
-         19,
-         19,
-         19
-            }, new ConstructHandler(ConstructARGB));
-            UIXConstructorSchema constructorSchema3 = new UIXConstructorSchema(35, new short[3]
-            {
-         194,
-         194,
-         194
-            }, new ConstructHandler(ConstructRedGreenBlue));
-            UIXConstructorSchema constructorSchema4 = new UIXConstructorSchema(35, new short[3]
-            {
-         19,
-         19,
-         19
-            }, new ConstructHandler(ConstructRGB));
-            UIXMethodSchema uixMethodSchema = new UIXMethodSchema(35, "TryParse", new short[2]
-            {
-         208,
-         35
-            }, 35, new InvokeHandler(CallTryParseStringColor), true);
-            Type.Initialize(new DefaultConstructHandler(Construct), new ConstructorSchema[4]
-            {
-         constructorSchema1,
-         constructorSchema2,
-         constructorSchema3,
-         constructorSchema4
-            }, new PropertySchema[8]
-            {
-         uixPropertySchema5,
-         uixPropertySchema1,
-         uixPropertySchema8,
-         uixPropertySchema4,
-         uixPropertySchema7,
-         uixPropertySchema3,
-         uixPropertySchema6,
-         uixPropertySchema2
-            }, new MethodSchema[1]
-            {
-         uixMethodSchema
-            }, null, new FindCanonicalInstanceHandler(FindCanonicalInstance), new TypeConverterHandler(TryConvertFrom), new SupportsTypeConversionHandler(IsConversionSupported), new EncodeBinaryHandler(EncodeBinary), new DecodeBinaryHandler(DecodeBinary), null, null);
+            UIXPropertySchema uixPropertySchema1 = new(UIXTypeID.Color, "Alpha", UIXTypeID.Single, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetAlpha), new SetValueHandler(SetAlpha), false);
+            UIXPropertySchema uixPropertySchema2 = new(UIXTypeID.Color, "Red", UIXTypeID.Single, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetRed), new SetValueHandler(SetRed), false);
+            UIXPropertySchema uixPropertySchema3 = new(UIXTypeID.Color, "Green", UIXTypeID.Single, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetGreen), new SetValueHandler(SetGreen), false);
+            UIXPropertySchema uixPropertySchema4 = new(UIXTypeID.Color, "Blue", UIXTypeID.Single, -1, ExpressionRestriction.None, false, SingleSchema.Validate0to1, false, new GetValueHandler(GetBlue), new SetValueHandler(SetBlue), false);
+            UIXPropertySchema uixPropertySchema5 = new(UIXTypeID.Color, "A", UIXTypeID.Byte, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetA), new SetValueHandler(SetA), false);
+            UIXPropertySchema uixPropertySchema6 = new(UIXTypeID.Color, "R", UIXTypeID.Byte, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetR), new SetValueHandler(SetR), false);
+            UIXPropertySchema uixPropertySchema7 = new(UIXTypeID.Color, "G", UIXTypeID.Byte, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetG), new SetValueHandler(SetG), false);
+            UIXPropertySchema uixPropertySchema8 = new(UIXTypeID.Color, "B", UIXTypeID.Byte, -1, ExpressionRestriction.None, false, null, false, new GetValueHandler(GetB), new SetValueHandler(SetB), false);
+            UIXConstructorSchema constructorSchema1 = new(UIXTypeID.Color,
+                [UIXTypeID.Single, UIXTypeID.Single, UIXTypeID.Single, UIXTypeID.Single], new ConstructHandler(ConstructAlphaRedGreenBlue));
+            UIXConstructorSchema constructorSchema2 = new(UIXTypeID.Color,
+                [UIXTypeID.Byte, UIXTypeID.Byte, UIXTypeID.Byte, UIXTypeID.Byte], new ConstructHandler(ConstructARGB));
+            UIXConstructorSchema constructorSchema3 = new(UIXTypeID.Color,
+                [UIXTypeID.Single, UIXTypeID.Single, UIXTypeID.Single], new ConstructHandler(ConstructRedGreenBlue));
+            UIXConstructorSchema constructorSchema4 = new(UIXTypeID.Color,
+                [UIXTypeID.Byte, UIXTypeID.Byte, UIXTypeID.Byte], new ConstructHandler(ConstructRGB));
+            UIXMethodSchema uixMethodSchema = new(UIXTypeID.Color, "TryParse",
+                [UIXTypeID.String, UIXTypeID.Color], UIXTypeID.Color, new InvokeHandler(CallTryParseStringColor), true);
+            Type.Initialize(Construct,
+                [constructorSchema1, constructorSchema2, constructorSchema3, constructorSchema4],
+                [uixPropertySchema5, uixPropertySchema1, uixPropertySchema8, uixPropertySchema4, uixPropertySchema7, uixPropertySchema3, uixPropertySchema6, uixPropertySchema2],
+                [uixMethodSchema],
+                null, FindCanonicalInstance, TryConvertFrom, IsConversionSupported, EncodeBinary, DecodeBinary, null, null);
         }
     }
 }
