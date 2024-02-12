@@ -4,9 +4,11 @@
 // MVID: D47658B8-A8EA-43D6-8837-ECE823BFFFC1
 // Assembly location: C:\Program Files\Zune\UIX.RenderApi.dll
 
+using System.Collections.Generic;
+
 namespace Microsoft.Iris.Render
 {
-    public struct Inset
+    public struct Inset : IStringEncodable
     {
         private int _left;
         private int _top;
@@ -73,6 +75,14 @@ namespace Microsoft.Iris.Render
         public override int GetHashCode() => this.Left ^ (this.Top << 13 | (int)((uint)this.Top >> 19)) ^ (this.Right << 26 | (int)((uint)this.Right >> 6)) ^ (this.Bottom << 7 | (int)((uint)this.Bottom >> 25));
 
         public override string ToString() => base.ToString();
+
+        public string EncodeString()
+        {
+            var values = new int[] { Left, Top, Right, Bottom };
+            if (new HashSet<int>(values).Count == 1)
+                return Top.ToString();
+            return string.Join(", ", values);
+        }
 
         internal Point TopLeft
         {

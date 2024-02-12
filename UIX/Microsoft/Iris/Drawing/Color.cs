@@ -12,7 +12,7 @@ using System.Text;
 namespace Microsoft.Iris.Drawing
 {
     [Serializable]
-    public struct Color : ISerializable
+    public struct Color : ISerializable, IStringEncodable
     {
         private const int ARGBAlphaShift = 24;
         private const int ARGBRedShift = 16;
@@ -229,6 +229,8 @@ namespace Microsoft.Iris.Drawing
         {
             info.AddValue(nameof(Value), Value);
         }
+
+        public string EncodeString() => string.Join(", ", A, R, G, B);
 
         internal static Color Transparent => new(0U);
 

@@ -8,7 +8,7 @@ using System;
 
 namespace Microsoft.Iris.Render
 {
-    public struct Size
+    public struct Size : IStringEncodable
     {
         private int m_width;
         private int m_height;
@@ -106,5 +106,7 @@ namespace Microsoft.Iris.Render
             size1.Scale(flScale);
             return size1;
         }
+
+        public string EncodeString() => $"{Width}, {Height}";
     }
 }

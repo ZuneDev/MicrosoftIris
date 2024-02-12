@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Drawing
 {
-    internal sealed class Font
+    internal sealed class Font : IStringEncodable
     {
         private string _fontName;
         private float _fontHeight;
@@ -68,6 +68,22 @@ namespace Microsoft.Iris.Drawing
         {
             get => _fontName;
             set => _fontName = value;
+        }
+
+        public string EncodeString()
+        {
+            System.Collections.Generic.List<object> props = new(4)
+            {
+                FontName,
+                _fontHeight
+            };
+
+            if (_altFontHeight != default)
+                props.Add(_altFontHeight);
+            if (_fontStyle != default)
+                props.Add(_fontStyle);
+
+            return string.Join(", ", props);
         }
 
         public override bool Equals(object obj) => obj is Font font && _fontName == font._fontName && (_fontHeight == (double)font._fontHeight && _altFontHeight == (double)font._altFontHeight) && _fontStyle == font._fontStyle;

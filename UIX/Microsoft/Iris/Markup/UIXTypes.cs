@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal static class UIXTypes
+    public static class UIXTypes
     {
         public static TypeSchema MapIDToType(short ID) => ID != -1 ? UIXLoadResultExports.ExportTable[ID] : null;
 

@@ -11,7 +11,7 @@ using System;
 
 namespace Microsoft.Iris.Layouts
 {
-    internal struct MajorMinor
+    internal struct MajorMinor : IStringEncodable
     {
         private int major;
         private int minor;
@@ -101,5 +101,7 @@ namespace Microsoft.Iris.Layouts
         public bool IsEmpty => Major == 0 || Minor == 0;
 
         public override string ToString() => InvariantString.Format("(Major={0}, Minor={1})", Major, Minor);
+
+        public string EncodeString() => $"{Major}, {Minor}";
     }
 }

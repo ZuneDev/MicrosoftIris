@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Markup
 {
-    internal static class UIXTypeID
+    public static class UIXTypeID
     {
         public const short None = -1;
         public const short Accessible = 0;
