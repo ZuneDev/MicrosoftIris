@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Layout
 {
-    public struct ItemAlignment
+    public struct ItemAlignment : IStringEncodable
     {
         private Alignment _horizontal;
         private Alignment _vertical;
@@ -49,6 +49,14 @@ namespace Microsoft.Iris.Layout
             if (alignment.Vertical == Alignment.Unspecified)
                 alignment.Vertical = fallback.Vertical;
             return alignment;
+        }
+
+        public string EncodeString()
+        {
+            if (Vertical == Horizontal)
+                return Vertical.ToString();
+            else
+                return $"{Horizontal}, {Vertical}";
         }
     }
 }
