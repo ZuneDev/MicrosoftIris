@@ -113,7 +113,10 @@ namespace Microsoft.Iris.Debug
             if (IsCategoryEnabled(cat, levelFlag))
             {
                 string content = string.Format(format, pars);
-                System.Diagnostics.Debug.WriteLine(BuildLine(content));
+                var line = BuildLine(content);
+
+                System.Diagnostics.Debug.WriteLine(line);
+                TraceSettings.Current.FireWriteCallbacks(line);
             }
         }
 

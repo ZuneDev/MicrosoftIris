@@ -15,7 +15,7 @@ namespace Microsoft.Iris.Debug
     public class TraceSettings
     {
         private static TraceSettings s_instance;
-        private Dictionary<TraceCategory, byte> CategoryLevels = new Dictionary<TraceCategory, byte>();
+        private Dictionary<TraceCategory, byte> CategoryLevels = new();
         private string s_debugTraceFile;
 
         public TraceSettings()
@@ -90,5 +90,9 @@ namespace Microsoft.Iris.Debug
         public bool DebugTraceToFile => !string.IsNullOrEmpty(s_debugTraceFile);
 
         public string DebugTraceFile => s_debugTraceFile;
+
+        public event Action<string> OnWriteLine;
+
+        internal void FireWriteCallbacks(string line) => OnWriteLine?.Invoke(line);
     }
 }
