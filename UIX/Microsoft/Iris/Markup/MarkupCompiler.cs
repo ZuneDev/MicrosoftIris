@@ -132,8 +132,8 @@ namespace Microsoft.Iris.Markup
 
         private void PersistHeader()
         {
-            _writer.WriteUInt32(440551765U);
-            _writer.WriteUInt32(1012U);
+            _writer.WriteUInt32(0x1A_42_49_55U);
+            _writer.WriteUInt32(0x00_00_03_F4U);
         }
 
         private void PersistTableOfContents(MarkupBinaryDataTable sharedBinaryDataTable)
@@ -434,6 +434,7 @@ namespace Microsoft.Iris.Markup
                         constantPersistMode = MarkupConstantPersistMode.FromString;
                     _writer.WriteUInt16(index);
                     _writer.WriteByte((byte)constantPersistMode);
+                    Debug.Trace.WriteLine(Debug.TraceCategory.MarkupCompiler, $"[{index}] mode={constantPersistMode} data={persist.Data}");
                     switch (constantPersistMode)
                     {
                         case MarkupConstantPersistMode.Binary:
