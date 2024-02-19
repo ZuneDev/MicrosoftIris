@@ -12,7 +12,7 @@ using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Drawing
 {
-    public abstract class UIImage : NotifyObjectBase
+    public abstract class UIImage : NotifyObjectBase, IStringEncodable
     {
         private static Size s_sizeMaximumSurface = new Size(-1, -1);
         protected string _source;
@@ -192,5 +192,24 @@ namespace Microsoft.Iris.Drawing
         public event ContentLoadCompleteHandler LoadComplete;
 
         public override string ToString() => $"{{UIImage {RenderImage?.ToString() ?? "null"}}}";
+
+        public string EncodeString()
+        {
+            System.Collections.Generic.List<string> props = new(5)
+            {
+                Source,
+            };
+
+            if (NineGrid != default)
+                props.Add(NineGrid.EncodeString());
+            if (MaximumSize != default)
+                props.Add(MaximumSize.EncodeString());
+            if (Flippable != default)
+                props.Add(Flippable.ToString());
+            if (AntialiasEdges != default)
+                props.Add(AntialiasEdges.ToString());
+
+            return string.Join(", ", props);
+        }
     }
 }

@@ -126,7 +126,7 @@ namespace Microsoft.Iris.Layouts
             if (other is not DockLayout o) return false;
 
             return DefaultChildAlignment == o.DefaultChildAlignment
-                && DefaultLayoutInput.ToString() == other.DefaultChildAlignment.ToString();
+                && DefaultLayoutInput?.ToString() == o.DefaultLayoutInput?.ToString();
         }
     }
 }
