@@ -120,5 +120,13 @@ namespace Microsoft.Iris.Layouts
                 dockLayoutInput = _defaultLayoutInput ?? s_defaultLayoutInput;
             return dockLayoutInput;
         }
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not DockLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && DefaultLayoutInput.ToString() == other.DefaultChildAlignment.ToString();
+        }
     }
 }

@@ -72,5 +72,16 @@ namespace Microsoft.Iris.ViewItems
         }
 
         void ILayout.Arrange(ILayoutNode layoutNode, LayoutSlot slot) => DefaultLayout.Arrange(layoutNode, slot);
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not ImageLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && SourceSize == o.SourceSize
+                && MinimumSize == o.MinimumSize
+                && MaintainAspectRatio == o.MaintainAspectRatio
+                && Fill == o.Fill;
+        }
     }
 }

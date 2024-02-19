@@ -5,26 +5,22 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Layout;
-using Microsoft.Iris.Layouts;
 using Microsoft.Iris.Library;
-using Microsoft.Iris.Render;
-using System.Collections.Generic;
 
 namespace Microsoft.Iris.Markup.UIX
 {
     internal static class LayoutSchema
     {
-        private static Dictionary<string, object> s_NameToLayoutMap = new Dictionary<string, object>(10);
         public static UIXTypeSchema Type;
 
         private static Result ConvertFromString(object valueObj, out object instanceObj)
         {
             string str = (string)valueObj;
             instanceObj = null;
-            object obj;
-            if (!s_NameToLayoutMap.TryGetValue(str.ToLowerInvariant(), out obj))
+            
+            if (!PredefinedLayouts.TryGetFromName(str, out var layout))
                 return Result.Fail("Unable to convert \"{0}\" to type '{1}'", str, "Layout");
-            ILayout layout = (ILayout)obj;
+            
             instanceObj = layout;
             return Result.Success;
         }
@@ -53,30 +49,6 @@ namespace Microsoft.Iris.Markup.UIX
             ILayout parameter2 = (ILayout)parameters[1];
             object instanceObj1;
             return ConvertFromString(parameter1, out instanceObj1).Failed ? parameter2 : instanceObj1;
-        }
-
-        static LayoutSchema()
-        {
-            s_NameToLayoutMap.Add("anchor", new AnchorLayout());
-            s_NameToLayoutMap.Add("default", DefaultLayout.Instance);
-            s_NameToLayoutMap.Add("dock", new DockLayout());
-            s_NameToLayoutMap.Add("grid", new GridLayout());
-            s_NameToLayoutMap.Add("scale", new ScaleLayout());
-            s_NameToLayoutMap.Add("popup", new PopupLayout());
-            s_NameToLayoutMap.Add("stack", new StackLayout());
-            s_NameToLayoutMap.Add("form", new AnchorLayout()
-            {
-                SizeToHorizontalChildren = false,
-                SizeToVerticalChildren = false
-            });
-            s_NameToLayoutMap.Add("horizontalflow", new FlowLayout()
-            {
-                Orientation = Orientation.Horizontal
-            });
-            s_NameToLayoutMap.Add("verticalflow", new FlowLayout()
-            {
-                Orientation = Orientation.Vertical
-            });
         }
 
         public static void Pass1Initialize() => Type = new UIXTypeSchema(132, "Layout", null, 153, typeof(ILayout), UIXTypeFlags.Immutable);

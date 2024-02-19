@@ -350,6 +350,15 @@ namespace Microsoft.Iris.Layouts
             return null;
         }
 
+        public bool Equals(ILayout other)
+        {
+            if (other is not AnchorLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && SizeToHorizontalChildren == o.SizeToHorizontalChildren
+                && SizeToVerticalChildren == o.SizeToVerticalChildren;
+        }
+
         internal static DataCookie InputData => s_dataProperty;
 
         internal enum LayoutPhase

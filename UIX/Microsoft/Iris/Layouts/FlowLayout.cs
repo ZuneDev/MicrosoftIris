@@ -696,6 +696,21 @@ namespace Microsoft.Iris.Layouts
             return majorMinor;
         }
 
+        public bool Equals(ILayout other)
+        {
+            if (other is not FlowLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && Orientation == o.Orientation
+                && Spacing == o.Spacing
+                && AllowWrap == o.AllowWrap
+                && StripAlignment == o.StripAlignment
+                && Repeat == o.Repeat
+                && RepeatGap == o.RepeatGap
+                && MissingItemPolicy == o.MissingItemPolicy
+                && MinimumSampleSize == o.MinimumSampleSize;
+        }
+
         internal class Record
         {
             public int Index;

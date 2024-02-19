@@ -1430,6 +1430,11 @@ namespace Microsoft.Iris.ViewItems
             text._bits = (uint)((Bits)text._bits & ~changeBit);
         }
 
+        public bool Equals(ILayout other)
+        {
+            return this == other;
+        }
+
         private class MarkedRange
         {
             public string tagName;

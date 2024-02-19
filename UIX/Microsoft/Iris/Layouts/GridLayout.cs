@@ -538,6 +538,20 @@ namespace Microsoft.Iris.Layouts
             return roundUp ? (int)Math.Ceiling(num) : (int)Math.Floor(num);
         }
 
+        public bool Equals(ILayout other)
+        {
+            if (other is not GridLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && Orientation == o.Orientation
+                && ReferenceSize == o.ReferenceSize
+                && Rows == o.Rows
+                && Columns == o.Columns
+                && Spacing == o.Spacing
+                && Repeat == o.Repeat
+                && RepeatGap == o.RepeatGap;
+        }
+
         private enum ViewIntersectionType
         {
             BeginOffscreen,

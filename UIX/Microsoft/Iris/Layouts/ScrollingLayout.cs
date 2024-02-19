@@ -329,5 +329,14 @@ namespace Microsoft.Iris.Layouts
         public static bool ScrollFocusIntoView => s_allowScrollFocusIntoView;
 
         public static void DisallowScrollFocusIntoView() => s_allowScrollFocusIntoView = false;
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not ScrollingLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && Orientation == o.Orientation
+                && Prefetch == o.Prefetch;
+        }
     }
 }

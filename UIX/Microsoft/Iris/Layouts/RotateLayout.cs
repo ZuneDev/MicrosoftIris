@@ -71,5 +71,13 @@ namespace Microsoft.Iris.Layouts
         private static Rectangle RotateRect180(Rectangle rect, Point offset) => new Rectangle(-rect.Right + offset.X, -rect.Bottom + offset.Y, rect.Width, rect.Height);
 
         private static Rectangle RotateRect270(Rectangle rect, Point offset) => new Rectangle(-rect.Bottom + offset.X, rect.X + offset.Y, rect.Height, rect.Width);
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not RotateLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && AngleDegrees == o.AngleDegrees;
+        }
     }
 }

@@ -115,5 +115,14 @@ namespace Microsoft.Iris.ViewItems
         }
 
         void ILayout.Arrange(ILayoutNode layoutNode, LayoutSlot slot) => DefaultLayout.Arrange(layoutNode, slot);
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not TextRunRenderer o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && Color == o.Color
+                && Data.ToString() == o.Data.ToString();
+        }
     }
 }

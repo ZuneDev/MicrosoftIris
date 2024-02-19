@@ -6,6 +6,7 @@
 
 using Microsoft.Iris.Layout;
 using Microsoft.Iris.Render;
+using System;
 
 namespace Microsoft.Iris.Layouts
 {
@@ -41,6 +42,13 @@ namespace Microsoft.Iris.Layouts
         {
             foreach (ILayoutNode layoutChild in layoutNode.LayoutChildren)
                 layoutChild.Arrange(slot);
+        }
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not DefaultLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment;
         }
     }
 }

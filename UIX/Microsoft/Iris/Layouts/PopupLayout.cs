@@ -12,6 +12,7 @@ using Microsoft.Iris.Render;
 using Microsoft.Iris.RenderAPI.Drawing;
 using Microsoft.Iris.Session;
 using Microsoft.Iris.UI;
+using Microsoft.Iris.ViewItems;
 using System;
 using System.Collections;
 
@@ -269,6 +270,13 @@ namespace Microsoft.Iris.Layouts
                     --index;
                 }
             }
+        }
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not PopupLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment;
         }
 
         private class PlacementTargetInfo

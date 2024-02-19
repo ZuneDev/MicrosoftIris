@@ -8,6 +8,7 @@ using Microsoft.Iris.Drawing;
 using Microsoft.Iris.Layout;
 using Microsoft.Iris.Render;
 using Microsoft.Iris.RenderAPI.Drawing;
+using Microsoft.Iris.ViewItems;
 using System;
 
 namespace Microsoft.Iris.Layouts
@@ -91,6 +92,16 @@ namespace Microsoft.Iris.Layouts
             view.Width = (int)Math.Round(view.Width / (double)scale.Width);
             view.Height = (int)Math.Round(view.Height / (double)scale.Height);
             return view;
+        }
+
+        public bool Equals(ILayout other)
+        {
+            if (other is not ScaleLayout o) return false;
+
+            return DefaultChildAlignment == o.DefaultChildAlignment
+                && MinimumScale == o.MinimumScale
+                && MaximumScale == o.MaximumScale
+                && MaintainAspectRatio == o.MaintainAspectRatio;
         }
     }
 }

@@ -5,10 +5,11 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Render;
+using System;
 
 namespace Microsoft.Iris.Layout
 {
-    public interface ILayout
+    public interface ILayout : IEquatable<ILayout>
     {
         Size Measure(ILayoutNode layoutNode, Size constraint);
 
