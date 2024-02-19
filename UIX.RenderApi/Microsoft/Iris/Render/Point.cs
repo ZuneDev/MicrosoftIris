@@ -9,7 +9,7 @@ using System;
 namespace Microsoft.Iris.Render
 {
     [Serializable]
-    public struct Point
+    public struct Point : IStringEncodable
     {
         private int m_x;
         private int m_y;
@@ -84,5 +84,7 @@ namespace Microsoft.Iris.Render
         public Size ToSize() => new Size(this.X, this.Y);
 
         public static Point Negate(Point point) => new Point(-point.X, -point.Y);
+
+        public string EncodeString() => $"{X}, {Y}";
     }
 }

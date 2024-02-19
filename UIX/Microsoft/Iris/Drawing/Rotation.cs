@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
-    public struct Rotation
+    public struct Rotation : IStringEncodable
     {
         private Vector3 _axis;
         private float _angleRad;
@@ -61,6 +61,11 @@ namespace Microsoft.Iris.Drawing
             stringBuilder.Append(AngleRadians);
             stringBuilder.Append(")");
             return stringBuilder.ToString();
+        }
+
+        public string EncodeString()
+        {
+            return $"{AngleRadians}rad;{Axis.EncodeString()}";
         }
     }
 }

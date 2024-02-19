@@ -9,7 +9,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Layouts
 {
-    internal class DockLayoutInput : ILayoutInput
+    internal class DockLayoutInput : ILayoutInput, IStringEncodable
     {
         public static readonly DockLayoutInput Left = new DockLayoutInput();
         public static readonly DockLayoutInput Top = new DockLayoutInput();
@@ -40,5 +40,7 @@ namespace Microsoft.Iris.Layouts
         }
 
         public override string ToString() => InvariantString.Format("{0}(Position={1})", GetType().Name, PositionString);
+
+        public string EncodeString() => PositionString;
     }
 }

@@ -11,7 +11,7 @@ using System.Text;
 namespace Microsoft.Iris.Render
 {
     [Serializable]
-    public struct Vector3
+    public struct Vector3 : IStringEncodable
     {
         private float m_x;
         private float m_y;
@@ -130,5 +130,7 @@ namespace Microsoft.Iris.Render
         }
 
         public bool IsApproximate(Vector3 vector) => Math2.WithinEpsilon(this.m_x, vector.m_x) && Math2.WithinEpsilon(this.m_y, vector.m_y) && Math2.WithinEpsilon(this.m_z, vector.m_z);
+
+        public string EncodeString() => $"{X}, {Y}, {Z}";
     }
 }
