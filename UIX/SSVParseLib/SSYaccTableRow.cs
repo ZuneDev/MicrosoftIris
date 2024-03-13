@@ -30,7 +30,11 @@ namespace SSVParseLib
             q_index += 5;
             for (int index = 0; index < numEntries(); ++index)
             {
-                m_entries[index] = new SSYaccTableRowEntry(q_data[q_index], q_data[q_index + 1], q_data[q_index + 2], q_data[q_index + 3]);
+                var token = (ParserLexToken)q_data[q_index];
+                var entry = q_data[q_index + 1];
+                var action = (SSYaccAction)q_data[q_index + 2];
+                var sync = q_data[q_index + 3];
+                m_entries[index] = new SSYaccTableRowEntry((int)token, entry, action, sync);
                 q_index += 4;
             }
         }

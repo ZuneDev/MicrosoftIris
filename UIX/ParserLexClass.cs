@@ -8,73 +8,6 @@ using SSVParseLib;
 
 internal class ParserLexClass : SSLex
 {
-    public const int ParserLexExprCodeBlock = 0;
-    public const int ParserLexExprCodeMLComment = 1;
-    public const int ParserLexExprCodeSLComment = 2;
-    public const int ParserLexTokenIdentifier = 54;
-    public const int ParserLexTokenString = 55;
-    public const int ParserLexTokenStringLiteral = 56;
-    public const int ParserLexTokenInteger = 57;
-    public const int ParserLexTokenLongInteger = 58;
-    public const int ParserLexTokenFloat = 59;
-    public const int ParserLexTokenTrue = 60;
-    public const int ParserLexTokenFalse = 61;
-    public const int ParserLexTokenBase = 62;
-    public const int ParserLexTokenThis = 63;
-    public const int ParserLexTokenReturn = 64;
-    public const int ParserLexTokenIf = 65;
-    public const int ParserLexTokenElse = 66;
-    public const int ParserLexTokenFor = 67;
-    public const int ParserLexTokenForEach = 68;
-    public const int ParserLexTokenWhile = 69;
-    public const int ParserLexTokenDo = 70;
-    public const int ParserLexTokenBreak = 71;
-    public const int ParserLexTokenContinue = 72;
-    public const int ParserLexTokenIn = 73;
-    public const int ParserLexTokenNull = 74;
-    public const int ParserLexTokenNew = 75;
-    public const int ParserLexTokenIs = 76;
-    public const int ParserLexTokenTypeOf = 77;
-    public const int ParserLexTokenAs = 78;
-    public const int ParserLexTokenVirtual = 79;
-    public const int ParserLexTokenOverride = 80;
-    public const int ParserLexTokenParenOpen = 81;
-    public const int ParserLexTokenParenClose = 82;
-    public const int ParserLexTokenCurleyOpen = 83;
-    public const int ParserLexTokenCurleyClose = 84;
-    public const int ParserLexTokenSquareOpen = 85;
-    public const int ParserLexTokenSquareClose = 86;
-    public const int ParserLexTokenHash = 87;
-    public const int ParserLexTokenPeriod = 88;
-    public const int ParserLexTokenComma = 89;
-    public const int ParserLexTokenColon = 90;
-    public const int ParserLexTokenSemiColon = 91;
-    public const int ParserLexTokenEquals = 92;
-    public const int ParserLexTokenPlus = 93;
-    public const int ParserLexTokenMinus = 94;
-    public const int ParserLexTokenStar = 95;
-    public const int ParserLexTokenSlash = 96;
-    public const int ParserLexTokenPercent = 97;
-    public const int ParserLexTokenAmpersand = 98;
-    public const int ParserLexTokenPipe = 99;
-    public const int ParserLexTokenDoubleEquals = 100;
-    public const int ParserLexTokenBangEquals = 101;
-    public const int ParserLexTokenLessThan = 102;
-    public const int ParserLexTokenGreaterThan = 103;
-    public const int ParserLexTokenLessThanEqual = 104;
-    public const int ParserLexTokenGreaterThanEqual = 105;
-    public const int ParserLexTokenAmpAmp = 106;
-    public const int ParserLexTokenPipePipe = 107;
-    public const int ParserLexTokenBang = 108;
-    public const int ParserLexTokenPlusPlus = 109;
-    public const int ParserLexTokenMinusMinus = 110;
-    public const int ParserLexTokenQuestionMark = 111;
-    public const int ParserLexTokenQuestionQuestion = 112;
-    public const int ParserLexTokenColonSpace = 113;
-    public const int ParserLexTokenMethodDisambiguator = 114;
-    public const int ParserLexTokenExpressionDisambiguator = 115;
-    public const int ParserLexTokenCodeBlockDisambiguator = 116;
-
     public ParserLexClass(SSLexTable q_table)
       : base(q_table, null)
     {
@@ -84,4 +17,78 @@ internal class ParserLexClass : SSLex
       : base(q_table, q_consumer)
     {
     }
+}
+
+internal enum ParserLexExpr
+{
+    CodeBlock = 0,
+    CodeMLComment = 1,
+    CodeSLComment = 2,
+}
+
+internal enum ParserLexToken
+{
+    Identifier = 54,
+    String = 55,
+    StringLiteral = 56,
+    Integer = 57,
+    LongInteger = 58,
+    Float = 59,
+    True = 60,
+    False = 61,
+    Base = 62,
+    This = 63,
+    Return = 64,
+    If = 65,
+    Else = 66,
+    For = 67,
+    ForEach = 68,
+    While = 69,
+    Do = 70,
+    Break = 71,
+    Continue = 72,
+    In = 73,
+    Null = 74,
+    New = 75,
+    Is = 76,
+    TypeOf = 77,
+    As = 78,
+    Virtual = 79,
+    Override = 80,
+    ParenOpen = 81,
+    ParenClose = 82,
+    CurleyOpen = 83,
+    CurleyClose = 84,
+    SquareOpen = 85,
+    SquareClose = 86,
+    Hash = 87,
+    Period = 88,
+    Comma = 89,
+    Colon = 90,
+    SemiColon = 91,
+    Equals = 92,
+    Plus = 93,
+    Minus = 94,
+    Star = 95,
+    Slash = 96,
+    Percent = 97,
+    Ampersand = 98,
+    Pipe = 99,
+    DoubleEquals = 100,
+    BangEquals = 101,
+    LessThan = 102,
+    GreaterThan = 103,
+    LessThanEqual = 104,
+    GreaterThanEqual = 105,
+    AmpAmp = 106,
+    PipePipe = 107,
+    Bang = 108,
+    PlusPlus = 109,
+    MinusMinus = 110,
+    QuestionMark = 111,
+    QuestionQuestion = 112,
+    ColonSpace = 113,
+    MethodDisambiguator = 114,
+    ExpressionDisambiguator = 115,
+    CodeBlockDisambiguator = 116,
 }

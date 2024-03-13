@@ -11,18 +11,13 @@ namespace SSVParseLib
 {
     internal class SSYacc
     {
-        private const int SSYaccActionShift = 0;
-        private const int SSYaccActionError = 1;
-        private const int SSYaccActionReduce = 2;
-        private const int SSYaccActionAccept = 3;
-        private const int SSYaccActionConflict = 4;
         public const int m_eofToken = -1;
         private const int m_errorToken = -2;
         private const int SSYaccLexemeCacheMax = -1;
         private int m_cache;
         private int m_state;
         protected SSLex m_lex;
-        private int m_action;
+        private SSYaccAction m_action;
         private int m_leftside;
         private bool m_error;
         private bool m_abort;
@@ -74,7 +69,7 @@ namespace SSVParseLib
             m_error = false;
             m_endOfInput = false;
             m_owner = owner;
-            m_action = 0;
+            m_action = SSYaccAction.Shift;
             m_endOfInput = false;
             m_hasErrors = false;
             m_larLookahead = null;
@@ -140,22 +135,22 @@ namespace SSVParseLib
             {
                 switch (m_action)
                 {
-                    case 0:
+                    case SSYaccAction.Shift:
                         if (doShift())
                             return true;
                         continue;
-                    case 1:
+                    case SSYaccAction.Error:
                         if (doError())
                             return true;
                         continue;
-                    case 2:
+                    case SSYaccAction.Reduce:
                         if (doReduce())
                             return true;
                         continue;
-                    case 3:
+                    case SSYaccAction.Accept:
                         m_treeRoot = m_element;
                         return m_error;
-                    case 4:
+                    case SSYaccAction.Conflict:
                         if (doConflict())
                             return true;
                         continue;
@@ -279,22 +274,22 @@ namespace SSVParseLib
             SSYaccTableRowEntry yaccTableRowEntry = m_table.lookupRow(q_state).lookupAction(q_token);
             if (yaccTableRowEntry == null)
             {
-                m_action = 1;
+                m_action = SSYaccAction.Error;
             }
             else
             {
                 switch (m_action = yaccTableRowEntry.action())
                 {
-                    case 0:
+                    case SSYaccAction.Shift:
                         m_state = yaccTableRowEntry.entry();
                         break;
-                    case 2:
+                    case SSYaccAction.Reduce:
                         SSYaccTableProd ssYaccTableProd = m_table.lookupProd(yaccTableRowEntry.entry());
                         m_production = yaccTableRowEntry.entry();
                         m_leftside = ssYaccTableProd.leftside();
                         m_productionSize = ssYaccTableProd.size();
                         break;
-                    case 4:
+                    case SSYaccAction.Conflict:
                         m_lexSubtable = m_table.larTable(yaccTableRowEntry.entry());
                         break;
                 }

@@ -10,97 +10,6 @@ using SSVParseLib;
 
 internal class ParserYaccClass : SSYacc
 {
-    public const int ParserYaccProdStartCodeBlock = 1;
-    public const int ParserYaccProdStartInlineExpression = 2;
-    public const int ParserYaccProdStartMethods = 3;
-    public const int ParserYaccProdMethodsEmpty = 4;
-    public const int ParserYaccProdMethods = 5;
-    public const int ParserYaccProdMethodSpecifiersEmpty = 6;
-    public const int ParserYaccProdMethodSpecifiers = 7;
-    public const int ParserYaccProdMethodSpecifierVirtual = 8;
-    public const int ParserYaccProdMethodSpecifierOverride = 9;
-    public const int ParserYaccProdMethod = 10;
-    public const int ParserYaccProdParameterDefinitionsEmpty = 11;
-    public const int ParserYaccProdParameterDefinitions = 12;
-    public const int ParserYaccProdParameterDefinitionListSingle = 13;
-    public const int ParserYaccProdParameterDefinitionListMulti = 14;
-    public const int ParserYaccProdParameterDefinition = 15;
-    public const int ParserYaccProdExpressionListEmpty = 16;
-    public const int ParserYaccProdExpressionList = 17;
-    public const int ParserYaccProdExpressionsSingle = 18;
-    public const int ParserYaccProdExpressionsMulti = 19;
-    public const int ParserYaccProdStatementLocalDeclaration = 20;
-    public const int ParserYaccProdStatementLocalAssignment = 21;
-    public const int ParserYaccProdForInitializerDecl = 22;
-    public const int ParserYaccProdForInitializerExprList = 23;
-    public const int ParserYaccProdStatementIf = 24;
-    public const int ParserYaccProdStatementIfElse = 25;
-    public const int ParserYaccProdStatementForEach = 26;
-    public const int ParserYaccProdStatementWhile = 27;
-    public const int ParserYaccProdStatementDoWhile = 28;
-    public const int ParserYaccProdStatementFor = 29;
-    public const int ParserYaccProdStatementDecl = 30;
-    public const int ParserYaccProdStatementExpr = 31;
-    public const int ParserYaccProdStatementReturn = 32;
-    public const int ParserYaccProdStatementReturnExpression = 33;
-    public const int ParserYaccProdStatementBreak = 34;
-    public const int ParserYaccProdStatementContinue = 35;
-    public const int ParserYaccProdStatementAttribute = 36;
-    public const int ParserYaccProdStatementCompound = 37;
-    public const int ParserYaccProdStatementsMulti = 38;
-    public const int ParserYaccProdStatementsEmpty = 39;
-    public const int ParserYaccProdExpressionCallMethod = 40;
-    public const int ParserYaccProdExpressionCallThisMethod = 41;
-    public const int ParserYaccProdExpressionCallProperty = 42;
-    public const int ParserYaccProdExpressionCallStaticProperty = 43;
-    public const int ParserYaccProdExpressionCallStaticMethod = 44;
-    public const int ParserYaccProdExpressionIndex = 45;
-    public const int ParserYaccProdExpressionNew = 46;
-    public const int ParserYaccProdExpressionSymbol = 47;
-    public const int ParserYaccProdExpressionString = 48;
-    public const int ParserYaccProdExpressionStringLiteral = 49;
-    public const int ParserYaccProdExpressionInteger = 50;
-    public const int ParserYaccProdExpressionLongInteger = 51;
-    public const int ParserYaccProdExpressionFloat = 52;
-    public const int ParserYaccProdExpressionTrue = 53;
-    public const int ParserYaccProdExpressionFalse = 54;
-    public const int ParserYaccProdExpressionNull = 55;
-    public const int ParserYaccProdExpressionThis = 56;
-    public const int ParserYaccProdExpressionBase = 57;
-    public const int ParserYaccProdExpressionTypeOf = 58;
-    public const int ParserYaccProdExpressionGroup = 59;
-    public const int ParserYaccProdExpressionDeclareTrigger = 60;
-    public const int ParserYaccProdExpressionUnaryOperationLogicalNot = 61;
-    public const int ParserYaccProdExpressionUnaryMinus = 62;
-    public const int ParserYaccProdExpressionPostIncrement = 63;
-    public const int ParserYaccProdExpressionPostDecrement = 64;
-    public const int ParserYaccProdExpressionCastPrefixed = 65;
-    public const int ParserYaccProdExpressionCast = 66;
-    public const int ParserYaccProdExpressionOperationMathMultiply = 67;
-    public const int ParserYaccProdExpressionOperationMathDivide = 68;
-    public const int ParserYaccProdExpressionOperationMathModulus = 69;
-    public const int ParserYaccProdExpressionOperationMathAdd = 70;
-    public const int ParserYaccProdExpressionOperationMathSubtract = 71;
-    public const int ParserYaccProdExpressionOperationRelationalLessThan = 72;
-    public const int ParserYaccProdExpressionOperationRelationalGreaterThan = 73;
-    public const int ParserYaccProdExpressionOperationRelationalLessThanEquals = 74;
-    public const int ParserYaccProdExpressionOperationRelationalGreaterThanEquals = 75;
-    public const int ParserYaccProdExpressionOperationIs = 76;
-    public const int ParserYaccProdExpressionOperationAs = 77;
-    public const int ParserYaccProdExpressionOperationRelationalEquals = 78;
-    public const int ParserYaccProdExpressionOperationRelationalNotEquals = 79;
-    public const int ParserYaccProdExpressionOperationLogicalAnd = 80;
-    public const int ParserYaccProdExpressionOperationLogicalOr = 81;
-    public const int ParserYaccProdExpressionNullCoalescing = 82;
-    public const int ParserYaccProdExpressionTernary = 83;
-    public const int ParserYaccProdExpressionAssignment = 84;
-    public const int ParserYaccProdParametersEmpty = 85;
-    public const int ParserYaccProdParameters = 86;
-    public const int ParserYaccProdParameterListSingle = 87;
-    public const int ParserYaccProdParameterListMulti = 88;
-    public const int ParserYaccProdTypeIdentifierNamespaced = 89;
-    public const int ParserYaccProdTypeIdentifier = 90;
-
     public ParserYaccClass(SSYaccTable q_table, SSLex q_lex)
       : base(q_table, q_lex)
     {
@@ -108,96 +17,96 @@ internal class ParserYaccClass : SSYacc
 
     public override SSYaccStackElement reduce(int q_prod, int q_size)
     {
-        switch (q_prod)
+        switch ((ParserYaccProd)q_prod)
         {
-            case 1:
+            case ParserYaccProd.StartCodeBlock:
                 return ReturnObject(new ValidateCode(Owner, new ValidateStatementCompound(Owner, (ValidateStatement)FromProduction(1), CurrentLine, CurrentColumn), CurrentLine, CurrentColumn));
-            case 2:
+            case ParserYaccProd.StartInlineExpression:
                 return ReturnObject(FromProduction(2));
-            case 3:
+            case ParserYaccProd.StartMethods:
                 return ReturnObject(FromProduction(1));
-            case 4:
+            case ParserYaccProd.MethodsEmpty:
                 return ReturnObject(new ValidateMethodList(Owner, CurrentLine, CurrentColumn));
-            case 5:
+            case ParserYaccProd.Methods:
                 ValidateMethodList validateMethodList = (ValidateMethodList)FromProduction(0);
                 ValidateMethod expression1 = (ValidateMethod)FromProduction(1);
                 validateMethodList.AppendToEnd(expression1);
                 return ReturnObject(validateMethodList);
-            case 6:
+            case ParserYaccProd.MethodSpecifiersEmpty:
                 return ReturnObject(new Vector<MethodSpecifier>());
-            case 7:
+            case ParserYaccProd.MethodSpecifiers:
                 Vector<MethodSpecifier> vector = (Vector<MethodSpecifier>)FromProduction(0);
                 MethodSpecifier methodSpecifier = (MethodSpecifier)FromProduction(1);
                 vector.Add(methodSpecifier);
                 return ReturnObject(vector);
-            case 8:
+            case ParserYaccProd.MethodSpecifierVirtual:
                 return ReturnObject(MethodSpecifier.Virtual);
-            case 9:
+            case ParserYaccProd.MethodSpecifierOverride:
                 return ReturnObject(MethodSpecifier.Override);
-            case 10:
+            case ParserYaccProd.Method:
                 return ReturnObject(ConstructValidateMethod(true));
-            case 11:
+            case ParserYaccProd.ParameterDefinitionsEmpty:
                 return ReturnObject(new ValidateParameterDefinitionList(Owner, CurrentLine, CurrentColumn));
-            case 12:
+            case ParserYaccProd.ParameterDefinitions:
                 return ReturnObject((ValidateParameterDefinitionList)FromProduction(0));
-            case 13:
+            case ParserYaccProd.ParameterDefinitionListSingle:
                 ValidateParameterDefinition expression2 = (ValidateParameterDefinition)FromProduction(0);
                 ValidateParameterDefinitionList parameterDefinitionList1 = new ValidateParameterDefinitionList(Owner, expression2.Line, expression2.Column);
                 parameterDefinitionList1.AppendToEnd(expression2);
                 return ReturnObject(parameterDefinitionList1);
-            case 14:
+            case ParserYaccProd.ParameterDefinitionListMulti:
                 ValidateParameterDefinitionList parameterDefinitionList2 = (ValidateParameterDefinitionList)FromProduction(0);
                 ValidateParameterDefinition expression3 = (ValidateParameterDefinition)FromProduction(2);
                 parameterDefinitionList2.AppendToEnd(expression3);
                 return ReturnObject(parameterDefinitionList2);
-            case 15:
+            case ParserYaccProd.ParameterDefinition:
                 ValidateTypeIdentifier typeIdentifier1 = (ValidateTypeIdentifier)FromProduction(0);
                 string name = FromTerminal(1);
                 return ReturnObject(new ValidateParameterDefinition(Owner, Line(1), Column(1), name, typeIdentifier1));
-            case 16:
+            case ParserYaccProd.ExpressionListEmpty:
                 return ReturnObject(new ValidateExpressionList(Owner, CurrentLine, CurrentColumn));
-            case 17:
+            case ParserYaccProd.ExpressionList:
                 return ReturnObject(FromProduction(0));
-            case 18:
+            case ParserYaccProd.ExpressionsSingle:
                 ValidateExpression expression4 = (ValidateExpression)FromProduction(0);
                 ValidateExpressionList validateExpressionList1 = new ValidateExpressionList(Owner, expression4.Line, expression4.Column);
                 validateExpressionList1.AppendToEnd(expression4);
                 return ReturnObject(validateExpressionList1);
-            case 19:
+            case ParserYaccProd.ExpressionsMulti:
                 ValidateExpressionList validateExpressionList2 = (ValidateExpressionList)FromProduction(0);
                 ValidateExpression expression5 = (ValidateExpression)FromProduction(2);
                 validateExpressionList2.AppendToEnd(expression5);
                 return ReturnObject(validateExpressionList2);
-            case 20:
+            case ParserYaccProd.StatementLocalDeclaration:
                 ValidateTypeIdentifier typeIdentifier2 = (ValidateTypeIdentifier)FromProduction(0);
                 return ReturnObject(new ValidateStatementScopedLocal(Owner, FromTerminal(1), typeIdentifier2, Line(1), Column(1)));
-            case 21:
+            case ParserYaccProd.StatementLocalAssignment:
                 ValidateTypeIdentifier typeIdentifier3 = (ValidateTypeIdentifier)FromProduction(0);
                 string str = FromTerminal(1);
                 return ReturnObject(new ValidateStatementAssignment(Owner, new ValidateStatementScopedLocal(Owner, str, typeIdentifier3, Line(1), Column(1)), new ValidateExpressionSymbol(Owner, str, Line(1), Column(1)), (ValidateExpression)FromProduction(3), Line(1), Column(1)));
-            case 22:
+            case ParserYaccProd.ForInitializerDecl:
                 return ReturnObject(FromProduction(0));
-            case 23:
+            case ParserYaccProd.ForInitializerExprList:
                 ValidateExpressionList validateExpressionList3 = (ValidateExpressionList)FromProduction(0);
                 return ReturnObject(new ValidateStatementExpression(Owner, validateExpressionList3, validateExpressionList3.Line, validateExpressionList3.Column));
-            case 24:
+            case ParserYaccProd.StatementIf:
                 return ReturnObject(new ValidateStatementIf(Owner, (ValidateExpression)FromProduction(2), ValidateStatementCompound.Encapsulate((ValidateStatement)FromProduction(4)), Line(0), Column(0)));
-            case 25:
+            case ParserYaccProd.StatementIfElse:
                 ValidateExpression condition1 = (ValidateExpression)FromProduction(2);
                 ValidateStatement statement1 = (ValidateStatement)FromProduction(4);
                 ValidateStatement statement2 = (ValidateStatement)FromProduction(6);
                 ValidateStatementCompound statementCompoundTrue = ValidateStatementCompound.Encapsulate(statement1);
                 ValidateStatementCompound statementCompoundFalse = ValidateStatementCompound.Encapsulate(statement2);
                 return ReturnObject(new ValidateStatementIfElse(Owner, condition1, statementCompoundTrue, statementCompoundFalse, Line(0), Column(0)));
-            case 26:
+            case ParserYaccProd.StatementForEach:
                 ValidateTypeIdentifier typeIdentifier4 = (ValidateTypeIdentifier)FromProduction(2);
                 return ReturnObject(new ValidateStatementForEach(Owner, new ValidateStatementScopedLocal(Owner, FromTerminal(3), typeIdentifier4, Line(3), Column(3)), (ValidateExpression)FromProduction(5), ValidateStatementCompound.Encapsulate((ValidateStatement)FromProduction(7)), Line(0), Column(0)));
-            case 27:
+            case ParserYaccProd.StatementWhile:
                 ValidateExpression condition2 = (ValidateExpression)FromProduction(2);
                 return ReturnObject(new ValidateStatementWhile(Owner, (ValidateStatement)FromProduction(4), condition2, false, Line(0), Column(0)));
-            case 28:
+            case ParserYaccProd.StatementDoWhile:
                 return ReturnObject(new ValidateStatementWhile(Owner, (ValidateStatement)FromProduction(1), (ValidateExpression)FromProduction(4), true, Line(0), Column(0)));
-            case 29:
+            case ParserYaccProd.StatementFor:
                 ValidateStatement statementList1 = (ValidateStatement)FromProduction(2);
                 ValidateExpression condition3 = (ValidateExpression)FromProduction(4);
                 ValidateExpression expression6 = (ValidateExpression)FromProduction(6);
@@ -207,24 +116,24 @@ internal class ParserYaccClass : SSYacc
                 ValidateStatementWhile validateStatementWhile = new ValidateStatementWhile(Owner, new ValidateStatementCompound(Owner, statementList2, statementList2.Line, statementList2.Column), condition3, false, Line(0), Column(0));
                 statementList1.AppendToEnd(validateStatementWhile);
                 return ReturnObject(new ValidateStatementCompound(Owner, statementList1, Line(0), Column(0)));
-            case 30:
+            case ParserYaccProd.StatementDecl:
                 return ReturnObject(FromProduction(0));
-            case 31:
+            case ParserYaccProd.StatementExpr:
                 ValidateExpression expression7 = (ValidateExpression)FromProduction(0);
                 return ReturnObject(new ValidateStatementExpression(Owner, expression7, expression7.Line, expression7.Column));
-            case 32:
+            case ParserYaccProd.StatementReturn:
                 return ReturnObject(new ValidateStatementReturn(Owner, null, Line(0), Column(0)));
-            case 33:
+            case ParserYaccProd.StatementReturnExpression:
                 return ReturnObject(new ValidateStatementReturn(Owner, (ValidateExpression)FromProduction(1), Line(0), Column(0)));
-            case 34:
+            case ParserYaccProd.StatementBreak:
                 return ReturnObject(new ValidateStatementBreak(Owner, false, Line(0), Column(0)));
-            case 35:
+            case ParserYaccProd.StatementContinue:
                 return ReturnObject(new ValidateStatementBreak(Owner, true, Line(0), Column(0)));
-            case 36:
+            case ParserYaccProd.StatementAttribute:
                 return ReturnObject(new ValidateStatementAttribute(Owner, FromTerminal(1), (ValidateParameter)FromProduction(3), Line(1), Column(1)));
-            case 37:
+            case ParserYaccProd.StatementCompound:
                 return ReturnObject(new ValidateStatementCompound(Owner, (ValidateStatement)FromProduction(1), Line(0), Column(0)));
-            case 38:
+            case ParserYaccProd.StatementsMulti:
                 ValidateStatement validateStatement1 = (ValidateStatement)FromProduction(0);
                 ValidateStatement validateStatement2 = (ValidateStatement)FromProduction(1);
                 if (validateStatement1 != null)
@@ -232,119 +141,119 @@ internal class ParserYaccClass : SSYacc
                 else
                     validateStatement1 = validateStatement2;
                 return ReturnObject(validateStatement1);
-            case 39:
+            case ParserYaccProd.StatementsEmpty:
                 return ReturnObject(null);
-            case 40:
+            case ParserYaccProd.ExpressionCallMethod:
                 return ReturnObject(new ValidateExpressionCall(Owner, (ValidateExpression)FromProduction(0), FromTerminal(2), (ValidateParameter)FromProduction(4), Line(2), Column(2)));
-            case 41:
+            case ParserYaccProd.ExpressionCallThisMethod:
                 string memberName = FromTerminal(0);
                 ValidateParameter parameterList = (ValidateParameter)FromProduction(2);
                 return ReturnObject(new ValidateExpressionCall(Owner, new ValidateExpressionThis(Owner, Line(0), Column(0)), memberName, parameterList, Line(0), Column(0)));
-            case 42:
+            case ParserYaccProd.ExpressionCallProperty:
                 return ReturnObject(new ValidateExpressionCall(Owner, (ValidateExpression)FromProduction(0), FromTerminal(2), null, Line(2), Column(2)));
-            case 43:
+            case ParserYaccProd.ExpressionCallStaticProperty:
                 return ReturnObject(new ValidateExpressionCall(Owner, new ValidateTypeIdentifier(Owner, FromTerminal(0), FromTerminal(2), Line(0), Column(0)), FromTerminal(4), null, Line(4), Column(4)));
-            case 44:
+            case ParserYaccProd.ExpressionCallStaticMethod:
                 return ReturnObject(new ValidateExpressionCall(Owner, new ValidateTypeIdentifier(Owner, FromTerminal(0), FromTerminal(2), Line(0), Column(0)), FromTerminal(4), (ValidateParameter)FromProduction(6), Line(4), Column(4)));
-            case 45:
+            case ParserYaccProd.ExpressionIndex:
                 return ReturnObject(new ValidateExpressionIndex(Owner, (ValidateExpression)FromProduction(0), (ValidateParameter)FromProduction(2), Line(1), Column(1)));
-            case 46:
+            case ParserYaccProd.ExpressionNew:
                 return ReturnObject(new ValidateExpressionNew(Owner, (ValidateTypeIdentifier)FromProduction(1), (ValidateParameter)FromProduction(3), Line(0), Column(0)));
-            case 47:
+            case ParserYaccProd.ExpressionSymbol:
                 return ReturnObject(new ValidateExpressionSymbol(Owner, FromTerminal(0), Line(0), Column(0)));
-            case 48:
+            case ParserYaccProd.ExpressionString:
                 return ReturnObject(new ValidateExpressionConstant(Owner, FromTerminalTrim(0, 1, 1), ConstantType.String, Line(0), Column(0)));
-            case 49:
+            case ParserYaccProd.ExpressionStringLiteral:
                 return ReturnObject(new ValidateExpressionConstant(Owner, FromTerminalTrim(0, 2, 1), ConstantType.StringLiteral, Line(0), Column(0)));
-            case 50:
+            case ParserYaccProd.ExpressionInteger:
                 return ReturnObject(new ValidateExpressionConstant(Owner, FromTerminal(0), ConstantType.Integer, Line(0), Column(0)));
-            case 51:
+            case ParserYaccProd.ExpressionLongInteger:
                 return ReturnObject(new ValidateExpressionConstant(Owner, FromTerminalTrim(0, 0, 1), ConstantType.LongInteger, Line(0), Column(0)));
-            case 52:
+            case ParserYaccProd.ExpressionFloat:
                 return ReturnObject(new ValidateExpressionConstant(Owner, FromTerminal(0), ConstantType.Float, Line(0), Column(0)));
-            case 53:
+            case ParserYaccProd.ExpressionTrue:
                 return ReturnObject(new ValidateExpressionConstant(Owner, true, Line(0), Column(0)));
-            case 54:
+            case ParserYaccProd.ExpressionFalse:
                 return ReturnObject(new ValidateExpressionConstant(Owner, false, Line(0), Column(0)));
-            case 55:
+            case ParserYaccProd.ExpressionNull:
                 return ReturnObject(new ValidateExpressionConstant(Owner, null, ConstantType.Null, Line(0), Column(0)));
-            case 56:
+            case ParserYaccProd.ExpressionThis:
                 return ReturnObject(new ValidateExpressionThis(Owner, Line(0), Column(0)));
-            case 57:
+            case ParserYaccProd.ExpressionBase:
                 return ReturnObject(new ValidateExpressionBaseClass(Owner, Line(0), Column(0)));
-            case 58:
+            case ParserYaccProd.ExpressionTypeOf:
                 return ReturnObject(new ValidateExpressionTypeOf(Owner, (ValidateTypeIdentifier)FromProduction(2), Line(0), Column(0)));
-            case 59:
+            case ParserYaccProd.ExpressionGroup:
                 return ReturnObject((ValidateExpression)FromProduction(1));
-            case 60:
+            case ParserYaccProd.ExpressionDeclareTrigger:
                 return ReturnObject(new ValidateExpressionDeclareTrigger(Owner, (ValidateExpression)FromProduction(1), Line(0), Column(0)));
-            case 61:
+            case ParserYaccProd.ExpressionUnaryOperationLogicalNot:
                 return ReturnObject(ConstructValidateExpressionUnaryOperation(OperationType.LogicalNot));
-            case 62:
+            case ParserYaccProd.ExpressionUnaryMinus:
                 return ReturnObject(ConstructValidateExpressionUnaryOperation(OperationType.MathNegate));
-            case 63:
+            case ParserYaccProd.ExpressionPostIncrement:
                 return ReturnObject(ConstructValidateExpressionPostUnaryOperation(OperationType.PostIncrement));
-            case 64:
+            case ParserYaccProd.ExpressionPostDecrement:
                 return ReturnObject(ConstructValidateExpressionPostUnaryOperation(OperationType.PostDecrement));
-            case 65:
+            case ParserYaccProd.ExpressionCastPrefixed:
                 string prefix = FromTerminal(1);
                 string typeName = FromTerminal(3);
                 ValidateExpression castee = (ValidateExpression)FromProduction(5);
                 return ReturnObject(new ValidateExpressionCast(Owner, new ValidateTypeIdentifier(Owner, prefix, typeName, Line(1), Column(1)), castee, Line(0), Column(0)));
-            case 66:
+            case ParserYaccProd.ExpressionCast:
                 return ReturnObject(new ValidateExpressionCast(Owner, (ValidateExpression)FromProduction(1), (ValidateExpression)FromProduction(3), Line(0), Column(0)));
-            case 67:
+            case ParserYaccProd.ExpressionOperationMathMultiply:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.MathMultiply));
-            case 68:
+            case ParserYaccProd.ExpressionOperationMathDivide:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.MathDivide));
-            case 69:
+            case ParserYaccProd.ExpressionOperationMathModulus:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.MathModulus));
-            case 70:
+            case ParserYaccProd.ExpressionOperationMathAdd:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.MathAdd));
-            case 71:
+            case ParserYaccProd.ExpressionOperationMathSubtract:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.MathSubtract));
-            case 72:
+            case ParserYaccProd.ExpressionOperationRelationalLessThan:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalLessThan));
-            case 73:
+            case ParserYaccProd.ExpressionOperationRelationalGreaterThan:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalGreaterThan));
-            case 74:
+            case ParserYaccProd.ExpressionOperationRelationalLessThanEquals:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalLessThanEquals));
-            case 75:
+            case ParserYaccProd.ExpressionOperationRelationalGreaterThanEquals:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalGreaterThanEquals));
-            case 76:
+            case ParserYaccProd.ExpressionOperationIs:
                 return ReturnObject(new ValidateExpressionIsCheck(Owner, (ValidateExpression)FromProduction(0), (ValidateTypeIdentifier)FromProduction(2), Line(1), Column(1)));
-            case 77:
+            case ParserYaccProd.ExpressionOperationAs:
                 return ReturnObject(new ValidateExpressionAs(Owner, (ValidateExpression)FromProduction(0), (ValidateTypeIdentifier)FromProduction(2), Line(1), Column(1)));
-            case 78:
+            case ParserYaccProd.ExpressionOperationRelationalEquals:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalEquals));
-            case 79:
+            case ParserYaccProd.ExpressionOperationRelationalNotEquals:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.RelationalNotEquals));
-            case 80:
+            case ParserYaccProd.ExpressionOperationLogicalAnd:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.LogicalAnd));
-            case 81:
+            case ParserYaccProd.ExpressionOperationLogicalOr:
                 return ReturnObject(ConstructValidateExpressionOperation(OperationType.LogicalOr));
-            case 82:
+            case ParserYaccProd.ExpressionNullCoalescing:
                 return ReturnObject(new ValidateExpressionNullCoalescing(Owner, (ValidateExpression)FromProduction(0), (ValidateExpression)FromProduction(2), Line(1), Column(1)));
-            case 83:
+            case ParserYaccProd.ExpressionTernary:
                 return ReturnObject(new ValidateExpressionTernary(Owner, (ValidateExpression)FromProduction(0), (ValidateExpression)FromProduction(2), (ValidateExpression)FromProduction(4), Line(1), Column(1)));
-            case 84:
+            case ParserYaccProd.ExpressionAssignment:
                 return ReturnObject(new ValidateExpressionAssignment(Owner, (ValidateExpression)FromProduction(0), (ValidateExpression)FromProduction(2), Line(1), Column(1)));
-            case 85:
+            case ParserYaccProd.ParametersEmpty:
                 return ReturnObject(ValidateParameter.EmptyList);
-            case 86:
+            case ParserYaccProd.Parameters:
                 return ReturnObject((ValidateParameter)FromProduction(0));
-            case 87:
+            case ParserYaccProd.ParameterListSingle:
                 ValidateExpression expression8 = (ValidateExpression)FromProduction(0);
                 return ReturnObject(new ValidateParameter(Owner, expression8, expression8.Line, expression8.Column));
-            case 88:
+            case ParserYaccProd.ParameterListMulti:
                 ValidateParameter validateParameter1 = (ValidateParameter)FromProduction(0);
                 ValidateExpression expression9 = (ValidateExpression)FromProduction(2);
                 ValidateParameter validateParameter2 = new ValidateParameter(Owner, expression9, expression9.Line, expression9.Column);
                 validateParameter1.AppendToEnd(validateParameter2);
                 return ReturnObject(validateParameter1);
-            case 89:
+            case ParserYaccProd.TypeIdentifierNamespaced:
                 return ReturnObject(new ValidateTypeIdentifier(Owner, FromTerminal(0), FromTerminal(2), Line(0), Column(0)));
-            case 90:
+            case ParserYaccProd.TypeIdentifier:
                 return ReturnObject(new ValidateTypeIdentifier(Owner, null, FromTerminal(0), Line(0), Column(0)));
             default:
                 return stackElement();
