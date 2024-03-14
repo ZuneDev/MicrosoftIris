@@ -252,5 +252,8 @@ namespace Microsoft.Iris.Markup
         public const short Void = 240;
         public const short Window = 241;
         public const short WindowState = 242;
+
+        // Ported from UIX 2.1
+        public const short ScrollingData = 243;
     }
 }

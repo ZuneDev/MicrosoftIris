@@ -39,33 +39,33 @@ namespace Microsoft.Iris.Markup.UIX
         private static MethodSchema HomeMethod;
         private static MethodSchema EndMethod;
         private static MethodSchema ScrollToPositionSingleMethod;
-        public static UIXTypeSchema Type = new UIXTypeSchema("ScrollingData", (string) null);
+        public static UIXTypeSchema Type;
 
-        private static object Construct() => (object) new ScrollingData();
+        private static object Construct() => new ScrollingData();
 
         private static object GetEnabled(object instanceObj)
         {
-            return BooleanBoxes.Box(((ScrollingData) instanceObj).Enabled);
+            return BooleanBoxes.Box(((ScrollingData)instanceObj).Enabled);
         }
 
         private static void SetEnabled(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            bool flag = (bool) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            bool flag = (bool)valueObj;
             scrollingData.Enabled = flag;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetScrollStep(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).ScrollStep;
+            return ((ScrollingData)instanceObj).ScrollStep;
         }
 
         private static void SetScrollStep(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            int num = (int) valueObj;
-            Result result = Int32Schema.ValidateNotNegative((object) num);
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            int num = (int)valueObj;
+            Result result = Int32Schema.ValidateNotNegative(num);
             if (result.Failed)
             {
                 ErrorManager.ReportError(result.Error);
@@ -73,20 +73,20 @@ namespace Microsoft.Iris.Markup.UIX
             else
             {
                 scrollingData.ScrollStep = num;
-                instanceObj = (object) scrollingData;
+                instanceObj = scrollingData;
             }
         }
 
         private static object GetPageStep(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).PageStep;
+            return ((ScrollingData)instanceObj).PageStep;
         }
 
         private static void SetPageStep(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            float num = (float) valueObj;
-            Result result = SingleSchema.ValidateNotNegative((object) num);
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            float num = (float)valueObj;
+            Result result = SingleSchema.ValidateNotNegative(num);
             if (result.Failed)
             {
                 ErrorManager.ReportError(result.Error);
@@ -94,264 +94,263 @@ namespace Microsoft.Iris.Markup.UIX
             else
             {
                 scrollingData.PageStep = num;
-                instanceObj = (object) scrollingData;
+                instanceObj = scrollingData;
             }
         }
 
         private static object GetPageSizedScrollStep(object instanceObj)
         {
-            return BooleanBoxes.Box(((ScrollingData) instanceObj).PageSizedScrollStep);
+            return BooleanBoxes.Box(((ScrollingData)instanceObj).PageSizedScrollStep);
         }
 
         private static void SetPageSizedScrollStep(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            bool flag = (bool) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            bool flag = (bool)valueObj;
             scrollingData.PageSizedScrollStep = flag;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetBeginPadding(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).BeginPadding;
+            return ((ScrollingData)instanceObj).BeginPadding;
         }
 
         private static void SetBeginPadding(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            int num = (int) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            int num = (int)valueObj;
             scrollingData.BeginPadding = num;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetEndPadding(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).EndPadding;
+            return ((ScrollingData)instanceObj).EndPadding;
         }
 
         private static void SetEndPadding(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            int num = (int) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            int num = (int)valueObj;
             scrollingData.EndPadding = num;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetBeginPaddingRelativeTo(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).BeginPaddingRelativeTo;
+            return ((ScrollingData)instanceObj).BeginPaddingRelativeTo;
         }
 
         private static void SetBeginPaddingRelativeTo(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            RelativeEdge relativeEdge = (RelativeEdge) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            RelativeEdge relativeEdge = (RelativeEdge)valueObj;
             scrollingData.BeginPaddingRelativeTo = relativeEdge;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetEndPaddingRelativeTo(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).EndPaddingRelativeTo;
+            return ((ScrollingData)instanceObj).EndPaddingRelativeTo;
         }
 
         private static void SetEndPaddingRelativeTo(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            RelativeEdge relativeEdge = (RelativeEdge) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            RelativeEdge relativeEdge = (RelativeEdge)valueObj;
             scrollingData.EndPaddingRelativeTo = relativeEdge;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetLocked(object instanceObj)
         {
-            return BooleanBoxes.Box(((ScrollingData) instanceObj).Locked);
+            return BooleanBoxes.Box(((ScrollingData)instanceObj).Locked);
         }
 
         private static void SetLocked(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            bool flag = (bool) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            bool flag = (bool)valueObj;
             scrollingData.Locked = flag;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetLockedPosition(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).LockedPosition;
+            return ((ScrollingData)instanceObj).LockedPosition;
         }
 
         private static void SetLockedPosition(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            float num = (float) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            float num = (float)valueObj;
             scrollingData.LockedPosition = num;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetLockedAlignment(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).LockedAlignment;
+            return ((ScrollingData)instanceObj).LockedAlignment;
         }
 
         private static void SetLockedAlignment(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            float num = (float) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            float num = (float)valueObj;
             scrollingData.LockedAlignment = num;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetContentPositioningBehavior(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).ContentPositioningBehavior;
+            return ((ScrollingData)instanceObj).ContentPositioningBehavior;
         }
 
         private static void SetContentPositioningBehavior(ref object instanceObj, object valueObj)
         {
-            ScrollingData scrollingData = (ScrollingData) instanceObj;
-            ContentPositioningPolicy positioningPolicy = (ContentPositioningPolicy) valueObj;
+            ScrollingData scrollingData = (ScrollingData)instanceObj;
+            ContentPositioningPolicy positioningPolicy = (ContentPositioningPolicy)valueObj;
             scrollingData.ContentPositioningBehavior = positioningPolicy;
-            instanceObj = (object) scrollingData;
+            instanceObj = scrollingData;
         }
 
         private static object GetCanScrollUp(object instanceObj)
         {
-            return BooleanBoxes.Box(((ScrollingData) instanceObj).CanScrollUp);
+            return BooleanBoxes.Box(((ScrollingData)instanceObj).CanScrollUp);
         }
 
         private static object GetCanScrollDown(object instanceObj)
         {
-            return BooleanBoxes.Box(((ScrollingData) instanceObj).CanScrollDown);
+            return BooleanBoxes.Box(((ScrollingData)instanceObj).CanScrollDown);
         }
 
         private static object GetCurrentPage(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).CurrentPage;
+            return ((ScrollingData)instanceObj).CurrentPage;
         }
 
         private static object GetTotalPages(object instanceObj)
         {
-            return (object) ((ScrollingData) instanceObj).TotalPages;
+            return ((ScrollingData)instanceObj).TotalPages;
         }
 
         private static object CallScrollInt32(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).Scroll((int) parameters[0]);
-            return (object) null;
+            ((ScrollingData)instanceObj).Scroll((int)parameters[0]);
+            return null;
         }
 
         private static object CallScrollFocusIntoView(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).ScrollFocusIntoView();
-            return (object) null;
+            ((ScrollingData)instanceObj).ScrollFocusIntoView();
+            return null;
         }
 
         private static object CallScrollUp(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).ScrollUp();
-            return (object) null;
+            ((ScrollingData)instanceObj).ScrollUp();
+            return null;
         }
 
         private static object CallScrollDown(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).ScrollDown();
-            return (object) null;
+            ((ScrollingData)instanceObj).ScrollDown();
+            return null;
         }
 
         private static object CallPageUp(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).PageUp();
-            return (object) null;
+            ((ScrollingData)instanceObj).PageUp();
+            return null;
         }
 
         private static object CallPageDown(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).PageDown();
-            return (object) null;
+            ((ScrollingData)instanceObj).PageDown();
+            return null;
         }
 
         private static object CallHome(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).Home();
-            return (object) null;
+            ((ScrollingData)instanceObj).Home();
+            return null;
         }
 
         private static object CallEnd(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).End();
-            return (object) null;
+            ((ScrollingData)instanceObj).End();
+            return null;
         }
 
         private static object CallScrollToPositionSingle(object instanceObj, object[] parameters)
         {
-            ((ScrollingData) instanceObj).ScrollToPosition((float) parameters[0]);
-            return (object) null;
+            ((ScrollingData)instanceObj).ScrollToPosition((float)parameters[0]);
+            return null;
         }
+
+        public static void Pass1Initialize() => Type = new UIXTypeSchema(UIXTypeID.ScrollingData, "ScrollingData", null, UIXTypeID.Object, typeof(ScrollingData), UIXTypeFlags.None);
 
         public static void Pass2Initialize()
         {
-            ScrollingDataSchema.EnabledProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "Enabled", (TypeSchema) BooleanSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetEnabled), new SetValueHandler(ScrollingDataSchema.SetEnabled), false);
-            ScrollingDataSchema.ScrollStepProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "ScrollStep", (TypeSchema) Int32Schema.Type, (TypeSchema) null, ExpressionRestriction.None, false, Int32Schema.ValidateNotNegative, true, new GetValueHandler(ScrollingDataSchema.GetScrollStep), new SetValueHandler(ScrollingDataSchema.SetScrollStep), false);
-            ScrollingDataSchema.PageStepProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "PageStep", (TypeSchema) SingleSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, SingleSchema.ValidateNotNegative, true, new GetValueHandler(ScrollingDataSchema.GetPageStep), new SetValueHandler(ScrollingDataSchema.SetPageStep), false);
-            ScrollingDataSchema.PageSizedScrollStepProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "PageSizedScrollStep", (TypeSchema) BooleanSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetPageSizedScrollStep), new SetValueHandler(ScrollingDataSchema.SetPageSizedScrollStep), false);
-            ScrollingDataSchema.BeginPaddingProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "BeginPadding", (TypeSchema) Int32Schema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetBeginPadding), new SetValueHandler(ScrollingDataSchema.SetBeginPadding), false);
-            ScrollingDataSchema.EndPaddingProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "EndPadding", (TypeSchema) Int32Schema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetEndPadding), new SetValueHandler(ScrollingDataSchema.SetEndPadding), false);
-            ScrollingDataSchema.BeginPaddingRelativeToProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "BeginPaddingRelativeTo", (TypeSchema) RelativeEdgeSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetBeginPaddingRelativeTo), new SetValueHandler(ScrollingDataSchema.SetBeginPaddingRelativeTo), false);
-            ScrollingDataSchema.EndPaddingRelativeToProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "EndPaddingRelativeTo", (TypeSchema) RelativeEdgeSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetEndPaddingRelativeTo), new SetValueHandler(ScrollingDataSchema.SetEndPaddingRelativeTo), false);
-            ScrollingDataSchema.LockedProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "Locked", (TypeSchema) BooleanSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetLocked), new SetValueHandler(ScrollingDataSchema.SetLocked), false);
-            ScrollingDataSchema.LockedPositionProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "LockedPosition", (TypeSchema) SingleSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetLockedPosition), new SetValueHandler(ScrollingDataSchema.SetLockedPosition), false);
-            ScrollingDataSchema.LockedAlignmentProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "LockedAlignment", (TypeSchema) SingleSchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetLockedAlignment), new SetValueHandler(ScrollingDataSchema.SetLockedAlignment), false);
-            ScrollingDataSchema.ContentPositioningBehaviorProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "ContentPositioningBehavior", (TypeSchema) ContentPositioningPolicySchema.Type, (TypeSchema) null, ExpressionRestriction.None, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetContentPositioningBehavior), new SetValueHandler(ScrollingDataSchema.SetContentPositioningBehavior), false);
-            ScrollingDataSchema.CanScrollUpProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "CanScrollUp", (TypeSchema) BooleanSchema.Type, (TypeSchema) null, ExpressionRestriction.ReadOnly, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetCanScrollUp), (SetValueHandler) null, false);
-            ScrollingDataSchema.CanScrollDownProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "CanScrollDown", (TypeSchema) BooleanSchema.Type, (TypeSchema) null, ExpressionRestriction.ReadOnly, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetCanScrollDown), (SetValueHandler) null, false);
-            ScrollingDataSchema.CurrentPageProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "CurrentPage", (TypeSchema) SingleSchema.Type, (TypeSchema) null, ExpressionRestriction.ReadOnly, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetCurrentPage), (SetValueHandler) null, false);
-            ScrollingDataSchema.TotalPagesProperty = (PropertySchema) new UIXPropertySchema(ScrollingDataSchema.Type, "TotalPages", (TypeSchema) SingleSchema.Type, (TypeSchema) null, ExpressionRestriction.ReadOnly, false, (RangeValidator) null, true, new GetValueHandler(ScrollingDataSchema.GetTotalPages), (SetValueHandler) null, false);
-            ScrollingDataSchema.ScrollInt32Method = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "Scroll", new TypeSchema[1]
-            {
-                (TypeSchema) Int32Schema.Type
-            }, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallScrollInt32), false);
-            ScrollingDataSchema.ScrollFocusIntoViewMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "ScrollFocusIntoView", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallScrollFocusIntoView), false);
-            ScrollingDataSchema.ScrollUpMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "ScrollUp", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallScrollUp), false);
-            ScrollingDataSchema.ScrollDownMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "ScrollDown", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallScrollDown), false);
-            ScrollingDataSchema.PageUpMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "PageUp", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallPageUp), false);
-            ScrollingDataSchema.PageDownMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "PageDown", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallPageDown), false);
-            ScrollingDataSchema.HomeMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "Home", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallHome), false);
-            ScrollingDataSchema.EndMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "End", TypeSchema.EmptyList, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallEnd), false);
-            ScrollingDataSchema.ScrollToPositionSingleMethod = (MethodSchema) new UIXMethodSchema(ScrollingDataSchema.Type, "ScrollToPosition", new TypeSchema[1]
-            {
-                (TypeSchema) SingleSchema.Type
-            }, (TypeSchema) VoidSchema.Type, new InvokeHandler(ScrollingDataSchema.CallScrollToPositionSingle), false);
-            ScrollingDataSchema.Type.Initialize((TypeSchema) ObjectSchema.Type, false, new DefaultConstructHandler(ScrollingDataSchema.Construct), ConstructorSchema.EmptyList, new PropertySchema[16]
-            {
-                ScrollingDataSchema.BeginPaddingProperty,
-                ScrollingDataSchema.BeginPaddingRelativeToProperty,
-                ScrollingDataSchema.CanScrollDownProperty,
-                ScrollingDataSchema.CanScrollUpProperty,
-                ScrollingDataSchema.ContentPositioningBehaviorProperty,
-                ScrollingDataSchema.CurrentPageProperty,
-                ScrollingDataSchema.EnabledProperty,
-                ScrollingDataSchema.EndPaddingProperty,
-                ScrollingDataSchema.EndPaddingRelativeToProperty,
-                ScrollingDataSchema.LockedProperty,
-                ScrollingDataSchema.LockedAlignmentProperty,
-                ScrollingDataSchema.LockedPositionProperty,
-                ScrollingDataSchema.PageSizedScrollStepProperty,
-                ScrollingDataSchema.PageStepProperty,
-                ScrollingDataSchema.ScrollStepProperty,
-                ScrollingDataSchema.TotalPagesProperty
-            }, new MethodSchema[9]
-            {
-                ScrollingDataSchema.ScrollInt32Method,
-                ScrollingDataSchema.ScrollFocusIntoViewMethod,
-                ScrollingDataSchema.ScrollUpMethod,
-                ScrollingDataSchema.ScrollDownMethod,
-                ScrollingDataSchema.PageUpMethod,
-                ScrollingDataSchema.PageDownMethod,
-                ScrollingDataSchema.HomeMethod,
-                ScrollingDataSchema.EndMethod,
-                ScrollingDataSchema.ScrollToPositionSingleMethod
-            }, EventSchema.EmptyList, (FindCanonicalInstanceHandler) null, (TypeConverterHandler) null, (SupportsTypeConversionHandler) null, (EncodeBinaryHandler) null, (DecodeBinaryHandler) null, (PerformOperationHandler) null, (SupportsOperationHandler) null, typeof (ScrollingData), false);
+            var ownerTypeId = UIXTypeID.ScrollingData;
+            EnabledProperty = new UIXPropertySchema(ownerTypeId, "Enabled", UIXTypeID.Boolean, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetEnabled), new SetValueHandler(SetEnabled), false);
+            ScrollStepProperty = new UIXPropertySchema(ownerTypeId, "ScrollStep", UIXTypeID.Int32, -1, ExpressionRestriction.None, false, Int32Schema.ValidateNotNegative, true, new GetValueHandler(GetScrollStep), new SetValueHandler(SetScrollStep), false);
+            PageStepProperty = new UIXPropertySchema(ownerTypeId, "PageStep", UIXTypeID.Single, -1, ExpressionRestriction.None, false, SingleSchema.ValidateNotNegative, true, new GetValueHandler(GetPageStep), new SetValueHandler(SetPageStep), false);
+            PageSizedScrollStepProperty = new UIXPropertySchema(ownerTypeId, "PageSizedScrollStep", UIXTypeID.Boolean, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetPageSizedScrollStep), new SetValueHandler(SetPageSizedScrollStep), false);
+            BeginPaddingProperty = new UIXPropertySchema(ownerTypeId, "BeginPadding", UIXTypeID.Int32, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetBeginPadding), new SetValueHandler(SetBeginPadding), false);
+            EndPaddingProperty = new UIXPropertySchema(ownerTypeId, "EndPadding", UIXTypeID.Int32, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetEndPadding), new SetValueHandler(SetEndPadding), false);
+            BeginPaddingRelativeToProperty = new UIXPropertySchema(ownerTypeId, "BeginPaddingRelativeTo", UIXTypeID.RelativeEdge, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetBeginPaddingRelativeTo), new SetValueHandler(SetBeginPaddingRelativeTo), false);
+            EndPaddingRelativeToProperty = new UIXPropertySchema(ownerTypeId, "EndPaddingRelativeTo", UIXTypeID.RelativeEdge, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetEndPaddingRelativeTo), new SetValueHandler(SetEndPaddingRelativeTo), false);
+            LockedProperty = new UIXPropertySchema(ownerTypeId, "Locked", UIXTypeID.Boolean, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetLocked), new SetValueHandler(SetLocked), false);
+            LockedPositionProperty = new UIXPropertySchema(ownerTypeId, "LockedPosition", UIXTypeID.Single, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetLockedPosition), new SetValueHandler(SetLockedPosition), false);
+            LockedAlignmentProperty = new UIXPropertySchema(ownerTypeId, "LockedAlignment", UIXTypeID.Single, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetLockedAlignment), new SetValueHandler(SetLockedAlignment), false);
+            ContentPositioningBehaviorProperty = new UIXPropertySchema(ownerTypeId, "ContentPositioningBehavior", UIXTypeID.ContentPositioningPolicy, -1, ExpressionRestriction.None, false, null, true, new GetValueHandler(GetContentPositioningBehavior), new SetValueHandler(SetContentPositioningBehavior), false);
+            CanScrollUpProperty = new UIXPropertySchema(ownerTypeId, "CanScrollUp", UIXTypeID.Boolean, -1, ExpressionRestriction.ReadOnly, false, null, true, new GetValueHandler(GetCanScrollUp), null, false);
+            CanScrollDownProperty = new UIXPropertySchema(ownerTypeId, "CanScrollDown", UIXTypeID.Boolean, -1, ExpressionRestriction.ReadOnly, false, null, true, new GetValueHandler(GetCanScrollDown), null, false);
+            CurrentPageProperty = new UIXPropertySchema(ownerTypeId, "CurrentPage", UIXTypeID.Single, -1, ExpressionRestriction.ReadOnly, false, null, true, new GetValueHandler(GetCurrentPage), null, false);
+            TotalPagesProperty = new UIXPropertySchema(ownerTypeId, "TotalPages", UIXTypeID.Single, -1, ExpressionRestriction.ReadOnly, false, null, true, new GetValueHandler(GetTotalPages), null, false);
+
+            ScrollInt32Method = new UIXMethodSchema(ownerTypeId, "Scroll", [UIXTypeID.Int32], UIXTypeID.Void, new InvokeHandler(CallScrollInt32), false);
+            ScrollFocusIntoViewMethod = new UIXMethodSchema(ownerTypeId, "ScrollFocusIntoView", [], UIXTypeID.Void, new InvokeHandler(CallScrollFocusIntoView), false);
+            ScrollUpMethod = new UIXMethodSchema(ownerTypeId, "ScrollUp", [], UIXTypeID.Void, new InvokeHandler(CallScrollUp), false);
+            ScrollDownMethod = new UIXMethodSchema(ownerTypeId, "ScrollDown", [], UIXTypeID.Void, new InvokeHandler(CallScrollDown), false);
+            PageUpMethod = new UIXMethodSchema(ownerTypeId, "PageUp", [], UIXTypeID.Void, new InvokeHandler(CallPageUp), false);
+            PageDownMethod = new UIXMethodSchema(ownerTypeId, "PageDown", [], UIXTypeID.Void, new InvokeHandler(CallPageDown), false);
+            HomeMethod = new UIXMethodSchema(ownerTypeId, "Home", [], UIXTypeID.Void, new InvokeHandler(CallHome), false);
+            EndMethod = new UIXMethodSchema(ownerTypeId, "End", [], UIXTypeID.Void, new InvokeHandler(CallEnd), false);
+            ScrollToPositionSingleMethod = new UIXMethodSchema(ownerTypeId, "ScrollToPosition", [UIXTypeID.Single], UIXTypeID.Void, new InvokeHandler(CallScrollToPositionSingle), false);
+
+            Type.Initialize(Construct, ConstructorSchema.EmptyList,
+            [   // Properties
+                BeginPaddingProperty,
+                BeginPaddingRelativeToProperty,
+                CanScrollDownProperty,
+                CanScrollUpProperty,
+                ContentPositioningBehaviorProperty,
+                CurrentPageProperty,
+                EnabledProperty,
+                EndPaddingProperty,
+                EndPaddingRelativeToProperty,
+                LockedProperty,
+                LockedAlignmentProperty,
+                LockedPositionProperty,
+                PageSizedScrollStepProperty,
+                PageStepProperty,
+                ScrollStepProperty,
+                TotalPagesProperty
+            ],
+            [   // Methods
+                ScrollInt32Method,
+                ScrollFocusIntoViewMethod,
+                ScrollUpMethod,
+                ScrollDownMethod,
+                PageUpMethod,
+                PageDownMethod,
+                HomeMethod,
+                EndMethod,
+                ScrollToPositionSingleMethod
+            ], EventSchema.EmptyList, null, null, null, null, null, null, null);
         }
     }
 }
