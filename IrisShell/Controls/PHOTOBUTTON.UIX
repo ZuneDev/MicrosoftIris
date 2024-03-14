@@ -1,0 +1,53 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX 
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:thumbbutton="res://ZuneShellResources!ThumbnailButton.uix"
+  xmlns:lib="res://ZuneShellResources!LibraryPanels.uix"
+  xmlns:me="Me">
+  
+  
+  
+  
+  
+  <UI Name="PhotoButtonBase" Base="thumbbutton:ThumbnailButtonBase">
+    <Properties>
+      <Type Name="ThumbnailCaptionAreaType" Type="{typeof(me:ThumbnailCaptionArea)}"/>
+
+      
+      <style:Style Name="PrimaryStyle" Style="{styles:SharedStyles.PhotoVideoLabelStyle}"/>
+      <style:Style Name="SecondaryStyle" Style="{styles:SharedStyles.PhotoVideoLabelStyle}"/>
+      <style:Style Name="OverlayStyle" Style="{styles:SharedStyles.ThumbnailOverlayLabelStyle}"/>
+
+      <AnchorLayoutInput Name="LabelAnchor" 
+          Left="Image,0" Right="Image,1" Horizontal="Near" 
+          Top="Image,1,5" Bottom="Parent,1,999" Vertical="Near"/>
+
+      <StretchingPolicy Name="StretchingPolicy" StretchingPolicy="Uniform"/>    
+      
+      <Vector3 Name="HoverScale" Vector3="1.03,1.03,1.0" />
+    </Properties>
+
+    <Scripts>
+      <Script>ImageBorder.Content = Color.White;</Script>
+
+      
+      <Script>
+        Root.MouseInteractive = false;
+        ImageBorder.MouseInteractive = true;
+        LabelArea.MouseInteractive = true;
+      </Script>
+    </Scripts>
+  </UI>
+  
+  
+  
+  
+  <UI Name="ThumbnailCaptionArea" Base="lib:ThumbnailCaptionArea">
+    <Properties>
+      <Type Name="PrimaryLabelType" Type="{typeof(thumbbutton:EditableLabelHost)}"/>
+    </Properties>
+  </UI>
+  
+</UIX>

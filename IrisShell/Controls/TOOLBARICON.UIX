@@ -1,0 +1,47 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX xmlns="http://schemas.microsoft.com/2007/uix"
+     >
+
+  
+  
+  
+  
+  <UI Name="ToolbarIconBase">
+    <Properties>
+      <String Name="ToolbarText"/>
+    </Properties>
+    <Locals>      
+      <String Name="ToolbarActiveText"/>
+      <String Name="ToolbarInactiveText"/>
+      <Boolean Name="IsActive"/>
+    </Locals>
+
+    <Input>
+      <DropTargetHandler Name="Target" HandlerStage="Bubbled"/>      
+    </Input>
+   
+    <Scripts>
+      
+      
+      <Script>
+        [DeclareTrigger(UI.DeepMouseFocus)]
+        [DeclareTrigger(Target.Dragging)]
+        if (Target.Dragging || UI.DeepMouseFocus)
+        {
+          if(IsActive)
+          {
+            ToolbarText = ToolbarActiveText;
+          } 
+          else 
+          {
+            ToolbarText = ToolbarInactiveText;
+          }
+        } 
+        else 
+        {
+          ToolbarText = "";
+        }
+      </Script>    
+    </Scripts>
+  </UI>
+</UIX>

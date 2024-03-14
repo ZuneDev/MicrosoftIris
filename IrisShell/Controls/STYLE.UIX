@@ -1,0 +1,354 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris" 
+  xmlns:me="Me">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  <Class Name="Style">
+    <Properties>
+      <Color Name="Color" Color="Transparent"/>
+      <Font Name="Font" Font="Arial, 12"/>
+      <TextStyle Name="TextStyle" TextStyle="{null}"/>
+      <Inset Name="TextMargins"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  
+  
+  
+  
+  <Class Name="CompositeStyle" Base="me:Style">
+    <Properties>
+      <me:Style Name="Base"/>
+      <me:Style Name="Override" Style="{null}"/>
+    </Properties>
+
+    <Scripts>
+      <Script>
+        <![CDATA[
+        if (Override != null && Override.Color.A > (Byte)0)
+          Color = Override.Color;
+        else if (Base.Color.A > (Byte)0)
+          Color = Base.Color;
+        ]]>
+      </Script>
+      <Script>
+        <![CDATA[
+        if (Override != null && Override.Font != null)
+          Font = Override.Font;
+        else if (Base.Font != null)
+          Font = Base.Font;
+        ]]>
+      </Script>
+      <Script>
+        <![CDATA[
+        if (Override != null && Override.TextStyle != null)
+          TextStyle = Override.TextStyle;
+        else if (Base.TextStyle != null)
+          TextStyle = Base.TextStyle;
+        ]]>
+      </Script>
+      <Script>
+        <![CDATA[
+        if (Override != null)
+          TextMargins = Override.TextMargins;
+        else
+          TextMargins = Base.TextMargins;
+        ]]>
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+  
+  
+  
+  <Class Name="StyleState">
+    <Properties>
+      <Boolean Name="Disabled" Boolean="false"/>
+      <Boolean Name="Selected" Boolean="false"/>
+      <Boolean Name="Focused"  Boolean="false"/>
+      <Boolean Name="Hovered"  Boolean="false"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  
+  <Class Name="StatefulCompositeStyle" Base="me:CompositeStyle">
+    <Properties>
+      <me:StyleState Name="State"/>
+    </Properties>
+
+    <Scripts>
+      <Script>
+        if (Base is me:StatefulStyleSet)
+          ((me:StatefulStyleSet)Base).State = State;
+        if (Override is me:StatefulStyleSet)
+          ((me:StatefulStyleSet)Override).State = State;
+      </Script>
+
+      <Script>
+        if (Override is me:StyleSet)
+        {
+          me:StatefulStyleSet stateful = new me:StatefulStyleSet();
+          stateful.Styles = (me:StyleSet)Override;
+          Override = stateful;
+        }
+      </Script>
+      <Script>
+        if (Base is me:StyleSet)
+        {
+          me:StatefulStyleSet stateful = new me:StatefulStyleSet();
+          stateful.Styles = (me:StyleSet)Base;
+          Base = stateful;
+        }
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+  
+  
+  
+  
+  
+  <Class Name="StyleSet" Base="me:Style">
+    <Properties>
+      <me:Style Name="Disabled" Style="{null}"/>
+      <me:Style Name="Selected" Style="{null}"/>
+      <me:Style Name="Focused"  Style="{null}"/>
+      <me:Style Name="Hovered"  Style="{null}"/>
+      <me:Style Name="Default"  Style="{null}"/>
+    </Properties>
+
+    <Scripts>
+      
+      
+      
+      <Script>
+        Color = Default.Color;
+        Font = Default.Font;
+        TextStyle = Default.TextStyle;
+        TextMargins = Default.TextMargins;
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+  
+  
+  
+  <Class Name="StatefulStyleSet" Base="me:CompositeStyle">
+    <Properties>
+      <me:StyleSet Name="Styles" StyleSet="{null}"/>
+      <me:StyleState Name="State" StyleState="{null}"/> 
+    </Properties>
+
+    <Scripts>
+      <Script>
+        <![CDATA[
+        if (Styles != null)
+        {
+          if (State.Disabled)
+            Override = Styles.Disabled;
+          else if (State.Hovered)
+          {
+            
+            if (Styles.Hovered != null)
+              Override = Styles.Hovered;
+            else
+              Override = Styles.Focused;
+          }
+          else if (State.Selected)
+            Override = Styles.Selected;
+          else if (State.Focused)
+            Override = Styles.Focused;
+          else
+            Override = Styles.Default;
+        }
+        ]]>
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+
+  
+  
+  
+  <UI Name="Default">
+    <Content>
+      <Panel>
+        <Layout>
+          <GridLayout Columns="3" Rows="1" MajorAlignment="Center" MinorAlignment="Center"/>
+        </Layout>
+        <Children>
+
+          <me:StyleTester>
+            <BaseStyle>
+              <me:Style Style="{me:UnitTestStyles.SimpleStyle}"/>
+            </BaseStyle>
+          </me:StyleTester>
+
+          <me:StyleTester>
+            <BaseStyle>
+              <me:Style Style="{me:UnitTestStyles.SimpleStyle}"/>
+            </BaseStyle>
+            <OverrideStyle>
+              <me:Style Font="Courier, 16"/>
+            </OverrideStyle>
+          </me:StyleTester>
+
+          <me:StyleTester>
+            <BaseStyle>
+              <me:Style Style="{me:UnitTestStyles.SimpleStyle}"/>
+            </BaseStyle>
+            <OverrideStyle>
+              <me:Style Style="{me:UnitTestStyles.BetterStyle}"/>
+            </OverrideStyle>
+          </me:StyleTester>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <Class Name="UnitTestStyles" Shared="true">
+    <Properties>
+      <me:SimpleStyle Name="SimpleStyle"/>
+
+      <me:BetterStyle Name="BetterStyle"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  <Class Name="SimpleStyle" Base="me:StyleSet">
+    <Properties>
+      <me:Style Name="Disabled" Color="Grey"    Font="Arial, 16" TextStyle="{null}"/>
+      <me:Style Name="Selected" Color="Purple"  Font="Arial, 16" TextStyle="{null}"/>
+      <me:Style Name="Focused"  Color="Pink"    Font="Arial, 18" TextStyle="{null}"/>
+      <me:Style Name="Hovered"  Color="Orange"  Font="Arial, 16" TextStyle="{null}"/>
+      <me:Style Name="Default"  Color="White"   Font="Arial, 16" TextStyle="{null}"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  <Class Name="BetterStyle" Base="me:StyleSet">
+    <Properties>
+      <TextStyle Name="TightSpacing" CharacterSpacing="0"/>
+      <TextStyle Name="WideSpacing" CharacterSpacing="0"/>
+
+      <me:Style Name="Disabled" Color="Grey"    Font="Segoe UI, 16" TextStyle="{WideSpacing}"/>
+      <me:Style Name="Selected" Color="Purple"  Font="Segoe UI, 16" TextStyle="{TightSpacing}"/>
+      <me:Style Name="Focused"  Color="Pink"    Font="Segoe UI, 16" TextStyle="{TightSpacing}"/>
+      <me:Style Name="Hovered"  Color="Orange"  Font="Segoe UI, 16" TextStyle="{TightSpacing}"/>
+      <me:Style Name="Default"  Color="White"   Font="Segoe UI, 16" TextStyle="{TightSpacing}"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  <UI Name="StyleTester">
+    <Properties>
+      <me:Style Name="BaseStyle"/>
+      <me:Style Name="OverrideStyle" Style="{null}"/>
+      <me:StyleState Name="State"/>
+    </Properties>
+
+    <Locals>
+      <me:StatefulCompositeStyle Name="Style" Base="{BaseStyle}" Override="{OverrideStyle}" State="{State}"/>
+
+      <iris:BooleanChoice Name="Hovered" Description="Hovered"/>
+      <iris:BooleanChoice Name="Focused" Description="Focused"/>
+      <iris:BooleanChoice Name="Selected" Description="Selected"/>
+      <iris:BooleanChoice Name="Disabled" Description="Disabled"/>
+    </Locals>
+
+    <Scripts>
+      <Script>Label.Font = Style.Font;</Script>
+      <Script>Label.Color = Style.Color;</Script>
+      <Script>Label.Style = Style.TextStyle;</Script>
+
+      <Script>State.Hovered = Hovered.Value;</Script>
+      <Script>State.Focused = Focused.Value;</Script>
+      <Script>State.Selected = Selected.Value;</Script>
+      <Script>State.Disabled = Disabled.Value;</Script>
+    </Scripts>
+
+    <Content>
+      <Panel Layout="VerticalFlow">
+        <Children>
+
+          <Text Name="Label" Content="Test Text" Margins="0,0,0,20"/>
+
+          <me:SimpleCheckBox Model="{Hovered}"/>
+          <me:SimpleCheckBox Model="{Focused}"/>
+          <me:SimpleCheckBox Model="{Selected}"/>
+          <me:SimpleCheckBox Model="{Disabled}"/>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="SimpleCheckBox">
+    <Properties>
+      <iris:BooleanChoice Name="Model" Description="Default"/>
+    </Properties>
+
+    <Input>
+      <ClickHandler Name="Clicky"/>
+    </Input>
+
+    <Scripts>
+      <Script>
+        [DeclareTrigger(Clicky.Invoked)]
+        Model.Value = !Model.Value;
+      </Script>
+
+      <Script>
+        Label.Content = "{0}: {1}".Format(Model.Description, Model.Value);
+      </Script>
+    </Scripts>
+
+    <Content>
+      <Text Name="Label" Color="White" Font="Arial, 12"/>
+    </Content>
+  </UI>
+
+</UIX>

@@ -1,0 +1,1475 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:style="clr-res://ZuneModdingHelper!Controls.Style.uix"
+  xmlns:me="Me">
+
+  
+  <Class Name="Styles" Shared="True">
+    <Properties>
+      
+      <!--<zune:FontLoader Name="FontLoader" Resource="ZuneShellResources.dll">
+        <Fonts>
+          <String String="EndurancePro-Bold.ttf"/>
+          <String String="EnduranceProCaps-Bold.ttf"/>
+          <String String="Zegoesb_U_AA.ttf"/>
+          <String String="Zegoeui_U_AA.ttf"/>
+          <String String="Zegoeuib_U_AA.ttf"/>
+          <String String="Cegoeuil_auto.ttf"/>
+          <String String="zegoecpb.ttf"/>
+        </Fonts>
+      </zune:FontLoader>-->
+
+      
+
+      
+      <Color Name="DarkGray"                  Color="55,46,31"/> 
+      <Color Name="WarmGray"                  Color="107,101,90"/>
+      <Color Name="LightGray"                 Color="238,238,238"/>
+      <Color Name="VeryLightGray"             Color="246,246,246"/>
+      <Color Name="RedOrange"                 Color="235,70,46"/>
+      <Color Name="Magenta"                   Color="241,13,162"/>
+
+      <Color Name="DoradoBlack"               Color="23,15,3"/>
+      <Color Name="HoverGray"                 Color="165,159,147"/>
+      <Color Name="NewWarmBrown"              Color="54,46,31"/>
+
+      <Color Name="MarketplaceDefault"        Color="{DarkGray}"/>
+      <Color Name="MarketplacePageTitle"      Color="93,85,72"/>
+
+      <Color Name="PrimaryLabel"              Color="{WarmGray}"/>
+      <Color Name="PrimaryLabelSelected"      Color="{DarkGray}"/>
+      <Color Name="PrimaryLabelDisabled"      Color="175,163,143"/>
+
+      <Color Name="LightOnDarkText"           Color="255,255,255"/>
+      <Color Name="LightOnDarkAltText"        Color="128,255,255,255"/>
+      <Color Name="LightOnDarkSubText"        Color="179,154,156"/>
+      <Color Name="SearchBoxBackground"       Color="White"/>
+
+      <Color Name="ListItemText"                Color="{DarkGray}"/>
+      <Color Name="ListItemHoverText"           Color="{WarmGray}"/>
+      <Color Name="ListItemSelectedText"        Color="{DarkGray}"/>
+      <Color Name="ListItemBackground"          Color="Transparent"/>
+      <Color Name="ListItemHoverBackground"     R="{DarkGray.R}" G="{DarkGray.G}" B="{DarkGray.B}" A="30"/>
+      <Color Name="ListItemSelectedBackground"  R="{DarkGray.R}" G="{DarkGray.G}" B="{DarkGray.B}" A="50"/>
+
+      <Color Name="ListHeaderBackground"        Color="Transparent"/>
+      <Color Name="ListHeaderHoverBackground"   Color="128,237,237,237"/>
+      <Color Name="ListHeaderActiveHoverBackground" Color="237,237,237"/>
+
+      <Color Name="SearchBoxBackgroundActive" Color="White"/>
+      <Color Name="SearchBoxTextColor"        Color="{WarmGray}"/>
+
+      <Color Name="NowPlayingBorderColor"     Color="154,154,154"/>
+
+      <Color Name="ColumnDivider"             Color="212,207,205"/>
+      <Color Name="SecondaryLabel"            Color="{MarketplacePageTitle}"/>
+
+      <Color Name="ThumbnailButton"           Color="{DarkGray}"/>
+
+      <Color Name="ThumbnailButtonSelected"   Color="{DarkGray}"/>
+      <Color Name="SecondaryThumbnailButton"  Color="{DarkGray}"/>
+      <Color Name="VideoBorderColor"          Color="179,172,158"/>
+      <Color Name="CaretColor"                Color="130,119,100"/>
+      <Color Name="HyperlinkColor"            Color="243,112,36"/>
+      <Color Name="ScrollBarThumb"            Color="58,50,31"/>
+      <Color Name="ScrollBarBackground"       Color="219,217,209"/>
+      <Color Name="ScrollPath"                Color="{ScrollBarBackground}"/>
+      <Color Name="ThumbnailRolloverColor"    Color="{Magenta}"/>
+      <Color Name="PhotoFolderCountColor"     Color="{LightOnDarkText}"/>
+      <Color Name="MenuItemSelectedBackground" Color="166,255,255,255"/>
+      <Color Name="TransportButtonPressedColor"   Color="59,41,12"/>
+      <Color Name="TransportButtonHoverColor"     Color="Black"/>
+      <Color Name="ActionButtonDisabled"      Color="211,208,197"/>
+      <Color Name="ActionButton"              Color="{WarmGray}"/>
+      <Color Name="ActionButtonProgress"      Color="{LightOnDarkText}"/>
+      <Color Name="ActionButtonShadow"        Color="{LightOnDarkText}"/>
+      <Color Name="NowPlayingButtonPressedColor"  Color="{DarkGray}"/>
+      <Color Name="NowPlayingButtonDisabledColor" Color="100,255,255,255"/>
+      <Color Name="NowPlayingButtonHoverColor"    Color="White"/>
+      <Color Name="NowPlayingButtonColor"         Color="127,255,255,255"/>
+
+      
+      <Color Name="PodcastPaneDescription"    Color="58,50,31"/>
+      <Color Name="EpisodePlayedColor"        Color="157,154,149"/>
+      <Color Name="EpisodeUnplayedColor"      Color="{WarmGray}"/>
+
+      
+      <Color Name="EditTextBackground"        Color="White"/>
+      <Color Name="EditText"                  Color="143,137,127"/>
+      <Color Name="EditTextBorder"            Color="209,204,201"/>
+      <Color Name="EditTextFocusedForeground" Color="White"/>
+      <Color Name="EditTextFocusedBackground" Color="{RedOrange}"/>
+
+      
+      <Color Name="JumpInListTextColor"        Color="White"/>
+      <Color Name="JumpInListFadeColor"        Color="150,59,41,12"/>
+
+      
+      <Color Name="SettingLinkText"           Color="{RedOrange}"/>
+      <Color Name="SettingLinkTextFocus"      Color="211,56,34"/>
+
+      <Color Name="IconNotificationTextColor"      Color="{WarmGray}"/>
+      <Color Name="IconNotificationBoldColor"      Color="{DarkGray}"/>
+
+
+      
+
+      
+
+      
+      <Color Name="ZuneMagenta"               Color="{Magenta}"/>
+      <Color Name="ZuneOrange"                Color="{RedOrange}"/>
+
+      
+      <Color Name="TextActive"                Color="{WarmGray}"/>
+      
+      <Color Name="TextInactive"              Color="128,85,87,87"/>
+      
+      <Color Name="TextSelected"              Color="{DarkGray}"/>
+
+      <Color Name="SettingsTextActive"        Color="{DarkGray}"/>
+
+      
+      <Color Name="TextFocusedForeground"     Color="{DarkGray}"/>
+      <Color Name="TextFocusedBackground"     Color="85,87,87"/>
+      
+      <Color Name="SectionHeadColor"          Color="{DarkGray}" />
+      
+      <Color Name="SectionSubHeadColor"       Color="{MarketplacePageTitle}"/>
+      
+      <Color Name="SearchResultsColor"        Color="{WarmGray}"/>
+      
+      <Color Name="SearchKeywordColor"        Color="{DarkGray}"/>
+      
+      <Color Name="SearchKeywordHeader"       Color="{WarmGray}"/>
+
+      <Color Name="DialogTextColor"           Color="{WarmGray}"/>
+      <Color Name="DialogHeaderColor"         Color="{DarkGray}"/>
+      <Color Name="DialogLinkColor"           Color="{RedOrange}"/>
+      <Color Name="DialogBackgroundFadeColor" Color="125,255,255,255"/>
+
+      <Color Name="CDLandTrackNumberDefaultColor"           Color="{WarmGray}"/>
+      <Color Name="CDLandTrackNumberSelectedColor"          Color="{DarkGray}"/>
+
+      <Color Name="DragFeedbackTextColor"     Color="White"/>
+
+      <Color Name="TransportVolumeColor"      Color="{DarkGray}"/>
+
+      <Color Name="NoCollectionHighlightText" Color="{Magenta}"/>
+
+      <Color Name="SyncPercentColor"          Color="{DarkGray}"/>
+      <Color Name="SyncHeaderColor"           Color="{DarkGray}"/>
+      <Color Name="SyncInformation"           Color="{WarmGray}"/>
+
+      <Color Name="SlideshowSyncHeaderColor"  Color="{LightOnDarkText}"/>
+      <Color Name="SlideshowSyncInformation"  Color="{LightOnDarkAltText}"/>
+
+      <Color Name="FUEWelcomeTextColor"       Color="222,219,209"/>
+      <Color Name="FUEBrightTextColor"        Color="White"/>
+      <Color Name="FUEBodyTextColor"          Color="202,199,189"/>
+      
+      <Color Name="FUEThumbColor"             Color="{DoradoBlack}"/>
+      <Color Name="FUEBarColor"               Color="{WarmGray}"/>
+      <Color Name="FUEPageColor"              Color="{FUEBodyTextColor}"/>
+      <Color Name="FUEScrollPathColor"        Color="{HoverGray}"/>
+
+      <Color Name="PodcastDescriptionColor"   Color="{WarmGray}"/>
+      <Color Name="WarningColor"              Color="Black"/>
+
+      <Color Name="InboxReadColor"            Color="157,154,149"/>
+      <Color Name="InboxUnreadColor"          Color="{WarmGray}"/>
+
+      
+
+      
+      <Font Name="ZegoeLight12"               Font="Cegoe UI Light,12"/>
+      <Font Name="ZegoeLight14"               Font="Cegoe UI Light,14"/>
+      <Font Name="ZegoeLight15"               Font="Cegoe UI Light,15"/>
+      <Font Name="ZegoeLight16"               Font="Cegoe UI Light,16"/>
+      <Font Name="ZegoeLight18"               Font="Cegoe UI Light,18"/>
+      <Font Name="ZegoeLight20"               Font="Cegoe UI Light,20"/>
+      <Font Name="ZegoeLight24"               Font="Cegoe UI Light,24"/>
+
+      <Font Name="Zegoe7"                     Font="Zegoe UI - U,7"/>
+      <Font Name="Zegoe8"                     Font="Zegoe UI - U,8"/>
+      <Font Name="Zegoe9"                     Font="Zegoe UI - U,9"/>
+      <Font Name="Zegoe10"                    Font="Zegoe UI - U,10"/>
+      <Font Name="Zegoe11"                    Font="Zegoe UI - U,11"/>
+      <Font Name="Zegoe12"                    Font="Zegoe UI - U,12"/>
+      <Font Name="Zegoe14"                    Font="Zegoe UI - U,14"/>
+      <Font Name="Zegoe16"                    Font="Zegoe UI - U,16"/>
+      <Font Name="Zegoe18"                    Font="Zegoe UI - U,18"/>
+      <Font Name="Zegoe21"                    Font="Zegoe UI - U,21"/>
+      <Font Name="Zegoe24"                    Font="Zegoe UI - U,24"/>
+      <Font Name="Zegoe42"                    Font="Zegoe UI - U,42"/>
+
+      <Font Name="ZegoeSemiBold7"             Font="Zegoe UI Semi Bold - U,7"/>
+      <Font Name="ZegoeSemiBold8"             Font="Zegoe UI Semi Bold - U,8"/>
+      <Font Name="ZegoeSemiBold9"             Font="Zegoe UI Semi Bold - U,9"/>
+      <Font Name="ZegoeSemiBold10"            Font="Zegoe UI Semi Bold - U,10"/>
+      <Font Name="ZegoeSemiBold11"            Font="Zegoe UI Semi Bold - U,11"/>
+      <Font Name="ZegoeSemiBold12"            Font="Zegoe UI Semi Bold - U,12"/>
+      <Font Name="ZegoeSemiBold14"            Font="Zegoe UI Semi Bold - U,14"/>
+
+      <Font Name="ZegoeBold7"                 Font="Zegoe UI - U,7,Bold"/>
+      <Font Name="ZegoeBold8"                 Font="Zegoe UI - U,8,Bold"/>
+      <Font Name="ZegoeBold9"                 Font="Zegoe UI - U,9,Bold"/>
+      <Font Name="ZegoeBold10"                Font="Zegoe UI - U,10,Bold"/>
+      <Font Name="ZegoeBold11"                Font="Zegoe UI - U,11,Bold"/>
+      <Font Name="ZegoeBold12"                Font="Zegoe UI - U,12,Bold"/>
+      <Font Name="ZegoeBold14"                Font="Zegoe UI - U,14,Bold"/>
+      <Font Name="ZegoeBold18"                Font="Zegoe UI - U,18,Bold"/>
+      <Font Name="ZegoeBold20"                Font="Zegoe UI - U,20,Bold"/>
+      <Font Name="ZegoeBold22"                Font="Zegoe UI - U,22,Bold"/>
+      <Font Name="ZegoeBold24"                Font="Zegoe UI - U,24,Bold"/>
+      <Font Name="ZegoeBold28"                Font="Zegoe UI - U,28,Bold"/>
+      <Font Name="ZegoeBold36"                Font="Zegoe UI - U,36,Bold"/>
+      <Font Name="ZegoeBold42"                Font="Zegoe UI - U,42,Bold"/>
+      <Font Name="ZegoeBold44"                Font="Zegoe UI - U,44,Bold"/>
+
+      <Font Name="ZegoeBold24Caps"            Font="Zegoe Caps,24,Bold"/>
+      <Font Name="ZegoeBold36Caps"            Font="Zegoe Caps,36,Bold"/>
+      
+      <Font Name="EnduranceProBold32"         Font="Endurance Pro,32,Bold"/>
+      <Font Name="EnduranceProCapsBold32"     Font="Endurance Pro Caps,32,Bold"/>
+      <Font Name="EnduranceProCapsBold36"     Font="Endurance Pro Caps,32,Bold"/>
+      <Font Name="EnduranceProCapsBold24"     Font="Endurance Pro Caps,24,Bold"/>
+      <Font Name="EnduranceProCapsBold20"     Font="Endurance Pro Caps,20,Bold"/>
+
+      <Font Name="ZegoeCaps7"                 Font="Zegoe Caps,7,Bold"/>
+      <Font Name="ZegoeCaps14"                Font="Zegoe Caps,14,Bold"/>
+      <Font Name="ZegoeCaps18"                Font="Zegoe Caps,18,Bold"/>
+      <Font Name="ZegoeCaps21"                Font="Zegoe Caps,21,Bold"/>
+      <Font Name="ZegoeCaps24"                Font="Zegoe Caps,24,Bold"/>
+
+      
+      <Font Name="PrimaryText"                Font="{ZegoeSemiBold9}"/>
+      
+      <Font Name="HeaderText"                 Font="{Zegoe8}"/>
+      <Font Name="MicroText"                  Font="{Zegoe7}"/>
+
+      
+      <Font Name="ExperienceText"             Font="{ZegoeBold10}"/>
+      
+      <Font Name="ColumnPlayText"             Font="{ZegoeBold7}"/>
+      
+      <Font Name="SelectedPivotText"          Font="{ZegoeBold10}"/>
+
+      <Font Name="ReviewHeader"               Font="{ZegoeBold42}"/>
+      <Font Name="ReviewSubHeader"            Font="{ZegoeCaps21}"/>
+      <Font Name="ReviewText"                 Font="{Zegoe10}"/>
+      <Font Name="PlaylistHeader"             Font="{ZegoeBold14}"/>
+      <Font Name="HyperlinkText"              Font="{Zegoe9}"/>
+
+      <Font Name="TransportTextPrimary"       Font="{Zegoe14}"/>
+      <Font Name="TransportTextSecondary"     Font="{Zegoe10}"/>
+      <Font Name="TransportTextTertiary"      Font="{Zegoe8}"/>
+      <Font Name="TransportVolumeFont"        Font="{ZegoeBold8}"/>
+
+      <Font Name="StandardHeaderText"         Font="{Zegoe16}"/>
+      <Font Name="StandardSubHeaderText"      Font="{Zegoe10}"/>
+
+
+      
+      <Font Name="SettingsTextHeader"         Font="{ZegoeBold42}"/>
+      <Font Name="SettingsTextDesc"           Font="{ZegoeBold24}"/>
+      <Font Name="SettingsTextSubHeader"      Font="{ZegoeSemiBold14}"/>
+      <Font Name="SettingsText"               Font="{ZegoeSemiBold10}"/>
+      <Font Name="SettingsTextMini"           Font="{Zegoe8}"/>
+
+      <Font Name="ButtonText"                 Font="{ZegoeBold7}"/>
+      <Font Name="BigButtonText"              Font="{ZegoeBold8}"/>
+
+      
+      <Font Name="MarketplaceListText"        Font="{ZegoeSemiBold10}"/>
+      <Font Name="MarketplaceHeader"          Font="{Zegoe14}"/>
+
+      <Font Name="ListItemNumber"             Font="{ZegoeSemiBold9}"/>
+
+      
+      <Font Name="SyncPercentComplete"        Font="{ZegoeLight20}"/>
+      <Font Name="SyncHeaderFont"             Font="{ZegoeSemiBold8}"/>
+      <Font Name="SyncInfoFont"               Font="{ZegoeSemiBold8}"/>
+
+      
+      <Font Name="InboxCategory"              Font="{ZegoeSemiBold14}"/>
+      <Font Name="InboxColumnHeader"          Font="{ZegoeBold7}"/>
+      <Font Name="InboxUnreadMessage"         Font="{ZegoeSemiBold10}"/>
+      <Font Name="InboxReadMessage"           Font="{ZegoeSemiBold10}"/>
+      <Font Name="DetailsSender"              Font="{ZegoeBold12}"/>
+      <Font Name="DetailsAlbumTitle"          Font="{Zegoe12}"/>
+      <Font Name="DetailsAlbumArtist"         Font="{Zegoe9}"/>
+      <Font Name="DetailsAlbumGenre"          Font="{Zegoe9}"/>
+      <Font Name="DetailsAlbumReleaseYear"    Font="{Zegoe9}"/>
+
+      
+      <Font Name="DetailTitle"            Font="{ZegoeSemiBold10}"/>
+      <Font Name="EpisodeListItem"        Font="{ZegoeSemiBold10}"/>
+
+      
+      <Font Name="DialogLargeHeaderText"  Font="{ZegoeBold22}"/>
+      <Font Name="DialogHeaderText"       Font="{ZegoeBold18}"/>
+      <Font Name="DialogSubHeaderText"    Font="{ZegoeBold9}"/>
+      <Font Name="DialogText"             Font="{ZegoeSemiBold9}"/>
+      <Font Name="DialogMediumText"       Font="{ZegoeSemiBold8}"/>
+      <Font Name="DialogSmallText"        Font="{ZegoeBold7}"/>
+      <Font Name="DialogListItem"         Font="{ZegoeSemiBold8}"/>
+
+      
+      <Font Name="DragFeedbackText"       Font="{ZegoeBold10}"/>
+
+      
+      <Font Name="SearchResultText"       Font="{ZegoeSemiBold10}"/>
+      <Font Name="SearchResultSmallText"  Font="{ZegoeSemiBold8}"/>
+      <Font Name="SearchHeaderText"       Font="{ZegoeBold7}"/>
+      <Font Name="SearchSubHeaderText"    Font="{ZegoeLight16}"/>
+
+      <Font Name="TopPivotText"           Font="{ZegoeSemiBold11}"/>
+      <Font Name="BottomPivotText"        Font="{Zegoe18}"/>
+      <Font Name="LibraryPivotText"       Font="{Zegoe14}"/>
+      <Font Name="SearchBoxText"          Font="{ZegoeSemiBold8}"/>
+      <Font Name="SignInButtonText"       Font="{ZegoeSemiBold8}"/>
+      <Font Name="SettingsButtonText"     Font="{ZegoeSemiBold8}"/> 
+
+      <Font Name="CDLandArtistName"       Font="{ZegoeBold36Caps}"/>
+      <Font Name="CDLandAlbumName"        Font="{ZegoeBold24Caps}"/>
+      <Font Name="CDLandAlbumYear"        Font="{Zegoe12}"/>
+      <Font Name="CDLandAlbumGenre"       Font="{Zegoe12}"/>
+      <Font Name="CDLandTrackNumber"      Font="{ZegoeLight14}"/>
+      <Font Name="CDLandTrackName"        Font="{ZegoeSemiBold10}"/>
+
+      <Font  Name="JumpInListFont"        Font="{ZegoeBold28}"/>
+
+      <Font Name="HyperlinkFont"          Font="{ZegoeSemiBold9}"/>
+
+      <Font Name="IconNotificationTextFont"      Font="{ZegoeSemiBold8}"/>
+
+      <Font Name="PodcastDescriptionFont"        Font="{Zegoe10}"/>
+      <Font Name="WarningFont"                   Font="{ZegoeBold7}"/>
+      <Font Name="PodcastTitleFont"              Font="{ZegoeCaps18}"/>
+
+
+      <TextStyle Name="BottomPivotTextTracking"/>
+      <TextStyle Name="MarketplaceHubListTracking"/>
+
+      
+      
+      <Single Name="FullBleedPhotoAspectToleranceMin" Single="0.85"/>
+      <Single Name="FullBleedPhotoAspectToleranceMax" Single="1.25"/>
+
+
+      <Inset Name="FrameMargins" Inset="55,22,55,0"/>
+
+      <Inset Name="VideoMarginsGDIMode" Inset="3, 40, 3, 88"/>
+
+      
+      
+      
+      
+      <Size  Name="ListItemSize" Size="0,23"/>
+      <Inset Name="ListItemMargins" Inset="0,3,0,3"/>
+
+      <Size  Name="LibraryListLayoutSpacing" Size="0,1"/>
+      <Size  Name="LibraryListItemSize" Size="0,21"/>
+      <Inset Name="LibraryListItemMargins" Inset="0,1,0,3"/>
+
+      <Inset Name="ListBoxItemPadding" Inset="0,2,0,2"/>
+      <Inset Name="CellPadding" Inset="13,0,5,0"/>
+
+
+      
+
+      <Image Name="SearchBoxBackgroundImage"       Source="res://ZuneShellResources!SearchBox.Background.png" NineGrid="4,4,4,4"/>
+      <Image Name="SearchBoxBackgroundImageActive" Source="res://ZuneShellResources!SearchBox.Background.Active.png" NineGrid="4,4,4,4"/>
+
+      <Image Name="ExternalLink"          Source="res://ZuneShellResources!Icon.ExternalLink.png"/>
+      <Image Name="Video"                 Source="res://ZuneShellResources!Icon.Video.png"/>
+      <Image Name="VideoHeader"           Source="res://ZuneShellResources!Icon.Video.Header.png"/>
+      <Image Name="PageCurrent"           Source="res://ZuneShellResources!Icon.Page.Current.png"/>
+      <Image Name="PageOther"             Source="res://ZuneShellResources!Icon.Page.Other.png"/>
+
+      <Image Name="ZuneLogo"              Source="res://ZuneShellResources!ZuneLogo.png"/>
+      <Image Name="ZuneColorLogo"         Source="res://ZuneShellResources!ZuneColorLogo.png"/>
+
+      <Image Name="RatingHeader"          Source="res://ZuneShellResources!Rating.Header.png"/>
+
+      
+      <Image Name="RatingNotRatedDefault" Source="res://ZuneShellResources!Rating.Default.png"/>
+
+      <Image Name="RatingNotRated"        Source="res://ZuneShellResources!Rating.NotRated.png"/>
+      <Image Name="RatingNotRatedHover"   Source="res://ZuneShellResources!Rating.NotRated.Hover.png"/>
+      <Image Name="RatingNotRatedPressed" Source="res://ZuneShellResources!Rating.NotRated.Click.png"/>
+
+      <Image Name="RatingLikeIt"          Source="res://ZuneShellResources!Rating.LikeIt.png"/>
+      <Image Name="RatingLikeItHover"     Source="res://ZuneShellResources!Rating.LikeIt.Hover.png"/>
+      <Image Name="RatingLikeItPressed"   Source="res://ZuneShellResources!Rating.LikeIt.Click.png"/>
+      <Image Name="RatingLikeItSelected"  Source="res://ZuneShellResources!Rating.LikeIt.Selected.png"/>
+
+      <Image Name="RatingHateIt"          Source="res://ZuneShellResources!Rating.HateIt.png"/>
+      <Image Name="RatingHateItHover"     Source="res://ZuneShellResources!Rating.HateIt.Hover.png"/>
+      <Image Name="RatingHateItPressed"   Source="res://ZuneShellResources!Rating.HateIt.Click.png"/>
+      <Image Name="RatingHateItSelected"  Source="res://ZuneShellResources!Rating.HateIt.Selected.png"/>
+
+      <Image Name="SortArrowUp"           Source="res://ZuneShellResources!SortArrow.Up.png"/>
+      <Image Name="SortArrowDown"         Source="res://ZuneShellResources!SortArrow.Down.png"/>
+
+      <Image Name="Points"                Source="res://ZuneShellResources!Points.Top.png"/>
+      <Image Name="PointsButton"          Source="res://ZuneShellResources!Points.Button.png"/>
+      <Image Name="PointsInline"          Source="res://ZuneShellResources!Points.Inline.png"/>
+
+      <Image Name="ScrollbarShadowHoverVert"      Source="res://ZuneShellResources!Scrollbar.Hover.Shadow.Vert.png" NineGrid="3,3,3,3"/>
+      <Image Name="ScrollbarShadowHoverHoriz"     Source="res://ZuneShellResources!Scrollbar.Hover.Shadow.Horiz.png" NineGrid="3,3,3,3"/>
+      <Image Name="ScrollbarShadowPressedVert"    Source="res://ZuneShellResources!Scrollbar.Pressed.Shadow.Vert.png" NineGrid="3,3,3,3"/>
+      <Image Name="ScrollbarShadowPressedHoriz"   Source="res://ZuneShellResources!Scrollbar.Pressed.Shadow.Horiz.png" NineGrid="3,3,3,3"/>
+      <Image Name="ScrollbarAccentHoriz"          Source="res://ZuneShellResources!Scrollbar.Accent.Horiz.png"/>
+      <Image Name="ScrollbarAccentVert"           Source="res://ZuneShellResources!Scrollbar.Accent.Vert.png"/>
+      <Image Name="ScrollbarArrowLeft"            Source="res://ZuneShellResources!Scrollbar.Arrow.Left.png"/>
+      <Image Name="ScrollbarArrowUp"              Source="res://ZuneShellResources!Scrollbar.Arrow.Up.png"/>
+      <Image Name="ScrollbarArrowRight"           Source="res://ZuneShellResources!Scrollbar.Arrow.Right.png"/>
+      <Image Name="ScrollbarArrowDown"            Source="res://ZuneShellResources!Scrollbar.Arrow.Down.png"/>
+
+      <Image Name="NowPlaying"                    Source="res://ZuneShellResources!Icon.NowPlaying.png"/>
+      <Image Name="SyncHeader"                    Source="res://ZuneShellResources!Sync.Header.png"/>
+      <Image Name="MP3Overlay"                    Source="res://ZuneShellResources!MP3Overlay.png"/>
+      <Image Name="NotAvailableOverlay"           Source="res://ZuneShellResources!NotAvailableOverlay.png"/>
+
+      <Image Name="JumpInBorder"         Source="res://ZuneShellResources!JumpInBorder.png"/>
+
+      
+      <Image Name="SyncingIcon" Source="res://ZuneShellResources!Sync.ActivelySyncing.png"/>
+      <Image Name="OnDeviceIcon" Source="res://ZuneShellResources!Sync.OnDevice.png"/>
+      <Image Name="OnDeviceIconHover" Source="res://ZuneShellResources!Sync.OnDevice.Hover.png"/>
+      <Image Name="ExcludedIcon" Source="res://ZuneShellResources!Sync.Excluded.png"/>
+      <Image Name="ExcludedIconHover" Source="res://ZuneShellResources!Sync.Excluded.Hover.png"/>
+      
+      
+      <List Name="SyncIconImages">
+        <Source>
+          <Image Image="{SyncingIcon}"/>
+          <Image Image="{OnDeviceIcon}"/>
+          <Image Image="{ExcludedIcon}"/>
+          <Image Image="{null}"/>
+        </Source>
+      </List>
+      
+      
+      <List Name="SyncIconHoverImages">
+        <Source>
+          <Image Image="{SyncingIcon}"/>
+          <Image Image="{OnDeviceIconHover}"/>
+          <Image Image="{ExcludedIconHover}"/>
+          <Image Image="{null}"/>
+        </Source>
+      </List>
+      
+      
+      <Color Name="GasGaugeFreeSpace"            Color="Transparent"/>
+      <Color Name="GasGaugeBorder"               Color="White"/>
+      <Color Name="GasGaugeMiniBorder"           Color="Black"/>
+      <Color Name="GasGaugeUnimportantUsedSpace" Color="{DarkGray}"/>
+      <Color Name="GasGaugeImportantUsedSpace"   Color="{LightGray}"/>
+      <Color Name="GasGaugeNewlyUsedSpace"      Color="{ZuneMagenta}"/>
+
+      <Image Name="NoAlbumArt"              Source="res://ZuneShellResources!NoArt.png"/>
+      <Image Name="NoAlbumArtNowPlayingBig" Source="res://ZuneShellResources!NoArt.NowPlaying.Big.png" AntialiasEdges="{me:ImageStyles.AntialiasEdges}"/>
+      <Image Name="NoArtWide"               Source="res://ZuneShellResources!NoArt.Wide.png"/>
+      <Image Name="NoArtWider"              Source="res://ZuneShellResources!NoArt.Wider.png"/>
+      <Image Name="NoAlbumArtRip"           Source="res://ZuneShellResources!NoArt.Rip.png" AntialiasEdges="{me:ImageStyles.AntialiasEdges}"/>
+      <Image Name="NoAlbumArtBurn"          Source="res://ZuneShellResources!NoArt.Burn.png" AntialiasEdges="{me:ImageStyles.AntialiasEdges}"/>
+
+      <Image Name="DragSelectRect"      Source="res://ZuneShellResources!DragSelectRect.png" NineGrid="2,2,2,2"/>
+      <Image Name="DragFallback"        Source="res://ZuneShellResources!DragFallback.png"/>
+      <Image Name="DragFeedbackGlow"    Source="res://ZuneShellResources!DragFeedbackGlow.png" NineGrid="6,6,6,6"/>
+      <Image Name="DragFeedbackLabel"   Source="res://ZuneShellResources!DragFeedbackLabel.png" NineGrid="4,4,4,4"/>
+      <Image Name="DragCancel"          Source="res://ZuneShellResources!DragCancel.png"/>
+      <Image Name="DragCopy"            Source="res://ZuneShellResources!DragCopy.png"/>
+
+      
+      <Inset Name="ButtonNineGrid"      Inset="11,0,11,0"/>
+      <Image Name="Button"              Source="res://ZuneShellResources!ActionButton.png"          NineGrid="{ButtonNineGrid}"/>
+      <Image Name="ButtonHover"         Source="res://ZuneShellResources!ActionButton.Hover.png"    NineGrid="{ButtonNineGrid}"/>
+      <Image Name="ButtonPressed"       Source="res://ZuneShellResources!ActionButton.Pressed.png"  NineGrid="{ButtonNineGrid}"/>
+      <Image Name="ButtonDisabled"      Source="res://ZuneShellResources!ActionButton.Disabled.png" NineGrid="{ButtonNineGrid}"/>
+      <Image Name="ButtonProgress"      Source="res://ZuneShellResources!ActionProgressButton.ProgressBar.png" NineGrid="{ButtonNineGrid}"/>
+      <Image Name="ButtonProgressBackground" Source="res://ZuneShellResources!ActionProgressButton.ProgressBackground.png" NineGrid="{ButtonNineGrid}"/>
+
+      <Inset Name="BigButtonNineGrid"   Inset="13,0,13,0"/>
+      <Image Name="BigButton"           Source="res://ZuneShellResources!BigActionButton.png"          NineGrid="{BigButtonNineGrid}"/>
+      <Image Name="BigButtonHover"      Source="res://ZuneShellResources!BigActionButton.Hover.png"    NineGrid="{BigButtonNineGrid}"/>
+      <Image Name="BigButtonPressed"    Source="res://ZuneShellResources!BigActionButton.Pressed.png"  NineGrid="{BigButtonNineGrid}"/>
+      <Image Name="BigButtonDisabled"   Source="res://ZuneShellResources!BigActionButton.Disabled.png" NineGrid="{BigButtonNineGrid}"/>
+
+      <Inset Name="NowPlayingButtonNineGrid"   Inset="15,0,15,0"/>
+      <Image Name="NowPlayingButton"           Source="res://ZuneShellResources!NowPlaying.Button.png"          NineGrid="{NowPlayingButtonNineGrid}"/>
+      <Image Name="NowPlayingButtonHover"      Source="res://ZuneShellResources!NowPlaying.Button.Hover.png"    NineGrid="{NowPlayingButtonNineGrid}"/>
+      <Image Name="NowPlayingButtonPressed"    Source="res://ZuneShellResources!NowPlaying.Button.Pressed.png"  NineGrid="{NowPlayingButtonNineGrid}"/>
+      <Image Name="NowPlayingButtonDisabled"   Source="res://ZuneShellResources!NowPlaying.Button.Disabled.png" NineGrid="{NowPlayingButtonNineGrid}"/>
+
+      <List Name="NowPlayingNoArt">
+        <Source>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_01.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_02.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_03.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_04.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_05.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtLogo_06.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_01a.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_01b.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_01c.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_01d.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_02a.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_02b.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_02c.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_02d.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_03a.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_03b.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_03c.png"/>
+          <Image Source="res://ZuneShellResources!NowPlayingArtShape_03d.png"/>
+        </Source>
+      </List>
+
+      <Inset Name="TransportButtonNineGrid"   Inset="15,0,15,0"/>
+      <Image Name="TransportButton"           Source="res://ZuneShellResources!Transport.ActionButton.png"          NineGrid="{TransportButtonNineGrid}"/>
+      <Image Name="TransportButtonHover"      Source="res://ZuneShellResources!Transport.ActionButton.Hover.png"    NineGrid="{TransportButtonNineGrid}"/>
+      <Image Name="TransportButtonPressed"    Source="res://ZuneShellResources!Transport.ActionButton.Pressed.png"  NineGrid="{TransportButtonNineGrid}"/>
+      <Image Name="TransportButtonDisabled"   Source="res://ZuneShellResources!Transport.ActionButton.Disabled.png" NineGrid="{TransportButtonNineGrid}"/>
+
+      
+      
+      <Image Name="DividerVertical"           Source="res://ZuneShellResources!Divider.Vertical.png"/>
+      <Image Name="DividerHorizontal"         Source="res://ZuneShellResources!Divider.Horizontal.png"/>
+      <Image Name="DividerVerticalSettings"   Source="res://ZuneShellResources!Divider.Settings.png"/>
+
+      
+      <Image Name="DialogBackground" Source="res://ZuneShellResources!DialogBackground.png"/>
+      <Image Name="DialogDropShadow" Source="res://ZuneShellResources!DialogDropShadow.png" NineGrid="12,12,12,12"/>
+      <Image Name="ToolTipDropShadow" Source="res://ZuneShellResources!ToolTipDropShadow.png" NineGrid="5,3,5,5"/>
+      <Image Name="ContextMenuDropShadow" Source="res://ZuneShellResources!ContextMenuDropShadow.png" NineGrid="8,8,12,12"/>
+
+      
+      <Image Name="ThumbnailShadow"        Source="res://ZuneShellResources!ThumbnailShadow.png" NineGrid="4,4,4,4"/>
+      <Image Name="ThumbnailClickShadow"   Source="res://ZuneShellResources!ThumbnailClickShadow.png" NineGrid="4,4,4,4"/>
+      <Image Name="ThumbnailClickOverlay"  Source="res://ZuneShellResources!ThumbnailClickOverlay.png"/>
+      <Image Name="ThumbnailRollover"      Source="res://ZuneShellResources!ThumbnailRollover.png" NineGrid="8,8,8,8"/>
+      <Image Name="AttentionImage"         Source="res://ZuneShellResources!Attention.png"/>
+      <Image Name="AttentionBigImage"      Source="res://ZuneShellResources!Attention.Big.png"/>
+
+      
+      <Image Name="SliderBackground"     Source="res://ZuneShellResources!Slider.Background.png" NineGrid="2,2,2,2"/>
+      <Image Name="SliderThumb"          Source="res://ZuneShellResources!Slider.Tinkerbell.png"/>
+      <Image Name="SliderHoverThumb"     Source="res://ZuneShellResources!Slider.Tinkerbell.png"/>
+      <Image Name="SliderFill"           Source="res://ZuneShellResources!Slider.Filled.png"/>
+      <Image Name="SlideshowSliderBackground" Source="res://ZuneShellResources!Slider.Slideshow.Background.png" NineGrid="8,2,8,2"/>
+      <Image Name="SlideshowSliderThumb"      Source="res://ZuneShellResources!Slider.Slideshow.Tinkerbell.png"/>
+      <Image Name="SlideshowSliderHoverThumb" Source="res://ZuneShellResources!Slider.Slideshow.Tinkerbell.png"/>
+      <Image Name="SlideshowSliderFill"       Source="res://ZuneShellResources!Slider.Slideshow.Filled.png"/>
+
+      <Int32 Name="DefaultBackgroundIndex" Int32="0"/>
+      <Inset Name="BackgroundMargins"       Inset="100,100,100,100"/>
+      <Image Name="DefaultBackgroundImage"
+             Source="res://ZuneShellResources!FrameBackground04.png"
+             NineGrid="{BackgroundMargins}"/>
+
+      <Image Name="EnergyBar"               Source="res://ZuneShellResources!EnergyBar.png"/>
+      <Image Name="AlbumSmallShadow"        Source="res://ZuneShellResources!Album.Small.Shadow.png" NineGrid="8,8,8,8"/>
+      <Image Name="Grabber"                 Source="res://ZuneShellResources!Grabber.png"/>
+
+      <Image Name="CDImage"                 Source="res://ZuneShellResources!Icon.Burn.png"/>
+      <Image Name="CDImageSmall"            Source="res://ZuneShellResources!SmallRipBurnIcon.png"/>
+      <Image Name="CDShine"                 Source="res://ZuneShellResources!CDLandShine.png"/>
+      <Image Name="DownloadIconSmall"       Source="res://ZuneShellResources!SmallDownloadIcon.png"/>
+
+      <Image Name="FUEBackground"           Source="res://ZuneShellResources!FUE.Background.png"/>
+      <Image Name="FUEPatternBL"            Source="res://ZuneShellResources!FUE.Pattern.BL.png"/>
+      <Image Name="FUEPatternTR"            Source="res://ZuneShellResources!FUE.Pattern.TR.png"/>
+      <Image Name="FUEPatternBR"            Source="res://ZuneShellResources!FUE.Pattern.BR.png"/>
+      <Image Name="FUESpotlight"            Source="res://ZuneShellResources!Spotlight.png"/>
+      <Image Name="FUESpotlightLarge"       Source="res://ZuneShellResources!Spotlight.Large.png"/>
+      <Image Name="FUEZuneGemFull"          Source="res://ZuneShellResources!FUE.Gem.4.png"/>
+      <Image Name="FUEZuneFull"             Source="res://ZuneShellResources!FUE.Zune.Full.png"/>
+
+      <Image Name="LoadingBackground"       Source="res://ZuneShellResources!Loading.Background.png"/>
+      <Image Name="Img_Zune_Gem0"           Source="res://ZuneShellResources!Loading.Logo.png"/>
+      <Image Name="Img_Zune_Gem1"           Source="res://ZuneShellResources!Loading.Logo.01.png"/>
+      <Image Name="Img_Zune_Gem2"           Source="res://ZuneShellResources!Loading.Logo.02.png"/>
+      <Image Name="Img_Zune_Gem3"           Source="res://ZuneShellResources!Loading.Logo.03.png"/>
+      <Image Name="Img_Zune_Gem4"           Source="res://ZuneShellResources!Loading.Logo.04.png"/>
+      <Image Name="Img_Zune_Gem5"           Source="res://ZuneShellResources!Loading.Logo.05.png"/>
+      <Image Name="Img_Zune_Gem6"           Source="res://ZuneShellResources!Loading.Logo.06.png"/>
+      <Image Name="Img_Zune_Gem7"           Source="res://ZuneShellResources!Loading.Logo.07.png"/>
+      <Image Name="Img_Zune_Gem8"           Source="res://ZuneShellResources!Loading.Logo.08.png"/>
+
+      <Image Name="WarningBackground"       Source="res://ZuneShellResources!WarningBackground.png" NineGrid="3,3,3,3"/>
+
+      <Image Name="NowPlayingBoxShadow"     Source="res://ZuneShellResources!NowPlayingBoxShadow.png" NineGrid="18,20,19,17"/>
+      <Image Name="NowPlayingShadow"        Source="res://ZuneShellResources!NowPlayingShadow.png" NineGrid="33,33,33,33"/>
+      <Image Name="NowPlayingFade"          Source="res://ZuneShellResources!NowPlayingFade.png"/>
+
+      <Image Name="SyncIconAnimBackground"  Source="res://ZuneShellResources!SyncIconAnimationBackground.png"/>
+      <Image Name="SyncGlow"                Source="res://ZuneShellResources!SyncGlow.png"/>
+
+      <Image Name="CDRipBurnGlow"           Source="res://ZuneShellResources!CDRipBurnGlow.png"/>
+      <Image Name="CDArtShadow"             Source="res://ZuneShellResources!CDArtShadow.png" NineGrid="10,10,10,10"/>
+
+      <Image Name="LeftMenuSelectArrow"     Source="res://ZuneShellResources!LeftMenu.Arrow.Selected.png"/>
+
+      
+      <Image Name="AspectFourByThree"       Source="res://ZuneShellResources!AspectRatio.FourByThree.png"/>
+
+      
+
+    </Properties>
+
+    <Scripts>
+      
+
+      <Script>
+        DefaultBackgroundImage.Load();
+        NoArtWide.Load();
+        NoArtWider.Load();
+      </Script>
+    </Scripts>
+  </Class>
+
+  <Class Name="WindowState" Shared="true">
+    <Properties>
+      <Boolean Name="InputActive"/>
+      <Boolean Name="KeysActive"/>
+
+      <Boolean Name="CanHideMouse"/>
+
+      
+      <Boolean Name="TopToolbarInputActivity"/>
+      <Boolean Name="BottomToolbarInputActivity"/>
+      <Boolean Name="CaptionInputActivity"/>
+      <Boolean Name="ResizeBorderInputActivity"/>
+      <Boolean Name="PageInputActivity"/>
+    </Properties>
+
+    <Scripts>
+      <Script>
+        bool inActiveRegion =
+             (TopToolbarInputActivity &amp;&amp; !CaptionInputActivity)
+          || BottomToolbarInputActivity
+          || ResizeBorderInputActivity
+          || PageInputActivity;
+
+        
+        
+
+        CanHideMouse = !inActiveRegion;
+      </Script>
+    </Scripts>
+  </Class>
+
+  <Class Name="SharedStyles" Shared="true">
+    <Properties>
+      <TextStyle Name="NegativeOneCharacterSpacing" CharacterSpacing="-1"/>
+      <me:ColumnHeaderStyle Name="ColumnHeaderStyle"/>
+      <me:LabelStyle Name="LabelStyle"/>
+      <me:ListItemStyle Name="ListItemStyle"/>
+      <me:InboxReadListItemStyle Name="InboxReadListItemStyle"/>
+      <me:InboxUnreadListItemStyle Name="InboxUnreadListItemStyle"/>
+      <me:TrackListItemStyle Name="TrackListItemStyle"/>
+      <me:TrackListItemDisabledStyle Name="TrackListItemDisabledStyle"/>
+      <me:ButtonStyle Name="ButtonStyle"/>
+      <me:ToggleTextStyle Name="ToggleTextStyle"/>
+      <me:SlideshowToggleTextStyle Name="SlideshowToggleTextStyle"/>
+      <me:RadioButtonStyle Name="RadioButtonStyle"/>
+      <me:ActionButtonStyle Name="ActionButtonStyle"/>
+      <me:NowPlayingButtonStyle Name="NowPlayingButtonStyle"/>
+      <me:TransportButtonStyle Name="TransportButtonStyle"/>
+      <me:LabelStyle Name="ActionButtonProgressStyle" Color="{me:Styles.ActionButtonProgress}"  Font="{me:Styles.ButtonText}"/>
+      <me:BigActionButtonShadowStyle Name="BigActionButtonShadowStyle"/>
+      <me:BigActionButtonStyle Name="BigActionButtonStyle"/>
+      <me:LabelStyle Name="ActionButtonShadowStyle"   Color="{me:Styles.ActionButtonShadow}"    Font="{me:Styles.ButtonText}"/>
+      <me:DialogButtonStyle Name="DialogButtonStyle"/>
+      <me:EditBoxStyle Name="EditBoxStyle"/>
+      <me:SearchEditBoxStyle Name="SearchEditBoxStyle"/>
+      <me:ThumbnailPrimaryLabelStyle Name="ThumbnailPrimaryLabelStyle"/>
+      <me:ThumbnailSecondaryLabelStyle Name="ThumbnailSecondaryLabelStyle"/>
+      <me:ThumbnailOverlayLabelStyle Name="ThumbnailOverlayLabelStyle"/>
+      <me:PhotoVideoLabelStyle Name="PhotoVideoLabelStyle"/>
+      <style:Style Name="PhotoFolderCountStyle" Font="{me:Styles.ZegoeBold42}" Color="{me:Styles.PhotoFolderCountColor}"/>
+      <me:SearchOverlayLabelStyle Name="SearchOverlayLabelStyle"/>
+      <me:ListViewColumnHeaderStyle Name="ListViewColumnHeaderStyle"/>
+      <me:ListViewSortsColumnHeaderStyle Name="ListViewSortsColumnHeaderStyle"/>
+      <me:ColumnHeaderDarkStyleSet Name="ColumnHeaderDarkStyleSet"/>
+      <me:ColumnHeaderStyleSet Name="ColumnHeaderStyleSet"/>
+      <me:MarketplaceExpandedSort Name="MarketplaceExpandedSort"/>
+      <me:MenuItemStyle Name="MenuItemStyle"/>
+      <me:MgmtMenuItemStyle Name="MgmtMenuItemStyle"/>
+      <me:MenuItemHeaderStyle Name="MenuItemHeaderStyle"/>
+      <me:MonitoredFoldersLabelStyle Name="MonitoredFoldersLabelStyle"/>
+      <me:MonitoredFoldersHeadersStyle Name="MonitoredFoldersHeadersStyle"/>
+      <me:DialogTextStyle Name="DialogTextStyle"/>
+      <me:DialogSmallTextStyle Name="DialogSmallTextStyle"/>
+      <me:DialogDarkTextStyle Name="DialogDarkTextStyle"/>
+      <me:DialogDarkMediumTextStyle Name="DialogDarkMediumTextStyle"/>
+      <me:DialogLinkStyle Name="DialogLinkStyle"/>
+      <me:DialogSubHeaderStyle Name="DialogSubHeaderStyle"/>
+      <me:DialogHeaderStyle Name="DialogHeaderStyle"/>
+      <me:DialogLargeHeaderStyle Name="DialogLargeHeaderStyle"/>
+      <me:DialogHyperlinkStyle Name="DialogHyperlinkStyle"/>
+      <TextStyle Name="DialogBoldTextStyle" FontFace="Zegoe UI - U" Bold="true"/>
+      <me:DragFeedbackStyle Name="DragFeedbackStyle"/>
+      <me:LabelStyle Name="GenreListText" Font="{me:Styles.Zegoe12}" Color="{me:Styles.SecondaryLabel}" TextMargins="0,-2,0,0"/>
+      <me:TopPivot Name="TopPivot"/>
+      <me:BottomPivot Name="BottomPivot"/>
+      <me:LibraryPivot Name="LibraryPivot"/>
+
+      <me:AlbumReviewHeader Name="AlbumReviewHeader"/>
+      <me:MarketplaceLeftFilter Name="MarketplaceLeftFilter"/>
+      <me:MarketplaceHeader Name="MarketplaceHeader"/>
+      <me:MarketplaceHubListPrimary Name="MarketplaceHubListPrimary"/>
+      <me:MarketplaceHubListSecondary Name="MarketplaceHubListSecondary"/>
+      <me:ZuneNetLinkStyle Name="ZuneNetLinkStyle"/>
+      <style:Style Name="PodcastAuthor"               Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.WarmGray}"/>
+      <style:Style Name="PodcastCategory"             Font="{me:Styles.ZegoeSemiBold8}"               Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="PodcastTitle"                Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="PodcastText"                 Font="{me:Styles.SettingsText}"                 Color="{me:Styles.TextActive}"/>
+      <style:Style Name="PodcastDesc"                 Font="{me:Styles.Zegoe9}"                       Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="PodcastCopyright"            Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.TextActive}"/>
+      <style:Style Name="MarketplaceTitle"            Font="{me:Styles.EnduranceProCapsBold32}"       Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="MarketplaceAlbumHeader"      Font="{me:Styles.ZegoeCaps18}"                  Color="{me:Styles.MarketplaceDefault}"/>
+      <me:MarketplaceInstanceMetadata Name="MarketplaceInstanceMetadata"/>
+      <me:MarketplaceSort Name="MarketplaceSort"/>
+      <style:Style Name="PlaylistMetadataPrimary"     Font="{me:Styles.Zegoe9}"                       Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="PlaylistMetadataSecondary"   Font="{me:Styles.Zegoe9}"                       Color="{me:Styles.WarmGray}"/>
+
+      <style:Style Name="LargeFeaturePrimary"         Font="{me:Styles.Zegoe24}"                  Color="{me:Styles.LightOnDarkText}"      TextMargins="0,0,0,-4"/>
+      <style:Style Name="LargeFeatureSecondary"       Font="{me:Styles.ZegoeSemiBold10}"          Color="{me:Styles.LightOnDarkText}"/>
+      <style:Style Name="GridFeaturePrimary"          Font="{me:Styles.ZegoeSemiBold12}"          Color="{me:Styles.LightOnDarkText}"      TextMargins="0,0,0,-2"/>
+      <style:Style Name="GridFeatureSecondary"        Font="{me:Styles.ZegoeSemiBold8}"           Color="{me:Styles.LightOnDarkText}"/>
+      <style:Style Name="PodcastFeaturePrimary"       Font="{me:Styles.Zegoe9}"                   Color="{me:Styles.LightOnDarkText}"      TextMargins="0,0,0,-2"/>
+      <style:Style Name="PodcastFeatureSecondary"     Font="{me:Styles.Zegoe9}"                   Color="{me:Styles.LightOnDarkSubText}"/>
+      <style:Style Name="ListFeaturePrimary"          Font="{me:Styles.ZegoeCaps14}"              Color="{me:Styles.MarketplaceDefault}"   TextMargins="0,0,0,2"/>
+      <style:Style Name="ListFeatureSecondary"        Font="{me:Styles.Zegoe9}"                   Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="CDLandAlbumName"             Font="{me:Styles.CDLandAlbumName}"          Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="CDLandArtistName"            Font="{me:Styles.CDLandArtistName}"         Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="CDLandAlbumYear"             Font="{me:Styles.CDLandAlbumYear}"          Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="CDLandAlbumGenre"            Font="{me:Styles.CDLandAlbumGenre}"         Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="CDLandAlbumExceededCapacity" Font="{me:Styles.CDLandAlbumGenre}"         Color="{me:Styles.Magenta}"/>
+      <me:CDLandTrackNumberStyle Name="CDLandTrackNumberStyle"/>
+      <style:Style Name="CDLandStatus"                Font="{me:Styles.ButtonText}"               Color="{me:Styles.TextActive}"/>
+      <style:Style Name="CDLandStatusRipping"         Font="{me:Styles.ButtonText}"               Color="{me:Styles.TextSelected}"/>
+      <style:Style Name="CDLandStatusError"           Font="{me:Styles.ZegoeBold12}"              Color="{me:Styles.Magenta}"/>
+      <style:Style Name="ThumbnailRollover"           Font="{me:Styles.ZegoeBold11}"              Color="{me:Styles.ThumbnailRolloverColor}"/>
+      <style:Style Name="GDILoadingStatus"            Font="{me:Styles.ZegoeCaps14}"              Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="EmptyCollectionText"         Font="{me:Styles.EnduranceProCapsBold20}"   Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="ConnectDeviceStyle"          Font="{me:Styles.ZegoeBold20}"              Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="PleaseConnectStyle"          Font="{me:Styles.ZegoeSemiBold10}"          Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="NoPlaylistContentText"       Font="{me:Styles.ZegoeBold14}"              Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="SyncTitle"                   Font="{me:Styles.CDLandAlbumName}"          Color="{me:Styles.MarketplaceDefault}"/>
+      <style:Style Name="SyncLink"                    Font="{me:Styles.Zegoe14}"                  Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="SyncHeader"                  Font="{me:Styles.ZegoeSemiBold8}"           Color="{me:Styles.DarkGray}"/>
+      <me:SearchResultsStyle Name="SyncItem"/>
+      <TextStyle Name="NoCollectionHighlight"         Color="{me:Styles.NoCollectionHighlightText}"/>
+      <TextStyle Name="DeviceNameStyle"               Color="{me:Styles.MarketplaceDefault}"    FontSize="20" FontFace="Zegoe UI - U" Bold="true"/>
+      <TextStyle Name="DeviceSizeStyle"               Color="{me:Styles.WarmGray}"              FontSize="20" FontFace="Zegoe Light - U"/>
+      <me:HyperlinkStyle Name="HyperlinkStyle"/>
+      <style:Style Name="PodcastWarningStyle"         Font="{me:Styles.WarningFont}"      Color="{me:Styles.WarningColor}"/>
+      <style:Style Name="PodcastEpisodeTitleStyle"    Font="{me:Styles.PodcastTitleFont}" Color="{me:Styles.DarkGray}"/>
+      <me:SearchResultsStyle Name="SearchResultsStyle"/>
+      <me:SearchResultsSmallStyle Name="SearchResultsSmallStyle"/>
+      <style:Style Name="NowPlayingPrimaryLabel"      Font="{me:Styles.EnduranceProCapsBold36}" Color="{me:Styles.LightOnDarkText}" TextStyle="{NegativeOneCharacterSpacing}"/>
+      <style:Style Name="NowPlayingSecondaryLabel"    Font="{me:Styles.EnduranceProCapsBold24}" Color="{me:Styles.LightOnDarkText}"/>
+      <me:NowPlayingLinkStyle Name="NowPlayingLinkStyle"/>
+      <me:FUEHeaderStyle      Name="FUEHeaderStyle"/>
+      <me:FUEDescriptionStyle Name="FUEDescriptionStyle"/>
+      <me:FUELabelStyle       Name="FUELabelStyle"/>
+      <me:FUEHyperlinkStyle   Name="FUEHyperlinkStyle"/>
+      <me:SettingsButtonStyle Name="SettingsButtonStyle"/>
+      <me:SignInButtonStyle   Name="SignInButtonStyle"/>
+      <me:ExternalLinkStyle   Name="ExternalLinkStyle"/>
+      <me:InboxSignInHeaderStyle      Name="InboxSignInHeaderStyle"/>
+      <me:InboxSignInDescriptionStyle Name="InboxSignInDescriptionStyle"/>
+
+
+      <style:Style Name="TransportVolumeValue"          Font="{me:Styles.TransportVolumeFont}"  Color="{me:Styles.TransportVolumeColor}"/>
+      <style:Style Name="TransportVolumeLabel"          Font="{me:Styles.ButtonText}"           Color="{me:Styles.PrimaryLabel}"/>
+      <style:Style Name="SlideshowTransportVolumeValue" Font="{me:Styles.TransportVolumeFont}"  Color="{me:Styles.LightOnDarkAltText}"/>
+      <style:Style Name="SlideshowTransportVolumeLabel" Font="{me:Styles.ButtonText}"           Color="{me:Styles.LightOnDarkAltText}"/>
+
+      <style:Style Name="NowPlayingNotificationTitle"                 Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.WarmGray}"/>
+      <style:Style Name="NowPlayingNotificationElapsedTime"           Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="NowPlayingNotificationTotalTime"             Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.WarmGray}"/>
+      <style:Style Name="SlideshowNowPlayingNotificationTitle"        Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.LightOnDarkAltText}"/>
+      <style:Style Name="SlideshowNowPlayingNotificationElapsedTime"  Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.LightOnDarkText}"/>
+      <style:Style Name="SlideshowNowPlayingNotificationTotalTime"    Font="{me:Styles.ZegoeSemiBold8}" Color="{me:Styles.LightOnDarkAltText}"/>
+
+      <style:Style Name="LandTitle"                   Font="{me:Styles.TopPivotText}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="SlideshowLandTitle"          Font="{me:Styles.TopPivotText}" Color="{me:Styles.LightOnDarkText}"/>
+      <style:Style Name="InboxReply"                  Font="{me:Styles.ZegoeLight16}" Color="{me:Styles.DarkGray}"/>
+      <style:Style Name="InboxDetailStyle"            Font="{me:Styles.ZegoeBold10}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxEmptyStyle"             Font="{me:Styles.Zegoe12}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxMessageStyle"           Font="{me:Styles.Zegoe10}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxAlbumTitle"             Font="{me:Styles.DetailsAlbumTitle}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxAlbumArtist"            Font="{me:Styles.DetailsAlbumArtist}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxAlbumGenre"             Font="{me:Styles.DetailsAlbumGenre}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxAlbumRelease"           Font="{me:Styles.DetailsAlbumReleaseYear}" Color="{me:Styles.TextActive}"/>
+      <style:Style Name="InboxPrompt"                 Font="{me:Styles.ZegoeSemiBold10}" Color="{me:Styles.WarmGray}"/>
+      <style:Style Name="InboxHeader"                 Font="{me:Styles.InboxCategory}" Color="{me:Styles.DarkGray}"/>
+      <TextStyle Name="InboxDetailNameStyle"          FontSize="7" FontFace="Zegoe UI - U" Bold="true" Color="{me:Styles.DarkGray}"/>
+
+      
+      <style:Style Name="HoveredButtonCellStyle"      Font="{null}" Color="{me:Styles.RedOrange}"/>
+
+      <me:LabelStyle Name="GasGaugeCurrentSpace"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
+      <me:LabelStyle Name="GasGaugeFreeSpaceText" Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
+
+      <TextStyle Name="PodcastPaneDescription"    Color="{me:Styles.PodcastPaneDescription}" FontFace="Zegoe UI - U" FontSize="9" />
+      <TextStyle Name="PodcastSeriesDescription"  Color="{me:Styles.PodcastDescriptionColor}" LineSpacing="1.1" FontFace="Zegoe UI - U" FontSize="10" />
+
+      <style:Style Name="ReportAConcernError"     Font="{me:Styles.ZegoeSemiBold9}" Color="{me:Styles.RedOrange}"/>
+
+      <me:LabelStyle Name="ToolbarDarkStyle" Color="{me:Styles.IconNotificationTextColor}" Font="{me:Styles.IconNotificationTextFont}"/>
+      <me:LabelStyle Name="ToolbarLightStyle" Color="White" Font="{me:Styles.IconNotificationTextFont}"/>
+      <TextStyle Name="IconNotificationBold"          Color="{me:Styles.IconNotificationBoldColor}"   FontFace="Zegoe UI - U" Bold="true"/>
+
+      <style:Style Name="ToolTipStyle" Font="{me:Styles.ZegoeBold9}" Color="{me:Styles.EditText}"/>
+      <style:Style Name="SettingsBodyStyle" Font="{me:Styles.SettingsText}" Color="{me:Styles.SettingsTextActive}"/>
+      <TextStyle Name="SettingsBoldItalicBodyStyle" Bold="true" Italic="true" FontFace="Zegoe UI - U"/>
+
+    </Properties>
+  </Class>
+
+  <Class Name="Style" Base="style:Style"/>
+
+  <Class Name="ButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.TextSelected}"           Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.TextFocusedForeground}"  Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ToggleTextStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.TextFocusedForeground}"  Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SlideshowToggleTextStyle" Base="me:ToggleTextStyle">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.LightOnDarkAltText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.LightOnDarkAltText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.LightOnDarkAltText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.LightOnDarkText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.LightOnDarkAltText}"/>
+    </Properties>
+  </Class>
+
+   <Class Name="SettingsButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.LightGray}"          Font="{me:Styles.SettingsButtonText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.DoradoBlack}"        Font="{me:Styles.SettingsButtonText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"       Font="{me:Styles.SettingsButtonText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"          Font="{me:Styles.SettingsButtonText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.WarmGray}"           Font="{me:Styles.SettingsButtonText}"/>
+    </Properties>
+  </Class>
+
+   <Class Name="SignInButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.LightGray}"          Font="{me:Styles.SignInButtonText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.DoradoBlack}"        Font="{me:Styles.SignInButtonText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"       Font="{me:Styles.SignInButtonText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"          Font="{me:Styles.SignInButtonText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.WarmGray}"           Font="{me:Styles.SignInButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="RadioButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.TextInactive}"           Font="{me:Styles.SettingsText}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.DarkGray}"             Font="{me:Styles.SettingsText}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.HoverGray}"             Font="{me:Styles.SettingsText}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"  Font="{me:Styles.SettingsText}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SettingsText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ActionButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"  Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Selected"  Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Hovered"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+      <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="NowPlayingButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled"  Color="{me:Styles.NowPlayingButtonDisabledColor}" Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Selected"  Color="{me:Styles.NowPlayingButtonPressedColor}"  Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Focused"   Color="{me:Styles.NowPlayingButtonColor}"         Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Hovered"   Color="{me:Styles.NowPlayingButtonHoverColor}"    Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Default"   Color="{me:Styles.NowPlayingButtonColor}"         Font="{me:Styles.BigButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="TransportButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"        Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Selected"  Color="{me:Styles.TransportButtonPressedColor}" Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"                Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Hovered"   Color="{me:Styles.TransportButtonHoverColor}"   Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"                Font="{me:Styles.BigButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="BigActionButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"  Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Selected"  Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Hover"     Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+      <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="BigActionButtonShadowStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButtonShadow}"    Font="{me:Styles.BigButtonText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogButtonStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Disabled" Color="{me:Styles.ListItemText}"         Font="{me:Styles.DialogListItem}"/>
+      <me:LabelStyle Name="Selected" Color="{me:Styles.ListItemSelectedText}" Font="{me:Styles.DialogListItem}"/>
+      <me:LabelStyle Name="Focused"  Color="{me:Styles.ListItemHoverText}"    Font="{me:Styles.DialogListItem}"/>
+      <me:LabelStyle Name="Hovered"  Color="{me:Styles.ListItemHoverText}"    Font="{me:Styles.DialogListItem}"/>
+      <me:LabelStyle Name="Default"  Color="{me:Styles.ListItemText}"         Font="{me:Styles.DialogListItem}"/>
+    </Properties>
+  </Class>
+
+  
+
+  <Class Name="InboxReadListItemStyle" Base="me:ListItemStyle">
+    <Properties>
+      <style:Style Name="Default"  Color="{me:Styles.InboxReadColor}" Font="{me:Styles.InboxReadMessage}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="InboxUnreadListItemStyle" Base="me:ListItemStyle">
+    <Properties>
+      <style:Style Name="Default"  Color="{me:Styles.InboxUnreadColor}" Font="{me:Styles.InboxUnreadMessage}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ListItemStyle" Base="style:StyleSet">
+    <Properties>
+      
+      <TextStyle Name="Spacing" CharacterSpacing="0"/>
+      <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"     Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+      <style:Style Name="Default"  Color="{me:Styles.DarkGray}"     Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+      <style:Style Name="Base"     Color="{me:Styles.ListItemText}" Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="TopPivot" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.TopPivotText}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.ListItemText}" Font="{me:Styles.TopPivotText}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"    Font="{me:Styles.TopPivotText}"/>
+      <style:Style Name="Default"  Color="{me:Styles.WarmGray}"     Font="{me:Styles.TopPivotText}"/>
+      <style:Style Name="Base"     Color="{me:Styles.ListItemText}" Font="{me:Styles.TopPivotText}"/>
+      <style:Style Name="Disabled" Color="{me:Styles.LightGray}"    Font="{me:Styles.TopPivotText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="BottomPivot" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Color="{me:Styles.DoradoBlack}"            Font="{me:Styles.BottomPivotText}"/>
+      <style:Style Name="Focused"   Color="{me:Styles.ListItemText}"           Font="{me:Styles.BottomPivotText}"/>
+      <style:Style Name="Hovered"   Color="{me:Styles.HoverGray}"              Font="{me:Styles.BottomPivotText}"/>
+      <style:Style Name="Default"   Color="{me:Styles.WarmGray}"               Font="{me:Styles.BottomPivotText}"/>
+      <style:Style Name="Base"      Color="{me:Styles.ListItemText}"           Font="{me:Styles.BottomPivotText}"/>
+      <style:Style Name="Disabled"  Color="{me:Styles.ListItemSelectedText}"   Font="{me:Styles.BottomPivotText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="LibraryPivot" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.LibraryPivotText}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.LibraryPivotText}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.LibraryPivotText}"/>
+      <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.LibraryPivotText}"/>
+      <style:Style Name="Base"     Color="{me:Styles.ListItemText}"   Font="{me:Styles.LibraryPivotText}"/>
+    </Properties>
+  </Class>
+
+  
+  
+  <Class Name="TrackListItemStyle" Base="style:Style">
+    <Properties>
+      
+      <Font Name="Font"  Font="{me:Styles.MarketplaceListText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="TrackListItemDisabledStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabelDisabled}"/>
+      <Font Name="Font"  Font="{me:Styles.MarketplaceListText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ThumbnailPrimaryLabelStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"     Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}"   Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Hovered"   Color="{me:Styles.DoradoBlack}"               Font="{me:Styles.ZegoeSemiBold8}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ThumbnailSecondaryLabelStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused" Color="{me:Styles.SecondaryLabel}"  Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Default"   Style="{Focused}"/>
+      <style:Style Name="Selected"  Style="{Focused}"/>
+      <style:Style Name="Hovered" Color="{me:Styles.DoradoBlack}"     Font="{me:Styles.ZegoeSemiBold8}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ThumbnailOverlayLabelStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"   Font="{me:Styles.ZegoeLight16}"/>
+      <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"         Font="{me:Styles.ZegoeLight16}"/>
+      <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.ZegoeLight16}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="PhotoVideoLabelStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused" Color="{me:Styles.TextFocusedForeground}" Font="{me:Styles.Zegoe9}"/>
+      <style:Style Name="Default" Color="{me:Styles.ThumbnailButton}" Font="{me:Styles.Zegoe9}"/>
+      <style:Style Name="Selected" Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.Zegoe9}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SearchOverlayLabelStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"   Font="{me:Styles.ZegoeLight14}"/>
+      <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"         Font="{me:Styles.ZegoeLight14}"/>
+      <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.ZegoeLight14}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ListViewSortsColumnHeaderStyle" Base="me:ListViewColumnHeaderStyle">
+    <Properties>
+      <me:ColumnHeaderStyle Name="Default" Color="{me:Styles.WarmGray}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ListViewColumnHeaderStyle" Base="style:StyleSet">
+    <Properties>
+      <me:ColumnHeaderStyle Name="Disabled"/>
+      <me:ColumnHeaderStyle Name="Selected"/>
+      <me:ColumnHeaderStyle Name="Focused"/>
+      <me:ColumnHeaderStyle Name="Hovered" Color="{me:Styles.HoverGray}"/>
+      <me:ColumnHeaderStyle Name="Default"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ColumnHeaderStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DoradoBlack}"/>
+      <Font Name="Font" Font="{me:Styles.ZegoeSemiBold8}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SelectedColumnHeaderStyle" Base="me:ColumnHeaderStyle">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ColumnHeaderStyleSet" Base="style:StyleSet">
+    <Properties>
+      <me:SelectedColumnHeaderStyle Name="Selected"/>
+      <me:SelectedColumnHeaderStyle Name="Hovered"/>
+      <me:ColumnHeaderStyle Name="Focused"/>
+      <me:ColumnHeaderStyle Name="Default"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ColumnHeaderDarkStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+      <Font Name="Font" Font="{me:Styles.ZegoeBold8}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SelectedColumnHeaderDarkStyle" Base="me:ColumnHeaderStyle">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ColumnHeaderDarkStyleSet" Base="me:ColumnHeaderStyleSet">
+    <Properties>
+      <me:SelectedColumnHeaderStyle Name="Focused"/>
+      <me:SelectedColumnHeaderStyle Name="Default"/>
+    </Properties>
+  </Class>
+
+  <Class Name="LabelStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabel}"/>
+      <Font Name="Font" Font="{me:Styles.PrimaryText}"/>
+    </Properties>
+  </Class>
+
+  
+  
+  
+  <Class Name="EditBoxStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.EditText}"/>
+      <Font Name="Font" Font="{me:Styles.SettingsText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SearchEditBoxStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.SearchBoxTextColor}"/>
+      <Font Name="Font" Font="{me:Styles.SearchBoxText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogTextStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogSmallTextStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogSmallText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogDarkTextStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogDarkMediumTextStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogMediumText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogLinkStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogLinkColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogSubHeaderStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogSubHeaderText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogHeaderStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogHeaderText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogLargeHeaderStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+      <Font Name="Font" Font="{me:Styles.DialogLargeHeaderText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="DialogHyperlinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Font="{me:Styles.DialogText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.DialogText}" Color="{me:Styles.SettingLinkText}"/>
+      <style:Style Name="Default"   Font="{me:Styles.DialogText}" Color="{me:Styles.DialogTextColor}"/>
+    </Properties>
+  </Class>
+
+
+  <Class Name="DragFeedbackStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DragFeedbackTextColor}"/>
+      <Font Name="Font" Font="{me:Styles.DragFeedbackText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MenuItemHeaderStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+      <Font Name="Font" Font="{me:Styles.ZegoeSemiBold10}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MonitoredFoldersLabelStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.DarkGray}"/>
+      <Font Name="Font" Font="{me:Styles.SettingsText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MonitoredFoldersHeadersStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.SettingsTextActive}"/>
+      <Font Name="Font" Font="{me:Styles.SettingsTextSubHeader}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MenuItemStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.PrimaryLabelSelected}" Font="{me:Styles.Zegoe10}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.TextFocusedForeground}" Font="{me:Styles.Zegoe10}"/>
+      <style:Style Name="Default"  Color="{me:Styles.PrimaryLabelSelected}" Font="{me:Styles.Zegoe10}"/>
+      <style:Style Name="Hovered"  Color="Black" Font="{me:Styles.Zegoe10}"/>
+      <style:Style Name="Disabled" Color="210,210,210" Font="{me:Styles.Zegoe10}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MgmtMenuItemStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.WarmGray}" Font="{me:Styles.ColumnPlayText}"/>
+      <style:Style Name="Default"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+      <style:Style Name="Disabled" Color="210,210,210" Font="{me:Styles.ColumnPlayText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="AlbumReviewHeader" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.MarketplaceDefault}"/>
+      <Font Name="Font" Font="{me:Styles.HeaderText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceInstanceMetadata" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Hovered" Color="{me:Styles.RedOrange}"                 Font="{me:Styles.Zegoe9}"/>
+      <style:Style Name="Focused" Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.Zegoe9}"/>
+      <style:Style Name="Default" Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.Zegoe9}"/>
+      <style:Style Name="Selected" Color="{me:Styles.ThumbnailButtonSelected}"  Font="{me:Styles.Zegoe9}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceSort" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Focused"  Color="{me:Styles.ListItemText}"   Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.ZegoeSemiBold8}"/>
+      <style:Style Name="Base"     Style="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceExpandedSort" Base="me:MarketplaceSort">
+    <Properties>
+      <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+      <style:Style Name="Focused"  Color="{me:Styles.ListItemText}"   Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+      <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceLeftFilter" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+      <style:Style Name="Focused"   Color="{me:Styles.WarmGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+      <style:Style Name="Default"   Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+      <style:Style Name="Disabled"  Style="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceHeader" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Font="{me:Styles.MarketplaceHeader}" Color="Black" TextMargins="0,0,0,5"/>
+      <style:Style Name="Focused"   Style="{Selected}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.MarketplaceHeader}" Color="{me:Styles.WarmGray}" TextMargins="0,0,0,5"/>
+      <style:Style Name="Default"   Font="{me:Styles.MarketplaceHeader}" Color="{me:Styles.DarkGray}" TextMargins="0,0,0,5"/>
+      <style:Style Name="Disabled"  Style="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceHubListPrimary" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Font="{me:Styles.PrimaryText}" Color="{me:Styles.DoradoBlack}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{Selected.Color}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="Black" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.DarkGray}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Disabled"  Style="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="MarketplaceHubListSecondary" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Font="{me:Styles.PrimaryText}" Color="{me:Styles.DoradoBlack}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{Selected.Color}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="Black" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.WarmGray}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+      <style:Style Name="Disabled"  Style="{Default}"/>
+    </Properties>
+  </Class>
+  <Class Name="CDLandTrackNumberStyle" Base="style:Style">
+    <Properties>
+      <Color Name="Color" Color="{me:Styles.CDLandTrackNumberDefaultColor}"/>
+      <Color Name="SelectedColor" Color="{me:Styles.CDLandTrackNumberSelectedColor}"/>
+      <Font Name="Font" Font="{me:Styles.CDLandTrackNumber}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="HyperlinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Disabled"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.WarmGray}"/>
+      <style:Style Name="Selected"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Focused"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkText}"/>
+      <style:Style Name="Default"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.HyperlinkColor}"/>
+    </Properties>
+  </Class>
+  <Class Name="SearchResultsStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="Black"                            Font="{me:Styles.SearchResultText}"/>
+      <style:Style Name="Focused"  Style="{Selected}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SearchResultText}"/>
+      <style:Style Name="Default"  Color="{me:Styles.SearchResultsColor}"   Font="{me:Styles.SearchResultText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="SearchResultsSmallStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected" Color="Black"                            Font="{me:Styles.SearchResultSmallText}"/>
+      <style:Style Name="Focused"  Style="{Selected}"/>
+      <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SearchResultSmallText}"/>
+      <style:Style Name="Default"  Color="{me:Styles.SearchResultsColor}"   Font="{me:Styles.SearchResultSmallText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ZuneNetLinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Font="{me:Styles.Zegoe12}" Color="{me:Styles.MarketplaceDefault}" TextMargins="0,-3,0,0"/>
+      <style:Style Name="Focused"   Style="{Selected}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.Zegoe12}" Color="Black" TextMargins="0,-3,0,0"/>
+      <style:Style Name="Default"   Font="{me:Styles.Zegoe12}" Color="{me:Styles.SecondaryLabel}" TextMargins="0,-3,0,0"/>
+      <style:Style Name="Disabled"  Style="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="FUEHeaderStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.FUEBrightTextColor}"/>
+      <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+      <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.FUEWelcomeTextColor}"/>
+      <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+      <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="FUELabelStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBrightTextColor}"/>
+      <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+      <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBodyTextColor}"/>
+      <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+      <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="FUEDescriptionStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBrightTextColor}"/>
+      <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+      <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.WarmGray}"/>
+      <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+      <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="FUEHyperlinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Selected"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Focused"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.HyperlinkFont}" Color="White"/>
+      <style:Style Name="Default"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.HyperlinkColor}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="NowPlayingLinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.LightOnDarkText}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.SettingLinkText}"/>
+      <style:Style Name="Default"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.LightOnDarkText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="ExternalLinkStyle" Base="style:StyleSet">
+    <Properties>
+      <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+      <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkText}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="InboxSignInHeaderStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.DarkGray}"/>
+      <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+      <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.HoverGray}"/>
+      <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+      <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+    </Properties>
+  </Class>
+
+  <Class Name="InboxSignInDescriptionStyle" Base="style:StyleSet">
+    <Properties>
+      <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.WarmGray}"/>
+      <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+      <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.HoverGray}"/>
+      <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+      <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+    </Properties>
+  </Class>
+  
+  
+  <Class Name="ImageStyles" Shared="true">
+    <Properties>
+      <Boolean Name="AntialiasEdges"/>
+    </Properties>
+
+    <Scripts>
+      <Script>
+        AntialiasEdges = (iris:Application.RenderingType != iris:RenderingType.GDI);
+      </Script>
+    </Scripts>
+  </Class>
+
+
+</UIX>

@@ -1,0 +1,212 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:sys="assembly://mscorlib/System"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:button="res://ZuneShellResources!Button.uix"
+  xmlns:me="Me">
+
+  <UI Name="Default">
+    <Content>
+      <me:Editbox>
+        <Model>
+          <EditableTextData Value="Hello"/>
+        </Model>
+      </me:Editbox>
+    </Content>
+  </UI>
+
+  <UI Name="Editbox" Base="button:Label">
+    <Properties>
+      
+      <EditableTextData Name="Model" EditableTextData="{null}"/>
+
+      
+      <style:Style Name="Style" Style="{styles:SharedStyles.EditBoxStyle}"/>
+      <Color Name="TextFocusedColor" Color="{styles:Styles.EditTextFocusedForeground}"/>
+      <Color Name="TextHighlightColor" Color="{styles:Styles.EditTextFocusedBackground}"/>
+      <Color Name="CaretColor" Color="{styles:Styles.CaretColor}"/>
+      <Color Name="BackgroundColor" Color="Transparent"/>
+      <Color Name="BackgroundColorFocus" Color="{BackgroundColor}"/>
+
+      
+      <Size Name="TileMinSize" Size="176,0"/>
+      <Size Name="TileMaxSize" Size="176,0"/>
+      <Inset Name="TilePadding" Inset="10,2,10,2"/>
+
+      
+      <Boolean Name="PasswordMasked" Boolean="false"/>
+
+      <Int32 Name="DefaultHeight" Int32="22"/>
+
+      <AccessibleRole Name="AccessibleRole" AccessibleRole="Text"/>
+    </Properties>
+
+    <Locals>
+      <AnchorLayoutInput Name="CaretPosition" Left="Label,0" Top="Label,0"/>
+      <AnchorLayoutInput Name="DummyPosition"/>
+
+      <TransformAnimation Name="CaretBlink" Source="{me:CaretBlinkAnimation.CaretBlink}"/>
+    </Locals>
+
+    <Input>
+      
+      <TextEditingHandler Name="TypingHandler" Overtype="true" />
+    </Input>
+
+    <Scripts>
+
+      <Script>
+        if ((Model != null) &amp;&amp; !Label.WordWrap)
+        {
+          
+          sys:String value = [Model.Value];
+
+          if (!String.IsNullOrEmpty(value))
+          {
+            if (value.Contains("\r\n"))
+            {
+              Model.Value = value.Replace("\r\n", " ");
+            }
+          }
+        }
+      </Script>
+
+      
+      <Script>
+        ShowToolTipWhenClipped = false;
+
+        
+        
+        
+        if (Model == null)
+        {
+          Model = new EditableTextData();
+          Model.Value = Content;
+        }
+
+        TypingHandler.TextDisplay = Label;
+
+        
+        
+        
+        
+        
+
+        if (DefaultHeight != 0)
+        {
+          if (TileMinSize.Height == 0)
+          {
+              TileMinSize = new Size(TileMinSize.Width, DefaultHeight);
+          }
+          if (TileMaxSize.Height == 0)
+          {
+              TileMaxSize = new Size(TileMaxSize.Width, DefaultHeight);
+          }
+        }
+        Tile.MinimumSize = TileMinSize;
+
+        Tile.MaximumSize = TileMaxSize;
+
+      </Script>
+
+      
+      <Script> TypingHandler.EditableTextData = [Model]; </Script>
+
+
+      <Script> Content = [Model.Value]; </Script>
+      <Script> Label.UsePasswordMask = [PasswordMasked]; </Script>
+
+      
+      <Script>
+        [DeclareTrigger(TypingHandler.CaretInfo.Position)]
+
+        CaretPosition.Left.Offset = TypingHandler.CaretInfo.Position.X;
+        CaretPosition.Top.Offset = TypingHandler.CaretInfo.Position.Y;
+        Caret.LayoutInput = DummyPosition;
+        Caret.LayoutInput = CaretPosition;
+      </Script>
+
+      <Script> Caret.Visible = [TypingHandler.CaretInfo.Visible]; </Script>
+
+      <Script>
+          Caret.MaximumSize = [TypingHandler.CaretInfo.SuggestedSize];
+          Caret.MinimumSize = [TypingHandler.CaretInfo.SuggestedSize];
+
+          
+          
+          Label.MinimumSize = Caret.MinimumSize;
+
+      </Script>
+
+      <Script>
+        
+        Label.Margins=new Inset(0,0,TypingHandler.CaretInfo.IdealWidth, 0);
+      </Script>
+
+      
+      <Script>
+        CaretBlink.TimeScale = TypingHandler.CaretInfo.BlinkTime;
+      </Script>
+
+      <Script>
+        if ([Accessible.Enabled])
+        {
+          Accessible.IsProtected = PasswordMasked;
+        }
+      </Script>
+
+      <Script>
+        if ([UI.DeepKeyFocus])
+        {
+          Tile.Content = BackgroundColorFocus;
+        }
+        else
+        {
+          Tile.Content = BackgroundColor;
+        }
+      </Script>
+    </Scripts>
+
+    <Content>
+      <ColorFill Name="Tile" Layout="Anchor" Navigation="ContainHorizontal"
+          MouseInteractive="true" Padding="{TilePadding}">
+        <Children>
+          
+          <ColorFill Name="Caret" Content="{CaretColor}"
+              Layout="Fill" LayoutInput="{CaretPosition}">
+            <Animations>
+                <TransformAnimation TransformAnimation="{CaretBlink}"/>
+            </Animations>
+          </ColorFill>
+
+          
+          <Text Name="Label" FadeSize="1"
+              HighlightColor="{TextHighlightColor}" TextHighlightColor="{TextFocusedColor}"/>
+        </Children>
+      </ColorFill>
+    </Content>
+  </UI>
+
+
+  
+
+
+
+  <Class Name="CaretBlinkAnimation" Shared="true">
+
+      <Properties>
+          <Animation Name="CaretBlink" Type="Show" Loop="-1">
+              <Keyframes>
+                  <AlphaKeyframe Time="0.0" Value="1.0"/>
+                  <AlphaKeyframe Time="0.9" Value="1.0"/>
+                  <AlphaKeyframe Time="1.0" Value="0.0"/>
+                  <AlphaKeyframe Time="1.9" Value="0.0"/>
+                  <AlphaKeyframe Time="2.0" Value="1.0"/>
+              </Keyframes>
+          </Animation>
+      </Properties>
+  </Class>
+
+</UIX>

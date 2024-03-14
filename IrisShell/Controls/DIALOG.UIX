@@ -1,0 +1,247 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:anim="res://ZuneShellResources!Animations.uix"
+  xmlns:popup="res://ZuneShellResources!Popup.uix"
+  xmlns:core="res://ZuneShellResources!Controls.uix"
+  xmlns:nc="res://ZuneShellResources!NonClientControls.uix"
+  xmlns:me="Me"
+  >
+
+  
+  
+  
+
+  
+  
+  
+  <Class Name="Dialog" Base="popup:Popup">
+    <Properties>
+      <zune:DialogHelper Name="Helper"/>
+      <PopupLayoutInput Name="LayoutInput" Placement="Origin"/>
+      <String Name="PopupUI" String="res://ZuneShellResources!Dialog.uix#DialogUI"/>
+      <String Name="ContentUI" String="res://ZuneShellResources!Dialog.uix#DialogContentUI"/>
+      <String Name="AccessibleDescription" String="{null}"/>
+
+      
+      
+      <iris:Command Name="Cancel" Command="{Helper.Cancel}"/>
+    </Properties>
+
+    <Scripts>
+      
+      <Script>
+        [DeclareTrigger(Cancel.Invoked)]
+        
+        
+        
+        if (Cancel != Helper.Cancel)
+        {
+          Helper.Cancel.Invoke();
+        }
+        
+        Helper.Hide();
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+  
+  
+  <UI Name="DialogUI" Base="popup:PopupUI">
+    <Properties>
+      
+      <me:Dialog Name="Popup" Dialog="$Required"/>
+    </Properties>
+
+    <Input>
+      <KeyHandler Name="Escape" Key="Escape" HandlerStage="Bubbled"/>
+      
+      <ClickHandler Name="ClickEater" ClickType="Mouse" HandlerStage="Bubbled, Direct"/>
+    </Input>
+
+    <Scripts>
+      
+      <Script>
+        Host.RequestSource(Popup.ContentUI, "Dialog", Popup);
+
+        Host.NavigateInto();
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(Escape.Invoked)]
+
+        
+        Popup.Cancel.Invoke();
+      </Script>
+    </Scripts>
+
+    <Content>
+      <ColorFill Layout="Dock" Content="{styles:Styles.DialogBackgroundFadeColor}">
+        <Animations>
+          <Animation Animation="{anim:Animations.MenuFadeIn}"/>
+          <Animation Animation="{anim:Animations.MenuFadeOut}"/>
+        </Animations>
+        <Children>
+
+          <Graphic Content="{styles:Styles.DialogDropShadow}" Padding="15,14,15,14" SizingPolicy="SizeToChildren" MouseInteractive="true">
+            <LayoutInput>
+              <DockLayoutInput Alignment="Center"/>
+            </LayoutInput>
+            <Animations>
+              <Animation Animation="{anim:Animations.DialogShow}"/>
+              <Animation Animation="{anim:Animations.DialogHide}"/>
+            </Animations>
+            <Children>
+
+              <Graphic Name="Background" Content="{styles:Styles.DialogBackground}" SizingPolicy="SizeToChildren" MinimumSize="100,60" Layout="Anchor">
+                <Children>
+
+                  <Host Name="Host" Padding="20,20,20,30"/>
+
+                  <Graphic Content="{styles:Styles.EnergyBar}" MaximumSize="0,6">
+                    <LayoutInput>
+                      <AnchorLayoutInput Bottom="Host,1" Left="Host,0" Right="Host,1"/>
+                    </LayoutInput>
+                  </Graphic>
+
+                </Children>
+              </Graphic>
+
+            </Children>
+          </Graphic>
+
+          
+          <nc:WindowCaption Layout="Fill"/>
+
+        </Children>
+      </ColorFill>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="DialogContentUI">
+    <Properties>
+      <me:Dialog Name="Dialog" Dialog="$Required"/>
+    </Properties>
+
+    <Locals>
+      <Accessible Name="Accessible"/>
+    </Locals>
+
+    <Scripts>
+      <Script>UI.KeyInteractive = true;</Script>
+
+      <Script>
+        if ([Accessible.Enabled])
+        {
+          Accessible.Name = [Dialog.AccessibleDescription];
+          Accessible.Role = AccessibleRole.Dialog;
+        }
+      </Script>
+    </Scripts>
+
+    <Content>
+      <Text Content="Placeholder content -- use a base class"/>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="MessageBoxContentUI" Base="me:DialogContentUI">
+    <Properties>
+      <zune:MessageBox Name="Model" MessageBox="{(zune:MessageBox)Dialog.Helper}"/>
+    </Properties>
+
+    <Scripts>
+      <Script>
+        YesButton.Visible = (Model.Yes != null);
+        NoButton.Visible  = (Model.No != null);
+        OkButton.Visible  = (Model.Ok != null);
+        Dialog.Cancel.Description = Model.Cancel.Description;
+        Dialog.AccessibleDescription = Model.Title;
+        CheckBox.Visible = (Model.DoNotAskMeAgain != null);
+        if (Model.IsOKDefault)
+        {
+          OkButton.FocusOrder = 0;
+        }
+      </Script>    
+    </Scripts>
+      
+    <Content>
+      <Panel Navigation="ContainAll,WrapAll" Margins="10,5,9,0" Layout="Anchor">
+        <Children>
+
+          
+          <core:Label
+            Name="Title" 
+            Content="{Model.Title}"
+            Style="{styles:SharedStyles.DialogHeaderStyle}"
+            WordWrap="true" 
+            Margins="0,0,0,10"
+            MinimumSize="350,0">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Top="Parent,0"/>
+            </LayoutInput>
+          </core:Label>  
+          
+          
+          <core:Label 
+            Name="Message" 
+            Content="{Model.Message}" 
+            Style="{styles:SharedStyles.DialogTextStyle}"
+            WordWrap="true">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Title,0" Right="Title,1" Top="Title,1"/>
+            </LayoutInput>
+            <NamedStyles>
+              <TextStyle Name="b" TextStyle="{styles:SharedStyles.DialogBoldTextStyle}"/>
+            </NamedStyles>
+          </core:Label>
+
+          
+          <Panel Name="CheckBoxPanel">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Title,0" Right="Title,1" Top="Message,1"/>
+            </LayoutInput>
+            <Children>
+              <core:CheckBox Name="CheckBox"
+                Model="{Model.DoNotAskMeAgain}"
+                LabelFont="{styles:Styles.DialogText}"
+                Margins="0,10,0,0">
+              </core:CheckBox>
+            </Children>
+          </Panel>
+
+          
+          <Panel Margins="0,20,0,0">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Title,0" Right="Title,1" Top="CheckBoxPanel,1"/>
+            </LayoutInput>
+            <Layout>
+              <DockLayout SizeToChildren="true" DefaultLayoutInput="Right,Near"/>
+            </Layout>
+            <Children>
+              
+              <core:BigActionButton                  Model="{Dialog.Cancel}" Margins="3,0,0,0" FocusOrder="1"/>
+              <core:BigActionButton Name="OkButton"  Model="{Model.Ok}"      Margins="3,0,0,0"/>
+              <core:BigActionButton Name="NoButton"  Model="{Model.No}"      Margins="3,0,0,0"/>
+              <core:BigActionButton Name="YesButton" Model="{Model.Yes}"     Margins="3,0,0,0"/>
+              
+            </Children>
+          </Panel>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+  
+</UIX> 
+

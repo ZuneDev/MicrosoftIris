@@ -1,0 +1,84 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX 
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:core="res://ZuneShellResources!Controls.uix">
+  
+  
+    
+  
+  <UI Name="ColumnPanelHeader" Base="core:Button">
+    <Properties>
+      <iris:Command Name="ToggleSelectAll" Command="$Required"/>
+      <iris:Choice Name="Sorts" Choice="$Required"/>
+      
+      <Inset Name="HeaderPadding" Inset="0,0,0,0"/>
+      <Boolean Name="HighlightHeader" Boolean="false"/>
+      <Boolean Name="SizeToChildren" Boolean="true"/>
+      
+      <Boolean Name="KeyInteractiveNStuff" Boolean="false"/>
+      
+      <style:Style Name="SelectAllOverrideStyle" Style="{styles:SharedStyles.ListViewColumnHeaderStyle}"/>
+      <style:Style Name="SortsOverrideStyle" Style="{styles:SharedStyles.ListViewSortsColumnHeaderStyle}"/>
+      
+      <iris:Command Name="Model"/>
+    </Properties>
+    
+    <Scripts>
+      <Script>
+        if (HighlightHeader)
+          BackgroundFocusColor = styles:Styles.ListHeaderActiveHoverBackground;
+      </Script>
+      
+      
+      <Script>
+        if ([Sorts] != null)
+          Sorts.Wrap = true;
+      </Script>
+      
+      
+      <Script>
+        [DeclareTrigger(Model.Invoked)]
+        if (Sorts != null)
+          Sorts.NextValue();
+      </Script>
+      
+      <Script>
+        if (Sorts != null &amp;&amp; [Sorts.Chosen] != null)
+        {
+          Model.Description = ((iris:Command)Sorts.Chosen).Description;
+          Sorted.Visible = true;
+          Label.Visible = true;
+        }
+        else
+        {
+          Sorted.Visible = false;
+          Label.Visible = false;
+        }
+      </Script>      
+
+      
+    </Scripts>
+
+    <Content>
+      <ColorFill Name="Background" Navigation="TabGroup" Padding="{HeaderPadding}">
+        <Layout>
+          <FlowLayout Orientation="Horizontal" FillStrip="{!SizeToChildren}"/>
+        </Layout>
+        <Children>
+
+          <core:Button Model="{ToggleSelectAll}" TileMinSize="0,16" TileMaxSize="0,16" OverrideStyle="{SelectAllOverrideStyle}"/>
+          
+          <core:Label Name="Sorted" Content="{zune:Shell.LoadString(zune:StringId.IDS_SORT_HEADER)}" Margins="4,0,4,0" Style="{SortsOverrideStyle}"/>
+          
+          <core:Label Name="Label" Margins="0,0,4,0" Style="{SortsOverrideStyle}"/>
+          
+        </Children>
+      </ColorFill>
+    </Content>
+  </UI>
+  
+</UIX>

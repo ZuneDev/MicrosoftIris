@@ -1,0 +1,85 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX 
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:list="res://ZuneShellResources!ContentList.uix"
+  xmlns:button="res://ZuneShellResources!Button.uix"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:me="Me">
+
+  
+  
+  
+  <UI Name="Default">
+    <Content>
+      <me:ListView>
+        <Content>
+          <iris:ArrayListDataSet>
+            <Source>
+              <iris:Command Description="Air"/>
+              <iris:Command Description="Anita o' day"/>
+              <iris:Command Description="Bjork"/>
+              <iris:Command Description="Beck"/>
+              <iris:Command Description="Crystal Method"/>
+              <iris:Command Description="Fat boy slim"/>
+              <iris:Command Description="Frou Frou"/>
+              <iris:Command Description="Fiest"/>
+              <iris:Command Description="Fiction Company"/>
+              <iris:Command Description="Figurine"/>
+              <iris:Command Description="Filter"/>
+              <iris:Command Description="Fiona Apple"/>
+              <iris:Command Description="Foo Fighters"/>
+              <iris:Command Description="Franz Ferdinand"/>
+              <iris:Command Description="Frente!"/>
+              <iris:Command Description="Funkadelic"/>
+              <iris:Command Description="Garbage"/>
+              <iris:Command Description="George Benson"/>
+              <iris:Command Description="Gilberto Gil"/>
+              <iris:Command Description="Gnarls Barkley"/>
+              <iris:Command Description="Gorillaz"/>
+              <iris:Command Description="Gus Gus"/>
+              <iris:Command Description="Heartland"/>
+            </Source>
+          </iris:ArrayListDataSet>
+        </Content>
+      </me:ListView>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="ListView" Base="list:ScrollingContentListBase">
+    <Properties>
+      <style:Style Name="OverrideStyle" Style="{null}"/>
+      <Type Name="ProviderType" Type="{typeof(button:CommandButtonProvider)}"/>
+      <Type Name="ListItemType" Type="{typeof(list:LabelListItemBase)}"/>
+      <Boolean Name="KeyInteractiveNStuff" Boolean="true"/>
+      
+      
+
+      <Object Name="ListModel" Object="{null}"/>
+      
+      <AnimationProvider Name="ItemAnimation" AnimationProvider="{null}"/>
+    </Properties>
+
+    <Content Name="Item">
+      <list:LabelListItemBase LabelListItemBase="{ListItemType}" 
+        Index="{RepeatedItemIndex}"
+        OverrideStyle="{OverrideStyle}"
+        KeyInteractiveNStuff="{KeyInteractiveNStuff}">
+        <Provider>
+          <button:ModelButtonProvider ModelButtonProvider="{ProviderType}" 
+              Model="{RepeatedItem}" 
+              Index="{RepeatedItemIndex}"
+              SelectionManager="{SelectionManager}"
+              ListModel="{ListModel}"/>
+        </Provider>
+        <Animations>
+          <AnimationProvider AnimationProvider="{ItemAnimation}"/>
+        </Animations>
+      </list:LabelListItemBase>
+    </Content>
+  </UI>
+
+</UIX>

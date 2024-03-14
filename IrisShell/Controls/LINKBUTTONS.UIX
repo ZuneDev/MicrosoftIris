@@ -1,0 +1,68 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"  
+  xmlns:button="res://ZuneShellResources!Button.uix"
+  xmlns:core="res://ZuneShellResources!Controls.uix"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:me="Me"
+  >
+  
+  
+  
+  
+  <UI Name="Link" Base="core:Button">
+    <Properties>
+      <style:Style Name="OverrideStyle" Font="{styles:Styles.StandardSubHeaderText}"/>
+    </Properties>
+  </UI>
+
+  
+  
+  
+  <UI Name="MicroLink" Base="core:Button">
+    <Properties>
+      <style:Style Name="OverrideStyle" Font="{styles:Styles.MicroText}"/>
+    </Properties>
+  </UI>
+
+  
+  
+  
+  <UI Name="LargeLink" Base="me:Link">
+    <Properties>
+      <style:Style Name="OverrideStyle" Style="{styles:SharedStyles.MarketplaceHeader}"/>
+    </Properties>
+  </UI>
+
+  
+  
+  
+  
+  <UI Name="MoreLink" Base="me:LargeLink">
+    <Properties>
+      <Inset Name="IconMargin" Inset="5,-3,0,0"/>
+      <Image Name="Arrow" Image="res://ZuneShellResources!Arrow.More.png"/>
+      <button:Icon Name="Icon" Image="{Arrow}" Margins="{IconMargin}"/>
+    </Properties>
+
+    <Scripts>
+      
+      <Script>
+        Label.RequestSource(typeof(button:LabelAndIconContent), "Icon", Icon);
+      </Script>
+    </Scripts>
+  </UI>
+
+  
+  
+  
+  
+  <UI Name="ExternalLink" Base="me:MoreLink">
+    <Properties>
+      <Inset Name="IconMargin" Inset="7,2,0,0"/>
+      <button:Icon Name="Icon" Image="res://ZuneShellResources!Icon.ExternalLink.png" Margins="{IconMargin}"/>
+      <style:Style Name="OverrideStyle" Style="{styles:SharedStyles.HyperlinkStyle}"/>
+    </Properties>
+  </UI>
+</UIX>

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:core="res://ZuneShellResources!CoreControls.uix"
+  xmlns:filter="res://ZuneShellResources!FilterList.uix"
+  xmlns:listcore="res://ZuneShellResources!ContentList.uix"
+  xmlns:list="res://ZuneShellResources!ListView.uix"
+  xmlns:gallery="res://ZuneShellResources!GalleryView.uix">
+
+    <UI Name="Label" Base="core:Label"/>
+    <UI Name="AnimatedLabel" Base="core:AnimatedLabel"/>
+
+    <UI Name="Button" Base="core:Button"/>
+    <UI Name="MenuButton" Base="core:MenuButton"/>
+    <UI Name="InputButton" Base="core:InputButton"/>
+    <UI Name="IconButton" Base="core:IconButton"/>
+    <UI Name="PressAndHoldIconButton" Base="core:PressAndHoldIconButton"/>
+    <UI Name="AnimatedIconButton" Base="core:AnimatedIconButton"/>
+    <UI Name="ToggleIconButton" Base="core:ToggleIconButton"/>
+    <UI Name="ButtonWithIcon" Base="core:ButtonWithIcon"/>
+    <UI Name="ActionButtonWithIcon" Base="core:ActionButtonWithIcon"/>
+    <UI Name="ThumbnailButton" Base="core:ThumbnailButton"/>
+    <UI Name="ThumbnailButtonOverlay" Base="core:ThumbnailButtonOverlay"/>
+    <UI Name="ThumbnailCaptionArea" Base="core:ThumbnailCaptionArea"/>
+    <UI Name="ThumbnailIconCaptionArea" Base="core:ThumbnailIconCaptionArea"/>
+    <UI Name="ActionButton" Base="core:ActionButton"/>
+    <UI Name="ToggleActionButton" Base="core:ToggleActionButton"/>
+    <UI Name="BigActionButton" Base="core:BigActionButton"/>
+    <Class Name="ModelButtonProvider" Base="core:ModelButtonProvider"/>
+    <Class Name="Icon" Base="core:Icon"/>
+
+    <UI Name="Editbox" Base="core:Editbox"/>
+    <UI Name="CheckBox" Base="core:CheckBox"/>
+
+    <UI Name="RadioGroup" Base="core:RadioGroup"/>
+    <UI Name="MCRadioGroup" Base="core:MCRadioGroup"/>
+    <UI Name="RadioButton" Base="core:RadioButton"/>
+
+    <UI Name="ScrollBar" Base="core:ScrollBar"/>
+
+    <UI Name="ContentListBase" Base="listcore:ContentListBase"/>
+    <UI Name="ScrollingContentListBase" Base="listcore:ScrollingContentListBase"/>
+    <UI Name="ListItemBase" Base="listcore:ListItemBase"/>
+    <UI Name="LabelListItemBase" Base="listcore:LabelListItemBase"/>
+    <UI Name="ThumbnailListItemBase" Base="listcore:ThumbnailListItemBase"/>
+    <Class Name="ListItemContext" Base="listcore:ListItemContext"/>
+    <Class Name="NavigateIntoIndexRequest" Base="listcore:NavigateIntoIndexRequest"/>
+    <UI Name="ReorderableListBase" Base="listcore:ReorderableListBase"/>
+    <UI Name="DropZone" Base="listcore:DropZone"/>
+    <UI Name="ItemDropZone" Base="listcore:ItemDropZone"/>
+    <UI Name="Indicator" Base="listcore:Indicator"/>
+
+    <UI Name="FilterList" Base="filter:FilterList"/>
+
+    <UI Name="ListView" Base="list:ListView"/>
+
+    <UI Name="GalleryView" Base="gallery:GalleryView"/>
+
+    <UI Name="ScrollBar" Base="core:ScrollBar"/>
+    <UI Name="Slider" Base="core:Slider"/>
+    <UI Name="ChoiceSlider" Base="core:ChoiceSlider"/>
+    <UI Name="LabeledChoiceSlider" Base="core:LabeledChoiceSlider"/>
+    <UI Name="PagingControl" Base="core:PagingControl"/>
+    <UI Name="PrevNextArrows" Base="core:PrevNextArrows"/>
+
+    <UI Name="SplitPanel" Base="core:SplitPanel"/>
+    <UI Name="Splitter" Base="core:Splitter"/>
+    <Class Name="SplitterPositions" Base="core:SplitterPositions"/>
+
+    <Class Name="ContextMenu" Base="core:ContextMenu"/>
+    <Class Name="MenuDivider" Base="core:MenuDivider"/>
+
+    <UI Name="TextArea" Base="core:TextArea" />
+
+    <UI Name="ToolbarIconBase" Base="core:ToolbarIconBase"/>
+
+</UIX>
+

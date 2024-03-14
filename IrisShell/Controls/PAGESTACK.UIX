@@ -1,0 +1,86 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:me="Me">
+
+  <UI Name="PageStack">
+    <Properties>
+      <zune:ZuneShell Name="Shell" ZuneShell="$Required"/>
+    </Properties>
+
+    <Locals>
+      <bool Name="CanGoBack" bool="true" />
+    </Locals>
+
+    <Input>
+      
+      <KeyHandler Name="BackKeyHandler" Key="Backspace" HandlerStage="Bubbled" Repeat="false" Command="{Shell.NavigateBackCommand}"/>
+      <KeyHandler Name="BackArrowHandler" Key="Left" HandlerStage="Bubbled" RequiredModifiers="Alt"
+                  DisallowedModifiers="Ctrl,Shift,Windows" Repeat="false" Command="{Shell.NavigateBackCommand}"/>
+      <ShortcutHandler Name="BackShortcutHandler" Shortcut="Back" HandlerStage="Bubbled" Command="{Shell.NavigateBackCommand}"/>
+    </Input>
+
+    <Scripts>
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+      <Script>
+        bool enabled = [CanGoBack];
+        BackKeyHandler.Enabled = enabled;
+        BackArrowHandler.Enabled = enabled;
+        BackShortcutHandler.Enabled = enabled;
+      </Script>
+
+      
+      <Script>
+        [InitialEvaluate(true)]
+        [DeclareTrigger(Shell.CurrentPage)]
+
+        
+        ForegroundUI.ForceContentChange();
+
+        ForegroundUI.RequestSource(Shell.CurrentPage.UI, "Page", Shell.CurrentPage);
+        BackgroundUI.RequestSource(Shell.CurrentPage.BackgroundUI, "Page", Shell.CurrentPage);
+
+        ForegroundUI.NavigateInto();
+      </Script>
+    </Scripts>
+
+    <Content>
+      <Panel>
+        <Children>
+
+          <me:PageBase Name="ForegroundUI" Shell="{Shell}" Page="{Shell.CurrentPage}"/>
+
+          <me:PageBase Name="BackgroundUI" Shell="{Shell}" Page="{Shell.CurrentPage}"/>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+
+  
+  
+  <UI Name="PageBase">
+    <Properties>
+      <zune:ZuneShell Name="Shell" ZuneShell="$Required"/>
+      <zune:ZunePage Name="Page" ZunePage="$Required"/>
+    </Properties>
+
+    <Content>
+      <ColorFill Content="Pink" Layout="Fill"/>
+    </Content>
+  </UI>
+
+</UIX>

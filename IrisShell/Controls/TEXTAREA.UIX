@@ -1,0 +1,84 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:scroll="res://ZuneShellResources!ScrollBar.uix"
+  xmlns:button="res://ZuneShellResources!Button.uix"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  >
+
+  <UI Name="TextArea">
+    <Properties>
+      <String Name="Text" String="$Required"/>
+      <styles:LabelStyle Name="Style" Color="{styles:Styles.TextActive}" Font="{styles:Styles.StandardSubHeaderText}"/>
+      <Color Name="Background" Color="Transparent"/>
+    </Properties>
+    
+    <Locals>
+      <ScrollingData Name="ScrollData"/>
+    </Locals>
+    
+    <Scripts>
+      <Script>
+        ScrollBar.RegionHover = [UI.DeepMouseFocus];
+      </Script>
+    </Scripts>
+    
+    <Input>
+      <ScrollingHandler Name="ScrollHandler" ScrollingData="{ScrollData}"/>
+    </Input>
+    
+    <Content>
+      <Panel Layout="Dock">
+        <Children>
+
+          <ColorFill Name="TopScrollerBorder" Content="{styles:Styles.ScrollBarBackground}" MinimumSize="0,1">
+            <LayoutInput>
+              <DockLayoutInput Position="Top"/>
+            </LayoutInput>
+          </ColorFill>
+
+          <ColorFill Name="LeftScrollerBorder" Content="{styles:Styles.ScrollBarBackground}" MinimumSize="1,0">
+            <LayoutInput>
+              <DockLayoutInput Position="Left"/>
+            </LayoutInput>
+          </ColorFill>
+
+          <ColorFill Name="RightScrollerBorder" Content="{styles:Styles.ScrollBarBackground}" MinimumSize="1,0">
+            <LayoutInput>
+              <DockLayoutInput Position="Right"/>
+            </LayoutInput>
+          </ColorFill>
+          
+          <ColorFill Name="BottomScrollerBorder" Content="{styles:Styles.ScrollBarBackground}" MinimumSize="0,1">
+            <LayoutInput>
+              <DockLayoutInput Position="Bottom"/>
+            </LayoutInput>
+          </ColorFill>
+
+          <scroll:ScrollBar Name="ScrollBar" ScrollData="{ScrollData}">
+            <LayoutInput>
+              <DockLayoutInput Position="Right"/>
+            </LayoutInput>
+          </scroll:ScrollBar>
+
+          <Scroller Name="TextAreaScroller" Orientation="Vertical" FadeSize="-1" ScrollingData="{ScrollData}">
+            <LayoutInput>
+              <DockLayoutInput Position="Client"/>
+            </LayoutInput>
+            <Children>
+
+              <ColorFill Content="{Background}" Padding="5,5,0,5">
+                <Children>
+
+                  <button:Label Content="{Text}" WordWrap="true" Style="{Style}"/>
+
+                </Children>
+              </ColorFill>
+
+            </Children>
+          </Scroller>
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+</UIX>

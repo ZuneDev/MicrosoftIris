@@ -1,0 +1,702 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:style="res://ZuneShellResources!Style.uix"
+  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:button="res://ZuneShellResources!Button.uix"
+  xmlns:edit="res://ZuneShellResources!Editbox.uix"
+  xmlns:animations="res://ZuneShellResources!Animations.uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:col="assembly://mscorlib/System.Collections"
+  xmlns:me="Me">
+
+  
+  
+  
+  <UI Name="Default">
+    <Content>
+      <me:ThumbnailButtonBase>
+        <Provider>
+          <me:ThumbnailButtonProvider PrimaryLabel="Hello" SecondaryLabel="World" Image="{styles:Styles.NoAlbumArt}"/>
+        </Provider>
+      </me:ThumbnailButtonBase>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <Class Name="ThumbnailButtonProvider" Base="button:ModelButtonProvider">
+    <Properties>
+      
+      <Image Name="Image" Image="{null}"/>
+      <Command Name="PrimaryLabelEdited" />
+    </Properties>
+  </Class>
+
+  
+  
+  
+  <Class Name="CommandThumbnailButtonProvider" Base="me:ThumbnailButtonProvider">
+    <Properties>
+      <zune:IThumbnailCommand Name="Model" IThumbnailCommand="{null}"/>
+    </Properties>
+
+    <Scripts>
+      <Script>if (Model != null) PrimaryLabel = [Model.Description];</Script>
+      <Script>if (Model != null) Available = [Model.Available];</Script>
+      <Script>if (Model != null) Selected = [Model.Selected];</Script>
+      <Script>if (Model != null) ClickCommand = [Model];</Script>
+      <Script>if (Model != null) Image = [Model.Image];</Script>
+    </Scripts>
+  </Class>
+
+  
+  
+  
+  
+  <UI Name="ThumbnailButton" Base="me:ThumbnailButtonBase">
+    <Properties>
+      
+      <zune:IThumbnailCommand Name="Model" IThumbnailCommand="$Required"/>
+      <me:CommandThumbnailButtonProvider Name="Provider"/>
+    </Properties>
+
+    <Scripts>
+      <Script>Provider.Model = [Model];</Script>
+    </Scripts>
+  </UI>
+
+  
+  
+  
+  
+  <UI Name="ThumbnailButtonBase" Base="button:ButtonBase">
+    <Properties>
+      <me:ThumbnailButtonProvider Name="Provider"/>
+
+      <Type Name="ThumbnailCaptionAreaType" Type="{typeof(me:ThumbnailCaptionArea)}"/>
+
+      <Image Name="FallbackImage" Image="{null}"/>
+
+      <Image Name="DisplayedImage" Image="{null}"/>
+
+      <Boolean Name="AlwaysDisplayAsSelected" Boolean="false"/>
+
+      <AnchorAlignment Name="ImageAlignment" AnchorAlignment="Center"/>
+
+      
+      <Image Name="DefaultBackgroundImage" Image="{null}"/>
+      <Image Name="FocusedBackgroundImage" Image="{styles:Styles.ThumbnailShadow}"/>
+      <Image Name="SelectedBackgroundImage" Image="{styles:Styles.ThumbnailClickShadow}"/>
+      <Image Name="SelectedOverlayImage" Image="{styles:Styles.ThumbnailClickOverlay}"/>
+
+      
+      <Boolean Name="ShowLabel" Boolean="true"/>
+
+      
+      <style:Style Name="PrimaryStyle" Style="{styles:SharedStyles.ThumbnailPrimaryLabelStyle}"/>
+      <style:Style Name="SecondaryStyle" Style="{styles:SharedStyles.ThumbnailSecondaryLabelStyle}"/>
+
+      
+      <Size Name="TileSize" Size="75,75"/>
+      <Size Name="LabelSize" Size="0,20"/>
+
+      
+      <Vector3 Name="HoverScale" Vector3="1.05,1.05,1.0"/>
+      <Vector3 Name="HoverOffScale" Vector3="1,1,1"/>
+      <Vector3 Name="ClickScale" Vector3="1,1,1"/>
+
+      <Inset Name="LabelInset" Inset="0,4,0,0"/>
+
+      
+      <StretchingPolicy Name="StretchingPolicy" StretchingPolicy="UniformToFill"/>
+
+      
+      <AnchorLayoutInput Name="LabelAnchor"
+          Left="TileBase,0" Right="TileBase,1" Horizontal="Near"
+          Top="TileBase,1,0" Bottom="TileBase,1,999" Vertical="Near"/>
+      <AnchorLayoutInput Name="BorderAnchor"
+          Left="Image,0" Right="Image,1"
+          Top="Image,0" Bottom="Image,1"/>
+
+      <Int32 Name="BorderWidth" Int32="4"/>
+
+      
+      <Type Name="OverlayType" Type="{null}"/>
+
+      
+      <Single Name="SelectionBorderFadeInLength" Single="0.2"/>
+
+      <iris:BooleanChoice Name="EditingList" BooleanChoice="{null}"/>
+    </Properties>
+
+    <Locals>
+      <style:StatefulCompositeStyle Name="PrimaryLabelStyle"/>
+      <style:StatefulCompositeStyle Name="SecondaryLabelStyle"/>
+
+      <AnchorLayoutInput Name="SelectionBorderAnchor"
+            Left="ImageBorder,0" Right="ImageBorder,1"
+            Top="ImageBorder,0" Bottom="ImageBorder,1"
+            ContributesToHeight="false"
+            ContributesToWidth="false"/>
+
+      <AnchorLayoutInput Name="ShadowAnchorUnselected"
+            Left="ImageBorder,0,-4" Right="ImageBorder,1,4"
+            Top="ImageBorder,0,-4" Bottom="ImageBorder,1,4"
+            ContributesToHeight="false"
+            ContributesToWidth="false"/>
+
+      <AnchorLayoutInput Name="ShadowAnchorSelected"
+            Left="SelectionBorder,0,-4" Right="SelectionBorder,1,4"
+            Top="SelectionBorder,0,-4" Bottom="SelectionBorder,1,4"
+            ContributesToHeight="false"
+            ContributesToWidth="false"/>
+
+      <Command Name="RefreshFocus"/>
+    </Locals>
+
+    <Scripts>
+      <Script>PrimaryLabelStyle.Base = [PrimaryStyle];</Script>
+      <Script>SecondaryLabelStyle.Base = [SecondaryStyle];</Script>
+      <Script>SecondaryLabelStyle.State = [PrimaryLabelStyle.State];</Script>
+
+      <Script>
+        SelectionBorderAnchor.Left.Offset = BorderWidth * -1;
+        SelectionBorderAnchor.Top.Offset = BorderWidth * -1;
+        SelectionBorderAnchor.Right.Offset = BorderWidth;
+        SelectionBorderAnchor.Bottom.Offset = BorderWidth;
+      </Script>
+
+      
+      <Script>
+        if (Provider != null)
+        {
+          if ([Provider.Image] != null)
+            Image.Content = Provider.Image;
+          else
+            Image.Content = [FallbackImage];
+        }
+      </Script>
+
+      <Script>
+        DisplayedImage = [Image.Content];
+      </Script>
+
+      <Script>
+        if (Provider != null)
+        {
+          PrimaryLabelStyle.State.Selected = [Provider.Selected];
+        }
+      </Script>
+
+      
+      
+      
+      
+      <Script>
+        if ([LabelSize.Width] > 0)
+        {
+          LabelAnchor.Right.Percent = 0.0;
+          LabelAnchor.Right.Offset = LabelSize.Width + 2;
+        }
+      </Script>
+
+      
+      <Script>
+        PrimaryLabelStyle.State.Focused = [UI.DeepKeyFocus];
+      </Script>
+      <Script>
+        PrimaryLabelStyle.State.Hovered = [UI.DeepMouseFocus];
+      </Script>
+
+      <Script>
+        Vector3 scale = HoverOffScale;
+        Image content = DefaultBackgroundImage;
+        Single selectionOverlayAlpha = 0.0;
+        Single selectionAlpha = 0.0;
+
+        if ([PrimaryLabelStyle.State.Selected] || AlwaysDisplayAsSelected)
+        {
+          
+          
+          
+          scale = HoverOffScale;
+          content = FocusedBackgroundImage;
+
+          
+          
+          
+          selectionAlpha = 1.0;
+
+          
+          
+          Background.LayoutInput = ShadowAnchorSelected;
+        }
+        else
+        {
+          Background.LayoutInput = ShadowAnchorUnselected;
+        }
+
+        if ([UI.DeepMouseFocus])
+        {
+          scale = HoverScale;
+          content = FocusedBackgroundImage;
+        }
+
+        if ([Clicker.Clicking])
+        {
+          scale = ClickScale;
+          content = SelectedBackgroundImage;
+          selectionOverlayAlpha = 1.0;
+          selectionAlpha = 0.0;
+        }
+
+        Background.Scale = scale;
+        Background.Content = content;
+
+        Image.Scale = scale;
+
+        ImageBorder.Scale = scale;
+
+        SelectionBorder.Scale = scale;
+        SelectionBorder.Alpha = selectionAlpha;
+
+        SelectionOverlay.Alpha = selectionOverlayAlpha;
+
+        OverlayContent.Scale = scale;
+      </Script>
+      
+      <Script>LabelArea.Visible = [ShowLabel];</Script>
+
+      
+      <Script>
+        TileBase.MinimumSize = [TileSize];
+        TileBase.MaximumSize = TileSize;
+      </Script>
+
+
+      
+      <Script>
+        if ([OverlayType] != null)
+        {
+          OverlayContent.RequestSource(OverlayType, "State", PrimaryLabelStyle.State, "Provider", Provider);
+        }
+        else
+        {
+          OverlayContent.RequestSource(null);
+        }
+      </Script>
+
+      
+      <Script>
+        bool isEditing = [LabelArea.IsEditing];
+
+        Clicker.Enabled = !isEditing;
+
+        if (EditingList != null)
+        {
+          EditingList.Value = isEditing;
+        }
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(RefreshFocus.Invoked)]
+        UI.NavigateInto();
+      </Script>
+
+      <Script>
+        UI.FocusInterestTarget = Image;
+        UI.FocusInterestTargetMargins = new Inset(6,6,6,6);
+      </Script>
+    </Scripts>
+
+    <Content>
+      <Panel Name="Root" Layout="Anchor" MouseInteractive="true">
+        <Children>
+
+          
+          <me:ThumbnailButtonOverlay Name="OverlayContent">
+            <LayoutInput>
+              <AnchorLayoutInput
+                  Left="Image,0" Top="Image,0" ContributesToWidth="false"
+                  Right="Image,1" Bottom="Image,1" ContributesToHeight="false"/>
+            </LayoutInput>
+            <Animations>
+              <Animation Animation="{animations:Animations.ButtonScale}"/>
+            </Animations>
+          </me:ThumbnailButtonOverlay>
+
+          <me:ThumbnailCaptionArea Name="LabelArea" ThumbnailCaptionArea="{ThumbnailCaptionAreaType}"
+              LabelSize="{LabelSize}"
+              Provider="{Provider}"
+              PrimaryLabelStyle="{PrimaryLabelStyle}"
+              SecondaryLabelStyle="{SecondaryLabelStyle}"
+              LabelInset="{LabelInset}"
+              RefreshFocus="{RefreshFocus}">
+            <LayoutInput>
+              <AnchorLayoutInput AnchorLayoutInput="{LabelAnchor}"/>
+            </LayoutInput>
+          </me:ThumbnailCaptionArea>
+
+          
+          
+          
+          
+          
+          <Graphic Name="Image" SizingPolicy="SizeToConstraint" StretchingPolicy="{StretchingPolicy}"
+              AcquiringImage="{FallbackImage}" ErrorImage="{FallbackImage}">
+            <LayoutInput>
+              <AnchorLayoutInput Left="TileBase,0" Right="TileBase,1" Top="TileBase,0" Bottom="TileBase,1" Horizontal="{ImageAlignment}" Vertical="Center"/>
+            </LayoutInput>
+            <Animations>
+              <Animation Animation="{animations:Animations.ButtonAlpha}"/>
+              <Animation Animation="{animations:Animations.ButtonScale}"/>
+            </Animations>
+            <Children>
+
+              <Graphic Name="SelectionOverlay" Content="{SelectedOverlayImage}" Layout="Fill" />
+
+            </Children>
+          </Graphic>
+
+          <ColorFill Name="ImageBorder" Content="Transparent">
+            <LayoutInput>
+              <AnchorLayoutInput AnchorLayoutInput="{BorderAnchor}"/>
+            </LayoutInput>
+            <Animations>
+              <Animation Animation="{animations:Animations.ButtonScale}"/>
+            </Animations>
+          </ColorFill>
+
+          <ColorFill Name="SelectionBorder" Content="White" Alpha="0.0">
+            <LayoutInput>
+              <AnchorLayoutInput AnchorLayoutInput="{SelectionBorderAnchor}"/>
+            </LayoutInput>
+            <Animations>
+              <Animation Animation="{animations:Animations.ButtonScale}"/>
+              <Animation Name="SelectionBorderAlpha" Type="Alpha">
+                <Keyframes>
+                  <AlphaKeyframe Time="0.0" Value="1.0" RelativeTo="Current" Interpolation="{animations:Animations.PopInterpolation}"/>
+                  <AlphaKeyframe Time="{SelectionBorderFadeInLength}" Value="1.0" RelativeTo="Final"/>
+                </Keyframes>
+              </Animation>
+            </Animations>
+          </ColorFill>
+
+          
+          
+
+
+
+
+          <Panel Name="TileBase"/>
+
+          
+          <Graphic Name="Background" StretchingPolicy="Fill">
+            <Animations>
+              <Animation Animation="{animations:Animations.ButtonScale}"/>
+            </Animations>
+          </Graphic>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="ThumbnailCaptionArea">
+    <Properties>
+      <me:ThumbnailButtonProvider Name="Provider" ThumbnailButtonProvider="$Required"/>
+      <Size Name="LabelSize" Size="$Required"/>
+      <style:Style Name="PrimaryLabelStyle" Style="$Required"/>
+      <style:Style Name="SecondaryLabelStyle" Style="$Required"/>
+      <Inset Name="LabelInset" Inset="0,4,0,0"/>
+
+      <Type Name="PrimaryLabelType" Type="{typeof(me:LabelHost)}"/>
+      <Type Name="SecondaryLabelType" Type="{typeof(me:LabelHost)}"/>
+
+      <Boolean Name="IsEditing"/>
+      <Command Name="RefreshFocus" Command="{null}"/>
+    </Properties>
+
+    <Scripts>
+
+      <Script>
+        if (Provider != null)
+        {
+          Label.Content= [Provider.PrimaryLabel];
+        }
+      </Script>
+
+      
+      <Script>
+        if (Provider != null)
+        {
+          Provider.EditPrimaryLabel = Label.EditMe;
+        }
+      </Script>
+
+      <Script>
+        if (Provider != null)
+        {
+          SecondaryLabel.Content = [Provider.SecondaryLabel];
+        }
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(Label.CommitEdit.Invoked)]
+
+        if (Provider != null &amp;&amp; Provider.PrimaryLabel != Label.Content)
+        {
+          Provider.PrimaryLabel = Label.Content;
+          Provider.PrimaryLabelEdited.Invoke();
+        }
+      </Script>
+
+      
+      
+      <Script>
+        IsEditing = [Label.IsEditing];
+      </Script>
+
+      
+      <Script>
+        Label.RefreshFocus          = RefreshFocus;
+        SecondaryLabel.RefreshFocus = RefreshFocus;
+      </Script>
+
+    </Scripts>
+
+    <Content>
+      <Panel Layout="VerticalFlow" MinimumSize="{LabelSize}" MaximumSize="{LabelSize}" Margins="{LabelInset}">
+        <Children>
+
+          
+          <me:LabelHostBase Name="Label" Style="{PrimaryLabelStyle}" LabelHostBase="{PrimaryLabelType}" />
+
+          
+          <me:LabelHostBase Name="SecondaryLabel" Margins="0,-2,0,0" Style="{SecondaryLabelStyle}" LabelHostBase="{SecondaryLabelType}" />
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="LabelHostBase">
+    <Properties>
+      <String Name="Content"/>
+      <Command Name="EditMe" Command="{null}"/>
+      <Command Name="RefreshFocus" Command="{null}"/>
+      <Command Name="CommitEdit"  Command="{null}"/>
+      <style:Style Name="Style" Style="$Required"/>
+      <Boolean Name="IsEditing"/>
+      <Boolean Name="WordWrap" />
+      <Int32 Name="MaximumLines" />
+      <col:IDictionary Name="NamedStyles" IDictionary="{null}"/>
+      <String Name="ToolTipContent"/>
+    </Properties>
+
+    <Scripts>
+      <Script> Label.WordWrap = [WordWrap]; </Script>
+      <Script> Label.MaximumLines = [MaximumLines]; </Script>
+      <Script> Label.NamedStyles = [NamedStyles]; </Script>
+      <Script> Label.ToolTipContent = [ToolTipContent]; </Script>
+    </Scripts>
+
+    <Content>
+      <button:Label Name="Label" Style="{Style}"/>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="LabelHost" Base="me:LabelHostBase">
+    <Scripts>
+      <Script>
+        Label.Content = [Content];
+      </Script>
+    </Scripts>
+  </UI>
+
+  
+  
+  
+  <UI Name="EditableLabelHost" Base="me:LabelHost">
+    <Locals>
+      
+      
+      
+      
+      <EditableTextData Name="EditData" />
+    </Locals>
+
+    <Properties>
+      <Command Name="EditMe" />
+      <Command Name="CommitEdit" />
+    </Properties>
+
+    <Input>
+      <KeyHandler Name="Escape" Key="Escape" HandlerStage="Bubbled" Handle="true"/>
+    </Input>
+
+    <Scripts>
+
+      
+      <Script>
+        [DeclareTrigger(EditMe.Invoked)]
+        EditData.Value = Label.Content;
+        Label.RequestSource(typeof(me:LabelEditBox), "Model", EditData);
+        Label.NavigateInto();
+        IsEditing = true;
+      </Script>
+
+      
+      <Script>
+        Escape.Enabled = [IsEditing];
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(EditData.Submitted)]
+
+        if (!String.IsNullOrEmpty(EditData.Value))
+        {
+          CommitEdit.Invoke();
+          Content = EditData.Value;
+        }
+        else
+        {
+          Label.Content = Content;
+        }
+
+        IsEditing = false;
+        Label.RequestSource(typeof(button:Label));
+
+        if (RefreshFocus != null)
+        {
+          RefreshFocus.Invoke();
+        }
+      </Script>
+
+      
+      <Script>
+        [InitialEvaluate(false)]
+        if (![UI.DeepKeyFocus])
+        {
+          if (!String.IsNullOrEmpty(EditData.Value))
+          {
+            Content = EditData.Value;
+          }
+          else
+          {
+            Label.Content = Content;
+          }
+
+          IsEditing = false;
+          Label.RequestSource(typeof(button:Label));
+        }
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(Escape.Invoked)]
+        EditData.Value = Content;
+        Label.Content = Content;
+        IsEditing = false;
+        Label.RequestSource(typeof(button:Label));
+
+        if (RefreshFocus != null)
+        {
+          RefreshFocus.Invoke();
+        }
+      </Script>
+    </Scripts>
+
+    <Content>
+      <button:Label Name="Label" Style="{Style}"/>
+    </Content>
+  </UI>
+
+  
+  
+  
+  <UI Name="LabelEditBox" Base="edit:Editbox">
+    <Properties>
+      <Size Name="TileMinSize" Size="0,0"/>
+      <Size Name="TileMaxSize" Size="0,0"/>
+      <Inset Name="TilePadding" Inset="0,0,0,0"/>
+      <Int32 Name="DefaultHeight" Int32="0"/>
+    </Properties>
+  </UI>
+
+  
+  
+  
+  <UI Name="ThumbnailButtonOverlay">
+    <Properties>
+      <style:StyleState Name="State"/>
+      <Object Name="Model" Object="{null}"/>
+      <me:ThumbnailButtonProvider Name="Provider" ThumbnailButtonProvider="{null}"/>
+    </Properties>
+  </UI>
+
+  
+  
+  
+  <UI Name="ThumbnailIconCaptionArea" Base="me:ThumbnailCaptionArea">
+    <Properties>
+      <Image Name="Image" Image="{null}"/>
+      <Boolean Name="ImageVisible"/>
+    </Properties>
+
+    <Scripts>
+      <Script>Icon.Content = [Image];</Script>
+      <Script>Icon.Visible = [ImageVisible];</Script>
+    </Scripts>
+
+    <Content>
+      <Panel Layout="Anchor" MinimumSize="{LabelSize}" MaximumSize="{LabelSize}" Margins="{LabelInset}">
+        <Children>
+
+          
+          <Panel Name="IconContainer">
+            <LayoutInput>
+              <AnchorLayoutInput Right="Parent,1" Top="Parent,0,3"/>
+            </LayoutInput>
+            <Children>
+
+              <Graphic Name="Icon"/>
+
+            </Children>
+          </Panel>
+
+          
+          <me:LabelHostBase Name="Label" LabelHostBase="{PrimaryLabelType}" Style="{PrimaryLabelStyle}">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Top="Parent,0" Right="IconContainer,0"/>
+            </LayoutInput>
+          </me:LabelHostBase>
+
+          
+          <me:LabelHostBase Name="SecondaryLabel" LabelHostBase="{SecondaryLabelType}" Style="{SecondaryLabelStyle}">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Top="Label,1" Bottom="Parent,1"/>
+            </LayoutInput>
+          </me:LabelHostBase>
+
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+
+</UIX>
