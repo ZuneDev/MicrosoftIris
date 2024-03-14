@@ -13,17 +13,17 @@
 
     <ItemGroup>
         <EmbeddedResource Include="**\*.uix" />
+        <None Remove="Controls\Styles.uix" />
 
-        <!--<None Update="**\*.uix.cs" />-->
         <Compile Update="**\*.uix.cs">
             <DependentUpon>$([System.String]::Copy(%(Filename)).Replace('.cs', '.uix'))</DependentUpon>
         </Compile>		
     </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="UIXControls">
-			<HintPath>C:\Program Files\Zune\UIXcontrols.dll</HintPath>
-		</Reference>
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="UIXControls">
+            <HintPath>C:\Program Files\Zune\UIXcontrols.dll</HintPath>
+        </Reference>
+    </ItemGroup>
 
 </Project>

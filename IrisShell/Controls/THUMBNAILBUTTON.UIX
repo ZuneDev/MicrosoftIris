@@ -208,7 +208,7 @@
         PrimaryLabelStyle.State.Focused = UI.DeepKeyFocus;
       </Script>
       <Script>
-        PrimaryLabelStyle.State.Hovered = UI.DeepMouseFocus;
+        PrimaryLabelStyle.State.Hovered = UI.MouseFocus;
       </Script>
 
       <Script>
@@ -239,7 +239,7 @@
           Background.LayoutInput = ShadowAnchorUnselected;
         }
 
-        if (UI.DeepMouseFocus)
+        if (UI.MouseFocus)
         {
           scale = HoverScale;
           content = FocusedBackgroundImage;
@@ -357,21 +357,21 @@
             </Animations>
             <Children>
 
-              <Graphic Name="SelectionOverlay" Content="{SelectedOverlayImage}" Layout="Fill" />
+              <Graphic Name="SelectionOverlay" Content="{SelectedOverlayImage}" Layout="Default" />
 
             </Children>
           </Graphic>
 
-          <ColorFill Name="ImageBorder" Content="Transparent">
+          <Panel Name="ImageBorder" Content="Transparent">
             <LayoutInput>
               <AnchorLayoutInput AnchorLayoutInput="{BorderAnchor}"/>
             </LayoutInput>
             <Animations>
               <Animation Animation="{animations:Animations.ButtonScale}"/>
             </Animations>
-          </ColorFill>
+          </Panel>
 
-          <ColorFill Name="SelectionBorder" Content="White" Alpha="0.0">
+          <Panel Name="SelectionBorder" Background="White" Alpha="0.0">
             <LayoutInput>
               <AnchorLayoutInput AnchorLayoutInput="{SelectionBorderAnchor}"/>
             </LayoutInput>
@@ -384,7 +384,7 @@
                 </Keyframes>
               </Animation>
             </Animations>
-          </ColorFill>
+          </Panel>
 
           
           

@@ -79,7 +79,7 @@
     </Properties>
 
     <Content>
-      <ColorFill Content="Pink" Layout="Fill"/>
+      <Panel Background="Pink" Layout="Default"/>
     </Content>
   </UI>
 

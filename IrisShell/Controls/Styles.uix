@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:isui="assembly://IrisShell/IrisShell.UI"
+  xmlns:style="res://UIXControls!Style.uix"
+  xmlns:styles="res://UIXControls!Styles.uix"
+  xmlns:me="Me">
+	
+	<Class Name="WindowState" Shared="true">
+		<Properties>
+			<Boolean Name="InputActive"/>
+			<Boolean Name="KeysActive"/>
+
+			<Boolean Name="CanHideMouse"/>
+
+
+			<Boolean Name="TopToolbarInputActivity"/>
+			<Boolean Name="BottomToolbarInputActivity"/>
+			<Boolean Name="CaptionInputActivity"/>
+			<Boolean Name="ResizeBorderInputActivity"/>
+			<Boolean Name="PageInputActivity"/>
+		</Properties>
+
+		<Scripts>
+			<Script>
+				bool inActiveRegion =
+					(TopToolbarInputActivity &amp;&amp; !CaptionInputActivity)
+					|| BottomToolbarInputActivity
+					|| ResizeBorderInputActivity
+					|| PageInputActivity;
+
+
+
+
+				CanHideMouse = !inActiveRegion;
+			</Script>
+		</Scripts>
+	</Class>
+
+	<Class Name="SharedStyles" Shared="true">
+		<Properties>
+			<TextStyle Name="NegativeOneCharacterSpacing" CharacterSpacing="-1"/>
+			<styles:ColumnHeaderStyle Name="ColumnHeaderStyle"/>
+			<styles:LabelStyle Name="LabelStyle"/>
+			<styles:ListItemStyle Name="ListItemStyle"/>
+			<styles:InboxReadListItemStyle Name="InboxReadListItemStyle"/>
+			<styles:InboxUnreadListItemStyle Name="InboxUnreadListItemStyle"/>
+			<styles:TrackListItemStyle Name="TrackListItemStyle"/>
+			<styles:TrackListItemDisabledStyle Name="TrackListItemDisabledStyle"/>
+			<styles:ButtonStyle Name="ButtonStyle"/>
+			<styles:ToggleTextStyle Name="ToggleTextStyle"/>
+			<styles:SlideshowToggleTextStyle Name="SlideshowToggleTextStyle"/>
+			<styles:RadioButtonStyle Name="RadioButtonStyle"/>
+			<styles:ActionButtonStyle Name="ActionButtonStyle"/>
+			<styles:NowPlayingButtonStyle Name="NowPlayingButtonStyle"/>
+			<styles:TransportButtonStyle Name="TransportButtonStyle"/>
+			<styles:LabelStyle Name="ActionButtonProgressStyle" Color="{styles:Styles.ActionButtonProgress}"  Font="{styles:Styles.ButtonText}"/>
+			<styles:BigActionButtonShadowStyle Name="BigActionButtonShadowStyle"/>
+			<styles:BigActionButtonStyle Name="BigActionButtonStyle"/>
+			<styles:LabelStyle Name="ActionButtonShadowStyle"   Color="{styles:Styles.ActionButtonShadow}"    Font="{styles:Styles.ButtonText}"/>
+			<styles:DialogButtonStyle Name="DialogButtonStyle"/>
+			<styles:EditBoxStyle Name="EditBoxStyle"/>
+			<styles:SearchEditBoxStyle Name="SearchEditBoxStyle"/>
+			<styles:ThumbnailPrimaryLabelStyle Name="ThumbnailPrimaryLabelStyle"/>
+			<styles:ThumbnailSecondaryLabelStyle Name="ThumbnailSecondaryLabelStyle"/>
+			<styles:ThumbnailOverlayLabelStyle Name="ThumbnailOverlayLabelStyle"/>
+			<styles:PhotoVideoLabelStyle Name="PhotoVideoLabelStyle"/>
+			<style:Style Name="PhotoFolderCountStyle" Font="{styles:Styles.ZegoeBold42}" Color="{styles:Styles.PhotoFolderCountColor}"/>
+			<styles:SearchOverlayLabelStyle Name="SearchOverlayLabelStyle"/>
+			<styles:ListViewColumnHeaderStyle Name="ListViewColumnHeaderStyle"/>
+			<styles:ListViewSortsColumnHeaderStyle Name="ListViewSortsColumnHeaderStyle"/>
+			<styles:ColumnHeaderDarkStyleSet Name="ColumnHeaderDarkStyleSet"/>
+			<styles:ColumnHeaderStyleSet Name="ColumnHeaderStyleSet"/>
+			<styles:MarketplaceExpandedSort Name="MarketplaceExpandedSort"/>
+			<styles:MenuItemStyle Name="MenuItemStyle"/>
+			<styles:MgmtMenuItemStyle Name="MgmtMenuItemStyle"/>
+			<styles:MenuItemHeaderStyle Name="MenuItemHeaderStyle"/>
+			<styles:MonitoredFoldersLabelStyle Name="MonitoredFoldersLabelStyle"/>
+			<styles:MonitoredFoldersHeadersStyle Name="MonitoredFoldersHeadersStyle"/>
+			<styles:DialogTextStyle Name="DialogTextStyle"/>
+			<styles:DialogSmallTextStyle Name="DialogSmallTextStyle"/>
+			<styles:DialogDarkTextStyle Name="DialogDarkTextStyle"/>
+			<styles:DialogDarkMediumTextStyle Name="DialogDarkMediumTextStyle"/>
+			<styles:DialogLinkStyle Name="DialogLinkStyle"/>
+			<styles:DialogSubHeaderStyle Name="DialogSubHeaderStyle"/>
+			<styles:DialogHeaderStyle Name="DialogHeaderStyle"/>
+			<styles:DialogLargeHeaderStyle Name="DialogLargeHeaderStyle"/>
+			<styles:DialogHyperlinkStyle Name="DialogHyperlinkStyle"/>
+			<TextStyle Name="DialogBoldTextStyle" FontFace="Zegoe UI - U" Bold="true"/>
+			<styles:DragFeedbackStyle Name="DragFeedbackStyle"/>
+			<styles:LabelStyle Name="GenreListText" Font="{styles:Styles.Zegoe12}" Color="{styles:Styles.SecondaryLabel}" TextMargins="0,-2,0,0"/>
+			<styles:TopPivot Name="TopPivot"/>
+			<styles:BottomPivot Name="BottomPivot"/>
+			<styles:LibraryPivot Name="LibraryPivot"/>
+
+			<!--<styles:AlbumReviewHeader Name="AlbumReviewHeader"/>
+			<styles:MarketplaceLeftFilter Name="MarketplaceLeftFilter"/>
+			<styles:MarketplaceHeader Name="MarketplaceHeader"/>
+			<styles:MarketplaceHubListPrimary Name="MarketplaceHubListPrimary"/>
+			<styles:MarketplaceHubListSecondary Name="MarketplaceHubListSecondary"/>
+			<styles:ZuneNetLinkStyle Name="ZuneNetLinkStyle"/>-->
+			<style:Style Name="PodcastAuthor"               Font="{styles:Styles.DetailTitle}"                  Color="{styles:Styles.WarmGray}"/>
+			<style:Style Name="PodcastCategory"             Font="{styles:Styles.ZegoeSemiBold8}"               Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="PodcastTitle"                Font="{styles:Styles.DetailTitle}"                  Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="PodcastText"                 Font="{styles:Styles.SettingsText}"                 Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="PodcastDesc"                 Font="{styles:Styles.Zegoe9}"                       Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="PodcastCopyright"            Font="{styles:Styles.DetailTitle}"                  Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="MarketplaceTitle"            Font="{styles:Styles.EnduranceProCapsBold32}"       Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="MarketplaceAlbumHeader"      Font="{styles:Styles.ZegoeCaps18}"                  Color="{styles:Styles.MarketplaceDefault}"/>
+			<styles:MarketplaceInstanceMetadata Name="MarketplaceInstanceMetadata"/>
+			<styles:MarketplaceSort Name="MarketplaceSort"/>
+			<style:Style Name="PlaylistMetadataPrimary"     Font="{styles:Styles.Zegoe9}"                       Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="PlaylistMetadataSecondary"   Font="{styles:Styles.Zegoe9}"                       Color="{styles:Styles.WarmGray}"/>
+
+			<style:Style Name="LargeFeaturePrimary"         Font="{styles:Styles.Zegoe24}"                  Color="{styles:Styles.LightOnDarkText}"      TextMargins="0,0,0,-4"/>
+			<style:Style Name="LargeFeatureSecondary"       Font="{styles:Styles.ZegoeSemiBold10}"          Color="{styles:Styles.LightOnDarkText}"/>
+			<style:Style Name="GridFeaturePrimary"          Font="{styles:Styles.ZegoeSemiBold12}"          Color="{styles:Styles.LightOnDarkText}"      TextMargins="0,0,0,-2"/>
+			<style:Style Name="GridFeatureSecondary"        Font="{styles:Styles.ZegoeSemiBold8}"           Color="{styles:Styles.LightOnDarkText}"/>
+			<style:Style Name="PodcastFeaturePrimary"       Font="{styles:Styles.Zegoe9}"                   Color="{styles:Styles.LightOnDarkText}"      TextMargins="0,0,0,-2"/>
+			<style:Style Name="PodcastFeatureSecondary"     Font="{styles:Styles.Zegoe9}"                   Color="{styles:Styles.LightOnDarkSubText}"/>
+			<style:Style Name="ListFeaturePrimary"          Font="{styles:Styles.ZegoeCaps14}"              Color="{styles:Styles.MarketplaceDefault}"   TextMargins="0,0,0,2"/>
+			<style:Style Name="ListFeatureSecondary"        Font="{styles:Styles.Zegoe9}"                   Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="CDLandAlbumName"             Font="{styles:Styles.CDLandAlbumName}"          Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="CDLandArtistName"            Font="{styles:Styles.CDLandArtistName}"         Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="CDLandAlbumYear"             Font="{styles:Styles.CDLandAlbumYear}"          Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="CDLandAlbumGenre"            Font="{styles:Styles.CDLandAlbumGenre}"         Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="CDLandAlbumExceededCapacity" Font="{styles:Styles.CDLandAlbumGenre}"         Color="{styles:Styles.Magenta}"/>
+			<styles:CDLandTrackNumberStyle Name="CDLandTrackNumberStyle"/>
+			<style:Style Name="CDLandStatus"                Font="{styles:Styles.ButtonText}"               Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="CDLandStatusRipping"         Font="{styles:Styles.ButtonText}"               Color="{styles:Styles.TextSelected}"/>
+			<style:Style Name="CDLandStatusError"           Font="{styles:Styles.ZegoeBold12}"              Color="{styles:Styles.Magenta}"/>
+			<style:Style Name="ThumbnailRollover"           Font="{styles:Styles.ZegoeBold11}"              Color="{styles:Styles.ThumbnailRolloverColor}"/>
+			<style:Style Name="GDILoadingStatus"            Font="{styles:Styles.ZegoeCaps14}"              Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="EmptyCollectionText"         Font="{styles:Styles.EnduranceProCapsBold20}"   Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="ConnectDeviceStyle"          Font="{styles:Styles.ZegoeBold20}"              Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="PleaseConnectStyle"          Font="{styles:Styles.ZegoeSemiBold10}"          Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="NoPlaylistContentText"       Font="{styles:Styles.ZegoeBold14}"              Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="SyncTitle"                   Font="{styles:Styles.CDLandAlbumName}"          Color="{styles:Styles.MarketplaceDefault}"/>
+			<style:Style Name="SyncLink"                    Font="{styles:Styles.Zegoe14}"                  Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="SyncHeader"                  Font="{styles:Styles.ZegoeSemiBold8}"           Color="{styles:Styles.DarkGray}"/>
+			<styles:SearchResultsStyle Name="SyncItem"/>
+			<TextStyle Name="NoCollectionHighlight"         Color="{styles:Styles.NoCollectionHighlightText}"/>
+			<TextStyle Name="DeviceNameStyle"               Color="{styles:Styles.MarketplaceDefault}"    FontSize="20" FontFace="Zegoe UI - U" Bold="true"/>
+			<TextStyle Name="DeviceSizeStyle"               Color="{styles:Styles.WarmGray}"              FontSize="20" FontFace="Zegoe Light - U"/>
+			<styles:HyperlinkStyle Name="HyperlinkStyle"/>
+			<style:Style Name="PodcastWarningStyle"         Font="{styles:Styles.WarningFont}"      Color="{styles:Styles.WarningColor}"/>
+			<style:Style Name="PodcastEpisodeTitleStyle"    Font="{styles:Styles.PodcastTitleFont}" Color="{styles:Styles.DarkGray}"/>
+			<styles:SearchResultsStyle Name="SearchResultsStyle"/>
+			<styles:SearchResultsSmallStyle Name="SearchResultsSmallStyle"/>
+			<style:Style Name="NowPlayingPrimaryLabel"      Font="{styles:Styles.EnduranceProCapsBold36}" Color="{styles:Styles.LightOnDarkText}" TextStyle="{NegativeOneCharacterSpacing}"/>
+			<style:Style Name="NowPlayingSecondaryLabel"    Font="{styles:Styles.EnduranceProCapsBold24}" Color="{styles:Styles.LightOnDarkText}"/>
+			<styles:NowPlayingLinkStyle Name="NowPlayingLinkStyle"/>
+			<styles:FUEHeaderStyle      Name="FUEHeaderStyle"/>
+			<styles:FUEDescriptionStyle Name="FUEDescriptionStyle"/>
+			<styles:FUELabelStyle       Name="FUELabelStyle"/>
+			<styles:FUEHyperlinkStyle   Name="FUEHyperlinkStyle"/>
+			<styles:SettingsButtonStyle Name="SettingsButtonStyle"/>
+			<styles:SignInButtonStyle   Name="SignInButtonStyle"/>
+			<styles:ExternalLinkStyle   Name="ExternalLinkStyle"/>
+			<styles:InboxSignInHeaderStyle      Name="InboxSignInHeaderStyle"/>
+			<styles:InboxSignInDescriptionStyle Name="InboxSignInDescriptionStyle"/>
+
+
+			<style:Style Name="TransportVolumeValue"          Font="{styles:Styles.TransportVolumeFont}"  Color="{styles:Styles.TransportVolumeColor}"/>
+			<style:Style Name="TransportVolumeLabel"          Font="{styles:Styles.ButtonText}"           Color="{styles:Styles.PrimaryLabel}"/>
+			<style:Style Name="SlideshowTransportVolumeValue" Font="{styles:Styles.TransportVolumeFont}"  Color="{styles:Styles.LightOnDarkAltText}"/>
+			<style:Style Name="SlideshowTransportVolumeLabel" Font="{styles:Styles.ButtonText}"           Color="{styles:Styles.LightOnDarkAltText}"/>
+
+			<style:Style Name="NowPlayingNotificationTitle"                 Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.WarmGray}"/>
+			<style:Style Name="NowPlayingNotificationElapsedTime"           Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="NowPlayingNotificationTotalTime"             Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.WarmGray}"/>
+			<style:Style Name="SlideshowNowPlayingNotificationTitle"        Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.LightOnDarkAltText}"/>
+			<style:Style Name="SlideshowNowPlayingNotificationElapsedTime"  Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.LightOnDarkText}"/>
+			<style:Style Name="SlideshowNowPlayingNotificationTotalTime"    Font="{styles:Styles.ZegoeSemiBold8}" Color="{styles:Styles.LightOnDarkAltText}"/>
+
+			<style:Style Name="LandTitle"                   Font="{styles:Styles.TopPivotText}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="SlideshowLandTitle"          Font="{styles:Styles.TopPivotText}" Color="{styles:Styles.LightOnDarkText}"/>
+			<style:Style Name="InboxReply"                  Font="{styles:Styles.ZegoeLight16}" Color="{styles:Styles.DarkGray}"/>
+			<style:Style Name="InboxDetailStyle"            Font="{styles:Styles.ZegoeBold10}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxEmptyStyle"             Font="{styles:Styles.Zegoe12}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxMessageStyle"           Font="{styles:Styles.Zegoe10}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxAlbumTitle"             Font="{styles:Styles.DetailsAlbumTitle}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxAlbumArtist"            Font="{styles:Styles.DetailsAlbumArtist}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxAlbumGenre"             Font="{styles:Styles.DetailsAlbumGenre}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxAlbumRelease"           Font="{styles:Styles.DetailsAlbumReleaseYear}" Color="{styles:Styles.TextActive}"/>
+			<style:Style Name="InboxPrompt"                 Font="{styles:Styles.ZegoeSemiBold10}" Color="{styles:Styles.WarmGray}"/>
+			<style:Style Name="InboxHeader"                 Font="{styles:Styles.InboxCategory}" Color="{styles:Styles.DarkGray}"/>
+			<TextStyle Name="InboxDetailNameStyle"          FontSize="7" FontFace="Zegoe UI - U" Bold="true" Color="{styles:Styles.DarkGray}"/>
+
+
+			<style:Style Name="HoveredButtonCellStyle"      Font="{null}" Color="{styles:Styles.RedOrange}"/>
+
+			<styles:LabelStyle Name="GasGaugeCurrentSpace"  Color="{styles:Styles.DarkGray}" Font="{styles:Styles.ZegoeSemiBold8}"/>
+			<styles:LabelStyle Name="GasGaugeFreeSpaceText" Color="{styles:Styles.DarkGray}" Font="{styles:Styles.ZegoeSemiBold8}"/>
+
+			<TextStyle Name="PodcastPaneDescription"    Color="{styles:Styles.PodcastPaneDescription}" FontFace="Zegoe UI - U" FontSize="9" />
+			<TextStyle Name="PodcastSeriesDescription"  Color="{styles:Styles.PodcastDescriptionColor}" LineSpacing="1.1" FontFace="Zegoe UI - U" FontSize="10" />
+
+			<style:Style Name="ReportAConcernError"     Font="{styles:Styles.ZegoeSemiBold9}" Color="{styles:Styles.RedOrange}"/>
+
+			<styles:LabelStyle Name="ToolbarDarkStyle" Color="{styles:Styles.IconNotificationTextColor}" Font="{styles:Styles.IconNotificationTextFont}"/>
+			<styles:LabelStyle Name="ToolbarLightStyle" Color="White" Font="{styles:Styles.IconNotificationTextFont}"/>
+			<TextStyle Name="IconNotificationBold"          Color="{styles:Styles.IconNotificationBoldColor}"   FontFace="Zegoe UI - U" Bold="true"/>
+
+			<style:Style Name="ToolTipStyle" Font="{styles:Styles.ZegoeBold9}" Color="{styles:Styles.EditText}"/>
+			<style:Style Name="SettingsBodyStyle" Font="{styles:Styles.SettingsText}" Color="{styles:Styles.SettingsTextActive}"/>
+			<TextStyle Name="SettingsBoldItalicBodyStyle" Bold="true" Italic="true" FontFace="Zegoe UI - U"/>
+
+		</Properties>
+	</Class>
+</UIX>

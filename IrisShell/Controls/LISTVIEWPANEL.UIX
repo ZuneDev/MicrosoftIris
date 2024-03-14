@@ -64,7 +64,7 @@
     </Scripts>
 
     <Content>
-      <ColorFill Name="Background" Navigation="TabGroup" Padding="{HeaderPadding}">
+	  <Panel Background="Background" Navigation="TabGroup" Padding="{HeaderPadding}">
         <Layout>
           <FlowLayout Orientation="Horizontal" FillStrip="{!SizeToChildren}"/>
         </Layout>
@@ -77,7 +77,7 @@
           <core:Label Name="Label" Margins="0,0,4,0" Style="{SortsOverrideStyle}"/>
           
         </Children>
-      </ColorFill>
+      </Panel>
     </Content>
   </UI>
   

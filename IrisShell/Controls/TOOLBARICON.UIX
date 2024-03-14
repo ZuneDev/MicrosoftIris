@@ -24,9 +24,9 @@
       
       
       <Script>
-        [DeclareTrigger(UI.DeepMouseFocus)]
+        [DeclareTrigger(UI.MouseFocus)]
         [DeclareTrigger(Target.Dragging)]
-        if (Target.Dragging || UI.DeepMouseFocus)
+        if (Target.Dragging || UI.MouseFocus)
         {
           if(IsActive)
           {
