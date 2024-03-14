@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\UIX\UIX.csproj" />
-        
+        <ProjectReference Include="..\..\IrisShell\IrisShell.csproj" />
+
         <EmbeddedResource Include="Assets\*.*" />
         <EmbeddedResource Include="Pages\*.*" />
     </ItemGroup>

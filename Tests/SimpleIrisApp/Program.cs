@@ -1,43 +1,28 @@
-﻿using Microsoft.Iris;
-using Microsoft.Iris.Debug;
+﻿using IrisShell;
+using Microsoft.Iris;
 using System;
 
 namespace SimpleIrisApp;
 
-internal class Program
+internal sealed class Program : App
 {
+    public override string Title => "Iris app";
+
+    public override string WindowSource => "clr-res://SimpleIrisApp!MainPage.uix#Frame";
+
+    public override bool EnableDebugging => false;
+
+    [STAThread]
     static void Main(string[] args)
     {
-#if DEBUG
-        Console.WriteLine("Starting debugger server...");
-
-        Application.DebuggerServerReady += (_, __) =>
-        {
-            var textColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Debugger server ready at {Application.DebugSettings.DebugConnectionUri}");
-            Console.ForegroundColor = textColor;
-        };
-
-        Application.DebugSettings.DebugConnectionUri = args.Length >= 2
-            ? args[1] : DebugRemoting.DEFAULT_TCP_URI.OriginalString;
-
-        Application.DebugSettings.Breakpoints.Add(new("clr-res://SimpleIrisApp!MainPage.uix", 3, 22));
-#endif
-
-        Console.WriteLine("Initializing Iris...");
-        Application.Initialize();
-
-        Console.WriteLine("Loading content...");
-        Application.Window.Caption = "Iris app";
-        Application.Window.RequestLoad("clr-res://SimpleIrisApp!MainPage.uix#Frame");
-
-        Application.Run(OnInitialLoadComplete);
-        Application.Shutdown();
+        Program app = new();
+        app.Run(args);
     }
 
-    static void OnInitialLoadComplete(object arg)
+    protected override void OnInitialLoadComplete(object arg)
     {
+        base.OnInitialLoadComplete(arg);
+    
         Console.WriteLine("Initial load complete");
 
         var rootUi = Application.Window.Form.Zone.RootUI;
@@ -48,8 +33,14 @@ internal class Program
         Console.WriteLine("Visual tree ready");
     }
 
+    protected override void DebuggerSetup(string[] args)
+    {
+        base.DebuggerSetup(args);
+
+        Application.DebugSettings.Breakpoints.Add(new("clr-res://SimpleIrisApp!MainPage.uix", 3, 22));
+    }
+
     private static void RootView_DeepParentChange(object? sender, EventArgs e)
     {
-
     }
 }
