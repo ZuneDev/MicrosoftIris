@@ -1,5 +1,6 @@
 ﻿using Microsoft.Iris;
 using Microsoft.Iris.Debug;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IrisShell;
 
@@ -18,9 +19,15 @@ public abstract class IrisAppBase
         false;
 #endif
 
+    public static IrisAppBase? Current { get; private set; }
+
+#if NET5_0_OR_GREATER
+    [MemberNotNull(nameof(Current))]
+#endif
     [STAThread]
     public int Run(string[] args)
     {
+        Current = this;
         Application.ErrorReport += OnErrorReport;
 
         if (EnableDebugging)

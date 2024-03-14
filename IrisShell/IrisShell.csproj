@@ -7,6 +7,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\UIX\UIX.csproj" />
+
+        <EmbeddedResource Include="**\*.uix" />
     </ItemGroup>
 
 </Project>
