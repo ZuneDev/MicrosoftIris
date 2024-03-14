@@ -3,7 +3,7 @@ using Microsoft.Iris.Debug;
 
 namespace IrisShell;
 
-public abstract class App
+public abstract class IrisAppBase
 {
     public abstract string Title { get; }
 

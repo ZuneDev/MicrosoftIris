@@ -4,7 +4,7 @@ using System;
 
 namespace SimpleIrisApp;
 
-internal sealed class Program : App
+internal sealed class Program : IrisAppBase
 {
     public override string Title => "Iris app";
 
