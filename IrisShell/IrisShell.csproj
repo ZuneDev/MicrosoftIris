@@ -7,8 +7,23 @@
 
     <ItemGroup>
         <ProjectReference Include="..\UIX\UIX.csproj" />
-
-        <EmbeddedResource Include="**\*.uix" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.3" />
     </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="**\*.uix" />
+
+        <!--<None Update="**\*.uix.cs" />-->
+        <Compile Update="**\*.uix.cs">
+            <DependentUpon>$([System.String]::Copy(%(Filename)).Replace('.cs', '.uix'))</DependentUpon>
+        </Compile>		
+    </ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="UIXControls">
+			<HintPath>C:\Program Files\Zune\UIXcontrols.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
 </Project>

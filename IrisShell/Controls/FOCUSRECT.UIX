@@ -1,0 +1,93 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:me="Me">
+
+  
+  <UI Name="FocusRect">
+    <Content>
+      <Panel Layout="Anchor">
+        <Children>
+          
+          <me:FocusRectStrip Name="Left" Vertical="true">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Right="Parent,0,1" Top="Parent,0" Bottom="Parent,1"/>
+            </LayoutInput>
+          </me:FocusRectStrip>
+          
+          <me:FocusRectStrip Name="Top">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Right="Parent,1" Top="Parent,0"/>
+            </LayoutInput>
+          </me:FocusRectStrip>
+          
+          <me:FocusRectStrip Name="Right" Vertical="true">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,1,-1" Right="Parent,1" Top="Parent,0" Bottom="Parent,1"/>
+            </LayoutInput>
+          </me:FocusRectStrip>
+                    
+          <me:FocusRectStrip Name="Bottom">
+            <LayoutInput>
+              <AnchorLayoutInput Left="Parent,0" Right="Parent,1" Top="Parent,1,-1" Bottom="Parent,1"/>
+            </LayoutInput>
+          </me:FocusRectStrip>
+          
+        </Children>
+      </Panel>
+    </Content>
+  </UI>
+  
+  
+  <UI Name="FocusRectStrip">
+    <Properties>
+      <Boolean Name="Vertical" Boolean="false"/>
+    </Properties>
+    
+    <Locals>
+      <Image Name="FocusRectImage" Image="{null}"/>
+      
+      <DockLayout Name="HorizontalLayout" DefaultLayoutInput="Left"/>
+      <DockLayout Name="VerticalLayout" DefaultLayoutInput="Top"/>
+    </Locals>
+    
+    <Scripts>
+      <Script>
+        if (Vertical)
+        {
+          Repeater.Layout = VerticalLayout;
+          FocusRectImage = me:FocusRectGlobals.FocusRectVertical;
+        }
+        else
+        {
+          Repeater.Layout = HorizontalLayout;
+          FocusRectImage = me:FocusRectGlobals.FocusRectHorizontal;
+        }
+      </Script>
+    </Scripts>
+    
+    <Content>
+      <Repeater Name="Repeater" Source="{me:FocusRectGlobals.RepeatList}">
+        <Content>
+      
+          <Graphic Content="{FocusRectImage}" StretchingPolicy="None" />
+        
+        </Content>
+      </Repeater>
+    </Content>
+  </UI>
+  
+  
+  <Class Name="FocusRectGlobals" Shared="true">
+    <Properties>
+      <Image Name="FocusRectHorizontal" Source="clr-res://IrisShell!Controls.FocusRect.Horizontal.png"/>
+      <Image Name="FocusRectVertical" Source="clr-res://IrisShell!Controls.FocusRect.Vertical.png"/>
+
+      
+
+
+      <iris:VirtualList Name="RepeatList" Count="100"/>
+    </Properties>
+  </Class>
+</UIX>

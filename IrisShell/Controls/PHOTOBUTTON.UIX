@@ -1,8 +1,8 @@
 <!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
 <UIX 
   xmlns="http://schemas.microsoft.com/2007/uix"
-  xmlns:style="res://ZuneShellResources!Style.uix"
-  xmlns:styles="res://ZuneShellResources!Styles.uix"
+  xmlns:style="res://UIXControls!Style.uix"
+  xmlns:styles="res://UIXControls!Styles.uix"
   xmlns:thumbbutton="res://ZuneShellResources!ThumbnailButton.uix"
   xmlns:lib="res://ZuneShellResources!LibraryPanels.uix"
   xmlns:me="Me">

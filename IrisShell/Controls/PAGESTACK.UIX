@@ -1,11 +1,11 @@
 <!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
 <UIX xmlns="http://schemas.microsoft.com/2007/uix"
-  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:ishell="assembly://IrisShell/IrisShell.UI"
   xmlns:me="Me">
 
   <UI Name="PageStack">
     <Properties>
-      <zune:ZuneShell Name="Shell" ZuneShell="$Required"/>
+      <ishell:IrisShell Name="Shell" IrisShell="$Required"/>
     </Properties>
 
     <Locals>
@@ -35,7 +35,7 @@
 
 
       <Script>
-        bool enabled = [CanGoBack];
+        bool enabled = CanGoBack;
         BackKeyHandler.Enabled = enabled;
         BackArrowHandler.Enabled = enabled;
         BackShortcutHandler.Enabled = enabled;
@@ -74,8 +74,8 @@
   
   <UI Name="PageBase">
     <Properties>
-      <zune:ZuneShell Name="Shell" ZuneShell="$Required"/>
-      <zune:ZunePage Name="Page" ZunePage="$Required"/>
+      <ishell:IrisShell Name="Shell" IrisShell="$Required"/>
+      <ishell:IrisPage Name="Page" IrisPage="$Required"/>
     </Properties>
 
     <Content>

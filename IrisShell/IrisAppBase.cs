@@ -1,4 +1,5 @@
-﻿using Microsoft.Iris;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Iris;
 using Microsoft.Iris.Debug;
 using System.Diagnostics.CodeAnalysis;
 
@@ -21,8 +22,13 @@ public abstract class IrisAppBase
 
     public static IrisAppBase? Current { get; private set; }
 
+    public IServiceProvider? ServiceProvider { get; private set; }
+
+    public event EventHandler<IServiceProvider>? ServiceProviderReady;
+
 #if NET5_0_OR_GREATER
     [MemberNotNull(nameof(Current))]
+    [MemberNotNull(nameof(ServiceProvider))]
 #endif
     [STAThread]
     public int Run(string[] args)
@@ -32,6 +38,9 @@ public abstract class IrisAppBase
 
         if (EnableDebugging)
             DebuggerSetup(args);
+
+        ServiceProvider = BuildServices();
+        ServiceProviderReady?.Invoke(this, ServiceProvider);
 
         Application.Initialize();
 
@@ -46,6 +55,13 @@ public abstract class IrisAppBase
         Application.Shutdown();
 
         return 0;
+    }
+
+    private IServiceProvider BuildServices()
+    {
+        ServiceCollection services = new();
+        ConfigureServices(services);
+        return services.BuildServiceProvider();
     }
 
     protected virtual void OnErrorReport(Error[] errors)
@@ -77,5 +93,15 @@ public abstract class IrisAppBase
 
         Application.DebugSettings.DebugConnectionUri = args.Length >= 2
             ? args[1] : DebugRemoting.DEFAULT_TCP_URI.OriginalString;
+    }
+
+    protected virtual IServiceCollection ConfigureServices(IServiceCollection services)
+    {
+        services.AddLocalization(options =>
+        {
+            options.ResourcesPath = "Resources";
+        });
+
+        return services;
     }
 }

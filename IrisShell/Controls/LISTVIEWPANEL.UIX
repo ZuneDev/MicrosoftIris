@@ -2,10 +2,10 @@
 <UIX 
   xmlns="http://schemas.microsoft.com/2007/uix"
   xmlns:iris="assembly://UIX/Microsoft.Iris"
-  xmlns:zune="assembly://ZuneShell/ZuneUI"
-  xmlns:style="res://ZuneShellResources!Style.uix"
-  xmlns:styles="res://ZuneShellResources!Styles.uix"
-  xmlns:core="res://ZuneShellResources!Controls.uix">
+  xmlns:isui="assembly://IrisShell/IrisShell.UI"
+  xmlns:style="res://UIXControls!Style.uix"
+  xmlns:styles="res://UIXControls!Styles.uix"
+  xmlns:core="res://UIXControls!Controls.uix">
   
   
     
@@ -35,7 +35,7 @@
       
       
       <Script>
-        if ([Sorts] != null)
+        if (Sorts != null)
           Sorts.Wrap = true;
       </Script>
       
@@ -47,7 +47,7 @@
       </Script>
       
       <Script>
-        if (Sorts != null &amp;&amp; [Sorts.Chosen] != null)
+        if (Sorts != null &amp;&amp; Sorts.Chosen != null)
         {
           Model.Description = ((iris:Command)Sorts.Chosen).Description;
           Sorted.Visible = true;
@@ -72,7 +72,7 @@
 
           <core:Button Model="{ToggleSelectAll}" TileMinSize="0,16" TileMaxSize="0,16" OverrideStyle="{SelectAllOverrideStyle}"/>
           
-          <core:Label Name="Sorted" Content="{zune:Shell.LoadString(zune:StringId.IDS_SORT_HEADER)}" Margins="4,0,4,0" Style="{SortsOverrideStyle}"/>
+          <core:Label Name="Sorted" Content="{isui:Shell.LoadString(&quot;IDS_SORT_HEADER&quot;)}" Margins="4,0,4,0" Style="{SortsOverrideStyle}"/>
           
           <core:Label Name="Label" Margins="0,0,4,0" Style="{SortsOverrideStyle}"/>
           

@@ -1,13 +1,13 @@
 <!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
 <UIX
   xmlns="http://schemas.microsoft.com/2007/uix"
-  xmlns:style="res://ZuneShellResources!Style.uix"
-  xmlns:styles="res://ZuneShellResources!Styles.uix"
-  xmlns:button="res://ZuneShellResources!Button.uix"
-  xmlns:edit="res://ZuneShellResources!Editbox.uix"
-  xmlns:animations="res://ZuneShellResources!Animations.uix"
+  xmlns:style="res://UIXControls!Style.uix"
+  xmlns:styles="res://UIXControls!Styles.uix"
+  xmlns:button="res://UIXControls!Button.uix"
+  xmlns:edit="res://UIXControls!Editbox.uix"
+  xmlns:animations="res://UIXControls!Animations.uix"
   xmlns:iris="assembly://UIX/Microsoft.Iris"
-  xmlns:zune="assembly://ZuneShell/ZuneUI"
+  xmlns:isui="assembly://IrisShell/IrisShell.UI"
   xmlns:col="assembly://mscorlib/System.Collections"
   xmlns:me="Me">
 
@@ -40,15 +40,15 @@
   
   <Class Name="CommandThumbnailButtonProvider" Base="me:ThumbnailButtonProvider">
     <Properties>
-      <zune:IThumbnailCommand Name="Model" IThumbnailCommand="{null}"/>
+      <isui:IThumbnailCommand Name="Model" IThumbnailCommand="{null}"/>
     </Properties>
 
     <Scripts>
-      <Script>if (Model != null) PrimaryLabel = [Model.Description];</Script>
-      <Script>if (Model != null) Available = [Model.Available];</Script>
-      <Script>if (Model != null) Selected = [Model.Selected];</Script>
-      <Script>if (Model != null) ClickCommand = [Model];</Script>
-      <Script>if (Model != null) Image = [Model.Image];</Script>
+      <Script>if (Model != null) PrimaryLabel = Model.Description;</Script>
+      <Script>if (Model != null) Available = Model.Available;</Script>
+      <Script>if (Model != null) Selected = Model.Selected;</Script>
+      <Script>if (Model != null) ClickCommand = Model;</Script>
+      <Script>if (Model != null) Image = Model.Image;</Script>
     </Scripts>
   </Class>
 
@@ -59,12 +59,12 @@
   <UI Name="ThumbnailButton" Base="me:ThumbnailButtonBase">
     <Properties>
       
-      <zune:IThumbnailCommand Name="Model" IThumbnailCommand="$Required"/>
+      <isui:IThumbnailCommand Name="Model" IThumbnailCommand="$Required"/>
       <me:CommandThumbnailButtonProvider Name="Provider"/>
     </Properties>
 
     <Scripts>
-      <Script>Provider.Model = [Model];</Script>
+      <Script>Provider.Model = Model;</Script>
     </Scripts>
   </UI>
 
@@ -158,9 +158,9 @@
     </Locals>
 
     <Scripts>
-      <Script>PrimaryLabelStyle.Base = [PrimaryStyle];</Script>
-      <Script>SecondaryLabelStyle.Base = [SecondaryStyle];</Script>
-      <Script>SecondaryLabelStyle.State = [PrimaryLabelStyle.State];</Script>
+      <Script>PrimaryLabelStyle.Base = PrimaryStyle;</Script>
+      <Script>SecondaryLabelStyle.Base = SecondaryStyle;</Script>
+      <Script>SecondaryLabelStyle.State = PrimaryLabelStyle.State;</Script>
 
       <Script>
         SelectionBorderAnchor.Left.Offset = BorderWidth * -1;
@@ -173,21 +173,21 @@
       <Script>
         if (Provider != null)
         {
-          if ([Provider.Image] != null)
+          if (Provider.Image != null)
             Image.Content = Provider.Image;
           else
-            Image.Content = [FallbackImage];
+            Image.Content = FallbackImage;
         }
       </Script>
 
       <Script>
-        DisplayedImage = [Image.Content];
+        DisplayedImage = Image.Content;
       </Script>
 
       <Script>
         if (Provider != null)
         {
-          PrimaryLabelStyle.State.Selected = [Provider.Selected];
+          PrimaryLabelStyle.State.Selected = Provider.Selected;
         }
       </Script>
 
@@ -196,7 +196,7 @@
       
       
       <Script>
-        if ([LabelSize.Width] > 0)
+        if (LabelSize.Width > 0)
         {
           LabelAnchor.Right.Percent = 0.0;
           LabelAnchor.Right.Offset = LabelSize.Width + 2;
@@ -205,10 +205,10 @@
 
       
       <Script>
-        PrimaryLabelStyle.State.Focused = [UI.DeepKeyFocus];
+        PrimaryLabelStyle.State.Focused = UI.DeepKeyFocus;
       </Script>
       <Script>
-        PrimaryLabelStyle.State.Hovered = [UI.DeepMouseFocus];
+        PrimaryLabelStyle.State.Hovered = UI.DeepMouseFocus;
       </Script>
 
       <Script>
@@ -217,7 +217,7 @@
         Single selectionOverlayAlpha = 0.0;
         Single selectionAlpha = 0.0;
 
-        if ([PrimaryLabelStyle.State.Selected] || AlwaysDisplayAsSelected)
+        if (PrimaryLabelStyle.State.Selected || AlwaysDisplayAsSelected)
         {
           
           
@@ -239,13 +239,13 @@
           Background.LayoutInput = ShadowAnchorUnselected;
         }
 
-        if ([UI.DeepMouseFocus])
+        if (UI.DeepMouseFocus)
         {
           scale = HoverScale;
           content = FocusedBackgroundImage;
         }
 
-        if ([Clicker.Clicking])
+        if (Clicker.Clicking)
         {
           scale = ClickScale;
           content = SelectedBackgroundImage;
@@ -268,18 +268,18 @@
         OverlayContent.Scale = scale;
       </Script>
       
-      <Script>LabelArea.Visible = [ShowLabel];</Script>
+      <Script>LabelArea.Visible = ShowLabel;</Script>
 
       
       <Script>
-        TileBase.MinimumSize = [TileSize];
+        TileBase.MinimumSize = TileSize;
         TileBase.MaximumSize = TileSize;
       </Script>
 
 
       
       <Script>
-        if ([OverlayType] != null)
+        if (OverlayType != null)
         {
           OverlayContent.RequestSource(OverlayType, "State", PrimaryLabelStyle.State, "Provider", Provider);
         }
@@ -291,7 +291,7 @@
 
       
       <Script>
-        bool isEditing = [LabelArea.IsEditing];
+        bool isEditing = LabelArea.IsEditing;
 
         Clicker.Enabled = !isEditing;
 
@@ -429,7 +429,7 @@
       <Script>
         if (Provider != null)
         {
-          Label.Content= [Provider.PrimaryLabel];
+          Label.Content= Provider.PrimaryLabel;
         }
       </Script>
 
@@ -444,7 +444,7 @@
       <Script>
         if (Provider != null)
         {
-          SecondaryLabel.Content = [Provider.SecondaryLabel];
+          SecondaryLabel.Content = Provider.SecondaryLabel;
         }
       </Script>
 
@@ -462,7 +462,7 @@
       
       
       <Script>
-        IsEditing = [Label.IsEditing];
+        IsEditing = Label.IsEditing;
       </Script>
 
       
@@ -506,10 +506,10 @@
     </Properties>
 
     <Scripts>
-      <Script> Label.WordWrap = [WordWrap]; </Script>
-      <Script> Label.MaximumLines = [MaximumLines]; </Script>
-      <Script> Label.NamedStyles = [NamedStyles]; </Script>
-      <Script> Label.ToolTipContent = [ToolTipContent]; </Script>
+      <Script> Label.WordWrap = WordWrap; </Script>
+      <Script> Label.MaximumLines = MaximumLines; </Script>
+      <Script> Label.NamedStyles = NamedStyles; </Script>
+      <Script> Label.ToolTipContent = ToolTipContent; </Script>
     </Scripts>
 
     <Content>
@@ -523,7 +523,7 @@
   <UI Name="LabelHost" Base="me:LabelHostBase">
     <Scripts>
       <Script>
-        Label.Content = [Content];
+        Label.Content = Content;
       </Script>
     </Scripts>
   </UI>
@@ -562,7 +562,7 @@
 
       
       <Script>
-        Escape.Enabled = [IsEditing];
+        Escape.Enabled = IsEditing;
       </Script>
 
       
@@ -591,7 +591,7 @@
       
       <Script>
         [InitialEvaluate(false)]
-        if (![UI.DeepKeyFocus])
+        if (!UI.DeepKeyFocus)
         {
           if (!String.IsNullOrEmpty(EditData.Value))
           {
@@ -660,8 +660,8 @@
     </Properties>
 
     <Scripts>
-      <Script>Icon.Content = [Image];</Script>
-      <Script>Icon.Visible = [ImageVisible];</Script>
+      <Script>Icon.Content = Image;</Script>
+      <Script>Icon.Visible = ImageVisible;</Script>
     </Scripts>
 
     <Content>
