@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Layouts
 {
-    internal enum RelativeEdge
+    public enum RelativeEdge
     {
         Near,
         Far,

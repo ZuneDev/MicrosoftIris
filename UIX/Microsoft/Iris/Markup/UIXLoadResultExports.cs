@@ -79,7 +79,7 @@ namespace Microsoft.Iris.Markup
 
         public static void InitializeStatics()
         {
-            ExportTable = new TypeSchema[243];
+            ExportTable = new TypeSchema[244];
             AccessibleRoleType = new UIXEnumSchema(1, "AccessibleRole", typeof(AccRole), false);
             AlignmentType = new UIXEnumSchema(3, "Alignment", typeof(Alignment), false);
             AlphaOperationType = new UIXEnumSchema(5, "AlphaOperation", typeof(AlphaOperation), false);
@@ -274,6 +274,7 @@ namespace Microsoft.Iris.Markup
             ScaleLayoutSchema.Pass1Initialize();
             ScaleXKeyframeSchema.Pass1Initialize();
             ScaleYKeyframeSchema.Pass1Initialize();
+            ScrollingDataSchema.Pass1Initialize();
             ScrollModelSchema.Pass1Initialize();
             ScrollModelBaseSchema.Pass1Initialize();
             ScrollerSchema.Pass1Initialize();
@@ -466,6 +467,7 @@ namespace Microsoft.Iris.Markup
             ScaleLayoutSchema.Pass2Initialize();
             ScaleXKeyframeSchema.Pass2Initialize();
             ScaleYKeyframeSchema.Pass2Initialize();
+            ScrollingDataSchema.Pass2Initialize();
             ScrollModelSchema.Pass2Initialize();
             ScrollModelBaseSchema.Pass2Initialize();
             ScrollerSchema.Pass2Initialize();

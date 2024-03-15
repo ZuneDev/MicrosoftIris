@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Layouts
 {
-    internal enum ContentPositioningPolicy
+    public enum ContentPositioningPolicy
     {
         RespectPaddingAndLocking,
         ShowMaximalContent,
