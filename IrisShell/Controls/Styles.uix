@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
 <UIX
   xmlns="http://schemas.microsoft.com/2007/uix"
   xmlns:iris="assembly://UIX/Microsoft.Iris"
   xmlns:isui="assembly://IrisShell/IrisShell.UI"
   xmlns:style="res://UIXControls!Style.uix"
-  xmlns:styles="res://UIXControls!Styles.uix"
   xmlns:me="Me">
+
 
     <Class Name="Styles" Shared="True">
         <Properties>
@@ -567,6 +567,19 @@
             <Image Name="SlideshowSliderHoverThumb" Source="res://ZuneShellResources!Slider.Slideshow.Tinkerbell.png"/>
             <Image Name="SlideshowSliderFill"       Source="res://ZuneShellResources!Slider.Slideshow.Filled.png"/>
 
+
+            <!--<List Name="FrameBackgrounds">
+                <Source>
+
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_0)}" Value="res://ZuneShellResources!FrameBackground00.png" Color="{new iris:WindowColor(243,239,241)}"/>
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_1)}" Value="res://ZuneShellResources!FrameBackground01.png" Color="{new iris:WindowColor(252,239,246)}"/>
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_2)}" Value="res://ZuneShellResources!FrameBackground02.png" Color="{new iris:WindowColor(244,244,231)}"/>
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_3)}" Value="res://ZuneShellResources!FrameBackground03.png" Color="{new iris:WindowColor(236,236,237)}"/>
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_4)}" Value="res://ZuneShellResources!FrameBackground04.png" Color="{new iris:WindowColor(239,239,239)}"/>
+                    <zune:BackgroundOption Description="{zune:Shell.LoadString(zune:StringId.IDS_BACKGROUND_NAME_5)}" Value="res://ZuneShellResources!FrameBackground05.png" Color="{new iris:WindowColor(239,239,239)}"/>
+                </Source>
+            </List>-->
+            <Int32 Name="DefaultBackgroundIndex" Int32="0"/>
             <Inset Name="BackgroundMargins"       Inset="100,100,100,100"/>
             <Image Name="DefaultBackgroundImage"
                    Source="res://ZuneShellResources!FrameBackground04.png"
@@ -632,7 +645,7 @@
             </Script>
         </Scripts>
     </Class>
-    
+
     <Class Name="WindowState" Shared="true">
         <Properties>
             <Boolean Name="InputActive"/>
@@ -667,39 +680,65 @@
     <Class Name="SharedStyles" Shared="true">
         <Properties>
             <TextStyle Name="NegativeOneCharacterSpacing" CharacterSpacing="-1"/>
-            <styles:ColumnHeaderStyle Name="ColumnHeaderStyle"/>
-            <styles:LabelStyle Name="LabelStyle"/>
-            <styles:ListItemStyle Name="ListItemStyle"/>
-            <styles:ButtonStyle Name="ButtonStyle"/>
-            <styles:RadioButtonStyle Name="RadioButtonStyle"/>
-            <styles:ActionButtonStyle Name="ActionButtonStyle"/>
-            <styles:LabelStyle Name="ActionButtonProgressStyle" Color="{me:Styles.ActionButtonProgress}"  Font="{me:Styles.ButtonText}"/>
-            <styles:BigActionButtonShadowStyle Name="BigActionButtonShadowStyle"/>
-            <styles:BigActionButtonStyle Name="BigActionButtonStyle"/>
-            <styles:LabelStyle Name="ActionButtonShadowStyle"   Color="{me:Styles.ActionButtonShadow}"    Font="{me:Styles.ButtonText}"/>
-            <!--<styles:DialogButtonStyle Name="DialogButtonStyle"/>-->
-            <styles:EditBoxStyle Name="EditBoxStyle"/>
+            <me:ColumnHeaderStyle Name="ColumnHeaderStyle"/>
+            <me:LabelStyle Name="LabelStyle"/>
+            <me:ListItemStyle Name="ListItemStyle"/>
+            <me:InboxReadListItemStyle Name="InboxReadListItemStyle"/>
+            <me:InboxUnreadListItemStyle Name="InboxUnreadListItemStyle"/>
+            <me:TrackListItemStyle Name="TrackListItemStyle"/>
+            <me:TrackListItemDisabledStyle Name="TrackListItemDisabledStyle"/>
+            <me:ButtonStyle Name="ButtonStyle"/>
+            <me:ToggleTextStyle Name="ToggleTextStyle"/>
+            <me:SlideshowToggleTextStyle Name="SlideshowToggleTextStyle"/>
+            <me:RadioButtonStyle Name="RadioButtonStyle"/>
+            <me:ActionButtonStyle Name="ActionButtonStyle"/>
+            <me:NowPlayingButtonStyle Name="NowPlayingButtonStyle"/>
+            <me:TransportButtonStyle Name="TransportButtonStyle"/>
+            <me:LabelStyle Name="ActionButtonProgressStyle" Color="{me:Styles.ActionButtonProgress}"  Font="{me:Styles.ButtonText}"/>
+            <me:BigActionButtonShadowStyle Name="BigActionButtonShadowStyle"/>
+            <me:BigActionButtonStyle Name="BigActionButtonStyle"/>
+            <me:LabelStyle Name="ActionButtonShadowStyle"   Color="{me:Styles.ActionButtonShadow}"    Font="{me:Styles.ButtonText}"/>
+            <me:DialogButtonStyle Name="DialogButtonStyle"/>
+            <me:EditBoxStyle Name="EditBoxStyle"/>
+            <me:SearchEditBoxStyle Name="SearchEditBoxStyle"/>
+            <me:ThumbnailPrimaryLabelStyle Name="ThumbnailPrimaryLabelStyle"/>
+            <me:ThumbnailSecondaryLabelStyle Name="ThumbnailSecondaryLabelStyle"/>
+            <me:ThumbnailOverlayLabelStyle Name="ThumbnailOverlayLabelStyle"/>
+            <me:PhotoVideoLabelStyle Name="PhotoVideoLabelStyle"/>
             <style:Style Name="PhotoFolderCountStyle" Font="{me:Styles.ZegoeBold42}" Color="{me:Styles.PhotoFolderCountColor}"/>
-            <styles:ColumnHeaderStyleSet Name="ColumnHeaderStyleSet"/>
-            <styles:MenuItemStyle Name="MenuItemStyle"/>
-            <styles:MenuItemHeaderStyle Name="MenuItemHeaderStyle"/>
-            <styles:DialogTextStyle Name="DialogTextStyle"/>
-            <!--<styles:DialogSmallTextStyle Name="DialogSmallTextStyle"/>
-            <styles:DialogDarkTextStyle Name="DialogDarkTextStyle"/>
-            <styles:DialogDarkMediumTextStyle Name="DialogDarkMediumTextStyle"/>
-            <styles:DialogLinkStyle Name="DialogLinkStyle"/>
-            <styles:DialogSubHeaderStyle Name="DialogSubHeaderStyle"/>
-            <styles:DialogHeaderStyle Name="DialogHeaderStyle"/>
-            <styles:DialogHyperlinkStyle Name="DialogHyperlinkStyle"/>-->
-            <styles:DialogLargeHeaderStyle Name="DialogLargeHeaderStyle"/>
+            <me:SearchOverlayLabelStyle Name="SearchOverlayLabelStyle"/>
+            <me:ListViewColumnHeaderStyle Name="ListViewColumnHeaderStyle"/>
+            <me:ListViewSortsColumnHeaderStyle Name="ListViewSortsColumnHeaderStyle"/>
+            <me:ColumnHeaderDarkStyleSet Name="ColumnHeaderDarkStyleSet"/>
+            <me:ColumnHeaderStyleSet Name="ColumnHeaderStyleSet"/>
+            <me:MarketplaceExpandedSort Name="MarketplaceExpandedSort"/>
+            <me:MenuItemStyle Name="MenuItemStyle"/>
+            <me:MgmtMenuItemStyle Name="MgmtMenuItemStyle"/>
+            <me:MenuItemHeaderStyle Name="MenuItemHeaderStyle"/>
+            <me:MonitoredFoldersLabelStyle Name="MonitoredFoldersLabelStyle"/>
+            <me:MonitoredFoldersHeadersStyle Name="MonitoredFoldersHeadersStyle"/>
+            <me:DialogTextStyle Name="DialogTextStyle"/>
+            <me:DialogSmallTextStyle Name="DialogSmallTextStyle"/>
+            <me:DialogDarkTextStyle Name="DialogDarkTextStyle"/>
+            <me:DialogDarkMediumTextStyle Name="DialogDarkMediumTextStyle"/>
+            <me:DialogLinkStyle Name="DialogLinkStyle"/>
+            <me:DialogSubHeaderStyle Name="DialogSubHeaderStyle"/>
+            <me:DialogHeaderStyle Name="DialogHeaderStyle"/>
+            <me:DialogLargeHeaderStyle Name="DialogLargeHeaderStyle"/>
+            <me:DialogHyperlinkStyle Name="DialogHyperlinkStyle"/>
             <TextStyle Name="DialogBoldTextStyle" FontFace="Zegoe UI - U" Bold="true"/>
-            <styles:DragFeedbackStyle Name="DragFeedbackStyle"/>
-            <styles:LabelStyle Name="GenreListText" Font="{me:Styles.Zegoe12}" Color="{me:Styles.SecondaryLabel}" TextMargins="0,-2,0,0"/>
-            <!--<styles:TopPivot Name="TopPivot"/>
-            <styles:BottomPivot Name="BottomPivot"/>
-            <styles:LibraryPivot Name="LibraryPivot"/>-->
+            <me:DragFeedbackStyle Name="DragFeedbackStyle"/>
+            <me:LabelStyle Name="GenreListText" Font="{me:Styles.Zegoe12}" Color="{me:Styles.SecondaryLabel}" TextMargins="0,-2,0,0"/>
+            <me:TopPivot Name="TopPivot"/>
+            <me:BottomPivot Name="BottomPivot"/>
+            <me:LibraryPivot Name="LibraryPivot"/>
 
-            <!--<styles:ZuneNetLinkStyle Name="ZuneNetLinkStyle"/>-->
+            <me:AlbumReviewHeader Name="AlbumReviewHeader"/>
+            <me:MarketplaceLeftFilter Name="MarketplaceLeftFilter"/>
+            <me:MarketplaceHeader Name="MarketplaceHeader"/>
+            <me:MarketplaceHubListPrimary Name="MarketplaceHubListPrimary"/>
+            <me:MarketplaceHubListSecondary Name="MarketplaceHubListSecondary"/>
+            <me:ZuneNetLinkStyle Name="ZuneNetLinkStyle"/>
             <style:Style Name="PodcastAuthor"               Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.WarmGray}"/>
             <style:Style Name="PodcastCategory"             Font="{me:Styles.ZegoeSemiBold8}"               Color="{me:Styles.DarkGray}"/>
             <style:Style Name="PodcastTitle"                Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.MarketplaceDefault}"/>
@@ -708,6 +747,8 @@
             <style:Style Name="PodcastCopyright"            Font="{me:Styles.DetailTitle}"                  Color="{me:Styles.TextActive}"/>
             <style:Style Name="MarketplaceTitle"            Font="{me:Styles.EnduranceProCapsBold32}"       Color="{me:Styles.MarketplaceDefault}"/>
             <style:Style Name="MarketplaceAlbumHeader"      Font="{me:Styles.ZegoeCaps18}"                  Color="{me:Styles.MarketplaceDefault}"/>
+            <me:MarketplaceInstanceMetadata Name="MarketplaceInstanceMetadata"/>
+            <me:MarketplaceSort Name="MarketplaceSort"/>
             <style:Style Name="PlaylistMetadataPrimary"     Font="{me:Styles.Zegoe9}"                       Color="{me:Styles.DarkGray}"/>
             <style:Style Name="PlaylistMetadataSecondary"   Font="{me:Styles.Zegoe9}"                       Color="{me:Styles.WarmGray}"/>
 
@@ -724,6 +765,7 @@
             <style:Style Name="CDLandAlbumYear"             Font="{me:Styles.CDLandAlbumYear}"          Color="{me:Styles.PrimaryLabel}"/>
             <style:Style Name="CDLandAlbumGenre"            Font="{me:Styles.CDLandAlbumGenre}"         Color="{me:Styles.PrimaryLabel}"/>
             <style:Style Name="CDLandAlbumExceededCapacity" Font="{me:Styles.CDLandAlbumGenre}"         Color="{me:Styles.Magenta}"/>
+            <me:CDLandTrackNumberStyle Name="CDLandTrackNumberStyle"/>
             <style:Style Name="CDLandStatus"                Font="{me:Styles.ButtonText}"               Color="{me:Styles.TextActive}"/>
             <style:Style Name="CDLandStatusRipping"         Font="{me:Styles.ButtonText}"               Color="{me:Styles.TextSelected}"/>
             <style:Style Name="CDLandStatusError"           Font="{me:Styles.ZegoeBold12}"              Color="{me:Styles.Magenta}"/>
@@ -736,20 +778,27 @@
             <style:Style Name="SyncTitle"                   Font="{me:Styles.CDLandAlbumName}"          Color="{me:Styles.MarketplaceDefault}"/>
             <style:Style Name="SyncLink"                    Font="{me:Styles.Zegoe14}"                  Color="{me:Styles.DarkGray}"/>
             <style:Style Name="SyncHeader"                  Font="{me:Styles.ZegoeSemiBold8}"           Color="{me:Styles.DarkGray}"/>
-
+            <me:SearchResultsStyle Name="SyncItem"/>
             <TextStyle Name="NoCollectionHighlight"         Color="{me:Styles.NoCollectionHighlightText}"/>
             <TextStyle Name="DeviceNameStyle"               Color="{me:Styles.MarketplaceDefault}"    FontSize="20" FontFace="Zegoe UI - U" Bold="true"/>
             <TextStyle Name="DeviceSizeStyle"               Color="{me:Styles.WarmGray}"              FontSize="20" FontFace="Zegoe Light - U"/>
-            <!--<styles:HyperlinkStyle Name="HyperlinkStyle"/>-->
+            <me:HyperlinkStyle Name="HyperlinkStyle"/>
             <style:Style Name="PodcastWarningStyle"         Font="{me:Styles.WarningFont}"      Color="{me:Styles.WarningColor}"/>
             <style:Style Name="PodcastEpisodeTitleStyle"    Font="{me:Styles.PodcastTitleFont}" Color="{me:Styles.DarkGray}"/>
-            
+            <me:SearchResultsStyle Name="SearchResultsStyle"/>
+            <me:SearchResultsSmallStyle Name="SearchResultsSmallStyle"/>
             <style:Style Name="NowPlayingPrimaryLabel"      Font="{me:Styles.EnduranceProCapsBold36}" Color="{me:Styles.LightOnDarkText}" TextStyle="{NegativeOneCharacterSpacing}"/>
             <style:Style Name="NowPlayingSecondaryLabel"    Font="{me:Styles.EnduranceProCapsBold24}" Color="{me:Styles.LightOnDarkText}"/>
-
-            <!--<styles:SettingsButtonStyle Name="SettingsButtonStyle"/>-->
-            <!--<styles:ExternalLinkStyle   Name="ExternalLinkStyle"/>-->
-            <styles:InboxSignInHeaderStyle      Name="InboxSignInHeaderStyle"/>
+            <me:NowPlayingLinkStyle Name="NowPlayingLinkStyle"/>
+            <me:FUEHeaderStyle      Name="FUEHeaderStyle"/>
+            <me:FUEDescriptionStyle Name="FUEDescriptionStyle"/>
+            <me:FUELabelStyle       Name="FUELabelStyle"/>
+            <me:FUEHyperlinkStyle   Name="FUEHyperlinkStyle"/>
+            <me:SettingsButtonStyle Name="SettingsButtonStyle"/>
+            <me:SignInButtonStyle   Name="SignInButtonStyle"/>
+            <me:ExternalLinkStyle   Name="ExternalLinkStyle"/>
+            <me:InboxSignInHeaderStyle      Name="InboxSignInHeaderStyle"/>
+            <me:InboxSignInDescriptionStyle Name="InboxSignInDescriptionStyle"/>
 
 
             <style:Style Name="TransportVolumeValue"          Font="{me:Styles.TransportVolumeFont}"  Color="{me:Styles.TransportVolumeColor}"/>
@@ -781,22 +830,644 @@
 
             <style:Style Name="HoveredButtonCellStyle"      Font="{null}" Color="{me:Styles.RedOrange}"/>
 
-            <styles:LabelStyle Name="GasGaugeCurrentSpace"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
-            <styles:LabelStyle Name="GasGaugeFreeSpaceText" Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
+            <me:LabelStyle Name="GasGaugeCurrentSpace"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
+            <me:LabelStyle Name="GasGaugeFreeSpaceText" Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeSemiBold8}"/>
 
             <TextStyle Name="PodcastPaneDescription"    Color="{me:Styles.PodcastPaneDescription}" FontFace="Zegoe UI - U" FontSize="9" />
             <TextStyle Name="PodcastSeriesDescription"  Color="{me:Styles.PodcastDescriptionColor}" LineSpacing="1.1" FontFace="Zegoe UI - U" FontSize="10" />
 
             <style:Style Name="ReportAConcernError"     Font="{me:Styles.ZegoeSemiBold9}" Color="{me:Styles.RedOrange}"/>
 
-            <styles:LabelStyle Name="ToolbarDarkStyle" Color="{me:Styles.IconNotificationTextColor}" Font="{me:Styles.IconNotificationTextFont}"/>
-            <styles:LabelStyle Name="ToolbarLightStyle" Color="White" Font="{me:Styles.IconNotificationTextFont}"/>
+            <me:LabelStyle Name="ToolbarDarkStyle" Color="{me:Styles.IconNotificationTextColor}" Font="{me:Styles.IconNotificationTextFont}"/>
+            <me:LabelStyle Name="ToolbarLightStyle" Color="White" Font="{me:Styles.IconNotificationTextFont}"/>
             <TextStyle Name="IconNotificationBold"          Color="{me:Styles.IconNotificationBoldColor}"   FontFace="Zegoe UI - U" Bold="true"/>
 
             <style:Style Name="ToolTipStyle" Font="{me:Styles.ZegoeBold9}" Color="{me:Styles.EditText}"/>
             <style:Style Name="SettingsBodyStyle" Font="{me:Styles.SettingsText}" Color="{me:Styles.SettingsTextActive}"/>
             <TextStyle Name="SettingsBoldItalicBodyStyle" Bold="true" Italic="true" FontFace="Zegoe UI - U"/>
 
+        </Properties>
+    </Class>
+
+    <Class Name="Style" Base="style:Style"/>
+
+    <Class Name="ButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.TextSelected}"           Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.TextFocusedForeground}"  Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.ButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ToggleTextStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.TextFocusedForeground}"  Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.PrimaryLabel}"           Font="{me:Styles.BigButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SlideshowToggleTextStyle" Base="me:ToggleTextStyle">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.LightOnDarkAltText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.LightOnDarkAltText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.LightOnDarkAltText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.LightOnDarkText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.LightOnDarkAltText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SettingsButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.LightGray}"          Font="{me:Styles.SettingsButtonText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.DoradoBlack}"        Font="{me:Styles.SettingsButtonText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"       Font="{me:Styles.SettingsButtonText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"          Font="{me:Styles.SettingsButtonText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.WarmGray}"           Font="{me:Styles.SettingsButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SignInButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.LightGray}"          Font="{me:Styles.SignInButtonText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.DoradoBlack}"        Font="{me:Styles.SignInButtonText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.PrimaryLabel}"       Font="{me:Styles.SignInButtonText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"          Font="{me:Styles.SignInButtonText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.WarmGray}"           Font="{me:Styles.SignInButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="RadioButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.TextInactive}"           Font="{me:Styles.SettingsText}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.DarkGray}"             Font="{me:Styles.SettingsText}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.HoverGray}"             Font="{me:Styles.SettingsText}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.HoverGray}"  Font="{me:Styles.SettingsText}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SettingsText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ActionButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"  Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Selected"  Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Hovered"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+            <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.ButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="NowPlayingButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled"  Color="{me:Styles.NowPlayingButtonDisabledColor}" Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Selected"  Color="{me:Styles.NowPlayingButtonPressedColor}"  Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Focused"   Color="{me:Styles.NowPlayingButtonColor}"         Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Hovered"   Color="{me:Styles.NowPlayingButtonHoverColor}"    Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Default"   Color="{me:Styles.NowPlayingButtonColor}"         Font="{me:Styles.BigButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="TransportButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"        Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Selected"  Color="{me:Styles.TransportButtonPressedColor}" Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"                Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Hovered"   Color="{me:Styles.TransportButtonHoverColor}"   Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"                Font="{me:Styles.BigButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="BigActionButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled"  Color="{me:Styles.ActionButtonDisabled}"  Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Selected"  Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Hover"     Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Focused"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+            <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButton}"          Font="{me:Styles.BigButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="BigActionButtonShadowStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Default"   Color="{me:Styles.ActionButtonShadow}"    Font="{me:Styles.BigButtonText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogButtonStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Disabled" Color="{me:Styles.ListItemText}"         Font="{me:Styles.DialogListItem}"/>
+            <me:LabelStyle Name="Selected" Color="{me:Styles.ListItemSelectedText}" Font="{me:Styles.DialogListItem}"/>
+            <me:LabelStyle Name="Focused"  Color="{me:Styles.ListItemHoverText}"    Font="{me:Styles.DialogListItem}"/>
+            <me:LabelStyle Name="Hovered"  Color="{me:Styles.ListItemHoverText}"    Font="{me:Styles.DialogListItem}"/>
+            <me:LabelStyle Name="Default"  Color="{me:Styles.ListItemText}"         Font="{me:Styles.DialogListItem}"/>
+        </Properties>
+    </Class>
+
+
+
+    <Class Name="InboxReadListItemStyle" Base="me:ListItemStyle">
+        <Properties>
+            <style:Style Name="Default"  Color="{me:Styles.InboxReadColor}" Font="{me:Styles.InboxReadMessage}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="InboxUnreadListItemStyle" Base="me:ListItemStyle">
+        <Properties>
+            <style:Style Name="Default"  Color="{me:Styles.InboxUnreadColor}" Font="{me:Styles.InboxUnreadMessage}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ListItemStyle" Base="style:StyleSet">
+        <Properties>
+
+            <TextStyle Name="Spacing" CharacterSpacing="0"/>
+            <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"     Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+            <style:Style Name="Default"  Color="{me:Styles.DarkGray}"     Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+            <style:Style Name="Base"     Color="{me:Styles.ListItemText}" Font="{me:Styles.ZegoeSemiBold10}" TextStyle="{Spacing}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="TopPivot" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"  Font="{me:Styles.TopPivotText}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.ListItemText}" Font="{me:Styles.TopPivotText}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"    Font="{me:Styles.TopPivotText}"/>
+            <style:Style Name="Default"  Color="{me:Styles.WarmGray}"     Font="{me:Styles.TopPivotText}"/>
+            <style:Style Name="Base"     Color="{me:Styles.ListItemText}" Font="{me:Styles.TopPivotText}"/>
+            <style:Style Name="Disabled" Color="{me:Styles.LightGray}"    Font="{me:Styles.TopPivotText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="BottomPivot" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Color="{me:Styles.DoradoBlack}"            Font="{me:Styles.BottomPivotText}"/>
+            <style:Style Name="Focused"   Color="{me:Styles.ListItemText}"           Font="{me:Styles.BottomPivotText}"/>
+            <style:Style Name="Hovered"   Color="{me:Styles.HoverGray}"              Font="{me:Styles.BottomPivotText}"/>
+            <style:Style Name="Default"   Color="{me:Styles.WarmGray}"               Font="{me:Styles.BottomPivotText}"/>
+            <style:Style Name="Base"      Color="{me:Styles.ListItemText}"           Font="{me:Styles.BottomPivotText}"/>
+            <style:Style Name="Disabled"  Color="{me:Styles.ListItemSelectedText}"   Font="{me:Styles.BottomPivotText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="LibraryPivot" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.LibraryPivotText}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.LibraryPivotText}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.LibraryPivotText}"/>
+            <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.LibraryPivotText}"/>
+            <style:Style Name="Base"     Color="{me:Styles.ListItemText}"   Font="{me:Styles.LibraryPivotText}"/>
+        </Properties>
+    </Class>
+
+
+
+    <Class Name="TrackListItemStyle" Base="style:Style">
+        <Properties>
+
+            <Font Name="Font"  Font="{me:Styles.MarketplaceListText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="TrackListItemDisabledStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabelDisabled}"/>
+            <Font Name="Font"  Font="{me:Styles.MarketplaceListText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ThumbnailPrimaryLabelStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"     Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}"   Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Hovered"   Color="{me:Styles.DoradoBlack}"               Font="{me:Styles.ZegoeSemiBold8}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ThumbnailSecondaryLabelStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused" Color="{me:Styles.SecondaryLabel}"  Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Default"   Style="{Focused}"/>
+            <style:Style Name="Selected"  Style="{Focused}"/>
+            <style:Style Name="Hovered" Color="{me:Styles.DoradoBlack}"     Font="{me:Styles.ZegoeSemiBold8}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ThumbnailOverlayLabelStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"   Font="{me:Styles.ZegoeLight16}"/>
+            <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"         Font="{me:Styles.ZegoeLight16}"/>
+            <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.ZegoeLight16}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="PhotoVideoLabelStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused" Color="{me:Styles.TextFocusedForeground}" Font="{me:Styles.Zegoe9}"/>
+            <style:Style Name="Default" Color="{me:Styles.ThumbnailButton}" Font="{me:Styles.Zegoe9}"/>
+            <style:Style Name="Selected" Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.Zegoe9}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SearchOverlayLabelStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Color="{me:Styles.TextFocusedForeground}"   Font="{me:Styles.ZegoeLight14}"/>
+            <style:Style Name="Default"   Color="{me:Styles.ThumbnailButton}"         Font="{me:Styles.ZegoeLight14}"/>
+            <style:Style Name="Selected"  Color="{me:Styles.ThumbnailButtonSelected}" Font="{me:Styles.ZegoeLight14}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ListViewSortsColumnHeaderStyle" Base="me:ListViewColumnHeaderStyle">
+        <Properties>
+            <me:ColumnHeaderStyle Name="Default" Color="{me:Styles.WarmGray}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ListViewColumnHeaderStyle" Base="style:StyleSet">
+        <Properties>
+            <me:ColumnHeaderStyle Name="Disabled"/>
+            <me:ColumnHeaderStyle Name="Selected"/>
+            <me:ColumnHeaderStyle Name="Focused"/>
+            <me:ColumnHeaderStyle Name="Hovered" Color="{me:Styles.HoverGray}"/>
+            <me:ColumnHeaderStyle Name="Default"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ColumnHeaderStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DoradoBlack}"/>
+            <Font Name="Font" Font="{me:Styles.ZegoeSemiBold8}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SelectedColumnHeaderStyle" Base="me:ColumnHeaderStyle">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ColumnHeaderStyleSet" Base="style:StyleSet">
+        <Properties>
+            <me:SelectedColumnHeaderStyle Name="Selected"/>
+            <me:SelectedColumnHeaderStyle Name="Hovered"/>
+            <me:ColumnHeaderStyle Name="Focused"/>
+            <me:ColumnHeaderStyle Name="Default"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ColumnHeaderDarkStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+            <Font Name="Font" Font="{me:Styles.ZegoeBold8}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SelectedColumnHeaderDarkStyle" Base="me:ColumnHeaderStyle">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ColumnHeaderDarkStyleSet" Base="me:ColumnHeaderStyleSet">
+        <Properties>
+            <me:SelectedColumnHeaderStyle Name="Focused"/>
+            <me:SelectedColumnHeaderStyle Name="Default"/>
+        </Properties>
+    </Class>
+
+    <Class Name="LabelStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabel}"/>
+            <Font Name="Font" Font="{me:Styles.PrimaryText}"/>
+        </Properties>
+    </Class>
+
+
+
+
+    <Class Name="EditBoxStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.EditText}"/>
+            <Font Name="Font" Font="{me:Styles.SettingsText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SearchEditBoxStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.SearchBoxTextColor}"/>
+            <Font Name="Font" Font="{me:Styles.SearchBoxText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogTextStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogSmallTextStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogSmallText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogDarkTextStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogDarkMediumTextStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogMediumText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogLinkStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogLinkColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogSubHeaderStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogTextColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogSubHeaderText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogHeaderStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogHeaderText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogLargeHeaderStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DialogHeaderColor}"/>
+            <Font Name="Font" Font="{me:Styles.DialogLargeHeaderText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="DialogHyperlinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Font="{me:Styles.DialogText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.DialogText}" Color="{me:Styles.SettingLinkText}"/>
+            <style:Style Name="Default"   Font="{me:Styles.DialogText}" Color="{me:Styles.DialogTextColor}"/>
+        </Properties>
+    </Class>
+
+
+    <Class Name="DragFeedbackStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DragFeedbackTextColor}"/>
+            <Font Name="Font" Font="{me:Styles.DragFeedbackText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MenuItemHeaderStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.PrimaryLabelSelected}"/>
+            <Font Name="Font" Font="{me:Styles.ZegoeSemiBold10}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MonitoredFoldersLabelStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.DarkGray}"/>
+            <Font Name="Font" Font="{me:Styles.SettingsText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MonitoredFoldersHeadersStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.SettingsTextActive}"/>
+            <Font Name="Font" Font="{me:Styles.SettingsTextSubHeader}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MenuItemStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.PrimaryLabelSelected}" Font="{me:Styles.Zegoe10}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.TextFocusedForeground}" Font="{me:Styles.Zegoe10}"/>
+            <style:Style Name="Default"  Color="{me:Styles.PrimaryLabelSelected}" Font="{me:Styles.Zegoe10}"/>
+            <style:Style Name="Hovered"  Color="Black" Font="{me:Styles.Zegoe10}"/>
+            <style:Style Name="Disabled" Color="210,210,210" Font="{me:Styles.Zegoe10}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MgmtMenuItemStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.WarmGray}" Font="{me:Styles.ColumnPlayText}"/>
+            <style:Style Name="Default"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ColumnPlayText}"/>
+            <style:Style Name="Disabled" Color="210,210,210" Font="{me:Styles.ColumnPlayText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="AlbumReviewHeader" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.MarketplaceDefault}"/>
+            <Font Name="Font" Font="{me:Styles.HeaderText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceInstanceMetadata" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Hovered" Color="{me:Styles.RedOrange}"                 Font="{me:Styles.Zegoe9}"/>
+            <style:Style Name="Focused" Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.Zegoe9}"/>
+            <style:Style Name="Default" Color="{me:Styles.ThumbnailButton}"           Font="{me:Styles.Zegoe9}"/>
+            <style:Style Name="Selected" Color="{me:Styles.ThumbnailButtonSelected}"  Font="{me:Styles.Zegoe9}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceSort" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Focused"  Color="{me:Styles.ListItemText}"   Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.ZegoeSemiBold8}"/>
+            <style:Style Name="Base"     Style="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceExpandedSort" Base="me:MarketplaceSort">
+        <Properties>
+            <style:Style Name="Selected" Color="{me:Styles.DoradoBlack}"    Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+            <style:Style Name="Focused"  Color="{me:Styles.ListItemText}"   Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.HoverGray}"      Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+            <style:Style Name="Default"  Color="{me:Styles.WarmGray}"       Font="{me:Styles.ZegoeBold22}" TextMargins="0,0,0,-6"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceLeftFilter" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+            <style:Style Name="Focused"   Color="{me:Styles.WarmGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+            <style:Style Name="Default"   Color="{me:Styles.DarkGray}" Font="{me:Styles.ZegoeCaps7}" TextMargins="0,0,0,2"/>
+            <style:Style Name="Disabled"  Style="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceHeader" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Font="{me:Styles.MarketplaceHeader}" Color="Black" TextMargins="0,0,0,5"/>
+            <style:Style Name="Focused"   Style="{Selected}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.MarketplaceHeader}" Color="{me:Styles.WarmGray}" TextMargins="0,0,0,5"/>
+            <style:Style Name="Default"   Font="{me:Styles.MarketplaceHeader}" Color="{me:Styles.DarkGray}" TextMargins="0,0,0,5"/>
+            <style:Style Name="Disabled"  Style="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceHubListPrimary" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Font="{me:Styles.PrimaryText}" Color="{me:Styles.DoradoBlack}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{Selected.Color}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="Black" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.DarkGray}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Disabled"  Style="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="MarketplaceHubListSecondary" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Font="{me:Styles.PrimaryText}" Color="{me:Styles.DoradoBlack}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{Selected.Color}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="Black" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.WarmGray}" TextStyle="{me:Styles.MarketplaceHubListTracking}"/>
+            <style:Style Name="Disabled"  Style="{Default}"/>
+        </Properties>
+    </Class>
+    <Class Name="CDLandTrackNumberStyle" Base="style:Style">
+        <Properties>
+            <Color Name="Color" Color="{me:Styles.CDLandTrackNumberDefaultColor}"/>
+            <Color Name="SelectedColor" Color="{me:Styles.CDLandTrackNumberSelectedColor}"/>
+            <Font Name="Font" Font="{me:Styles.CDLandTrackNumber}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="HyperlinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Disabled"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.WarmGray}"/>
+            <style:Style Name="Selected"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Focused"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkText}"/>
+            <style:Style Name="Default"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.HyperlinkColor}"/>
+        </Properties>
+    </Class>
+    <Class Name="SearchResultsStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="Black"                            Font="{me:Styles.SearchResultText}"/>
+            <style:Style Name="Focused"  Style="{Selected}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SearchResultText}"/>
+            <style:Style Name="Default"  Color="{me:Styles.SearchResultsColor}"   Font="{me:Styles.SearchResultText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="SearchResultsSmallStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected" Color="Black"                            Font="{me:Styles.SearchResultSmallText}"/>
+            <style:Style Name="Focused"  Style="{Selected}"/>
+            <style:Style Name="Hovered"  Color="{me:Styles.DarkGray}"             Font="{me:Styles.SearchResultSmallText}"/>
+            <style:Style Name="Default"  Color="{me:Styles.SearchResultsColor}"   Font="{me:Styles.SearchResultSmallText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ZuneNetLinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Font="{me:Styles.Zegoe12}" Color="{me:Styles.MarketplaceDefault}" TextMargins="0,-3,0,0"/>
+            <style:Style Name="Focused"   Style="{Selected}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.Zegoe12}" Color="Black" TextMargins="0,-3,0,0"/>
+            <style:Style Name="Default"   Font="{me:Styles.Zegoe12}" Color="{me:Styles.SecondaryLabel}" TextMargins="0,-3,0,0"/>
+            <style:Style Name="Disabled"  Style="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="FUEHeaderStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.FUEBrightTextColor}"/>
+            <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+            <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.FUEWelcomeTextColor}"/>
+            <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+            <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="FUELabelStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBrightTextColor}"/>
+            <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+            <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBodyTextColor}"/>
+            <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+            <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="FUEDescriptionStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.FUEBrightTextColor}"/>
+            <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+            <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.WarmGray}"/>
+            <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+            <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="FUEHyperlinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Selected"  Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Focused"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.HyperlinkFont}" Color="White"/>
+            <style:Style Name="Default"   Font="{me:Styles.HyperlinkFont}" Color="{me:Styles.HyperlinkColor}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="NowPlayingLinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.LightOnDarkText}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.SettingLinkText}"/>
+            <style:Style Name="Default"   Font="{me:Styles.Zegoe14}" Color="{me:Styles.LightOnDarkText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="ExternalLinkStyle" Base="style:StyleSet">
+        <Properties>
+            <style:Style Name="Focused"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Hovered"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkTextFocus}"/>
+            <style:Style Name="Default"   Font="{me:Styles.PrimaryText}" Color="{me:Styles.SettingLinkText}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="InboxSignInHeaderStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.DarkGray}"/>
+            <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+            <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsTextSubHeader}" Color="{me:Styles.HoverGray}"/>
+            <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+            <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
+        </Properties>
+    </Class>
+
+    <Class Name="InboxSignInDescriptionStyle" Base="style:StyleSet">
+        <Properties>
+            <me:LabelStyle Name="Selected"  Font="{me:Styles.SettingsText}" Color="{me:Styles.WarmGray}"/>
+            <me:LabelStyle Name="Hovered"   LabelStyle="{Selected}"/>
+            <me:LabelStyle Name="Default"   Font="{me:Styles.SettingsText}" Color="{me:Styles.HoverGray}"/>
+            <me:LabelStyle Name="Focused"   LabelStyle="{Default}"/>
+            <me:LabelStyle Name="Disabled"  LabelStyle="{Default}"/>
         </Properties>
     </Class>
 
@@ -812,4 +1483,6 @@
             </Script>
         </Scripts>
     </Class>
+
+
 </UIX>
