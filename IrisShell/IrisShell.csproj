@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <EmbeddedResource Include="**\*.uix" />
-        <None Remove="Controls\Styles.uix" />
 
         <Compile Update="**\*.uix.cs">
             <DependentUpon>$([System.String]::Copy(%(Filename)).Replace('.cs', '.uix'))</DependentUpon>
