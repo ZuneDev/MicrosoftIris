@@ -1,0 +1,682 @@
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:isui="assembly://IrisShell/IrisShell.UI"
+  xmlns:me="Me">
+
+  
+  <Class Name="AnimationState" Shared="true">
+    <Properties>
+      
+      <iris:BooleanChoice Name="InPageTransition" Value="false">
+        <Options>
+          <String String="Show"/>
+          <String String="PageShow"/>
+        </Options>
+      </iris:BooleanChoice>
+    </Properties>
+
+    <Locals>
+      <isui:Shell Name="Shell" Shell="{(isui:Shell)isui:Shell.DefaultInstance}"/>
+      <Timer Name="TransitionTimer" Interval="1500" AutoRepeat="false" Enabled="false"/>
+    </Locals>
+
+    <Scripts>
+      
+      <Script>
+        [DeclareTrigger(Shell.CurrentPage)]
+        InPageTransition.Value = true;
+        TransitionTimer.Start();
+      </Script>
+
+      
+      <Script>
+        [DeclareTrigger(TransitionTimer.Tick)]
+        InPageTransition.Value = false;
+      </Script>
+    </Scripts>
+  </Class>
+
+  
+  <Class Name="Animations" Shared="True">
+    <Properties>
+      
+      <Interpolation Name="PopInterpolation" Type="Log" Weight="500.0" />
+      <Interpolation Name="SlideInterpolation" Type="Log" Weight="20000.0" />
+      <Interpolation Name="EaseInSlideInterpolation" Type="EaseIn" Weight="10" EasePercent="0.1"/>
+      <Interpolation Name="BezierPopInterpolation" Type="Bezier" BezierHandle1="1.0" BezierHandle2="1.5"/>
+      
+      <Single Name="PopLength" Single="0.5"/>
+      <Single Name="SlideLength" Single="2.75"/>
+      <Single Name="GalleryIndexFadeDelay" Single="0.05"/>
+      <Single Name="BasicAnimationLength" Single="{SlideLength}"/>
+      <Single Name="ShortAnimationLength" Single="0.5"/>
+
+      <Vector3 Name="BasicMoveSize" Vector3="-20,0,0"/>
+      <Vector3 Name="BasicGalleryItemMoveSize" Vector3="-5,0,0"/>
+      
+      
+      <Single Name="PageTransitionMaxLength" Single="1.5"/>
+
+      
+      
+      
+      
+      
+      <Animation Name="MoveNow" Type="Move">
+        <Keyframes>
+          <PositionKeyframe Time="0.00" RelativeTo="Current"/>
+          <PositionKeyframe Time="0.05" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      
+      
+      
+      
+      <Animation Name="HideNow" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.00" RelativeTo="Current"/>
+          <AlphaKeyframe Time="0.01" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+      <Animation Name="ContentChangeHideNow" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.00" RelativeTo="Current"/>
+          <AlphaKeyframe Time="0.01" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="BasicMove" Type="Move">
+        <Keyframes>
+          <PositionKeyframe Time="0" Value="0,0,0" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{BasicAnimationLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+      
+      <Animation Name="BasicShowSlide" Type="Show">
+        <Keyframes>
+          <PositionKeyframe Time="0" Value="-10,0,0" Interpolation="{EaseInSlideInterpolation}"/>
+          <PositionKeyframe Time="{ShortAnimationLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+      
+      <Animation Name="BasicResize" Type="Size">
+        <Keyframes>
+          <SizeKeyframe Time="0" Value="0,0" RelativeTo="Current" Interpolation="{PopInterpolation}"/>
+          <SizeKeyframe Time="{BasicAnimationLength}" Value="0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="BasicFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="BasicFadeOut" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="BasicPulse" Type="Idle" Loop="2">
+        <Keyframes>
+          <AlphaKeyframe Time="0" Value="1" Interpolation="SCurve"/>
+          <AlphaKeyframe Time="1" Value="0" Interpolation="SCurve"/>
+          <AlphaKeyframe Time="2" Value="1"/>
+        </Keyframes>
+      </Animation>
+      
+      <Animation Name="BasicContentChangeShow" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.2"/>
+          <AlphaKeyframe Time="0.2" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="QuickContentChangeHide" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0"/>
+          <AlphaKeyframe Time="0.1" Value="0.2"/>
+        </Keyframes>
+      </Animation>
+      
+      <Animation Name="QuickContentChangeShow" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.2"/>
+          <AlphaKeyframe Time="0.1" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="BasicContentChangeHide" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0"/>
+          <AlphaKeyframe Time="0.2" Value="0.2"/>
+        </Keyframes>
+      </Animation>
+      
+      
+      <Animation Name="ErrorOverlayPulse" Animation="{BasicPulse}"/>
+
+      
+      <Animation Name="MenuFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="MenuFadeOut" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="GalleryFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicGalleryItemMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="GalleryContentChangeFadeIn" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicGalleryItemMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="GalleryContentChangeShow" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicGalleryItemMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="GalleryMove" Type="Move">
+        <Keyframes>
+          <PositionKeyframe Time="0.0" Value="0,0,0" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ListFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ListContentChange" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" RelativeTo="Current" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicMoveSize}" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+      
+      <Animation Name="MarketplacePopNSlide" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="MarketplacePop" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+      
+      
+      <Animation Name="MarketplacePopMove" Type="Move">
+        <Keyframes>
+          <PositionKeyframe Time="0.00" RelativeTo="Final"/>
+          <PositionKeyframe Time="0.01" RelativeTo="Final"/>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="MarketplacePopNZoom" Type="Show" CenterPointPercent="0.5, 0.5, 0">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="{PopLength}" Value="1.0"/>
+          <ScaleKeyframe Time="0.0" Value="0.9,0.9,1" Interpolation="EaseIn"/>
+          <ScaleKeyframe Time="{PopLength}" Value="1,1,1"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ButtonScale" Type="Scale" CenterPointPercent="0.5, 0.5, 0">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" RelativeTo="Current" Interpolation="Sine" />
+          <ScaleKeyframe Time="0.1" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ButtonAlpha" Type="Alpha">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" RelativeTo="Current" Interpolation="Log, 20000.0"/>
+          <AlphaKeyframe Time="0.5" Value="1.0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="FeaturedItemChangeShow" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" RelativeTo="Current" Interpolation="Log, 200.0"/>
+          <AlphaKeyframe Time="3" Value="1.0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ToolbarAlpha" Type="Alpha">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0"   Value="1.0" RelativeTo="Current" Interpolation="Sine"/>
+          <AlphaKeyframe Time="0.333" Value="1.0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="DialogShow" Type="Show" CenterPointPercent="0.5,0.5,0.5">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="0.30" Value="1.0"/>
+          <ScaleKeyframe Time="0.0" Value="0.9,0.9,1.0" RelativeTo="Final" Interpolation="{BezierPopInterpolation}"/>
+          <ScaleKeyframe Time="0.30" Value="1,1,1" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="DialogHide" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="Log"/>
+          <AlphaKeyframe Time="0.15" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="SearchResultsExpand" Animation="{BasicFadeIn}" />
+
+      <Animation Name="ScrollBarFadeIn" Animation="{BasicFadeIn}" />
+
+      <Animation Name="ScrollBarFadeOut" Animation="{BasicFadeOut}" />
+
+      <Animation Name="PivotShowAnim" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="{EaseInSlideInterpolation}"/>
+          <AlphaKeyframe Time="1.5" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="-10,0,0" RelativeTo="Final" Interpolation="{EaseInSlideInterpolation}"/>
+          <PositionKeyframe Time="1.0" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="PivotHideAnim" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="{PopInterpolation}"/>
+          <AlphaKeyframe Time="{PopLength}" Value="0.0"/>
+          <PositionKeyframe Time="0.0" Value="0,0,0" RelativeTo="Current" Interpolation="Exp, 1.0"/>
+          <PositionKeyframe Time="1.0" Value="-400,0,0" RelativeTo="Absolute"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="SlideShowImageChangeHide" CenterPointPercent="0.5,0.5,0.5" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="SCurve"/>
+          <AlphaKeyframe Time="0.75" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="SlideShowImageChangeShow" CenterPointPercent="0.5,0.5,0.5"  Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="SCurve"/>
+          <AlphaKeyframe Time="0.75" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="SlideShowImageShow" CenterPointPercent="0.5,0.5,0.5"  Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="SCurve"/>
+          <AlphaKeyframe Time="0.75" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      
+      
+      <Animation Name="MainBackgroundPageTransitionHide" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="Linear"/>
+          <AlphaKeyframe Time="{PageTransitionMaxLength}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <TransformByAttributeAnimation Attribute="Index" Delay="{GalleryIndexFadeDelay}" Name="GalleryIndexFade" Source="{GalleryFadeIn}" />
+
+      <Animation Name="SettingsViewContentChange" Type="ContentChangeShow">
+        <Keyframes>
+          <PositionKeyframe Time="0" Value="{BasicMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="SettingsViewShow" Type="Show">
+        <Keyframes>
+          <PositionKeyframe Time="0" Value="{BasicMoveSize}" RelativeTo="Current" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="TitleContentChange" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" RelativeTo="Current" Interpolation="{PopInterpolation}" />
+          <AlphaKeyframe Time="5.0" Value="1.0" />
+          <PositionKeyframe Time="0.0" Value="-10,0,0" RelativeTo="Final" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="TitleShow" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" RelativeTo="Current" Interpolation="{PopInterpolation}" />
+          <AlphaKeyframe Time="5.0" Value="1.0" />
+          <PositionKeyframe Time="0.0" Value="-10,0,0" RelativeTo="Final" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingNotificationTrackTimeShow" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0"   Value="0.0"/>
+          <AlphaKeyframe Time="0.333" Value="0.0"/>
+          <AlphaKeyframe Time="0.666" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingNotificationTrackTimeHide" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" RelativeTo="Current"/>
+          <AlphaKeyframe Time="0.5" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+  
+      <Animation Name="IconContentChange" CenterPointPercent="0.5,0.5,0.5">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="0.7,0.7,1.0" RelativeTo="Final" Interpolation="{BezierPopInterpolation}"/>
+          <ScaleKeyframe Time="0.4" Value="1.0,1.0,1.0" RelativeTo="Final"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="IconPulse" CenterPointPercent="0.5,0.5,0.5" Loop="10">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="1.0,1.0,1.0" RelativeTo="Final"/>
+          <ScaleKeyframe Time="0.3" Value="1.0,1.0,1.0" RelativeTo="Final" Interpolation="Sine"/>
+          <ScaleKeyframe Time="1.0" Value="1.2,1.2,1.0" RelativeTo="Final" Interpolation="Sine"/>
+          <ScaleKeyframe Time="2.0" Value="1.0,1.0,1.0" RelativeTo="Final" Interpolation="Sine"/>          
+        </Keyframes>
+      </Animation>
+      
+      <TransformAnimation Name="TextIconToggleShow" Delay="0.1">
+        <Source>
+          <Animation Type="Alpha" CenterPointPercent="0.5,0.5,0.5">
+            <Keyframes>
+              <AlphaKeyframe Time="0.0" RelativeTo="Current"/>
+              <AlphaKeyframe Time="0.2" RelativeTo="Final"/>
+              <ScaleKeyframe Time="0.0" Value="0.0,0.0,0.0" RelativeTo="Current"/>
+              <ScaleKeyframe Time="0.2" Value="1.0,1.0,1.0" RelativeTo="Absolute"/>                          
+            </Keyframes>
+          </Animation>
+        </Source>
+      </TransformAnimation>
+
+      
+      
+      
+      
+      <Animation Name="TextIconToggleHide" Type="Alpha" CenterPointPercent="0.5,0.5,0.5">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current"/>
+          <AlphaKeyframe Time="0.2" RelativeTo="Final"/>
+          <ScaleKeyframe Time="0.0" Value="1.0,1.0,1.0" RelativeTo="Current"/>
+          <ScaleKeyframe Time="0.2" Value="0.0,0.0,0.0" RelativeTo="Absolute"/>                          
+        </Keyframes>
+      </Animation>
+
+      
+
+
+      <Animation Name="SpotlightFade" Type="Show" CenterPointPercent="0.5,0.5,1.0">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0"   Value="0.0" Interpolation="EaseIn,1.0,0.9"/>
+          <AlphaKeyframe Time="0.2"   Value="0.4" Interpolation="EaseOut,1.0,0.9"/>
+          <AlphaKeyframe Time="0.75"  Value="0.0"/>
+         </Keyframes>
+      </Animation>
+
+
+      
+
+      
+      <Single Name="NowPlayingGrid_MinDelay" Single="0.2"/>
+      <Single Name="NowPlayingGrid_DelayRange" Single="1.2"/>
+      <Single Name="NowPlayingGrid_MaxDelay" Single="{NowPlayingGrid_MinDelay + NowPlayingGrid_DelayRange}"/>
+      <Int32 Name="NowPlayingGrid_DelaySlices" Int32="{(int)(NowPlayingGrid_DelayRange * 10.0)}"/>
+      <Single Name="NowPlayingGrid_Length" Single="0.4"/>
+
+      
+      <Animation Name="NowPlayingGridShow" Type="Show" CenterPointPercent="0.5,0.5,1.0">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="0.8,0.8,0.8" Interpolation="EaseIn,1.0"/>
+          <ScaleKeyframe Time="{NowPlayingGrid_Length}" Value="1.0,1.0,1.0"/>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn,0.5"/>
+          <AlphaKeyframe Time="{NowPlayingGrid_Length}" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingGridSwapAlbumOut" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="1.0" Interpolation="EaseOut,1.0"/>
+          <AlphaKeyframe Time="0.4" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+      
+      <TransformAnimation Name="NowPlayingTitleContentShow" Delay="0.5">
+        <Source>
+          <Animation Type="ContentChangeShow">
+            <Keyframes>
+              <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+              <AlphaKeyframe Time="1.0" Value="1.0"/>
+              <PositionKeyframe Time="0.0" Value="-20,0,0" Interpolation="EaseIn"/>
+              <PositionKeyframe Time="1.0" Value="0,0,0" RelativeTo="Final"/>
+            </Keyframes>
+          </Animation>
+        </Source>
+      </TransformAnimation>
+
+      <Animation Name="NowPlayingTitleContentHide" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current" Interpolation="EaseOut"/>
+          <AlphaKeyframe Time="0.5" Value="0.0"/>
+          <PositionKeyframe Time="0.0" RelativeTo="Current" Interpolation="EaseOut"/>
+          <PositionKeyframe Time="0.5" Value="50,0,0" RelativeTo="Current"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingMoreInfoShow" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="1.0" Value="1.0"/>
+          <ScaleKeyframe Time="0.0" Value="0.9,0.7,1.0" Interpolation="EaseIn,1.0"/>
+          <ScaleKeyframe Time="0.4" Value="1.0,1.0,1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingMoreInfoHide" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current" Interpolation="EaseOut"/>
+          <AlphaKeyframe Time="0.2" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+      
+      <TransformAnimation Name="NowPlayingAlbumArtShow" Delay="1.3">
+        <Source>
+          <Animation Type="Show" CenterPointPercent="0.4,0.5,0.5">
+            <Keyframes>
+              <ScaleKeyframe Time="0.0" Value="0.9,0.9,1.0" Interpolation="EaseIn,1.0"/>
+              <ScaleKeyframe Time="0.4" Value="1.0,1.0,1.0"/>
+              <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn,0.5"/>
+              <AlphaKeyframe Time="0.4" Value="1.0"/>
+            </Keyframes>
+          </Animation>
+        </Source>
+      </TransformAnimation>
+
+      <Animation Name="NowPlayingAlbumArtContentShow" Type="ContentChangeShow" CenterPointPercent="0.2,0.5,0.5">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="0.8,0.8,1.0" Interpolation="EaseIn,1.0"/>
+          <ScaleKeyframe Time="0.4" Value="1.0,1.0,1.0"/>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn,0.5"/>
+          <AlphaKeyframe Time="0.4" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingTrackListShow" Type="Show" CenterPointPercent="0.5,0.5,0.5">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="0.9,0.9,1.0" Interpolation="EaseIn,1.0"/>
+          <ScaleKeyframe Time="0.4" Value="1.0,1.0,1.0"/>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn,0.5"/>
+          <AlphaKeyframe Time="0.4" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingPageFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="Log"/>
+          <AlphaKeyframe Time="0.3" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingPageFadeOut" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current" Interpolation="Log"/>
+          <AlphaKeyframe Time="0.3" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingFadeIn" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseIn"/>
+          <AlphaKeyframe Time="1.0" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingFadeOut" Type="Hide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current" Interpolation="Log"/>
+          <AlphaKeyframe Time="1.0" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="ComponentShow" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0" Interpolation="EaseIn,1.5,0.8"/>
+          <AlphaKeyframe Time="0.3" Value="1.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingNotificationHide" Type="ContentChangeHide">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" RelativeTo="Current" Interpolation="EaseOut"/>
+          <AlphaKeyframe Time="0.5" Value="0.0"/>
+        </Keyframes>
+      </Animation>
+
+      <Animation Name="NowPlayingNotificationShow" Type="ContentChangeShow">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0" Interpolation="EaseOut"/>
+          <AlphaKeyframe Time="0.5" RelativeTo="Current"  />
+        </Keyframes>
+      </Animation>
+      
+      
+      
+      <Animation Name="DeviceLandUIElementSlide" Type="Show">
+        <Keyframes>
+          <AlphaKeyframe Time="0.0" Value="0.0"/>
+          <AlphaKeyframe Time="0.5" Value="1.0"/>
+          <PositionKeyframe Time="0.0" Value="{BasicMoveSize}" Interpolation="{SlideInterpolation}"/>
+          <PositionKeyframe Time="{SlideLength}" Value="0,0,0"/>
+        </Keyframes>
+      </Animation>
+      
+      
+      <Animation Name="DeviceFirmwareUpgrade" CenterPointPercent="0.5,0.5,0.5" Loop="4">
+        <Keyframes>
+          <ScaleKeyframe Time="0.0" Value="1,1,1" Interpolation="{BezierPopInterpolation}"/>
+          <ScaleKeyframe Time="0.2" Value="1.2,1.2,1.2"/>
+          <ScaleKeyframe Time="0.4" Value="1,1,1"/>
+          <ScaleKeyframe Time="1.0" Value="1,1,1"/>
+        </Keyframes>
+      </Animation>
+    </Properties>
+  </Class>
+  
+  
+  
+  
+  <Class Name="FlipAnimationHelper" Shared="true">
+    <Properties>
+      <Boolean Name="PlayFlipAnimation" Boolean="false"/>
+
+      
+      <Single Name="FlipLength" Single="0.3"/>
+      <Single Name="SlideLength" Single="0.5"/>
+      
+      <iris:BooleanChoice Name="ShowAnim">
+        <Options>
+          <String String="Flip"/>
+          <String String="Slide"/>
+        </Options>
+      </iris:BooleanChoice>
+      
+      <TransformAnimation Name="BasicSlideXForm" Delay="{FlipLength}" Source="{me:Animations.DeviceLandUIElementSlide}"/>
+
+      <SwitchAnimation Name="DeviceLandUIElementSwitch" Type="Show" Expression="{ShowAnim}">
+        <Options>
+          <TransformAnimation Name="Flip" TransformAnimation="{BasicSlideXForm}"/>
+          <Animation Name="Slide" Animation="{me:Animations.DeviceLandUIElementSlide}"/>
+        </Options>
+      </SwitchAnimation>
+    </Properties>
+
+    <Locals>
+      
+      
+      <Timer Name="AnimTimer" Enabled="false" AutoRepeat="false"/>    
+    </Locals>
+    
+    <Scripts>
+      <Script>
+        ShowAnim.Value = !PlayFlipAnimation;
+        AnimTimer.Enabled = PlayFlipAnimation;
+        AnimTimer.Interval = (Int32)FlipLength * 1000;   
+      </Script>
+      <Script>
+        [DeclareTrigger(AnimTimer.Tick)]
+        PlayFlipAnimation = false;
+        AnimTimer.Enabled = false;
+      </Script>
+    </Scripts>
+  </Class>
+</UIX>

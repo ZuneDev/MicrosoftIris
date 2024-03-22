@@ -1,0 +1,520 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright (C) Microsoft Corporation. All rights reserved. -->
+<UIX
+  xmlns="http://schemas.microsoft.com/2007/uix"
+  xmlns:iris="assembly://UIX/Microsoft.Iris"
+  xmlns:isui="assembly://IrisShell/IrisShell.UI"
+  xmlns:core="res://UIXControls!Controls.uix"
+  xmlns:styles="clr-res://IrisShell!Controls.Styles.uix"
+  xmlns:me="Me">
+
+
+
+
+
+    <Class Name="ImageStyle">
+        <Properties>
+            <Image Name="Image" Image="{null}"/>
+            <Image Name="HoverImage" Image="{null}"/>
+            <Image Name="FocusImage" Image="{null}"/>
+            <Image Name="PressedImage" Image="{null}"/>
+            <Image Name="DisabledImage" Image="{null}"/>
+
+            <Image Name="HoldingImage" Image="{null}"/>
+        </Properties>
+    </Class>
+
+
+
+
+
+
+    <Class Name="SwitchImageStyle" Base="me:ImageStyle">
+        <Properties>
+            <me:ImageStyle Name="True" ImageStyle="$Required"/>
+            <me:ImageStyle Name="False" ImageStyle="$Required"/>
+            <iris:BooleanChoice Name="Expression" BooleanChoice="$Required"/>
+        </Properties>
+
+        <Locals>
+            <me:ImageStyle Name="SelectedStyle" ImageStyle="{False}"/>
+        </Locals>
+
+        <Scripts>
+
+            <Script>
+                if (Expression.Value)
+                SelectedStyle = True;
+                else
+                SelectedStyle = False;
+            </Script>
+
+
+            <Script>Image         = SelectedStyle.Image;</Script>
+            <Script>HoverImage    = SelectedStyle.HoverImage;</Script>
+            <Script>FocusImage    = SelectedStyle.FocusImage;</Script>
+            <Script>PressedImage  = SelectedStyle.PressedImage;</Script>
+            <Script>DisabledImage = SelectedStyle.DisabledImage;</Script>
+            <Script>HoldingImage  = SelectedStyle.HoldingImage;</Script>
+        </Scripts>
+    </Class>
+
+
+
+
+
+    <UI Name="IconButton" Base="core:IconButton">
+        <Properties>
+            <me:ImageStyle Name="Style"/>
+        </Properties>
+
+        <Scripts>
+            <Script>Image         = Style.Image;</Script>
+            <Script>HoverImage    = Style.HoverImage;</Script>
+            <Script>FocusImage    = Style.FocusImage;</Script>
+            <Script>PressedImage  = Style.PressedImage;</Script>
+            <Script>DisabledImage = Style.DisabledImage;</Script>
+        </Scripts>
+    </UI>
+
+
+
+
+
+    <UI Name="ActionButton" Base="core:ActionButton">
+        <Properties>
+            <me:ImageStyle Name="ImageStyle"/>
+        </Properties>
+
+        <Scripts>
+            <Script>Image         = ImageStyle.Image;</Script>
+            <Script>HoverImage    = ImageStyle.HoverImage;</Script>
+            <Script>FocusImage    = ImageStyle.FocusImage;</Script>
+            <Script>PressedImage  = ImageStyle.PressedImage;</Script>
+            <Script>DisabledImage = ImageStyle.DisabledImage;</Script>
+        </Scripts>
+    </UI>
+
+
+
+
+
+    <UI Name="ToggleActionButton" Base="core:ToggleActionButton">
+        <Properties>
+            <me:ImageStyle Name="ImageStyle"/>
+        </Properties>
+
+        <Scripts>
+            <Script>Image         = ImageStyle.Image;</Script>
+            <Script>HoverImage    = ImageStyle.HoverImage;</Script>
+            <Script>FocusImage    = ImageStyle.FocusImage;</Script>
+            <Script>PressedImage  = ImageStyle.PressedImage;</Script>
+            <Script>DisabledImage = ImageStyle.DisabledImage;</Script>
+        </Scripts>
+    </UI>
+
+
+
+
+
+    <UI Name="PressAndHoldIconButton" Base="core:PressAndHoldIconButton">
+        <Properties>
+            <me:ImageStyle Name="Style"/>
+        </Properties>
+
+        <Scripts>
+            <Script>Image         = Style.Image;</Script>
+            <Script>HoverImage    = Style.HoverImage;</Script>
+            <Script>FocusImage    = Style.FocusImage;</Script>
+            <Script>PressedImage  = Style.PressedImage;</Script>
+            <Script>DisabledImage = Style.DisabledImage;</Script>
+            <Script>HoldingImage  = Style.HoldingImage;</Script>
+        </Scripts>
+    </UI>
+
+
+
+
+
+    <UI Name="ToggleIconButton" Base="core:ToggleIconButton">
+        <Properties>
+            <me:ImageStyle Name="OnStyle"/>
+            <me:ImageStyle Name="OffStyle"/>
+        </Properties>
+
+        <Scripts>
+            <Script>OnImage           = OnStyle.Image;</Script>
+            <Script>OnHoverImage      = OnStyle.HoverImage;</Script>
+            <Script>OnFocusImage      = OnStyle.FocusImage;</Script>
+            <Script>OnPressedImage    = OnStyle.PressedImage;</Script>
+            <Script>OnDisabledImage   = OnStyle.DisabledImage;</Script>
+            <Script>OffImage          = OffStyle.Image;</Script>
+            <Script>OffHoverImage     = OffStyle.HoverImage;</Script>
+            <Script>OffFocusImage     = OffStyle.FocusImage;</Script>
+            <Script>OffPressedImage   = OffStyle.PressedImage;</Script>
+            <Script>OffDisabledImage  = OffStyle.DisabledImage;</Script>
+        </Scripts>
+    </UI>
+
+
+
+
+
+    <Class Name="Images" Shared="true">
+        <Properties>
+
+
+
+            <iris:BooleanChoice Name="InNowPlaying"/>
+            <iris:Command Name="NowPlayingIconCommand" Description="{isui:Shell.LoadString(&quot;IDS_NOW_PLAYING_ICON_TOOLTIP&quot;)}"/>
+
+
+
+            <me:ImageStyle Name="ZuneLogo"
+                Image         ="res://ZuneShellResources!ZuneLogo.png"
+                HoverImage    ="res://ZuneShellResources!ZuneLogo.Hover.png"
+                PressedImage  ="res://ZuneShellResources!ZuneLogo.Pressed.png"/>
+
+            <me:ImageStyle Name="WindowHelp"
+                Image         ="res://ZuneShellResources!Window.Help.png"
+                HoverImage    ="res://ZuneShellResources!Window.Help.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Help.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingWindowHelp"
+                Image         ="res://ZuneShellResources!Window.Slideshow.Help.png"
+                HoverImage    ="res://ZuneShellResources!Window.Slideshow.Help.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Slideshow.Help.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualWindowHelp"
+                Expression="{InNowPlaying}"
+                False="{WindowHelp}"
+                True="{NowPlayingWindowHelp}"/>
+
+            <me:ImageStyle Name="WindowBack"
+                Image         ="res://ZuneShellResources!Window.Back.png"
+                HoverImage    ="res://ZuneShellResources!Window.Back.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Back.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Window.Back.Disabled.png"/>
+
+            <me:ImageStyle Name="WindowRestore"
+                Image         ="res://ZuneShellResources!Window.Restore.png"
+                HoverImage    ="res://ZuneShellResources!Window.Restore.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Restore.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingWindowRestore"
+                Image         ="res://ZuneShellResources!Window.Slideshow.Restore.png"
+                HoverImage    ="res://ZuneShellResources!Window.Slideshow.Restore.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Slideshow.Restore.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualWindowRestore"
+                Expression="{InNowPlaying}"
+                False="{WindowRestore}"
+                True="{NowPlayingWindowRestore}"/>
+
+            <me:ImageStyle Name="WindowMaximize"
+                Image         ="res://ZuneShellResources!Window.Maximize.png"
+                HoverImage    ="res://ZuneShellResources!Window.Maximize.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Maximize.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingWindowMaximize"
+                Image         ="res://ZuneShellResources!Window.Slideshow.Maximize.png"
+                HoverImage    ="res://ZuneShellResources!Window.Slideshow.Maximize.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Slideshow.Maximize.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualWindowMaximize"
+                Expression="{InNowPlaying}"
+                False="{WindowMaximize}"
+                True="{NowPlayingWindowMaximize}"/>
+
+            <me:ImageStyle Name="WindowMinimize"
+                Image         ="res://ZuneShellResources!Window.Minimize.png"
+                HoverImage    ="res://ZuneShellResources!Window.Minimize.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Minimize.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingWindowMinimize"
+                Image         ="res://ZuneShellResources!Window.Slideshow.Minimize.png"
+                HoverImage    ="res://ZuneShellResources!Window.Slideshow.Minimize.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Slideshow.Minimize.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualWindowMinimize"
+                Expression="{InNowPlaying}"
+                False="{WindowMinimize}"
+                True="{NowPlayingWindowMinimize}"/>
+
+            <me:ImageStyle Name="WindowClose"
+                Image         ="res://ZuneShellResources!Window.Close.png"
+                HoverImage    ="res://ZuneShellResources!Window.Close.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Close.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingWindowClose"
+                Image         ="res://ZuneShellResources!Window.Slideshow.Close.png"
+                HoverImage    ="res://ZuneShellResources!Window.Slideshow.Close.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Window.Slideshow.Close.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualWindowClose"
+                Expression="{InNowPlaying}"
+                False="{WindowClose}"
+                True="{NowPlayingWindowClose}"/>
+
+
+
+
+            <me:ImageStyle Name="ModeSwitchOn"
+                Image         ="res://ZuneShellResources!Transport.Switch.ToPhoto.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Switch.ToPhoto.Hover.png"/>
+
+            <me:ImageStyle Name="ModeSwitchOff"
+                Image         ="res://ZuneShellResources!Transport.Switch.ToMusic.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Switch.ToMusic.Hover.png"/>
+
+            <me:ImageStyle Name="EnterNowPlaying"
+                Image         ="res://ZuneShellResources!Icon.NowPlaying.Enter.png"
+                HoverImage    ="res://ZuneShellResources!Icon.NowPlaying.Enter.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Icon.NowPlaying.Enter.Pressed.png"/>
+
+            <me:ImageStyle Name="TransportButtonActionButton"
+                Image="{styles:Styles.TransportButton}"
+                HoverImage="{styles:Styles.TransportButtonHover}"
+                FocusImage="{styles:Styles.TransportButton}"
+                PressedImage="{styles:Styles.TransportButtonPressed}"
+                DisabledImage="{styles:Styles.TransportButtonDisabled}"/>
+            <me:ImageStyle Name="NowPlayingTransportActionButton"
+                Image="{styles:Styles.NowPlayingButton}"
+                HoverImage="{styles:Styles.NowPlayingButtonHover}"
+                FocusImage="{styles:Styles.NowPlayingButton}"
+                PressedImage="{styles:Styles.NowPlayingButtonPressed}"
+                DisabledImage="{styles:Styles.NowPlayingButtonDisabled}"/>
+            <me:SwitchImageStyle Name="ContextualTransportActionButton"
+                Expression="{InNowPlaying}"
+                False="{TransportButtonActionButton}"
+                True="{NowPlayingTransportActionButton}"/>
+
+
+
+            <me:ImageStyle Name="TransportPlay"
+                Image         ="res://ZuneShellResources!Transport.Play.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Play.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Play.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Play.Disabled.png"/>
+            <me:ImageStyle Name="NowPlayingTransportPlay"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Play.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Play.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Play.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Slideshow.Play.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportPlay"
+                Expression="{InNowPlaying}"
+                False="{TransportPlay}"
+                True="{NowPlayingTransportPlay}"/>
+
+            <me:ImageStyle Name="TransportPause"
+               Image         ="res://ZuneShellResources!Transport.Pause.png"
+               HoverImage    ="res://ZuneShellResources!Transport.Pause.Hover.png"
+               PressedImage  ="res://ZuneShellResources!Transport.Pause.Pressed.png"
+               DisabledImage ="res://ZuneShellResources!Transport.Pause.Disabled.png"/>
+            <me:ImageStyle Name="NowPlayingTransportPause"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Pause.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Pause.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Pause.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Slideshow.Pause.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportPause"
+                Expression="{InNowPlaying}"
+                False="{TransportPause}"
+                True="{NowPlayingTransportPause}"/>
+
+            <me:ImageStyle Name="TransportStop"
+                Image         ="res://ZuneShellResources!Transport.Stop.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Stop.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Stop.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Stop.Disabled.png"/>
+            <me:ImageStyle Name="NowPlayingTransportStop"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Stop.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Stop.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Stop.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Slideshow.Stop.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportStop"
+                Expression="{InNowPlaying}"
+                False="{TransportStop}"
+                True="{NowPlayingTransportStop}"/>
+
+            <me:ImageStyle Name="TransportBack"
+                Image         ="res://ZuneShellResources!Transport.Back.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Back.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Back.Pressed.png"
+                HoldingImage  ="res://ZuneShellResources!Transport.Back.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Back.Disabled.png"/>
+            <me:ImageStyle Name="NowPlayingTransportBack"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Back.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Back.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Back.Pressed.png"
+                HoldingImage  ="res://ZuneShellResources!Transport.Slideshow.Back.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Slideshow.Back.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportBack"
+                Expression="{InNowPlaying}"
+                False="{TransportBack}"
+                True="{NowPlayingTransportBack}"/>
+
+            <me:ImageStyle Name="TransportForward"
+                Image         ="res://ZuneShellResources!Transport.Forward.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Forward.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Forward.Pressed.png"
+                HoldingImage  ="res://ZuneShellResources!Transport.Forward.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Forward.Disabled.png"/>
+            <me:ImageStyle Name="NowPlayingTransportForward"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Forward.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Forward.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Forward.Pressed.png"
+                HoldingImage  ="res://ZuneShellResources!Transport.Slideshow.Forward.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Transport.Slideshow.Forward.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportForward"
+                Expression="{InNowPlaying}"
+                False="{TransportForward}"
+                True="{NowPlayingTransportForward}"/>
+
+            <me:ImageStyle Name="TransportMuteOn"
+                Image         ="res://ZuneShellResources!Transport.Mute.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Mute.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Mute.On.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingTransportMuteOn"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Mute.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Mute.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Mute.On.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportMuteOn"
+                Expression="{InNowPlaying}"
+                False="{TransportMuteOn}"
+                True="{NowPlayingTransportMuteOn}"/>
+
+            <me:ImageStyle Name="TransportMuteOff"
+                Image         ="res://ZuneShellResources!Transport.Mute.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Mute.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Mute.Off.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingTransportMuteOff"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Mute.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Mute.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Mute.Off.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportMuteOff"
+                Expression="{InNowPlaying}"
+                False="{TransportMuteOff}"
+                True="{NowPlayingTransportMuteOff}"/>
+
+            <me:ImageStyle Name="TransportRepeatingOn"
+                Image         ="res://ZuneShellResources!Transport.Repeat.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Repeat.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Repeat.On.Pressed.png"/>
+
+            <me:ImageStyle Name="NowPlayingTransportRepeatingOn"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Repeat.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Repeat.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Repeat.On.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportRepeatingOn"
+                Expression="{InNowPlaying}"
+                False="{TransportRepeatingOn}"
+                True="{NowPlayingTransportRepeatingOn}"/>
+
+            <me:ImageStyle Name="TransportRepeatingOff"
+                Image         ="res://ZuneShellResources!Transport.Repeat.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Repeat.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Repeat.Off.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingTransportRepeatingOff"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Repeat.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Repeat.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Repeat.Off.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportRepeatingOff"
+                Expression="{InNowPlaying}"
+                False="{TransportRepeatingOff}"
+                True="{NowPlayingTransportRepeatingOff}"/>
+
+            <me:ImageStyle Name="TransportShuffleOn"
+                Image         ="res://ZuneShellResources!Transport.Shuffle.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Shuffle.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Shuffle.On.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingTransportShuffleOn"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Shuffle.On.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Shuffle.On.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Shuffle.On.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportShuffleOn"
+                Expression="{InNowPlaying}"
+                False="{TransportShuffleOn}"
+                True="{NowPlayingTransportShuffleOn}"/>
+
+            <me:ImageStyle Name="TransportShuffleOff"
+                Image         ="res://ZuneShellResources!Transport.Shuffle.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Shuffle.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Shuffle.Off.Pressed.png"/>
+            <me:ImageStyle Name="NowPlayingTransportShuffleOff"
+                Image         ="res://ZuneShellResources!Transport.Slideshow.Shuffle.Off.png"
+                HoverImage    ="res://ZuneShellResources!Transport.Slideshow.Shuffle.Off.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Transport.Slideshow.Shuffle.Off.Pressed.png"/>
+            <me:SwitchImageStyle Name="ContextualTransportShuffleOff"
+                Expression="{InNowPlaying}"
+                False="{TransportShuffleOff}"
+                True="{NowPlayingTransportShuffleOff}"/>
+
+
+
+
+            <me:ImageStyle Name="PhotosBack"
+                Image         ="res://ZuneShellResources!Pictures.Back.png"
+                HoverImage    ="res://ZuneShellResources!Pictures.Back.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Pictures.Back.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Pictures.Back.Disabled.png"/>
+            <me:ImageStyle Name="SlideshowBack"
+                Image         ="res://ZuneShellResources!Slideshow.Back.png"
+                HoverImage    ="res://ZuneShellResources!Slideshow.Back.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Slideshow.Back.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Slideshow.Back.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualSlideshowBack"
+                Expression="{InNowPlaying}"
+                False="{PhotosBack}"
+                True="{SlideshowBack}"/>
+
+            <me:ImageStyle Name="PhotosPlay"
+                Image         ="res://ZuneShellResources!Pictures.Play.png"
+                HoverImage    ="res://ZuneShellResources!Pictures.Play.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Pictures.Play.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Pictures.Play.Disabled.png"/>
+            <me:ImageStyle Name="SlideshowPlay"
+                Image         ="res://ZuneShellResources!Slideshow.Play.png"
+                HoverImage    ="res://ZuneShellResources!Slideshow.Play.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Slideshow.Play.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Slideshow.Play.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualSlideshowPlay"
+                Expression="{InNowPlaying}"
+                False="{PhotosPlay}"
+                True="{SlideshowPlay}"/>
+
+            <me:ImageStyle Name="PhotosPause"
+                Image         ="res://ZuneShellResources!Pictures.Pause.png"
+                HoverImage    ="res://ZuneShellResources!Pictures.Pause.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Pictures.Pause.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Pictures.Pause.Disabled.png"/>
+            <me:ImageStyle Name="SlideshowPause"
+                Image         ="res://ZuneShellResources!Slideshow.Pause.png"
+                HoverImage    ="res://ZuneShellResources!Slideshow.Pause.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Slideshow.Pause.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Slideshow.Pause.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualSlideshowPause"
+                Expression="{InNowPlaying}"
+                False="{PhotosPause}"
+                True="{SlideshowPause}"/>
+
+            <me:ImageStyle Name="PhotosNext"
+                Image         ="res://ZuneShellResources!Pictures.Next.png"
+                HoverImage    ="res://ZuneShellResources!Pictures.Next.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Pictures.Next.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Pictures.Next.Disabled.png"/>
+            <me:ImageStyle Name="SlideshowNext"
+                Image         ="res://ZuneShellResources!Slideshow.Next.png"
+                HoverImage    ="res://ZuneShellResources!Slideshow.Next.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Slideshow.Next.Pressed.png"
+                DisabledImage ="res://ZuneShellResources!Slideshow.Next.Disabled.png"/>
+            <me:SwitchImageStyle Name="ContextualSlideshowNext"
+                Expression="{InNowPlaying}"
+                False="{PhotosNext}"
+                True="{SlideshowNext}"/>
+
+            <me:ImageStyle Name="ErrorIcon"
+                Image         ="res://ZuneShellResources!Attention.png"
+          />
+
+            <me:ImageStyle Name="NowPlayingIcon"
+                Image         ="res://ZuneShellResources!Icon.NowPlaying.png"
+                HoverImage    ="res://ZuneShellResources!Icon.NowPlaying.Hover.png"
+                PressedImage  ="res://ZuneShellResources!Icon.NowPlaying.Pressed.png"/>
+
+            <me:ImageStyle Name="EmptyStyle"/>
+
+        </Properties>
+    </Class>
+
+</UIX>
+
