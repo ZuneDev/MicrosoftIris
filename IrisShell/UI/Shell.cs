@@ -227,9 +227,10 @@ public class Shell : IrisShell
 
     public static string LoadString(string resourceName)
     {
-        var localizer = IrisAppBase.Current!.ServiceProvider!.GetService<IStringLocalizer>()
+        return resourceName;
+        var factory = IrisAppBase.Current?.ServiceProvider?.GetService<IStringLocalizerFactory>()
             ?? throw new Exception("Localization service was misconfigured.");
-
+        var localizer = factory.Create("X", "Y");
         return localizer.GetString(resourceName);
     }
 
