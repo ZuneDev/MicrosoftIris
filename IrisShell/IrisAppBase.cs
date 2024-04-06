@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using IrisShell.UI;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Iris;
 using Microsoft.Iris.Debug;
 using System.Diagnostics.CodeAnalysis;
@@ -42,6 +43,7 @@ public abstract class IrisAppBase
         ServiceProvider = BuildServices();
         ServiceProviderReady?.Invoke(this, ServiceProvider);
 
+        Shell.InitializeInstance();
         Application.Initialize();
 
         Application.Window.Caption = Title;
@@ -97,11 +99,6 @@ public abstract class IrisAppBase
 
     protected virtual IServiceCollection ConfigureServices(IServiceCollection services)
     {
-        services.AddLocalization(options =>
-        {
-            options.ResourcesPath = "Resources";
-        });
-
-        return services;
+        return services.AddLogging();
     }
 }
