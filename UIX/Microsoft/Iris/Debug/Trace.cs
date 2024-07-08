@@ -74,7 +74,7 @@ namespace Microsoft.Iris.Debug
         public static void WriteLine(TraceCategory cat, byte levelFlag, object valueObject)
         {
             if (IsCategoryEnabled(cat, levelFlag))
-                System.Diagnostics.Debug.WriteLine(BuildLine(valueObject.ToString()));
+                WriteLine(BuildLine(valueObject.ToString()));
         }
 
         [Conditional("DEBUG")]
@@ -83,7 +83,7 @@ namespace Microsoft.Iris.Debug
             if (IsCategoryEnabled(cat, levelFlag))
             {
                 string content = string.Format(format, param);
-                System.Diagnostics.Debug.WriteLine(BuildLine(content));
+                WriteLine(BuildLine(content));
             }
         }
 
@@ -93,7 +93,7 @@ namespace Microsoft.Iris.Debug
             if (IsCategoryEnabled(cat, levelFlag))
             {
                 string content = string.Format(format, param1, param2);
-                System.Diagnostics.Debug.WriteLine(BuildLine(content));
+                WriteLine(BuildLine(content));
             }
         }
 
@@ -103,7 +103,7 @@ namespace Microsoft.Iris.Debug
             if (IsCategoryEnabled(cat, levelFlag))
             {
                 string content = string.Format(format, param1, param2, param3);
-                System.Diagnostics.Debug.WriteLine(BuildLine(content));
+                WriteLine(BuildLine(content));
             }
         }
 
@@ -115,8 +115,7 @@ namespace Microsoft.Iris.Debug
                 string content = string.Format(format, pars);
                 var line = BuildLine(content);
 
-                System.Diagnostics.Debug.WriteLine(line);
-                TraceSettings.Current.FireWriteCallbacks(line);
+                WriteLine(line);
             }
         }
 
@@ -431,6 +430,12 @@ namespace Microsoft.Iris.Debug
             else
                 objArray = new object[length];
             return objArray;
+        }
+
+        private static void WriteLine(string line)
+        {
+            System.Diagnostics.Debug.WriteLine(line);
+            TraceSettings.Current.FireWriteCallbacks(line);
         }
     }
 }
