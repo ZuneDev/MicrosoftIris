@@ -1,6 +1,6 @@
 ﻿using Microsoft.Iris.Layouts;
 using Microsoft.Iris.Render;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Iris.Layout;
 
@@ -8,16 +8,28 @@ public static class PredefinedLayouts
 {
     public static bool TryGetFromName(string name, out ILayout layout)
     {
-        return s_NameToLayoutMap.TryGetValue(name.ToLowerInvariant(), out layout);
+        var prop = typeof(PredefinedLayouts).GetProperties()
+            .FirstOrDefault(p => p.Name.Equals(name, System.StringComparison.InvariantCultureIgnoreCase));
+
+        if (prop is null)
+        {
+            layout = null;
+            return false;
+        }
+
+        layout = (ILayout)prop.GetValue(null);
+        return true;
     }
 
     public static bool TryConvertToString(ILayout layout, out string name)
     {
-        foreach (var kvp in s_NameToLayoutMap)
+        foreach (var prop in typeof(PredefinedLayouts).GetProperties())
         {
-            if (kvp.Value.Equals(layout))
+            var value = prop.GetValue(null);
+
+            if (value == layout)
             {
-                name = kvp.Key;
+                name = prop.Name;
                 return true;
             }
         }
@@ -45,19 +57,5 @@ public static class PredefinedLayouts
     public static ILayout VerticalFlow { get; } = new FlowLayout
     {
         Orientation = Orientation.Vertical
-    };
-
-    private static readonly Dictionary<string, ILayout> s_NameToLayoutMap = new(10)
-    {
-        ["anchor"] = Anchor,
-        ["default"] = Default,
-        ["dock"] = Dock,
-        ["grid"] = Grid,
-        ["scale"] = Scale,
-        ["popup"] = Popup,
-        ["stack"] = Stack,
-        ["form"] = Form,
-        ["horizontalflow"] = HorizontalFlow,
-        ["verticalflow"] = VerticalFlow,
     };
 }
