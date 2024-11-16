@@ -251,46 +251,53 @@ namespace Microsoft.Iris.Markup
 
         public unsafe string ReadString()
         {
-            uint num1 = ReadUInt16();
-            if (num1 == ushort.MaxValue)
+            uint stringLength = ReadUInt16();
+            if (stringLength == ushort.MaxValue)
                 return null;
-            bool flag;
-            uint num2;
-            if (((int)num1 & 32768) != 0)
+
+            var isUtf16Encoded = ((int)stringLength & (1 << 15)) == 0;
+            uint byteCount;
+            if (isUtf16Encoded)
             {
-                flag = true;
-                num1 &= (uint)short.MaxValue;
-                num2 = num1;
+                byteCount = stringLength * 2U;
             }
             else
             {
-                flag = false;
-                num2 = num1 * 2U;
+                stringLength &= (uint)short.MaxValue;
+                byteCount = stringLength;
             }
-            if (_offset + num2 > _size)
+
+            if (_offset + byteCount > _size)
                 ThrowReadError();
-            char[] chArray = num1 >= s_scratchCharArray.Length ? new char[num1] : ByteCodeReader.s_scratchCharArray;
-            byte* numPtr1 = _buffer + (int)_offset;
-            if (flag)
+
+            char[] chArray = stringLength >= s_scratchCharArray.Length
+                ? new char[stringLength] : s_scratchCharArray;
+
+            byte* chPtr = _buffer + (int)_offset;
+            if (isUtf16Encoded)
             {
-                for (int index = 0; index < num1; ++index)
-                    chArray[index] = (char)*numPtr1++;
-            }
-            else
-            {
-                for (int index = 0; index < num1; ++index)
+                for (int index = 0; index < stringLength; ++index)
                 {
-                    byte* numPtr2 = numPtr1;
-                    byte* numPtr3 = numPtr2 + 1;
-                    byte num3 = *numPtr2;
-                    byte* numPtr4 = numPtr3;
-                    numPtr1 = numPtr4 + 1;
-                    byte num4 = *numPtr4;
-                    chArray[index] = (char)(num3 | (uint)num4 << 8);
+                    byte* lowerBytePtr = chPtr;
+                    byte* upperBytePtr = chPtr + 1;
+
+                    byte lowerByte = *lowerBytePtr;
+                    byte upperByte = *upperBytePtr;
+                    chArray[index] = (char)(lowerByte | (uint)upperByte << 8);
+
+                    chPtr = upperBytePtr + 1;
                 }
             }
-            _offset += num2;
-            return new string(chArray, 0, (int)num1);
+            else
+            {
+                for (int index = 0; index < stringLength; ++index)
+                {
+                    chArray[index] = (char)*chPtr++;
+                }
+            }
+
+            _offset += byteCount;
+            return new string(chArray, 0, (int)stringLength);
         }
 
         public unsafe IntPtr ToIntPtr(out uint size)

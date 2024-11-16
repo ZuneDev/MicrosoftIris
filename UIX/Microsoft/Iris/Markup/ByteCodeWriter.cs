@@ -126,22 +126,26 @@ namespace Microsoft.Iris.Markup
             {
                 if (value.Length >= short.MaxValue)
                     throw new ArgumentException("String too long");
-                bool flag = false;
+                
+                bool useUtf16 = false;
                 foreach (char ch in value)
                 {
                     if (ch > 'ÿ')
                     {
-                        flag = true;
+                        useUtf16 = true;
                         break;
                     }
                 }
+
                 uint length = (uint)value.Length;
-                if (!flag)
-                    length |= 32768U;
+                if (!useUtf16)
+                    length |= 1 << 15;
+                
                 WriteUInt16((ushort)length);
+                
                 foreach (char ch in value)
                 {
-                    if (flag)
+                    if (useUtf16)
                         WriteChar(ch);
                     else
                         WriteByte((byte)ch);
