@@ -456,21 +456,25 @@ namespace Microsoft.Iris.Markup
         {
             if (_binaryDataTableSectionOffsetFixup != uint.MaxValue)
             {
-                uint dataSize1 = _writer.DataSize;
+                uint dataTableStartOffset = _writer.DataSize;
+
                 Vector<string> strings = _binaryDataTable.Strings;
                 _writer.WriteInt32(strings.Count);
-                uint dataSize2 = _writer.DataSize;
-                uint offset = dataSize2;
+
+                uint stringJumpTableStartOffset = _writer.DataSize;
+                uint offset = stringJumpTableStartOffset;
                 for (int index = 0; index <= strings.Count; ++index)
                     _writer.WriteUInt32(uint.MaxValue);
+                
                 foreach (string str in strings)
                 {
-                    _writer.Overwrite(offset, _writer.DataSize - dataSize2);
+                    _writer.Overwrite(offset, _writer.DataSize - stringJumpTableStartOffset);
                     offset += 4U;
                     _writer.WriteString(str);
                 }
-                _writer.Overwrite(offset, _writer.DataSize - dataSize2);
-                _writer.Overwrite(_binaryDataTableSectionOffsetFixup, dataSize1);
+
+                _writer.Overwrite(offset, _writer.DataSize - stringJumpTableStartOffset);
+                _writer.Overwrite(_binaryDataTableSectionOffsetFixup, dataTableStartOffset);
             }
             _binaryDataTablePersisted = true;
         }
