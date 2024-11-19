@@ -137,11 +137,11 @@ namespace Microsoft.Iris.Markup
                     }
                 }
 
-                uint length = (uint)value.Length;
+                uint preamble = (uint)value.Length;
                 if (!useUtf16)
-                    length |= 1 << 15;
+                    preamble |= 1 << 15;
                 
-                WriteUInt16((ushort)length);
+                WriteUInt16((ushort)preamble);
                 
                 foreach (char ch in value)
                 {

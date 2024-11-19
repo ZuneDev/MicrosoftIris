@@ -251,19 +251,20 @@ namespace Microsoft.Iris.Markup
 
         public unsafe string ReadString()
         {
-            uint stringLength = ReadUInt16();
-            if (stringLength == ushort.MaxValue)
+            uint preamble = ReadUInt16();
+            if (preamble == ushort.MaxValue)
                 return null;
 
-            var isUtf16Encoded = ((int)stringLength & (1 << 15)) == 0;
-            uint byteCount;
+            var isUtf16Encoded = ((int)preamble & (1 << 15)) == 0;
+            uint byteCount, stringLength;
             if (isUtf16Encoded)
             {
+                stringLength = preamble;
                 byteCount = stringLength * 2U;
             }
             else
             {
-                stringLength &= (uint)short.MaxValue;
+                stringLength = preamble & (uint)short.MaxValue;
                 byteCount = stringLength;
             }
 
