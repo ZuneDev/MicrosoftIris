@@ -9,7 +9,7 @@ using Microsoft.Iris.Library;
 
 namespace Microsoft.Iris.Layouts
 {
-    internal class DockLayoutInput : ILayoutInput, IStringEncodable
+    internal class DockLayoutInput : ILayoutInput, IStringEncodable, IHasCanonicalInstances
     {
         public static readonly DockLayoutInput Left = new DockLayoutInput();
         public static readonly DockLayoutInput Top = new DockLayoutInput();
@@ -35,12 +35,17 @@ namespace Microsoft.Iris.Layouts
                     return "Top";
                 if (this == Right)
                     return "Right";
-                return this == Bottom ? "Bottom" : "Client";
+                if (this == Bottom)
+                    return "Bottom";
+                 
+                return "Client";
             }
         }
 
         public override string ToString() => InvariantString.Format("{0}(Position={1})", GetType().Name, PositionString);
 
         public string EncodeString() => PositionString;
+
+        public string GetCanonicalName() => PositionString;
     }
 }

@@ -6,7 +6,7 @@
 
 namespace Microsoft.Iris.Layouts
 {
-    internal class PlacementMode
+    internal class PlacementMode : IHasCanonicalInstances
     {
         private PopupPosition[] _popupPositions;
         private MouseTarget _mouseTarget;
@@ -50,7 +50,9 @@ namespace Microsoft.Iris.Layouts
 
         internal bool UsesTargetSize => _usesTargetSize;
 
-        public override string ToString()
+        public override string ToString() => GetCanonicalName() ?? base.ToString();
+
+        public string GetCanonicalName()
         {
             if (this == s_origin)
                 return "Origin";
@@ -70,7 +72,10 @@ namespace Microsoft.Iris.Layouts
                 return "MouseBottom";
             if (this == s_followMouseOrigin)
                 return "FollowMouseOrigin";
-            return this == s_followMouseBottom ? "FollowMouseBottom" : base.ToString();
+            if (this == s_followMouseBottom)
+                return "FollowMouseBottom";
+
+            return null;
         }
 
         public static PlacementMode Origin
