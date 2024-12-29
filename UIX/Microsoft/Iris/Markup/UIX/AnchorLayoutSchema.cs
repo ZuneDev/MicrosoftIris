@@ -43,17 +43,18 @@ namespace Microsoft.Iris.Markup.UIX
           out object instance)
         {
             instance = Construct();
-            object valueObj1;
-            Result result1 = UIXLoadResult.ValidateStringAsValue(splitString[0], BooleanSchema.Type, null, out valueObj1);
-            if (result1.Failed)
-                return Result.Fail("Problem converting '{0}' ({1})", "AnchorLayout", result1.Error);
-            SetSizeToHorizontalChildren(ref instance, valueObj1);
-            object valueObj2;
-            Result result2 = UIXLoadResult.ValidateStringAsValue(splitString[1], BooleanSchema.Type, null, out valueObj2);
-            if (result2.Failed)
-                return Result.Fail("Problem converting '{0}' ({1})", "AnchorLayout", result2.Error);
-            SetSizeToVerticalChildren(ref instance, valueObj2);
-            return result2;
+            var horizontalResult = UIXLoadResult.ValidateStringAsValue(splitString[0], BooleanSchema.Type, null, out object horizontalValue);
+            if (horizontalResult.Failed)
+                return Result.Fail("Problem converting '{0}' ({1})", "AnchorLayout", horizontalResult.Error);
+            
+            SetSizeToHorizontalChildren(ref instance, horizontalValue);
+
+            var verticalResult = UIXLoadResult.ValidateStringAsValue(splitString[1], BooleanSchema.Type, null, out object verticalValue);
+            if (verticalResult.Failed)
+                return Result.Fail("Problem converting '{0}' ({1})", "AnchorLayout", verticalResult.Error);
+            SetSizeToVerticalChildren(ref instance, verticalValue);
+
+            return verticalResult;
         }
 
         private static bool IsConversionSupported(TypeSchema fromType) => StringSchema.Type.IsAssignableFrom(fromType);
