@@ -8,7 +8,7 @@ using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.Animations
 {
-    public class RelativeTo
+    public class RelativeTo : IHasCanonicalInstances
     {
         private IAnimatable _sourceObject;
         private int _sourceId;
@@ -126,13 +126,22 @@ namespace Microsoft.Iris.Animations
 
         public override string ToString()
         {
+            return GetCanonicalName()
+                ?? $"[Object = {_sourceObject ?? (object)_sourceId}, Property = {_sourceProperty}]";
+        }
+
+        public string GetCanonicalName()
+        {
             if (this == s_absolute)
                 return "Absolute";
             if (this == s_current)
                 return "Current";
             if (this == s_currentSnapshotOnLoop)
                 return "CurrentSnapshotOnLoop";
-            return this == s_final ? "Final" : string.Format("[Object = {0}, Property = {1}]", _sourceObject != null ? _sourceObject : (object)_sourceId, _sourceProperty);
+            if (this == s_final)
+                return "Final";
+
+            return null;
         }
     }
 }

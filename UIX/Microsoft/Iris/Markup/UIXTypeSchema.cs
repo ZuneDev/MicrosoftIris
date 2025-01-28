@@ -234,6 +234,8 @@ namespace Microsoft.Iris.Markup
 
         public override bool SupportsBinaryEncoding => _encodeBinary != null;
 
+        public override bool SupportsCanonicalInstance => _findCanonicalInstance != null;
+
         public override int FindTypeHint => _typeID;
 
         public override object PerformOperation(object left, object right, OperationType op)

@@ -93,6 +93,8 @@ namespace Microsoft.Iris.Markup
 
         public abstract bool SupportsBinaryEncoding { get; }
 
+        public virtual bool SupportsCanonicalInstance => false;
+
         public abstract object PerformOperation(object left, object right, OperationType op);
 
         public abstract bool SupportsOperation(OperationType op);
