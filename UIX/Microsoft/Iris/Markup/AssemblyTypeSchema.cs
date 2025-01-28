@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class AssemblyTypeSchema : TypeSchema
+    internal class AssemblyTypeSchema : TypeSchema, ITypeSchemaWithInternalType
     {
         private Type _type;
         private TypeSchema _baseType;
