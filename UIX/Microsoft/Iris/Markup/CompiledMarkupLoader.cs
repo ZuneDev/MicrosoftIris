@@ -213,7 +213,7 @@ internal class CompiledMarkupLoader
             string name = ReadDataTableString();
             MarkupType exportType = (MarkupType)_reader.ReadInt32();
 
-            MarkupTypeSchema markupTypeSchema = MarkupTypeSchema.Build(MarkupTypeToDefinition(exportType), _loadResultTarget, name);
+            MarkupTypeSchema markupTypeSchema = MarkupTypeSchema.Build(TypeSchema.MarkupTypeToDefinition(exportType), _loadResultTarget, name);
             exportTable[exportIndex] = markupTypeSchema;
         }
         _loadResultTarget.SetExportTable(exportTable);
@@ -270,7 +270,7 @@ internal class CompiledMarkupLoader
         foreach (MarkupTypeSchema markupTypeSchema in _loadResultTarget.ExportTable)
         {
             MarkupType markupType = markupTypeSchema.MarkupType;
-            TypeSchema definition = MarkupTypeToDefinition(markupType);
+            TypeSchema definition = TypeSchema.MarkupTypeToDefinition(markupType);
 
             uint typeDepth = _reader.ReadUInt16();
             markupTypeSchema.SetTypeDepth(typeDepth);
@@ -864,18 +864,6 @@ internal class CompiledMarkupLoader
             }
         }
         return methodSchemaArray;
-    }
-
-    private TypeSchema MarkupTypeToDefinition(MarkupType markupType)
-    {
-        return markupType switch
-        {
-            MarkupType.UI => UISchema.Type,
-            MarkupType.Effect => EffectSchema.Type,
-            MarkupType.DataType => DataTypeSchema.Type,
-            MarkupType.DataQuery => DataQuerySchema.Type,
-            _ => ClassSchema.Type,
-        };
     }
 
     private TypeSchema[] GetTempParameterArray(int count)

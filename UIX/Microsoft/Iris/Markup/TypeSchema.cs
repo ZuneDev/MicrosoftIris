@@ -293,5 +293,17 @@ namespace Microsoft.Iris.Markup
         }
 
         public override string ToString() => $"typeof({Name})";
+
+        public static TypeSchema MarkupTypeToDefinition(MarkupType markupType)
+        {
+            return markupType switch
+            {
+                MarkupType.UI => UISchema.Type,
+                MarkupType.Effect => EffectSchema.Type,
+                MarkupType.DataType => DataTypeSchema.Type,
+                MarkupType.DataQuery => DataQuerySchema.Type,
+                _ => ClassSchema.Type,
+            };
+        }
     }
 }
