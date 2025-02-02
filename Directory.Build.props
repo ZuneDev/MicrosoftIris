@@ -13,9 +13,9 @@
         <TargetFrameworks>net461;net6.0;net6.0-windows10.0.22000</TargetFrameworks>
         <Platforms>AnyCPU;x64;x86</Platforms>
 
-        <SignAssembly>True</SignAssembly>
+        <!--<SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\36MSApp1024.snk</AssemblyOriginatorKeyFile>
-        <DelaySign>True</DelaySign>
+        <DelaySign>True</DelaySign>-->
     </PropertyGroup>
 
     <Choose>
