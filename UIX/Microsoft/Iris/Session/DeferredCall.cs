@@ -14,7 +14,6 @@ namespace Microsoft.Iris.Session
     internal sealed class DeferredCall : QueueItem
     {
         private const int c_maxCacheCount = 100;
-        private DeferredCall.CallType _callType;
         private Delegate _target;
         private object _param;
         private EventArgs _args;
@@ -39,15 +38,13 @@ namespace Microsoft.Iris.Session
                     --s_cachedCount;
                 }
             }
-            if (deferredCall == null)
-                deferredCall = new DeferredCall();
+            deferredCall ??= new DeferredCall();
             return deferredCall;
         }
 
         public static DeferredCall Create(SimpleCallback callback)
         {
             DeferredCall deferredCall = AllocateFromCache();
-            deferredCall._callType = CallType.Simple;
             deferredCall._target = callback;
             return deferredCall;
         }
@@ -55,7 +52,6 @@ namespace Microsoft.Iris.Session
         public static DeferredCall Create(DeferredHandler handler, object param)
         {
             DeferredCall deferredCall = AllocateFromCache();
-            deferredCall._callType = CallType.OneParam;
             deferredCall._target = handler;
             deferredCall._param = param;
             return deferredCall;
@@ -67,7 +63,6 @@ namespace Microsoft.Iris.Session
           EventArgs args)
         {
             DeferredCall deferredCall = AllocateFromCache();
-            deferredCall._callType = CallType.Event;
             deferredCall._target = handler;
             deferredCall._param = sender;
             deferredCall._args = args;
@@ -77,31 +72,34 @@ namespace Microsoft.Iris.Session
         public static DeferredCall Create(IDeferredInvokeItem item)
         {
             DeferredCall deferredCall = AllocateFromCache();
-            deferredCall._callType = CallType.RenderItem;
             deferredCall._param = item;
             return deferredCall;
         }
 
         public override void Dispatch()
         {
-            switch (_callType)
+            switch (_target)
             {
-                case CallType.Simple:
-                    ((SimpleCallback)_target)();
+                case SimpleCallback simpleCallback:
+                    simpleCallback();
                     break;
-                case CallType.OneParam:
-                    ((DeferredHandler)_target)(_param);
+
+                case DeferredHandler deferredHandler:
+                    deferredHandler(_param);
                     break;
-                case CallType.Event:
-                    ((EventHandler)_target)(_param, _args);
+
+                case EventHandler eventHandler:
+                    eventHandler(_param, _args);
                     break;
-                case CallType.RenderItem:
-                    ((IDeferredInvokeItem)_param).Dispatch();
+
+                case IDeferredInvokeItem deferredInvokeItem:
+                    deferredInvokeItem.Dispatch();
                     break;
+
                 default:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"Unrecognized call target type '{_target?.GetType().Name}'");
             }
-            _callType = CallType.None;
+
             _target = null;
             _param = null;
             _args = null;
@@ -110,7 +108,7 @@ namespace Microsoft.Iris.Session
             _owner = null;
             lock (s_cacheLock)
             {
-                if (s_cachedCount >= 100)
+                if (s_cachedCount >= c_maxCacheCount)
                     return;
                 _next = s_cachedList;
                 s_cachedList = this;
@@ -164,37 +162,17 @@ namespace Microsoft.Iris.Session
                 ? string.Empty
                 : $"{_target.Target}.";
 
-            switch (_callType)
+            packetString += _target switch
             {
-                case CallType.Simple:
-                    var simpleCallback = (SimpleCallback)_target;
-                    packetString += simpleCallback.Method.Name;
-                    break;
-                case CallType.OneParam:
-                    var deferredHandler = (DeferredHandler)_target;
-                    packetString += $"{deferredHandler.Method.Name}({_param})";
-                    break;
-                case CallType.Event:
-                    var eventHandler = (EventHandler)_target;
-                    packetString += $"{eventHandler.Method.Name}({_param}, {_args})";
-                    break;
-                case CallType.RenderItem:
-                    var deferredInvokeItem = (IDeferredInvokeItem)_param;
-                    packetString = deferredInvokeItem.ToString();
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            return packetString;
-        }
+                SimpleCallback simpleCallback => simpleCallback.Method.Name,
+                DeferredHandler deferredHandler => $"{deferredHandler.Method.Name}({_param})",
+                EventHandler eventHandler => $"{eventHandler.Method.Name}({_param}, {_args})",
+                IDeferredInvokeItem deferredInvokeItem => deferredInvokeItem.ToString(),
 
-        private enum CallType
-        {
-            None,
-            Simple,
-            OneParam,
-            Event,
-            RenderItem,
+                _ => throw new InvalidOperationException()
+            };
+
+            return packetString;
         }
     }
 }
