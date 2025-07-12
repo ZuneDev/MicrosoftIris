@@ -66,7 +66,7 @@ namespace Microsoft.Iris.Markup
 
         public override PropertySchema FindProperty(string name)
         {
-            foreach (PropertySchema predefinedProperty in _predefinedProperties)
+            foreach (PropertySchema predefinedProperty in _predefinedProperties ?? [])
             {
                 if (name == predefinedProperty.Name)
                     return predefinedProperty;
