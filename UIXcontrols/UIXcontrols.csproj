@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--Project was exported from assembly: C:\Program Files\Zune\UIXcontrols.dll-->
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <AssemblyName>UIXControls</AssemblyName>
+        <RootNamespace>UIXControls</RootNamespace>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\UIX\UIX.csproj" />
+    </ItemGroup>
+</Project>
