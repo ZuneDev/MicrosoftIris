@@ -92,7 +92,7 @@ namespace Microsoft.Iris.Session
                     eventHandler(_param, _args);
                     break;
 
-                case IDeferredInvokeItem deferredInvokeItem:
+                case null when _param is IDeferredInvokeItem deferredInvokeItem:
                     deferredInvokeItem.Dispatch();
                     break;
 
