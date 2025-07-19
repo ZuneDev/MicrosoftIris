@@ -9,6 +9,8 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <EmbeddedResource Include="Resources\**\*.*" />
+        
         <ProjectReference Include="..\UIX\UIX.csproj" />
     </ItemGroup>
 </Project>
