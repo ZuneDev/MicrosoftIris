@@ -167,7 +167,7 @@ namespace Microsoft.Iris.Session
                 SimpleCallback simpleCallback => simpleCallback.Method.Name,
                 DeferredHandler deferredHandler => $"{deferredHandler.Method.Name}({_param})",
                 EventHandler eventHandler => $"{eventHandler.Method.Name}({_param}, {_args})",
-                IDeferredInvokeItem deferredInvokeItem => deferredInvokeItem.ToString(),
+                _ when _param is IDeferredInvokeItem deferredInvokeItem => deferredInvokeItem.ToString(),
 
                 _ => throw new InvalidOperationException()
             };
