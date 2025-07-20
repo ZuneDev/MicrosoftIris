@@ -15,6 +15,4 @@ public class DebugSettings
     public ObservableCollection<DataMappingModel> DataMappingModels { get; } = new();
 
     public HashSet<Breakpoint> Breakpoints { get; } = new();
-
-    public string DebugConnectionUri { get; set; }
 }

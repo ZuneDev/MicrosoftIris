@@ -5,12 +5,15 @@ namespace Microsoft.Iris.Debug;
 
 public interface IDebuggerState
 {
+    InterpreterCommand DebuggerCommand { get; set; }
+}
+
+public interface IRemoteDebuggerState : IDebuggerState
+{
     /// <summary>
     /// The URI the client is connected to.
     /// </summary>
     public Uri ConnectionUri { get; }
-
-    InterpreterCommand DebuggerCommand { get; set; }
 
     /// <summary>
     /// Fired when a connection is established.

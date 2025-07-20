@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Debug.SystemNet;
 
-internal class NetDebuggerServer : IDebuggerServer, IDisposable
+public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposable
 {
     public static IDebuggerServer Current { get; private set; }
 
@@ -53,7 +53,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
 
     public MarkupLineNumberEntry[] OnLineNumberTableRequested(string uri)
     {
-        var loadResult = LoadResultCache.Read(uri) as MarkupLoadResult;
+        var loadResult = (MarkupLoadResult)LoadResultCache.Read(uri);
         var lineNumberTable = loadResult.LineNumberTable.DumpTable();
 
         return lineNumberTable;
@@ -121,7 +121,7 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
                     break;
 
                 default:
-                    Trace.WriteLine(TraceCategory.MarkupDebug, "Recieved unknown debugger message of type '{0}'.", frame.Type);
+                    Trace.WriteLine(TraceCategory.MarkupDebug, "Received unknown debugger message of type '{0}'.", frame.Type);
                     break;
             }
         }
@@ -155,5 +155,10 @@ internal class NetDebuggerServer : IDebuggerServer, IDisposable
         System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };
         receiveThread.Start();
         sendThread.Start();
+    }
+
+    public void WaitForContinue()
+    {
+        while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
     }
 }

@@ -111,10 +111,12 @@ namespace Microsoft.Iris.UI
 
         public virtual void SetProperty(string name, object value)
         {
-            if (_storage.ContainsKey(name) && Utility.IsEqual(_storage[name], value))
+            if (_storage.ContainsKey(name))
                 return;
             _storage[name] = value;
-            _notifier.Fire(name);
+
+            if (Utility.IsEqual(_storage[name], value))
+                _notifier.Fire(name);
         }
 
         public MarkupListeners Listeners

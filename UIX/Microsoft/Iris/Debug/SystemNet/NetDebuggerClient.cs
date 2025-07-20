@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 
 namespace Microsoft.Iris.Debug.SystemNet;
 
-public class NetDebuggerClient : IDebuggerClient, IDisposable
+public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposable
 {
     private readonly Socket _socket;
     private readonly ConcurrentQueue<byte[]> _outQueue = new();

@@ -90,7 +90,7 @@ namespace Microsoft.Iris.Markup
                     Application.Debugger.DebuggerCommand = InterpreterCommand.Break;
 
                 // Stop execution while the debugger is in break mode
-                while (Application.Debugger.DebuggerCommand == InterpreterCommand.Break) ;
+                Application.Debugger.WaitForContinue();
 
                 // If the debugger requested a single step, immediately set the debugger
                 // to break again for the next instruction

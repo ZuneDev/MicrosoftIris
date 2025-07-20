@@ -142,7 +142,9 @@ namespace Microsoft.Iris
 
         public static event EventHandler DebuggerServerReady;
 
-        public static void Initialize()
+        public static void Initialize() => Initialize(null);
+
+        public static void Initialize(Func<IDebuggerServer> debuggerFactory)
         {
             if (IsInitialized)
                 throw new InvalidOperationException("Application already initialized");
@@ -178,7 +180,15 @@ namespace Microsoft.Iris
             }
             s_session.InitializeRenderingDevices(graphicsType, (GraphicsRenderingQuality)s_renderingQuality, soundType);
             s_renderingQuality = (RenderingQuality)s_session.RenderSession.GraphicsDevice.RenderingQuality;
+            
             InitializeCommon(true);
+
+            if (debuggerFactory != null)
+            {
+                Debugger = debuggerFactory();
+                DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
+            }
+
             if (!s_EnableAnimations)
                 AnimationSystem.OverrideAnimationState(true);
             UIForm uiForm = new UIForm(s_session);
@@ -192,12 +202,6 @@ namespace Microsoft.Iris
             ErrorManager.OnErrors += new NotifyErrorBatch(NotifyErrorBatchHandler);
 
             Debug.Trace.Initialize();
-
-            if (DebugSettings.DebugConnectionUri != null)
-            {
-                Debugger = new Debug.SystemNet.NetDebuggerServer(DebugSettings.DebugConnectionUri);
-                DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
-            }
 
             MarkupSystem.Startup(!fullInitialization);
             StaticServices.Initialize();

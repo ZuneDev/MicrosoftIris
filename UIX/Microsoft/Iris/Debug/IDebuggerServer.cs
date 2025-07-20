@@ -2,7 +2,7 @@
 
 namespace Microsoft.Iris.Debug;
 
-internal interface IDebuggerServer : IDebuggerState
+public interface IDebuggerServer : IDebuggerState
 {
     /// <summary>
     /// Sends the requested line number table.
@@ -26,4 +26,9 @@ internal interface IDebuggerServer : IDebuggerState
     /// </summary>
     /// <param name="message"></param>
     void LogDispatcher(string message);
+
+    /// <summary>
+    /// Waits for the debugger to continue execution. Will block the current thread.
+    /// </summary>
+    void WaitForContinue();
 }
