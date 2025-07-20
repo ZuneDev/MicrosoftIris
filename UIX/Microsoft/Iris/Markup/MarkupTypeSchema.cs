@@ -14,8 +14,8 @@ namespace Microsoft.Iris.Markup
     public abstract class MarkupTypeSchema : TypeSchema
     {
         private const int c_TypeDepthShift = 27;
-        private const uint c_ScriptOffsetMask = 134217727;
-        public const uint InvalidScriptId = 4294967295;
+        private const uint c_ScriptOffsetMask = 0x07FFFFFFU;
+        public const uint InvalidScriptId = uint.MaxValue;
         private MarkupLoadResult _owner;
         private string _name;
         private MarkupTypeSchema _baseType;
@@ -158,10 +158,10 @@ namespace Microsoft.Iris.Markup
         {
             ErrorManager.EnterContext(markupType.TypeSchema.Owner.ErrorContextUri, ignoreErrors);
             MarkupTypeSchema markupTypeSchema = this;
-            uint num = scriptId >> 27;
+            uint num = scriptId >> c_TypeDepthShift;
             while ((int)num != (int)markupTypeSchema._typeDepth)
                 markupTypeSchema = markupTypeSchema._baseType;
-            object obj = markupTypeSchema.RunAtOffset(markupType, scriptId & 0x07FFFFFFU, parameterContext);
+            object obj = markupTypeSchema.RunAtOffset(markupType, scriptId & c_ScriptOffsetMask, parameterContext);
             ErrorManager.ExitContext();
             return obj;
         }
