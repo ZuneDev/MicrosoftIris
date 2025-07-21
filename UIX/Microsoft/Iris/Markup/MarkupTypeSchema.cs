@@ -150,6 +150,18 @@ namespace Microsoft.Iris.Markup
 
         public override bool HasDefaultConstructor => true;
 
+        public MarkupTypeSchema ResolveScriptId(uint scriptId, out uint offset) => ResolveScriptId(this, scriptId, out offset);
+
+        public static MarkupTypeSchema ResolveScriptId(MarkupTypeSchema type, uint scriptId, out uint offset)
+        {
+            uint num = scriptId >> c_TypeDepthShift;
+            while (num != type._typeDepth)
+                type = type._baseType;
+
+            offset = scriptId & c_ScriptOffsetMask;
+            return type;
+        }
+
         public object Run(
           IMarkupTypeBase markupType,
           uint scriptId,
@@ -157,11 +169,8 @@ namespace Microsoft.Iris.Markup
           ParameterContext parameterContext)
         {
             ErrorManager.EnterContext(markupType.TypeSchema.Owner.ErrorContextUri, ignoreErrors);
-            MarkupTypeSchema markupTypeSchema = this;
-            uint num = scriptId >> c_TypeDepthShift;
-            while ((int)num != (int)markupTypeSchema._typeDepth)
-                markupTypeSchema = markupTypeSchema._baseType;
-            object obj = markupTypeSchema.RunAtOffset(markupType, scriptId & c_ScriptOffsetMask, parameterContext);
+            var markupTypeSchema = ResolveScriptId(scriptId, out var offset);
+            object obj = markupTypeSchema.RunAtOffset(markupType, offset, parameterContext);
             ErrorManager.ExitContext();
             return obj;
         }
