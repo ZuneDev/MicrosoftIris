@@ -107,7 +107,8 @@ namespace Microsoft.Iris.UI
 
         public virtual void WriteSymbol(SymbolReference symbolRef, object value) => SetProperty(symbolRef.Symbol, value);
 
-        public virtual object GetProperty(string name) => _storage[name];
+        // TODO: UNDO ME
+        public virtual object GetProperty(string name) => _storage.ContainsKey(name) ? _storage[name] : null;
 
         public virtual void SetProperty(string name, object value)
         {
