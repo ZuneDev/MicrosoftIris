@@ -23,17 +23,26 @@ namespace Microsoft.Iris.OS
 
         public Resource GetResource(string hierarchicalPart, string uri, bool forceSynchronous)
         {
-            Resource resource = null;
+            if (!TryGetResource(hierarchicalPart, uri, forceSynchronous, out var resource))
+                ErrorManager.ReportError($"Invalid resource uri: '{uri}'");
+
+            return resource;
+        }
+
+        public bool TryGetResource(string hierarchicalPart, string uri, bool forceSynchronous, out Resource resource)
+        {
+            resource = null;
+
             DllResources.ParseResource(hierarchicalPart, out string host, out string identifier);
+
             if (host != null)
             {
                 Assembly assembly = GetAssembly(host);
                 if (assembly != null)
                     resource = new ClrDllResource(uri, assembly, identifier);
             }
-            if (resource == null)
-                ErrorManager.ReportError($"Invalid resource uri: '{uri}'");
-            return resource;
+            
+            return resource is not null;
         }
 
         public Assembly GetAssembly(string moduleName)

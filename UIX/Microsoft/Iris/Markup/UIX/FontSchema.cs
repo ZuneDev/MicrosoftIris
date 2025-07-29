@@ -210,14 +210,23 @@ namespace Microsoft.Iris.Markup.UIX
 
         private static object CallLoadFontResourceStringString(object instanceObj, object[] parameters)
         {
-            string parameter1 = (string)parameters[0];
-            string parameter2 = (string)parameters[1];
-            if (string.IsNullOrEmpty(parameter1))
+            string moduleName = (string)parameters[0];
+            string resourceName = (string)parameters[1];
+            if (string.IsNullOrEmpty(moduleName))
                 ErrorManager.ReportError("Script runtime failure: Invalid 'null' value for '{0}'", "moduleName");
-            if (string.IsNullOrEmpty(parameter2))
+            if (string.IsNullOrEmpty(resourceName))
                 ErrorManager.ReportError("Script runtime failure: Invalid 'null' value for '{0}'", "resourceName");
-            if (!NativeApi.SpLoadFontResource(parameter1, parameter2))
-                ErrorManager.ReportError("Font Resource {1} not found in module {0}", parameter1, parameter2);
+
+            // Check if DLL is a .NET assembly
+            var assemblyName = System.IO.Path.GetFileNameWithoutExtension(moduleName);
+            if (ClrDllResources.Instance.TryGetResource($"{assemblyName}!{resourceName}", $"clr-res://{assemblyName}", true, out var resource))
+            {
+                return null;
+            }
+
+            if (!NativeApi.SpLoadFontResource(moduleName, resourceName))
+                ErrorManager.ReportError("Font Resource {1} not found in module {0}", moduleName, resourceName);
+
             return null;
         }
 
