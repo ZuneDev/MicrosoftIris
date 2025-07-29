@@ -45,6 +45,9 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
     void IDebuggerServer.WaitForContinue()
     {
         if (DebuggerCommand is InterpreterCommand.Break)
+        {
+            DebuggerCommand = InterpreterCommand.Continue;
             Debugger.Break();
+        }
     }
 }
