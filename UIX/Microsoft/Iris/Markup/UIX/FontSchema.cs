@@ -217,14 +217,27 @@ namespace Microsoft.Iris.Markup.UIX
             if (string.IsNullOrEmpty(resourceName))
                 ErrorManager.ReportError("Script runtime failure: Invalid 'null' value for '{0}'", "resourceName");
 
-            // Check if DLL is a .NET assembly
+            bool error;
+
+            // UIXRender doesn't know how to load resources from .NET assemblies, so we'll
+            // call the relevant GDI API manually for CLR DLLs.
             var assemblyName = System.IO.Path.GetFileNameWithoutExtension(moduleName);
+
             if (ClrDllResources.Instance.TryGetResource($"{assemblyName}!{resourceName}", $"clr-res://{assemblyName}", true, out var resource))
             {
-                return null;
+                resource.Acquire();
+
+                uint cFonts = 0;
+                var hFont = Win32Api.AddFontMemResourceEx(resource.Buffer, resource.Length, System.IntPtr.Zero, ref cFonts);
+
+                error = hFont == System.IntPtr.Zero;
+            }
+            else
+            {
+                error = !NativeApi.SpLoadFontResource(moduleName, resourceName);
             }
 
-            if (!NativeApi.SpLoadFontResource(moduleName, resourceName))
+            if (error)
                 ErrorManager.ReportError("Font Resource {1} not found in module {0}", moduleName, resourceName);
 
             return null;

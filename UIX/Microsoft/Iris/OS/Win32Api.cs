@@ -289,6 +289,9 @@ namespace Microsoft.Iris.OS
         [DllImport("user32.dll")]
         public static extern bool GetProcessDefaultLayout(out int pdwDefaultLayout);
 
+        [DllImport("gdi32.dll")]
+        public static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
+
         [Serializable]
         public struct HANDLE
         {
