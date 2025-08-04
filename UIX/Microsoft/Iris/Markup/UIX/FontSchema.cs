@@ -290,10 +290,9 @@ namespace Microsoft.Iris.Markup.UIX
 
         private static Result RangeValidateFontName(object value)
         {
-            string str = (string)value;
-            if (str == null)
-                return Result.Fail("Script runtime failure: Invalid 'null' value for '{0}'", "FontName");
-            return str.Length > 31 ? Result.Fail("\"{0}\" cannot be longer than {1} characters", str, "31") : Result.Success;
+            return value is not string
+                ? Result.Fail("Script runtime failure: Invalid '{0}' value for '{1}'", value ?? "null", "FontName")
+                : Result.Success;
         }
 
         public static void Pass1Initialize() => Type = new UIXTypeSchema(93, "Font", null, 153, typeof(Font), UIXTypeFlags.Immutable);

@@ -84,11 +84,7 @@ namespace Microsoft.Iris.Markup.UIX
 
         private static object Construct() => new TextStyle();
 
-        private static Result RangeValidateFontFace(object value)
-        {
-            string str = (string)value;
-            return str.Length > 31 ? Result.Fail("\"{0}\" cannot be longer than {1} characters", str, "31") : Result.Success;
-        }
+        private static Result RangeValidateFontFace(object value) => Result.Success;
 
         public static void Pass1Initialize() => Type = new UIXTypeSchema(220, "TextStyle", null, 153, typeof(TextStyle), UIXTypeFlags.None);
 

@@ -172,7 +172,7 @@ namespace Microsoft.Iris.Drawing
             GCHandle gcHandle = GCHandle.Alloc(textFlow);
             _currentlyMeasuringText = content != null ? content : string.Empty;
             fixed (char* content1 = _currentlyMeasuringText)
-            fixed (char* chPtr = measureParams._textStyle.FontFace)
+            fixed (char* chPtr = measureParams._textStyle.TruncatedFontFace)
             {
                 var style = new TextStyle.MarshalledData(measureParams._textStyle)
                 {

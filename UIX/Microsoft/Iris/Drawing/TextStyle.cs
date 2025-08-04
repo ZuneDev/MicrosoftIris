@@ -164,9 +164,8 @@ namespace Microsoft.Iris.Drawing
                 EnableKerning = additional.EnableKerning;
             if (additional._flags[256])
                 CharacterSpacing = additional.CharacterSpacing;
-            if (!additional._flags[64])
-                return;
-            Color = additional.Color;
+            if (additional._flags[64])
+                Color = additional.Color;
         }
 
         public bool HasColor => _flags[64];
@@ -224,6 +223,8 @@ namespace Microsoft.Iris.Drawing
 
             info.AddValue("flags", _flags.Data);
         }
+
+        internal string TruncatedFontFace => _fontFace.Length < 32 ? _fontFace : _fontFace.Substring(0, 31);
 
         [Flags]
         internal enum SetFlags

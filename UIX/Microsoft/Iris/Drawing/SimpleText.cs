@@ -35,7 +35,8 @@ namespace Microsoft.Iris.Drawing
         public unsafe bool CanMeasure(string content, TextStyle textStyle)
         {
             bool fPossible;
-            fixed (char* chPtr = textStyle.FontFace)
+
+            fixed (char* chPtr = textStyle.TruncatedFontFace)
             {
                 var style = new TextStyle.MarshalledData(textStyle)
                 {
@@ -70,7 +71,7 @@ namespace Microsoft.Iris.Drawing
             }
             IntPtr hGlyphRunInfo;
             NativeApi.RasterizeRunPacket rasterizeRunPacket;
-            fixed (char* chPtr = textStyle.FontFace)
+            fixed (char* chPtr = textStyle.TruncatedFontFace)
             {
                 var style = new TextStyle.MarshalledData(textStyle)
                 {
