@@ -22,8 +22,8 @@ namespace Microsoft.Iris.ViewItems
         private static readonly DataCookie s_pendingLoadCompleteHandlerProperty = DataCookie.ReserveSlot();
         private static readonly DataCookie s_acquiringImageProperty = DataCookie.ReserveSlot();
         private static readonly DataCookie s_errorImageProperty = DataCookie.ReserveSlot();
-        private static string s_AcquiringDefaultImageUri = "res://UIX!AcquiringImage.png";
-        private static string s_ErrorDefaultImageUri = "res://UIX!ErrorImage.png";
+        private static string s_AcquiringDefaultImageUri = "clr-res://UIX!AcquiringImage.png";
+        private static string s_ErrorDefaultImageUri = "clr-res://UIX!ErrorImage.png";
         private static UIImage s_AcquiringDefaultImage;
         private static UIImage s_ErrorDefaultImage;
         private static object s_NullImage = new object();

@@ -4,7 +4,7 @@
         <ProjectGuid>{78A8B08C-C0E9-4BAC-9AF6-58D3A55C05C9}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AssemblyName>UIX</AssemblyName>
-		<RootNamespace></RootNamespace>
+        <RootNamespace></RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
@@ -12,7 +12,9 @@
     <ItemGroup>
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+        <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+
+        <EmbeddedResource Include="Resources\**\*.*" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
