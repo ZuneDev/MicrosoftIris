@@ -1,8 +1,9 @@
 ﻿using Microsoft.Iris.Data;
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+using ResourceManagerCore = System.Resources.ResourceManager;
 
 namespace Microsoft.Iris.OS
 {
@@ -10,15 +11,17 @@ namespace Microsoft.Iris.OS
     {
         private Assembly _assembly;
         private string _identifier;
+        private string _specifier;
         private GCHandle _handle;
         private IntPtr _buffer;
         private uint _length;
 
-        internal ClrDllResource(string uri, Assembly assembly, string identifier)
+        internal ClrDllResource(string uri, Assembly assembly, string identifier, string specifier)
           : base(uri, true)
         {
             _assembly = assembly;
-            _identifier = identifier;
+            _identifier = identifier.ToUpperInvariant();
+            _specifier = specifier ?? "RCDATA";
         }
 
         public override string Identifier => _identifier;
@@ -30,12 +33,9 @@ namespace Microsoft.Iris.OS
             {
                 try
                 {
-                    var resName = _assembly.GetManifestResourceNames()
-                        .First(s => s.EndsWith("." + _identifier, StringComparison.OrdinalIgnoreCase));
+                    var rm = new ResourceManagerCore(_specifier, _assembly);
 
-                    using System.IO.Stream fs = _assembly.GetManifestResourceStream(resName);
-                    var data = new byte[fs.Length];
-                    fs.Read(data, 0, (int)fs.Length);
+                    var data = (byte[])rm.GetObject(_identifier);
 
                     _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                     _buffer = _handle.AddrOfPinnedObject();
@@ -43,7 +43,7 @@ namespace Microsoft.Iris.OS
                 }
                 catch
                 {
-                    errorDetails = $"Resource not found: {ClrDllResources.Scheme}://{_assembly.Location}!{_identifier}";
+                    errorDetails = $"Resource '{_identifier}' not found in {_assembly}, resource '{_specifier}'";
                 }
             }
             NotifyAcquisitionComplete(_buffer, _length, false, errorDetails);

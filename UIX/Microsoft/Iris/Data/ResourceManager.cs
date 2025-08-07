@@ -20,6 +20,8 @@ namespace Microsoft.Iris.Data
 
         public static ResourceManager Instance => s_instance;
 
+        public int Bank { get; set; } = 0;
+
         public void RegisterSource(string scheme, IResourceProvider source) => _sourcesTable[scheme] = source;
 
         public void UnregisterSource(string scheme) => _sourcesTable.Remove(scheme);
@@ -31,10 +33,14 @@ namespace Microsoft.Iris.Data
         public Resource GetResource(string uri, bool forceSynchronous)
         {
             Resource resource = null;
+            
             if (_redirects != null)
             {
-                foreach (ResourceManager.UriRedirect redirect in _redirects)
+                foreach (UriRedirect redirect in _redirects)
                 {
+                    if (redirect.bank is not -1 && redirect.bank != Bank)
+                        continue;
+
                     if (uri.StartsWith(redirect.fromPrefix, StringComparison.OrdinalIgnoreCase))
                     {
                         if (redirect.toPrefix.Equals("{ERROR}", StringComparison.OrdinalIgnoreCase))
@@ -42,22 +48,25 @@ namespace Microsoft.Iris.Data
                             ErrorManager.ReportError("Resource {0} not found, but should have been located by a markup redirect", uri);
                             return null;
                         }
+
                         resource = GetResourceWorker(redirect.toPrefix + uri.Substring(redirect.fromPrefix.Length), true);
+
                         if (resource != null)
                         {
                             resource.Acquire();
-                            bool flag = resource.Status == ResourceStatus.Available;
+                            bool success = resource.Status == ResourceStatus.Available;
                             resource.Free();
-                            if (!flag)
+                            if (!success)
                                 resource = null;
                         }
                     }
+
                     if (resource != null)
                         break;
                 }
             }
-            if (resource == null)
-                resource = GetResourceWorker(uri, forceSynchronous);
+
+            resource ??= GetResourceWorker(uri, forceSynchronous);
             return resource;
         }
 
@@ -95,13 +104,18 @@ namespace Microsoft.Iris.Data
             }
         }
 
-        public void AddUriRedirect(string fromPrefix, string toPrefix)
+        public void AddUriRedirect(string fromPrefix, string toPrefix) => AddUriRedirect(fromPrefix, toPrefix, -1);
+
+        public void AddUriRedirect(string fromPrefix, string toPrefix, int bank)
         {
-            ResourceManager.UriRedirect uriRedirect = new ResourceManager.UriRedirect();
-            uriRedirect.fromPrefix = fromPrefix;
-            uriRedirect.toPrefix = toPrefix;
-            if (_redirects == null)
-                _redirects = new Vector<ResourceManager.UriRedirect>();
+            UriRedirect uriRedirect = new()
+            {
+                fromPrefix = fromPrefix,
+                toPrefix = toPrefix,
+                bank = bank
+            };
+
+            _redirects ??= new Vector<UriRedirect>();
             _redirects.Add(uriRedirect);
         }
 
@@ -133,6 +147,7 @@ namespace Microsoft.Iris.Data
         {
             public string fromPrefix;
             public string toPrefix;
+            public int bank;
         }
     }
 }

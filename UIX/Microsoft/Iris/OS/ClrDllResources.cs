@@ -34,12 +34,20 @@ namespace Microsoft.Iris.OS
             resource = null;
 
             DllResources.ParseResource(hierarchicalPart, out string host, out string identifier);
+            string specifier = null;
+
+            var specifierIndex = identifier.IndexOf('/');
+            if (specifierIndex >= 0)
+            {
+                specifier = identifier.Substring(0, specifierIndex);
+                identifier = identifier.Substring(specifierIndex + 1);
+            }
 
             if (host != null)
             {
                 Assembly assembly = GetAssembly(host);
                 if (assembly != null)
-                    resource = new ClrDllResource(uri, assembly, identifier);
+                    resource = new ClrDllResource(uri, assembly, identifier, specifier);
             }
             
             return resource is not null;
