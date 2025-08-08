@@ -31,20 +31,29 @@ namespace Microsoft.Iris.OS
             string errorDetails = null;
             if (_buffer == IntPtr.Zero)
             {
+                var error = true;
                 try
                 {
                     var rm = new ResourceManagerCore(_specifier, _assembly);
 
-                    var data = (byte[])rm.GetObject(_identifier);
+                    var data = rm.GetObject(_identifier) as byte[];
 
-                    _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-                    _buffer = _handle.AddrOfPinnedObject();
-                    _length = (uint)data.LongLength;
+                    if (data is not null)
+                    {
+                        _handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+                        _buffer = _handle.AddrOfPinnedObject();
+                        _length = (uint)data.LongLength;
+
+                        error = false;
+                    }
                 }
                 catch
                 {
-                    errorDetails = $"Resource '{_identifier}' not found in {_assembly}, resource '{_specifier}'";
+                    error = true;
                 }
+
+                if (error)
+                    errorDetails = $"Resource '{_identifier}' not found in {_assembly}, resource '{_specifier}'";
             }
             NotifyAcquisitionComplete(_buffer, _length, false, errorDetails);
         }

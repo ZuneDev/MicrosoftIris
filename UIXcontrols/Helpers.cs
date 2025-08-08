@@ -5,7 +5,6 @@
 // Assembly location: C:\Program Files\Zune\UIXcontrols.dll
 
 using Microsoft.Iris;
-using Microsoft.Iris.Data;
 
 #nullable disable
 namespace UIXControls
@@ -14,12 +13,6 @@ namespace UIXControls
     {
         public static bool IsModelItemDisposed(ModelItem item) => item.IsDisposed;
 
-        public static void AddUIXControlsClrRedirect() => AddResourceRedirect("res://UIXControls!", "clr-res://UIXControls!");
-
-        public static void AddResourceRedirect(string fromPrefix, string toPrefix)
-        {
-            Application.AddImportRedirect(fromPrefix, toPrefix);
-            ResourceManager.Instance.AddUriRedirect(fromPrefix, toPrefix);
-        }
+        public static void AddUIXControlsClrRedirect() => Application.AddResourceRedirect("res://UIXControls!", "clr-res://UIXControls!");
     }
 }

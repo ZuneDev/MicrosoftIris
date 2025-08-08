@@ -250,25 +250,21 @@ namespace Microsoft.Iris
             MarkupSystem.UnloadAll();
         }
 
-        public static void AddMarkupRedirect(string fromPrefix, string toPrefix)
+        [Obsolete("Only for backward compatibility. Use AddResourceRedirect")]
+        public static void AddMarkupRedirect(string fromPrefix, string toPrefix) => AddResourceRedirect(fromPrefix, toPrefix, -1);
+
+        public static void AddResourceRedirect(string fromPrefix, string toPrefix, int bank = -1)
         {
             UIDispatcher.VerifyOnApplicationThread();
             if (fromPrefix == null)
                 throw new ArgumentNullException(nameof(fromPrefix));
             if (toPrefix == null)
                 throw new ArgumentNullException(nameof(toPrefix));
-            ResourceManager.Instance.AddUriRedirect(fromPrefix, toPrefix);
+            ResourceManager.Instance.AddUriRedirect(fromPrefix, toPrefix, bank);
         }
 
-        public static void AddImportRedirect(string fromPrefix, string toPrefix)
-        {
-            UIDispatcher.VerifyOnApplicationThread();
-            if (fromPrefix == null)
-                throw new ArgumentNullException(nameof(fromPrefix));
-            if (toPrefix == null)
-                throw new ArgumentNullException(nameof(toPrefix));
-            MarkupSystem.AddImportRedirect(fromPrefix, toPrefix);
-        }
+        [Obsolete("Only for backward compatibility. Use AddResourceRedirect")]
+        public static void AddImportRedirect(string fromPrefix, string toPrefix) { }
 
         public static void RegisterDataProvider(string name, DataProviderQueryFactory factory)
         {

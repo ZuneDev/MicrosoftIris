@@ -29,4 +29,11 @@
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Vanara.PInvoke.Accessibility" Version="3.4.2" />
     </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="RCDATA.resx">
+            <Generator></Generator>
+            <LogicalName>RCDATA.resources</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
 </Project>

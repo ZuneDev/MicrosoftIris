@@ -7,10 +7,15 @@
         <RootNamespace>UIXControls</RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <EmbeddedResource Include="Resources\**\*.*" />
-        
         <ProjectReference Include="..\UIX\UIX.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\RCDATA.resx">
+            <Generator></Generator>
+            <LogicalName>RCDATA.resources</LogicalName>
+        </EmbeddedResource>
     </ItemGroup>
 </Project>

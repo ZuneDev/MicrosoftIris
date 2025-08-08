@@ -28,8 +28,6 @@ namespace Microsoft.Iris.Markup
         public static bool MarkupSystemActive;
         private static Vector s_factoriesByProtocol;
         private static Vector s_factoriesByExtension;
-        private static Vector<string> s_importRedirectsFrom;
-        private static Vector<string> s_importRedirectsTo;
         private static uint s_rootIslandId;
         private static uint s_activeIslands;
 
@@ -102,37 +100,41 @@ namespace Microsoft.Iris.Markup
         public static LoadResult ResolveLoadResult(string uri, uint islandId)
         {
             ErrorManager.EnterContext(uri);
-            uri = ApplyImportRedirects(uri);
-            LoadResult loadResult = LoadResultCache.Read(uri);
+            var loadResult = LoadResultCache.Read(uri);
+            
             if (loadResult == null)
             {
-                bool flag = false;
-                bool cacheResult = true;
-                foreach (MarkupSystem.Factory factory in s_factoriesByProtocol)
+                var handled = false;
+                var cacheResult = true;
+                
+                foreach (Factory factory in s_factoriesByProtocol)
                 {
                     if (uri.StartsWith(factory.key, StringComparison.Ordinal))
                     {
                         loadResult = factory.handler(uri);
-                        flag = true;
+                        handled = true;
                         break;
                     }
                 }
-                if (!flag)
+
+                if (!handled)
                 {
-                    foreach (MarkupSystem.Factory factory in s_factoriesByExtension)
+                    foreach (Factory factory in s_factoriesByExtension)
                     {
                         if (uri.EndsWith(factory.key, StringComparison.Ordinal))
                         {
                             loadResult = factory.handler(uri);
-                            flag = true;
+                            handled = true;
                             break;
                         }
                     }
                 }
-                if (!flag)
+                
+                if (!handled)
                     loadResult = CreateMarkupLoadResult(uri, ref cacheResult);
-                if (loadResult == null)
-                    loadResult = new ErrorLoadResult(uri);
+                
+                loadResult ??= new ErrorLoadResult(uri);
+                
                 if (cacheResult && loadResult.Cachable)
                 {
                     LoadResultCache.Write(uri, loadResult);
@@ -140,8 +142,10 @@ namespace Microsoft.Iris.Markup
                         LoadResultCache.Write(loadResult.UnderlyingUri, loadResult);
                 }
             }
+
             loadResult?.AddReference(islandId);
             ErrorManager.ExitContext();
+
             return loadResult;
         }
 
@@ -226,34 +230,11 @@ namespace Microsoft.Iris.Markup
             return flag;
         }
 
-        public static void AddImportRedirect(string fromPrefix, string toPrefix)
-        {
-            if (s_importRedirectsFrom == null)
-            {
-                s_importRedirectsFrom = new Vector<string>();
-                s_importRedirectsTo = new Vector<string>();
-            }
-            s_importRedirectsFrom.Add(fromPrefix);
-            s_importRedirectsTo.Add(toPrefix);
-        }
+        [Obsolete]
+        public static void AddImportRedirect(string fromPrefix, string toPrefix) { }
 
-        private static string ApplyImportRedirects(string uri)
-        {
-            if (s_importRedirectsFrom != null)
-            {
-                for (int index = 0; index < s_importRedirectsFrom.Count; ++index)
-                {
-                    string str = s_importRedirectsFrom[index];
-                    if (uri.StartsWith(str, StringComparison.Ordinal))
-                    {
-                        uri = uri.Substring(str.Length);
-                        uri = s_importRedirectsTo[index] + uri;
-                        break;
-                    }
-                }
-            }
-            return uri;
-        }
+        [Obsolete]
+        private static string ApplyImportRedirects(string uri) => uri;
 
         public static bool IsDebuggingEnabled(byte level) => !CompileMode && Trace.IsCategoryEnabled(TraceCategory.MarkupDebug, level);
 
