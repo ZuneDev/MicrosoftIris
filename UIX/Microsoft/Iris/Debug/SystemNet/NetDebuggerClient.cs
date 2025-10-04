@@ -44,7 +44,10 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_URI;
         _socket = new(SocketType.Stream, ProtocolType.Tcp);
         _formatter = DebugRemoting.CreateBsonFormatter();
+    }
 
+    public void Start()
+    {
         System.Threading.Thread connectThread = new(ConnectLoop) { IsBackground = true };
         connectThread.Start();
     }

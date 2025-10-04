@@ -45,10 +45,13 @@ public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposa
 
         _formatter = DebugRemoting.CreateBsonFormatter();
 
+        Current = this;
+    }
+
+    public void Start()
+    {
         System.Threading.Thread connectThread = new(ConnectLoop) { IsBackground = true };
         connectThread.Start();
-
-        Current = this;
     }
 
     public MarkupLineNumberEntry[] OnLineNumberTableRequested(string uri)

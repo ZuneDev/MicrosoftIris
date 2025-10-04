@@ -5,6 +5,8 @@ namespace Microsoft.Iris.Debug;
 
 public interface IDebuggerState
 {
+    void Start();
+
     InterpreterCommand DebuggerCommand { get; set; }
 }
 

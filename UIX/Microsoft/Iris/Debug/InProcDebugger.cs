@@ -14,6 +14,8 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
     public event EventHandler<InterpreterEntry> InterpreterExecute;
     public event Action<string> DispatcherStep;
 
+    public void Start() { }
+
     public void RequestLineNumberTable(string uri, Action<MarkupLineNumberEntry[]> callback)
     {
         var lineNumberTable = ((IDebuggerServer)this).OnLineNumberTableRequested(uri);
