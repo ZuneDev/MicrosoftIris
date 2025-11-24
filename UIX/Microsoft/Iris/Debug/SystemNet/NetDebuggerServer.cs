@@ -32,15 +32,11 @@ public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposa
         }
     }
 
-    public NetDebuggerServer(string connectionUri) : this(new Uri(connectionUri))
-    {
-    }
-
-    public NetDebuggerServer(Uri connectionUri)
+    public NetDebuggerServer(Uri connectionUri = null)
     {
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_URI;
 
-        _listener = TcpListener.Create(connectionUri.Port);
+        _listener = TcpListener.Create(ConnectionUri.Port);
         _listener.Start();
 
         _formatter = DebugRemoting.CreateBsonFormatter();

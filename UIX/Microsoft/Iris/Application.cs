@@ -186,6 +186,7 @@ namespace Microsoft.Iris
             if (debuggerFactory != null)
             {
                 Debugger = debuggerFactory();
+                Debugger.Start();
                 DebuggerServerReady?.Invoke(Debugger, EventArgs.Empty);
             }
 

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace Microsoft.Iris.Debug.SystemNet;
 
@@ -35,11 +36,7 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
     public event Action<InterpreterCommand> InterpreterStateChanged;
     public event Action<IDebuggerState, object> Connected;
 
-    public NetDebuggerClient(string connectionUri) : this(connectionUri is null ? null : new Uri(connectionUri))
-    {
-    }
-
-    public NetDebuggerClient(Uri connectionUri)
+    public NetDebuggerClient(Uri connectionUri = null)
     {
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_URI;
         _socket = new(SocketType.Stream, ProtocolType.Tcp);
@@ -48,7 +45,7 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
 
     public void Start()
     {
-        System.Threading.Thread connectThread = new(ConnectLoop) { IsBackground = true };
+        Thread connectThread = new(ConnectLoop) { IsBackground = true };
         connectThread.Start();
     }
 
@@ -149,20 +146,22 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
 
     private void ConnectLoop()
     {
+        var endpoint = new IPEndPoint(IPAddress.Parse(ConnectionUri.Host), ConnectionUri.Port);
         while (!_socket.Connected)
         {
             try
             {
-                var endpoint = new IPEndPoint(IPAddress.Parse(ConnectionUri.Host), ConnectionUri.Port);
                 _socket.Connect(endpoint);
             }
             catch { }
+
+            Thread.Sleep(500);
         }
 
         Connected?.Invoke(this, _socket);
 
-        System.Threading.Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
-        System.Threading.Thread sendThread = new(MessageSendLoop) { IsBackground = true };
+        Thread receiveThread = new(MessageReceiveLoop) { IsBackground = true };
+        Thread sendThread = new(MessageSendLoop) { IsBackground = true };
         receiveThread.Start();
         sendThread.Start();
     }
