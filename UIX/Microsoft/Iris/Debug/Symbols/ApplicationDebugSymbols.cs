@@ -20,7 +20,7 @@ public class FileDebugSymbols
 
     public string SourceFileName { get; set; }
 
-    public Dictionary<uint, SourceSpan> SourceMap { get; set; }
+    public SourceMap SourceMap { get; } = new();
 
     public uint OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
 
@@ -28,12 +28,17 @@ public class FileDebugSymbols
     {
         Assert.IsNotNull(_sourceCodeLines, nameof(_sourceCodeLines));
 
-        return SourceMap.First(kvp =>
+        var foundLocation = SourceMap.Xml.FirstOrDefault(kvp =>
         {
             var offset = kvp.Key;
             var span = kvp.Value;
             return span.Contains(pos);
-        }).Key;
+        });
+
+        if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
+            throw new KeyNotFoundException($"No offset was assigned to line {pos.Line}, column {pos.Column}");
+
+        return foundLocation.Key;
     }
 
     public void SetSourceCode(string source)
@@ -42,6 +47,12 @@ public class FileDebugSymbols
             .Select(s => s.TrimEnd('\r'))
             .ToArray();
     }
+}
+
+public class SourceMap
+{
+    public Dictionary<uint, SourceSpan> Xml { get; } = [];
+    public Dictionary<uint, Tuple<int, int>> Script { get; } = [];
 }
 
 [DebuggerDisplay("L{Line}C{Column}")]
