@@ -25,27 +25,6 @@ public class FileDebugSymbols
 
     public SourceMap SourceMap { get; } = new();
 
-    public (uint Offset, SourceSpan Span) GetLocationFromPosition(SourcePosition pos)
-    {
-        var foundLocation = SourceMap.Xml.FirstOrDefault(kvp =>
-        {
-            var offset = kvp.Key;
-            var span = kvp.Value;
-            return span.Contains(pos);
-        });
-
-        if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
-            throw new KeyNotFoundException($"No offset was assigned to line {pos.Line}, column {pos.Column}");
-
-        return (foundLocation.Key, foundLocation.Value);
-    }
-
-    public uint OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
-
-    public SourceSpan GetContainingSpan(SourcePosition pos) => GetLocationFromPosition(pos).Span;
-
-    public uint OffsetByLineAndColumn(SourcePosition pos) => GetLocationFromPosition(pos).Offset;
-
     public string GetSourceSubstring(SourceSpan span)
     {
         if (!HasSourceCode())
@@ -56,8 +35,7 @@ public class FileDebugSymbols
 
         StringBuilder sb = new();
 
-        int currentLineIndex = startLine;
-        while (currentLineIndex <= endLine)
+        for (int currentLineIndex = startLine; currentLineIndex <= endLine; ++currentLineIndex)
         {
             var line = _sourceCodeLines[currentLineIndex];
 
@@ -69,7 +47,12 @@ public class FileDebugSymbols
                 ? endColumn
                 : ^1;
 
-            sb.AppendLine(line[lineStartIndex..lineEndIndex]);
+            var start = lineStartIndex.GetOffset(line.Length);
+            var end = lineEndIndex.GetOffset(line.Length);
+            var length = end - start;
+
+            if (length > 0)
+                sb.AppendLine(line.Substring(start, length));
         }
 
         return sb.ToString();
@@ -90,6 +73,27 @@ public class SourceMap
 {
     public Dictionary<uint, SourceSpan> Xml { get; } = [];
     public Dictionary<uint, Tuple<int, int>> Script { get; } = [];
+
+    public (uint Offset, SourceSpan Span)? GetLocationFromPosition(SourcePosition pos)
+    {
+        var foundLocation = Xml.FirstOrDefault(kvp =>
+        {
+            var offset = kvp.Key;
+            var span = kvp.Value;
+            return span.Contains(pos);
+        });
+
+        if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
+            return null;
+
+        return (foundLocation.Key, foundLocation.Value);
+    }
+
+    public uint? OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
+
+    public SourceSpan GetContainingSpan(SourcePosition pos) => GetLocationFromPosition(pos)?.Span;
+
+    public uint? OffsetByLineAndColumn(SourcePosition pos) => GetLocationFromPosition(pos)?.Offset;
 }
 
 [DebuggerDisplay("L{Line}C{Column}")]
@@ -168,6 +172,6 @@ public class SourceSpan
 
     public SourcePosition End { get; }
 
-    public bool Contains(SourcePosition pos) => Start >= pos && pos < End;
+    public bool Contains(SourcePosition pos) => Start <= pos && pos < End;
 }
 
