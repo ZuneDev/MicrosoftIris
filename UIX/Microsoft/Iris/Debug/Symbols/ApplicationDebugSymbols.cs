@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace Microsoft.Iris.Debug.Symbols;
 
+[CLSCompliant(false)]
 public class ApplicationDebugSymbols
 {
     public List<FileDebugSymbols> Files { get; set; }
 }
 
+[CLSCompliant(false)]
 public class FileDebugSymbols
 {
     private string[] _sourceCodeLines;
@@ -22,12 +25,8 @@ public class FileDebugSymbols
 
     public SourceMap SourceMap { get; } = new();
 
-    public uint OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
-
-    public uint OffsetByLineAndColumn(SourcePosition pos)
+    public (uint Offset, SourceSpan Span) GetLocationFromPosition(SourcePosition pos)
     {
-        Assert.IsNotNull(_sourceCodeLines, nameof(_sourceCodeLines));
-
         var foundLocation = SourceMap.Xml.FirstOrDefault(kvp =>
         {
             var offset = kvp.Key;
@@ -38,7 +37,42 @@ public class FileDebugSymbols
         if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
             throw new KeyNotFoundException($"No offset was assigned to line {pos.Line}, column {pos.Column}");
 
-        return foundLocation.Key;
+        return (foundLocation.Key, foundLocation.Value);
+    }
+
+    public uint OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
+
+    public SourceSpan GetContainingSpan(SourcePosition pos) => GetLocationFromPosition(pos).Span;
+
+    public uint OffsetByLineAndColumn(SourcePosition pos) => GetLocationFromPosition(pos).Offset;
+
+    public string GetSourceSubstring(SourceSpan span)
+    {
+        if (!HasSourceCode())
+            throw new InvalidOperationException($"Must supply source with {nameof(SetSourceCode)}");
+
+        span.Start.AsZeroIndexed(out var startLine, out var startColumn);
+        span.End.AsZeroIndexed(out var endLine, out var endColumn);
+
+        StringBuilder sb = new();
+
+        int currentLineIndex = startLine;
+        while (currentLineIndex <= endLine)
+        {
+            var line = _sourceCodeLines[currentLineIndex];
+
+            Index lineStartIndex = currentLineIndex == startLine
+                ? startColumn
+                : 0;
+
+            Index lineEndIndex = currentLineIndex == endLine
+                ? endColumn
+                : ^1;
+
+            sb.AppendLine(line[lineStartIndex..lineEndIndex]);
+        }
+
+        return sb.ToString();
     }
 
     public void SetSourceCode(string source)
@@ -47,8 +81,11 @@ public class FileDebugSymbols
             .Select(s => s.TrimEnd('\r'))
             .ToArray();
     }
+
+    public bool HasSourceCode() => _sourceCodeLines is not null;
 }
 
+[CLSCompliant(false)]
 public class SourceMap
 {
     public Dictionary<uint, SourceSpan> Xml { get; } = [];
@@ -74,6 +111,12 @@ public class SourcePosition : IComparable<SourcePosition>, IEquatable<SourcePosi
 
         Line = line;
         Column = column;
+    }
+
+    public void AsZeroIndexed(out int line, out int column)
+    {
+        line = Line - 1;
+        column = Column - 1;
     }
 
     public int CompareTo(SourcePosition other) => Position.CompareTo(other.Position);

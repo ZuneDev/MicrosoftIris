@@ -16,10 +16,7 @@ using Microsoft.Iris.Session;
 using Microsoft.Iris.UI;
 using Microsoft.Iris.ViewItems;
 using System;
-
-#if NET6_0_OR_GREATER
 using Range = Microsoft.Iris.ModelItems.Range;
-#endif
 
 namespace Microsoft.Iris.InputHandlers
 {
