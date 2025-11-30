@@ -18,6 +18,8 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
     private InterpreterCommand _uibCommand;
     private long _nextFreeTransactionId = 1;
 
+    public string ConnectionString => ConnectionUri.ToString();
+
     public Uri ConnectionUri { get; }
 
     public InterpreterCommand DebuggerCommand
@@ -39,6 +41,7 @@ public class NetDebuggerClient : IDebuggerClient, IRemoteDebuggerState, IDisposa
     public NetDebuggerClient(Uri connectionUri = null)
     {
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_URI;
+
         _socket = new(SocketType.Stream, ProtocolType.Tcp);
         _formatter = DebugRemoting.CreateBsonFormatter();
     }

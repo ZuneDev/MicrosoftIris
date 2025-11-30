@@ -8,6 +8,8 @@ public interface IDebuggerState
     void Start();
 
     InterpreterCommand DebuggerCommand { get; set; }
+
+    //IObservableCollection<Breakpoint> Breakpoints { get; }
 }
 
 public interface IRemoteDebuggerState : IDebuggerState
@@ -15,7 +17,7 @@ public interface IRemoteDebuggerState : IDebuggerState
     /// <summary>
     /// The URI the client is connected to.
     /// </summary>
-    public Uri ConnectionUri { get; }
+    public string ConnectionString { get; }
 
     /// <summary>
     /// Fired when a connection is established.

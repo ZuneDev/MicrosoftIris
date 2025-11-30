@@ -10,6 +10,16 @@ namespace Microsoft.Iris.Debug.Symbols;
 public class ApplicationDebugSymbols
 {
     public List<FileDebugSymbols> Files { get; set; }
+
+    public FileDebugSymbols GetForFile(string filename)
+    {
+        return Files.FirstOrDefault(f =>
+            PathEquals(f.OriginalFileName)
+            || PathEquals(f.CompiledFileName)
+            || PathEquals(f.SourceFileName));
+
+        bool PathEquals(string otherPath) => filename.Equals(otherPath, StringComparison.InvariantCultureIgnoreCase);
+    }
 }
 
 [CLSCompliant(false)]
@@ -23,7 +33,7 @@ public class FileDebugSymbols
 
     public string SourceFileName { get; set; }
 
-    public SourceMap SourceMap { get; } = new();
+    public SourceMap SourceMap { get; } = [];
 
     public string GetSourceSubstring(SourceSpan span)
     {
@@ -68,12 +78,20 @@ public class SourceMap : Dictionary<uint, SourceSpan>
     public Entry GetLocationFromPosition(SourcePosition pos)
     {
         var foundLocation = this
-            .Where(kvp =>
-            {
-                var offset = kvp.Key;
-                var span = kvp.Value;
-                return span.Contains(pos);
-            })
+            .Where(kvp => kvp.Value.Contains(pos))
+            .OrderBy(kvp => kvp.Value.Size)
+            .FirstOrDefault();
+
+        if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
+            return null;
+
+        return new Entry(foundLocation.Key, foundLocation.Value);
+    }
+
+    public Entry GetLocationFromLine(int line)
+    {
+        var foundLocation = this
+            .Where(kvp => kvp.Value.ContainsLine(line))
             .OrderBy(kvp => kvp.Value.Size)
             .FirstOrDefault();
 
@@ -171,6 +189,14 @@ public class SourceSpan
     internal ulong Size => End.Value - Start.Value;
 
     public bool Contains(SourcePosition pos) => Start <= pos && pos < End;
+
+    public bool ContainsLine(int line)
+    {
+        return Start.Line <= line &&
+            (End.Column > 1
+                ? line <= End.Line
+                : line < End.Line);
+    }
 
     public void AsZeroIndexed(out int startLine, out int startColumn, out int endLine, out int endColumn)
     {
