@@ -30,8 +30,7 @@ public class FileDebugSymbols
         if (!HasSourceCode())
             throw new InvalidOperationException($"Must supply source with {nameof(SetSourceCode)}");
 
-        span.Start.AsZeroIndexed(out var startLine, out var startColumn);
-        span.End.AsZeroIndexed(out var endLine, out var endColumn);
+        span.AsZeroIndexed(out var startLine, out var startColumn, out var endLine, out var endColumn);
 
         StringBuilder sb = new();
 
@@ -45,14 +44,9 @@ public class FileDebugSymbols
 
             Index lineEndIndex = currentLineIndex == endLine
                 ? endColumn
-                : ^1;
+                : ^0;
 
-            var start = lineStartIndex.GetOffset(line.Length);
-            var end = lineEndIndex.GetOffset(line.Length);
-            var length = end - start;
-
-            if (length > 0)
-                sb.AppendLine(line.Substring(start, length));
+            sb.AppendLine(line[lineStartIndex..lineEndIndex]);
         }
 
         return sb.ToString();
@@ -69,31 +63,33 @@ public class FileDebugSymbols
 }
 
 [CLSCompliant(false)]
-public class SourceMap
+public class SourceMap : Dictionary<uint, SourceSpan>
 {
-    public Dictionary<uint, SourceSpan> Xml { get; } = [];
-    public Dictionary<uint, Tuple<int, int>> Script { get; } = [];
-
-    public (uint Offset, SourceSpan Span)? GetLocationFromPosition(SourcePosition pos)
+    public Entry GetLocationFromPosition(SourcePosition pos)
     {
-        var foundLocation = Xml.FirstOrDefault(kvp =>
-        {
-            var offset = kvp.Key;
-            var span = kvp.Value;
-            return span.Contains(pos);
-        });
+        var foundLocation = this
+            .Where(kvp =>
+            {
+                var offset = kvp.Key;
+                var span = kvp.Value;
+                return span.Contains(pos);
+            })
+            .OrderBy(kvp => kvp.Value.Size)
+            .FirstOrDefault();
 
         if (foundLocation.Equals(default(KeyValuePair<uint, SourceSpan>)))
             return null;
 
-        return (foundLocation.Key, foundLocation.Value);
+        return new Entry(foundLocation.Key, foundLocation.Value);
     }
 
-    public uint? OffsetByLineAndColumn(int line, int col) => OffsetByLineAndColumn(new(line, col));
+    public Entry GetLocationFromOffset(uint offset) => new(offset, this[offset]);
 
-    public SourceSpan GetContainingSpan(SourcePosition pos) => GetLocationFromPosition(pos)?.Span;
-
-    public uint? OffsetByLineAndColumn(SourcePosition pos) => GetLocationFromPosition(pos)?.Offset;
+    public sealed class Entry(uint offset, SourceSpan span)
+    {
+        public uint Offset { get; } = offset;
+        public SourceSpan Span { get; } = span;
+    }
 }
 
 [DebuggerDisplay("L{Line}C{Column}")]
@@ -103,7 +99,7 @@ public class SourcePosition : IComparable<SourcePosition>, IEquatable<SourcePosi
 
     public int Column { get; }
 
-    private ulong Position => ((ulong)Line << (sizeof(uint) * 8)) | (uint)Column;
+    internal ulong Value => ((ulong)Line << (sizeof(uint) * 8)) | (uint)Column;
 
     public SourcePosition(int line, int column)
     {
@@ -123,9 +119,9 @@ public class SourcePosition : IComparable<SourcePosition>, IEquatable<SourcePosi
         column = Column - 1;
     }
 
-    public int CompareTo(SourcePosition other) => Position.CompareTo(other.Position);
+    public int CompareTo(SourcePosition other) => Value.CompareTo(other.Value);
 
-    public bool Equals(SourcePosition other) => Position == other.Position;
+    public bool Equals(SourcePosition other) => Value == other.Value;
 
     public override bool Equals(object obj)
     {
@@ -139,7 +135,7 @@ public class SourcePosition : IComparable<SourcePosition>, IEquatable<SourcePosi
         int hashCode = 533871040;
         hashCode = hashCode * -1521134295 + Line.GetHashCode();
         hashCode = hashCode * -1521134295 + Column.GetHashCode();
-        hashCode = hashCode * -1521134295 + Position.GetHashCode();
+        hashCode = hashCode * -1521134295 + Value.GetHashCode();
         return hashCode;
     }
 
@@ -172,6 +168,14 @@ public class SourceSpan
 
     public SourcePosition End { get; }
 
+    internal ulong Size => End.Value - Start.Value;
+
     public bool Contains(SourcePosition pos) => Start <= pos && pos < End;
+
+    public void AsZeroIndexed(out int startLine, out int startColumn, out int endLine, out int endColumn)
+    {
+        Start.AsZeroIndexed(out startLine, out startColumn);
+        End.AsZeroIndexed(out endLine, out endColumn);
+    }
 }
 
