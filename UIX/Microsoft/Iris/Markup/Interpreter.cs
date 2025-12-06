@@ -78,11 +78,12 @@ namespace Microsoft.Iris.Markup
                 Application.Debugger.LogInterpreterDecode(context, entry.Instruction);
 
                 // Fetch line and column numbers from the table
+                uint offset = entry.Instruction.Offset;
                 int line = -1, column = -1;
-                context.LoadResult.LineNumberTable.TryLookup(entry.Instruction.Offset, out line, out column);
+                context.LoadResult.LineNumberTable.TryLookup(offset, out line, out column);
 
                 bool ShouldBreak(Breakpoint b) =>
-                    b.Enabled && b.Equals(loadResult.Uri, line, column, entry.Instruction.Offset);
+                    b.Enabled && b.Equals(loadResult, line, column, offset);
 
                 // Check if a breakpoint has been set at this location
                 bool shouldBreakHere = Application.DebugSettings.Breakpoints.Any(ShouldBreak);
