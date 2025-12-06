@@ -15,7 +15,7 @@ public interface IRemoteDebuggerState : IDebuggerState
     /// <summary>
     /// The URI the client is connected to.
     /// </summary>
-    public Uri ConnectionUri { get; }
+    public string ConnectionString { get; }
 
     /// <summary>
     /// Fired when a connection is established.

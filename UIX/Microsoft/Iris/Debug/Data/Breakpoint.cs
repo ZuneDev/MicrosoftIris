@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.Iris.Markup;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.Iris.Debug.Data;
@@ -33,9 +36,15 @@ public struct Breakpoint : IEquatable<Breakpoint>
 
     public bool Enabled { get; set; }
 
-    public bool Equals(string uri, int line, int column, uint offset = uint.MaxValue)
+    public bool Equals(LoadResult loadResult, int line, int column, uint offset = uint.MaxValue)
     {
-        if (!Uri.Equals(uri, StringComparison.OrdinalIgnoreCase))
+        return Equals([loadResult.Uri, loadResult.UnderlyingUri], line, column, offset);
+    }
+
+    public bool Equals(IEnumerable<string> uris, int line, int column, uint offset = uint.MaxValue)
+    {
+        var thisUri = Uri;
+        if (uris.Any(uri => !thisUri.Equals(uri, StringComparison.OrdinalIgnoreCase)))
             return false;
 
         if (Offset != uint.MaxValue && offset != uint.MaxValue)
@@ -44,7 +53,7 @@ public struct Breakpoint : IEquatable<Breakpoint>
             return line == Line && column == Column;
     }
 
-    public bool Equals(Breakpoint other) => Equals(other.Uri, other.Line, other.Column);
+    public bool Equals(Breakpoint other) => Equals([other.Uri], other.Line, other.Column);
 
     public static bool operator ==(Breakpoint left, Breakpoint right) => left.Equals(right);
 

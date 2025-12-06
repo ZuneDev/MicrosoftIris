@@ -20,6 +20,8 @@ public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposa
 
     public event Action<IDebuggerState, object> Connected;
 
+    public string ConnectionString => ConnectionUri.ToString();
+
     public Uri ConnectionUri { get; }
 
     public InterpreterCommand DebuggerCommand
@@ -35,7 +37,7 @@ public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposa
     public NetDebuggerServer(Uri connectionUri = null)
     {
         ConnectionUri = connectionUri ?? DebugRemoting.DEFAULT_TCP_URI;
-
+        
         _listener = TcpListener.Create(ConnectionUri.Port);
         _listener.Start();
 
