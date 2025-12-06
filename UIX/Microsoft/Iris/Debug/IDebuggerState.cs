@@ -8,8 +8,6 @@ public interface IDebuggerState
     void Start();
 
     InterpreterCommand DebuggerCommand { get; set; }
-
-    //IObservableCollection<Breakpoint> Breakpoints { get; }
 }
 
 public interface IRemoteDebuggerState : IDebuggerState
