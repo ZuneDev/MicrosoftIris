@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization;
+#pragma warning disable SYSLIB0011
 
 namespace Microsoft.Iris.Debug.Data;
 

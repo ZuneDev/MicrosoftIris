@@ -10,12 +10,16 @@
 
         <DefineConstants>$(DefineConstants);OPENZUNE</DefineConstants>
         
-        <TargetFrameworks>net461;net6.0;net6.0-windows10.0.22000</TargetFrameworks>
+        <TargetFrameworks>net8.0</TargetFrameworks>
         <Platforms>AnyCPU;x64;x86</Platforms>
 
         <!--<SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\36MSApp1024.snk</AssemblyOriginatorKeyFile>
         <DelaySign>True</DelaySign>-->
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" $([MSBuild]::IsOsPlatform('Windows')) ">
+        <TargetFrameworks>$(TargetFrameworks);net461;net8.0-windows10.0.22000</TargetFrameworks>
     </PropertyGroup>
 
     <Choose>

@@ -13,7 +13,9 @@ using System.Security.Permissions;
 namespace Microsoft.Iris.OS.CLR
 {
     [SuppressUnmanagedCodeSecurity]
+#if WINDOWS
     [HostProtection(SecurityAction.LinkDemand, MayLeakOnAbort = true)]
+#endif
     internal static class UnsafeNativeMethods
     {
         [DllImport("Ole32.dll")]
