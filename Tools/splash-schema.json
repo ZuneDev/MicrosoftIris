@@ -1,0 +1,4532 @@
+{
+  "generatedFrom": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash",
+  "sourceFileCount": 74,
+  "wireClassNameBindings": {
+    "FormWindow": "Splash::Desktop::Nt::FormWindow",
+    "HwndHostWindow": "Splash::Desktop::Nt::HwndHostWindow",
+    "DesktopManager": "Splash::Desktop::Nt::DesktopManager",
+    "InputRouter": "Splash::Desktop::InputRouter",
+    "FormWindowBase": "Splash::Desktop::FormWindowBase",
+    "Broker": "Splash::Messaging::Broker",
+    "Context": "Splash::Messaging::Context",
+    "DataBuffer": "Splash::Messaging::DataBuffer",
+    "ContextRelay": "Splash::Messaging::ContextRelay",
+    "GdiDevice": "Splash::Rendering::Nt::GdiDevice",
+    "NtDevice": "Splash::Rendering::Nt::NtDevice",
+    "GdiEffect": "Splash::Rendering::Nt::GdiEffect",
+    "GdiSprite": "Splash::Rendering::Nt::GdiSprite",
+    "WinSoundDevice": "Splash::Rendering::Nt::WinSoundDevice",
+    "Ds8SoundDevice": "Splash::Rendering::Nt::Ds8SoundDevice",
+    "Window": "Splash::Rendering::Window",
+    "RenderCaps": "Splash::Rendering::RenderCaps",
+    "Visual": "Splash::Rendering::Visual",
+    "Camera": "Splash::Rendering::Camera",
+    "VisualContainer": "Splash::Rendering::VisualContainer",
+    "Device": "Splash::Rendering::Device",
+    "Surface": "Splash::Rendering::Surface",
+    "SurfacePool": "Splash::Rendering::SurfacePool",
+    "VideoPool": "Splash::Rendering::VideoPool",
+    "Rasterizer": "Splash::Rendering::Rasterizer",
+    "Gradient": "Splash::Rendering::Gradient",
+    "AnimationManager": "Splash::Rendering::AnimationManager",
+    "Animation": "Splash::Rendering::Animation",
+    "ExternalAnimationInput": "Splash::Rendering::ExternalAnimationInput",
+    "AnimationInputProvider": "Splash::Rendering::AnimationInputProvider",
+    "WaitCursor": "Splash::Rendering::WaitCursor",
+    "NullDevice": "Splash::Rendering::NullDevice",
+    "Dx9Device": "Splash::Rendering::Dx9Device",
+    "Dx9EffectResource": "Splash::Rendering::Dx9EffectResource",
+    "Effect": "Splash::Rendering::Effect",
+    "Dx9Effect": "Splash::Rendering::Dx9Effect",
+    "Sprite": "Splash::Rendering::Sprite",
+    "Dx9Sprite": "Splash::Rendering::Dx9Sprite",
+    "DynamicSurfaceFactory": "Splash::Rendering::DynamicSurfaceFactory",
+    "SoundBuffer": "Splash::Rendering::SoundBuffer",
+    "Sound": "Splash::Rendering::Sound",
+    "SoundDevice": "Splash::Rendering::SoundDevice",
+    "XeDevice": "Splash::Rendering::Xenon::XeDevice",
+    "XAudSoundDevice": "Splash::Rendering::Xenon::XAudSoundDevice"
+  },
+  "classes": [
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop",
+      "class": "LocalFormWindowCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/LocalFormWindowCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnRendererSuspended",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "fEnabled"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnNativeScreensave",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "fStartScreensave"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "OnShellShutdownHook",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "ushort",
+              "name": "uIdMsg"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "OnSetFocus",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "focused"
+            },
+            {
+              "type": "HWND",
+              "name": "hwndFocusChange"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "OnDropComplete",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "OnPartialDrop",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "file"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 6,
+          "name": "OnStateChange",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stateInfo"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 7,
+          "name": "OnTerminalSessionChange",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "IntPtr",
+              "name": "wParam"
+            },
+            {
+              "type": "IntPtr",
+              "name": "lParam"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 8,
+          "name": "OnPrivateSysCommand",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "IntPtr",
+              "name": "wParam"
+            },
+            {
+              "type": "IntPtr",
+              "name": "lParam"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "OnMouseIdle",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "fNewIdle"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "OnCloseRequested",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "OnLoad",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "OnWindowDestroyed",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "nFinalShow"
+            },
+            {
+              "type": "Rectangle",
+              "name": "rcLastPosition"
+            },
+            {
+              "type": "Point",
+              "name": "ptFinalMaxPosition"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "OnWindowCreated",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "HWND",
+              "name": "m_hWnd"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop",
+      "class": "LocalInputCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/LocalInputCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnInput",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "inputInfo"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Nt",
+      "class": "LocalDesktopManagerCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Nt/LocalDesktopManagerCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnEndDisplayModes",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnDisplayMode",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "RenderDisplayMode",
+              "name": "mode"
+            },
+            {
+              "type": "uint",
+              "name": "fSupported"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "OnBeginDisplayModes",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "OnEndEnumMonitorInfo",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "OnMonitorInfo",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "info"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 5,
+          "name": "OnBeginEnumMonitorInfo",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Nt",
+      "class": "LocalHwndHostWindowCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Nt/LocalHwndHostWindowCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnHandleChanged",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "HWND",
+              "name": "m_hWnd"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Nt",
+      "class": "RemoteDesktopManager",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Nt/RemoteDesktopManager.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "RebuildMonitorCache",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "ChangeFullScreenMode",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idDisplay"
+            },
+            {
+              "type": "RenderDisplayMode",
+              "name": "mode"
+            },
+            {
+              "type": "uint",
+              "name": "fTvMode"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            },
+            {
+              "type": "uint",
+              "name": "fEnumDisplayModes"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Nt",
+      "class": "RemoteFormWindow",
+      "baseClass": "RemoteFormWindowBase",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Nt/RemoteFormWindow.cs",
+      "messages": [
+        {
+          "msgid": 41,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "manager"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Nt",
+      "class": "RemoteHwndHostWindow",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Nt/RemoteHwndHostWindow.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetVisible",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fVisible"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "SetSize",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeWindowPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetPosition",
+          "fields": [
+            {
+              "type": "Point",
+              "name": "ptClientPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "SetBackgroundColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clrBackground"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "winParent"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop",
+      "class": "RemoteFormWindowBase",
+      "baseClass": "RemoteWindow",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/RemoteFormWindowBase.cs",
+      "messages": [
+        {
+          "msgid": 7,
+          "name": "SetEdgeImageParts",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fActiveEdges"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "sModuleName"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "sResourceIdLeft"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "sResourceIdTop"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "sResourceIdRight"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "sResourceIdBottom"
+            },
+            {
+              "type": "Inset",
+              "name": "insetSplits"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 8,
+          "name": "SetInitialPlacement",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nShowState"
+            },
+            {
+              "type": "Rectangle",
+              "name": "rcNormalPosition"
+            },
+            {
+              "type": "Point",
+              "name": "ptMaxPosition"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "RefreshHitTarget",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "ExitInternalDrag",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "EnterInternalDrag",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "SetDragDropResult",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nDragOverResult"
+            },
+            {
+              "type": "uint",
+              "name": "nDragDropResult"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "EnableExternalDragDrop",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fEnable"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 14,
+          "name": "SetIcon",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "sModule"
+            },
+            {
+              "type": "uint",
+              "name": "nResourceID"
+            },
+            {
+              "type": "uint",
+              "name": "nOptions"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 15,
+          "name": "SetMaxResizeWidth",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nMaxResizeWidth"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 16,
+          "name": "SetMinResizeWidth",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nMinResizeWidth"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 17,
+          "name": "BringToTop",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 18,
+          "name": "EnableShellShutdownHook",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "messageToHook"
+            },
+            {
+              "type": "ushort",
+              "name": "uIdMsg"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 19,
+          "name": "UpdateForegroundLockState",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 20,
+          "name": "SetAppNotifyWindow",
+          "fields": [
+            {
+              "type": "HWND",
+              "name": "hwndAppNotify"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 21,
+          "name": "SetHitMasks",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "uMaskTraverse"
+            },
+            {
+              "type": "uint",
+              "name": "uMaskHit"
+            },
+            {
+              "type": "uint",
+              "name": "uMaskResult"
+            },
+            {
+              "type": "uint",
+              "name": "uMaskClip"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 22,
+          "name": "SetCapture",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "hVisual"
+            },
+            {
+              "type": "uint",
+              "name": "fState"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 23,
+          "name": "SetText",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "text"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 24,
+          "name": "Destroy",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 25,
+          "name": "SetForeground",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fForce"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 26,
+          "name": "TakeFocus",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 27,
+          "name": "ForceMouseIdle",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fIdle"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 28,
+          "name": "TemporarilyExitExclusiveMode",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 29,
+          "name": "Restore",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 30,
+          "name": "SetMode",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "uMode"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 31,
+          "name": "SetVisible",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fVisible"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 32,
+          "name": "SetPosition",
+          "fields": [
+            {
+              "type": "Point",
+              "name": "ptScreenPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 33,
+          "name": "SetSize",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeClientPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 34,
+          "name": "SetCursors",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idCursorNormal"
+            },
+            {
+              "type": "int",
+              "name": "idCursorIdle"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 35,
+          "name": "SetStyles",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "uRst"
+            },
+            {
+              "type": "uint",
+              "name": "uRstEx"
+            },
+            {
+              "type": "uint",
+              "name": "uMin"
+            },
+            {
+              "type": "uint",
+              "name": "uMinEx"
+            },
+            {
+              "type": "uint",
+              "name": "uMax"
+            },
+            {
+              "type": "uint",
+              "name": "uMaxEx"
+            },
+            {
+              "type": "uint",
+              "name": "uFul"
+            },
+            {
+              "type": "uint",
+              "name": "uFulEx"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 36,
+          "name": "SetMouseIdleOptions",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "szMouseIdleTolerance"
+            },
+            {
+              "type": "uint",
+              "name": "dwMouseIdleTimeout"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 37,
+          "name": "SetOptions",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "uOptionsMask"
+            },
+            {
+              "type": "uint",
+              "name": "uOptionsValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 38,
+          "name": "CreateRootContainer",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop",
+      "class": "RemoteInputRouter",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/RemoteInputRouter.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "UnRegisterWithInputSource",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "RegisterWithInputSource",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idGroup"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idSource"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objic"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxic"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Desktop.Xenon",
+      "class": "RemoteFormWindow",
+      "baseClass": "RemoteFormWindowBase",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Desktop/Xenon/RemoteFormWindow.cs",
+      "messages": [
+        {
+          "msgid": 41,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "LocalDataBufferCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/LocalDataBufferCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnComplete",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "LocalRenderPortCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/LocalRenderPortCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnBatchProcessed",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "uBatchCompleted"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnPingReply",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "RemoteBroker",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/RemoteBroker.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "DestroyObject",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObject"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "CreateObject",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObjectClass"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObjectNew"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "msgConstruction"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 2,
+          "name": "CreateClass",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stClassName"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObjectClass"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "RemoteContext",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/RemoteContext.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "ReleaseObject",
+          "fields": [
+            {
+              "type": "IntPtr",
+              "name": "punkObj"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "ForwardMessage",
+          "fields": [
+            {
+              "type": "ContextID",
+              "name": "idContextDest"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "msgReturn"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 3,
+          "name": "DestroyGroup",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxGroup"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "CreateGroup",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxGroup"
+            },
+            {
+              "type": "ContextID",
+              "name": "idContextOwner"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "RemoteContextRelay",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/RemoteContextRelay.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "UnlinkContext",
+          "fields": [
+            {
+              "type": "ContextID",
+              "name": "idContextExisting"
+            },
+            {
+              "type": "ContextID",
+              "name": "idContextAlias"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "LinkContext",
+          "fields": [
+            {
+              "type": "ContextID",
+              "name": "idContextExisting"
+            },
+            {
+              "type": "ContextID",
+              "name": "idContextAlias"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "TransportProtocol",
+              "name": "protocol"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stServer"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stSession"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": true
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Messaging",
+      "class": "RemoteDataBuffer",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Messaging/RemoteDataBuffer.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "RegisterOwner",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "LocalAnimationCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/LocalAnimationCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "AsyncNotify",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "int",
+              "name": "nCookie"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "LocalDeviceCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/LocalDeviceCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnBackBufferCaptured",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnSurfacePoolAllocation",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idSurfacePool"
+            },
+            {
+              "type": "SurfacePoolAllocationResult",
+              "name": "nResult"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "OnVsaBlock",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "fInBlock"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "OnLostDevice",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "cRenderGeneration"
+            },
+            {
+              "type": "uint",
+              "name": "fLost"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "OnCreated",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "fAllowDynamicPool"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "LocalRenderCapsCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/LocalRenderCapsCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnSoundCaps",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "nCookie"
+            },
+            {
+              "type": "Microsoft.Iris.Render.Internal.SoundCaps",
+              "name": "capsInfo"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnGraphicsCaps",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "nCookie"
+            },
+            {
+              "type": "GraphicsCaps",
+              "name": "capsInfo"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "OnEndCapsCheck",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "nCookie"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "OnBeginCapsCheck",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "uint",
+              "name": "nCookie"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "LocalSoundBufferCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/LocalSoundBufferCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnSoundBufferReady",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTarget"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnSoundBufferLost",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTarget"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "LocalVideoPoolCallback",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/LocalVideoPoolCallback.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "OnInvalidate",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "OnInputChanged",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "target"
+            },
+            {
+              "type": "Size",
+              "name": "sizeTargetPxl"
+            },
+            {
+              "type": "Size",
+              "name": "sizeAspectRatioPxl"
+            },
+            {
+              "type": "uint",
+              "name": "nFrameRateNumerator"
+            },
+            {
+              "type": "uint",
+              "name": "nFrameRateDenominator"
+            },
+            {
+              "type": "SurfaceFormat",
+              "name": "nFormat"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteDs8SoundDevice",
+      "baseClass": "RemoteSoundDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteDs8SoundDevice.cs",
+      "messages": [
+        {
+          "msgid": 4,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "HWND",
+              "name": "hwnd"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteGdiDevice",
+      "baseClass": "RemoteDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteGdiDevice.cs",
+      "messages": [
+        {
+          "msgid": 8,
+          "name": "SecureDesktopMode",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fEnabled"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "SetZoomMode",
+          "fields": [
+            {
+              "type": "VideoZoomMode",
+              "name": "vzmZoomMode"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "SetEnableAlphaTracking",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fEnableAlphaTracking"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "SetBackgroundColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clrBackground"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 15,
+          "name": "SetUseSystemMemoryBitmaps",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fSystemMemoryBitmaps"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 17,
+          "name": "SetEnableBackBuffer",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fEnableBackBuffer"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 19,
+          "name": "SetAllowAnimations",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fAllowAnimations"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 21,
+          "name": "SetAllowAlpha",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fAllowAlpha"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 23,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteGdiEffect",
+      "baseClass": "RemoteEffect",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteGdiEffect.cs",
+      "messages": [
+        {
+          "msgid": 8,
+          "name": "SetType",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nType"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteGdiSprite",
+      "baseClass": "RemoteSprite",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteGdiSprite.cs",
+      "messages": [
+        {
+          "msgid": 22,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteNtDevice",
+      "baseClass": "RemoteDx9Device",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteNtDevice.cs",
+      "messages": [
+        {
+          "msgid": 11,
+          "name": "RenderNowIfPossible",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "CreateTransferBuffer",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeTransferPxl"
+            },
+            {
+              "type": "SurfaceFormat",
+              "name": "nFormat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "SetMaxOverscan",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flMaxOverscan"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 15,
+          "name": "SetDisplayOverscan",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flDisplayOverscan"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 17,
+          "name": "SetEnablePageFlip",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fPageFlip"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 19,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Nt",
+      "class": "RemoteWinSoundDevice",
+      "baseClass": "RemoteSoundDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Nt/RemoteWinSoundDevice.cs",
+      "messages": [
+        {
+          "msgid": 4,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteAnimation",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteAnimation.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "RemoveAllEvents",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "RemoveEvent",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idEvent"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "AddValueEvent",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idEvent"
+            },
+            {
+              "type": "ValueEventCondition",
+              "name": "nCondition"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTargetObject"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodId"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodArg"
+            },
+            {
+              "type": "uint",
+              "name": "fInitialActivation"
+            },
+            {
+              "type": "uint",
+              "name": "fAllowRepeat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "AddProgressEvent",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idEvent"
+            },
+            {
+              "type": "float",
+              "name": "flProgress"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTargetObject"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodId"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodArg"
+            },
+            {
+              "type": "uint",
+              "name": "fInitialActivation"
+            },
+            {
+              "type": "uint",
+              "name": "fAllowRepeat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "AddTimeEvent",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idEvent"
+            },
+            {
+              "type": "float",
+              "name": "flEventTime"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTargetObject"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodId"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodArg"
+            },
+            {
+              "type": "uint",
+              "name": "fInitialActivation"
+            },
+            {
+              "type": "uint",
+              "name": "fAllowRepeat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "AddStageEvent",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "idEvent"
+            },
+            {
+              "type": "AnimationStage",
+              "name": "nStage"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idTargetObject"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodId"
+            },
+            {
+              "type": "uint",
+              "name": "nTargetMethodArg"
+            },
+            {
+              "type": "uint",
+              "name": "fInitialActivation"
+            },
+            {
+              "type": "uint",
+              "name": "fAllowRepeat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "RemoveTarget",
+          "fields": [
+            {
+              "type": "int",
+              "name": "targetId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 7,
+          "name": "AddTarget",
+          "fields": [
+            {
+              "type": "int",
+              "name": "targetId"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "objectId"
+            },
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "uint",
+              "name": "propertyInfo"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 8,
+          "name": "SetEaseOut",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flWeight"
+            },
+            {
+              "type": "float",
+              "name": "flHandle"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "SetEaseIn",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flWeight"
+            },
+            {
+              "type": "float",
+              "name": "flHandle"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "SetBezier",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flHandle1"
+            },
+            {
+              "type": "float",
+              "name": "flHandle2"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "SetCosine",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "SetSine",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "SetSCurve",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flWeight"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 14,
+          "name": "SetLogarithmic",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flWeight"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 15,
+          "name": "SetExponential",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            },
+            {
+              "type": "float",
+              "name": "flWeight"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 16,
+          "name": "SetLinear",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "uint",
+              "name": "fSpherical"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 17,
+          "name": "SetBinaryOperation",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "BinaryOpCode",
+              "name": "opCode"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 18,
+          "name": "SetContinuous",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObject"
+            },
+            {
+              "type": "uint",
+              "name": "idProperty"
+            },
+            {
+              "type": "uint",
+              "name": "propertyInfo"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 19,
+          "name": "SetCaptured",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idObject"
+            },
+            {
+              "type": "uint",
+              "name": "idProperty"
+            },
+            {
+              "type": "uint",
+              "name": "propertyInfo"
+            },
+            {
+              "type": "uint",
+              "name": "fRefreshOnRepeat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 20,
+          "name": "SetQuaternion",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "Quaternion",
+              "name": "qValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 21,
+          "name": "SetVector4",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "Vector4",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 22,
+          "name": "SetVector3",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "Vector3",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 23,
+          "name": "SetVector2",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "Vector2",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 24,
+          "name": "SetFloat",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "float",
+              "name": "flValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 25,
+          "name": "EndAnimationInput",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 26,
+          "name": "BeginAnimationInput",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 27,
+          "name": "SetKeyframeTime",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "float",
+              "name": "flTimeSec"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 29,
+          "name": "SetKeyframeCount",
+          "fields": [
+            {
+              "type": "int",
+              "name": "cKeyframes"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 31,
+          "name": "AddKeyframe",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxKeyframe"
+            },
+            {
+              "type": "float",
+              "name": "flTimeSec"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 32,
+          "name": "InstantFinish",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 33,
+          "name": "InstantAdvance",
+          "fields": [
+            {
+              "type": "float",
+              "name": "advanceTime"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 34,
+          "name": "Reset",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 35,
+          "name": "Pause",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 36,
+          "name": "Play",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 37,
+          "name": "SetResetBehavior",
+          "fields": [
+            {
+              "type": "AnimationResetBehavior",
+              "name": "behavior"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 39,
+          "name": "SetAutoReset",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fAutoReset"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 41,
+          "name": "SetRepeatCount",
+          "fields": [
+            {
+              "type": "int",
+              "name": "cRepeats"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 43,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "AnimationInputType",
+              "name": "animationType"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteAnimationInputProvider",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteAnimationInputProvider.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "RevokeQuaternion",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "RevokeVector4",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "RevokeVector3",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "RevokeVector2",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "RevokeFloat",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "PublishQuaternion",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "Quaternion",
+              "name": "value"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "PublishVector4",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "Vector4",
+              "name": "value"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 7,
+          "name": "PublishVector3",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "Vector3",
+              "name": "value"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 8,
+          "name": "PublishVector2",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "Vector2",
+              "name": "value"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "PublishFloat",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "propertyId"
+            },
+            {
+              "type": "float",
+              "name": "value"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nExternalAnimationInputId"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteAnimationManager",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteAnimationManager.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetAnimationRate",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nFramesPerSecond"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "PulseTimeAdvance",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPulseMs"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetGlobalSpeedAdjustment",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flFactor"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteCamera",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteCamera.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetPerspective",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fPerspective"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "SetZn",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flZn"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetUp",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vUp"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "SetAt",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vAt"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "SetEye",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vEye"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDevice",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDevice.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "TriggerDeviceReset",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "EndCaptureBackBuffer",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "BeginCaptureBackBuffer",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stFileName"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 3,
+          "name": "CreateGradient",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewGradient"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "Stop",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "Restart",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nRenderGeneration"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "CreateSurfacePool",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewSurface"
+            },
+            {
+              "type": "SurfaceFormat",
+              "name": "nFormat"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDx9Device",
+      "baseClass": "RemoteDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDx9Device.cs",
+      "messages": [
+        {
+          "msgid": 8,
+          "name": "CreateVideoPool",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcbOwner"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcbOwner"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewSurface"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "EndVideoSurfaceAllocation",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "BeginVideoSurfaceAllocation",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDx9Effect",
+      "baseClass": "RemoteEffect",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDx9Effect.cs",
+      "messages": [
+        {
+          "msgid": 8,
+          "name": "LoadEffectResource",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "effectResource"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDx9EffectResource",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDx9EffectResource.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetDebugID",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stDebugID"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 1,
+          "name": "SetGutterSize",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeGutterPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "PostPropertiesAdded",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "AddTextureRequirements",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxImage"
+            },
+            {
+              "type": "int",
+              "name": "nRequirements"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stTexelSize"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stTexUVSize"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "stTexUVRefPoint"
+            },
+            {
+              "type": "int",
+              "name": "nDownsamplePropertyID"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 4,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "int",
+              "name": "nCoordinateMapID"
+            },
+            {
+              "type": "int",
+              "name": "nImageIndexID"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 5,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "Vector4",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 6,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "Vector3",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 7,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "Vector2",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 8,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "float",
+              "name": "flValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 9,
+          "name": "AddProperty",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stName"
+            },
+            {
+              "type": "int",
+              "name": "nValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 10,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "devOwner"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "dataBuffer"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDx9Sprite",
+      "baseClass": "RemoteSprite",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDx9Sprite.cs",
+      "messages": [
+        {
+          "msgid": 22,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteDynamicSurfaceFactory",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteDynamicSurfaceFactory.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "CloseInstance",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nUniqueID"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "CreateVideoInstance",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nUniqueID"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idClassContext"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "devOwner"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "surScene"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "poolScene"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "CreateSurfaceInstance",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nUniqueID"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "idClassContext"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "devOwner"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "surScene"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "poolScene"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteEffect",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteEffect.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetDebugID",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stDebugID"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 1,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "BLOBREF",
+              "name": "surfaceArray"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 2,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "surface"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "Vector4",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "Vector3",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "Vector2",
+              "name": "vValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "float",
+              "name": "flValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 7,
+          "name": "SetProperty",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPropertyID"
+            },
+            {
+              "type": "int",
+              "name": "nValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteExternalAnimationInput",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteExternalAnimationInput.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nUniqueId"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteGradient",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteGradient.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "Clear",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "AddValue",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flValue"
+            },
+            {
+              "type": "float",
+              "name": "flPosition"
+            },
+            {
+              "type": "RelativeSpace",
+              "name": "relative"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetOffset",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flOffset"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "SetColorMask",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clrMask"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "SetOrientation",
+          "fields": [
+            {
+              "type": "Orientation",
+              "name": "dir"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteNullDevice",
+      "baseClass": "RemoteDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteNullDevice.cs",
+      "messages": [
+        {
+          "msgid": 8,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteRasterizer",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteRasterizer.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "LoadRawImage",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "surContent"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "buffer"
+            },
+            {
+              "type": "ImageHeader",
+              "name": "info"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteRenderCaps",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteRenderCaps.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "CheckCaps",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nCookie"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcallback"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcallback"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSound",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSound.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "Stop",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "Play",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSoundBuffer",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSoundBuffer.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "LoadSoundData",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "dataBuffer"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSoundDevice",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSoundDevice.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "CreateSound",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewSound"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "soundBuffer"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "CreateSoundBuffer",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewBuffer"
+            },
+            {
+              "type": "SoundHeader",
+              "name": "info"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "EvictExternalResources",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "CreateExternalResources",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSprite",
+      "baseClass": "RemoteVisual",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSprite.cs",
+      "messages": [
+        {
+          "msgid": 18,
+          "name": "SetNineGrid",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nLeft"
+            },
+            {
+              "type": "int",
+              "name": "nTop"
+            },
+            {
+              "type": "int",
+              "name": "nRight"
+            },
+            {
+              "type": "int",
+              "name": "nBottom"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 19,
+          "name": "AddCoordMapEntry",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxLayer"
+            },
+            {
+              "type": "Orientation",
+              "name": "orientation"
+            },
+            {
+              "type": "float",
+              "name": "flPosition"
+            },
+            {
+              "type": "float",
+              "name": "flValue"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 20,
+          "name": "ClearCoordMaps",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 21,
+          "name": "SetEffect",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "effect"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSurface",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSurface.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "RemapContainer",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "poolNewContainer"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "RemapLocation",
+          "fields": [
+            {
+              "type": "Rectangle",
+              "name": "rcContentPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "MarkContentValid",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "Clear",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "SetGutter",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeGutter"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "SetDescription",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stDescription"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 7,
+          "name": "SetRotation",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fRotated"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 8,
+          "name": "SetStorageSize",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeStoragePxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteSurfacePool",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteSurfacePool.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetEffect",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "effect"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "CreateSurface",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "idNewSurface"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "Free",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "Allocate",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizePxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "SetPriority",
+          "fields": [
+            {
+              "type": "int",
+              "name": "nPriority"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteVideoPool",
+      "baseClass": "RemoteSurfacePool",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteVideoPool.cs",
+      "messages": [
+        {
+          "msgid": 6,
+          "name": "NotifyVideoInputChanged",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeContentPxl"
+            },
+            {
+              "type": "Size",
+              "name": "sizeAspectRatio"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 7,
+          "name": "SetContentOverscan",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flContentOverscan"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 8,
+          "name": "NotifyVideoSizeChanged",
+          "fields": [
+            {
+              "type": "Size",
+              "name": "sizeTargetPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "OnFrameReady",
+          "fields": [
+            {
+              "type": "int",
+              "name": "idxFrame"
+            },
+            {
+              "type": "long",
+              "name": "nTimeStampQPC"
+            },
+            {
+              "type": "long",
+              "name": "nFrameCount"
+            },
+            {
+              "type": "Rectangle",
+              "name": "rcContent"
+            },
+            {
+              "type": "uint",
+              "name": "nOptions"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "OnClockStop",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "OnClockStart",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nClockGeneration"
+            },
+            {
+              "type": "uint",
+              "name": "nFrameRateNumerator"
+            },
+            {
+              "type": "uint",
+              "name": "nFrameRateDenominator"
+            },
+            {
+              "type": "Rectangle",
+              "name": "rcBasisPxl"
+            },
+            {
+              "type": "Size",
+              "name": "sizeAspectRatio"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "OnDisconnect",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 14,
+          "name": "OnConnect",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteVisual",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteVisual.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "ClearGradients",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "AddGradient",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "grad"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetRelativeSize",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fRelative"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "Reset",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 4,
+          "name": "ChangeDataBits",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nValue"
+            },
+            {
+              "type": "uint",
+              "name": "nMask"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "ChangeParent",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "visNewParent"
+            },
+            {
+              "type": "RENDERHANDLE",
+              "name": "visSibling"
+            },
+            {
+              "type": "VisualOrder",
+              "name": "nOrder"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "SetDebugOutlineColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clr"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 7,
+          "name": "SetDebugID",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "stDebugID"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 8,
+          "name": "SetAlpha",
+          "fields": [
+            {
+              "type": "float",
+              "name": "fAlpha"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 9,
+          "name": "SetLayer",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "layer"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 10,
+          "name": "SetRotation",
+          "fields": [
+            {
+              "type": "AxisAngle",
+              "name": "aaRotation"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 11,
+          "name": "SetCenterPointScale",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vCenterPointScale"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 12,
+          "name": "SetScale",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vScale"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 13,
+          "name": "SetSize",
+          "fields": [
+            {
+              "type": "Vector2",
+              "name": "vSizePxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 14,
+          "name": "SetPosition",
+          "fields": [
+            {
+              "type": "Vector3",
+              "name": "vPositionPxl"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 16,
+          "name": "SetVisible",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fVisible"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteVisualContainer",
+      "baseClass": "RemoteVisual",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteVisualContainer.cs",
+      "messages": [
+        {
+          "msgid": 18,
+          "name": "SetCamera",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "camera"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 19,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteWaitCursor",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteWaitCursor.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "Show",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "Hide",
+          "fields": [],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetVisuals",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "arVisuals"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 3,
+          "name": "SetShowAnimations",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "arAnimations"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 4,
+          "name": "SetHideAnimations",
+          "fields": [
+            {
+              "type": "BLOBREF",
+              "name": "arAnimations"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": true
+        },
+        {
+          "msgid": 5,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering",
+      "class": "RemoteWindow",
+      "baseClass": "RemoteObject",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/RemoteWindow.cs",
+      "messages": [
+        {
+          "msgid": 0,
+          "name": "SetBackgroundColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clrBack"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 1,
+          "name": "SetOutlineMarkedColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clr"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 2,
+          "name": "SetOutlineAllColor",
+          "fields": [
+            {
+              "type": "ColorF",
+              "name": "clr"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 3,
+          "name": "ChangeDataBits",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "nValue"
+            },
+            {
+              "type": "uint",
+              "name": "nMask"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "SetRoot",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "visRoot"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Xenon",
+      "class": "RemoteXAudSoundDevice",
+      "baseClass": "RemoteSoundDevice",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Xenon/RemoteXAudSoundDevice.cs",
+      "messages": [
+        {
+          "msgid": 4,
+          "name": "SetMute",
+          "fields": [
+            {
+              "type": "uint",
+              "name": "fMuted"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 5,
+          "name": "SetVolume",
+          "fields": [
+            {
+              "type": "float",
+              "name": "flVolume"
+            }
+          ],
+          "instanceScoped": true,
+          "hasVariableLengthData": false
+        },
+        {
+          "msgid": 6,
+          "name": "Create",
+          "fields": [],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    },
+    {
+      "namespace": "Microsoft.Iris.Render.Protocols.Splash.Rendering.Xenon",
+      "class": "RemoteXeDevice",
+      "baseClass": "RemoteDx9Device",
+      "sourceFile": "UIX.RenderApi/Microsoft/Iris/Render/Protocols/Splash/Rendering/Xenon/RemoteXeDevice.cs",
+      "messages": [
+        {
+          "msgid": 11,
+          "name": "Create",
+          "fields": [
+            {
+              "type": "RENDERHANDLE",
+              "name": "_priv_objcb"
+            },
+            {
+              "type": "ContextID",
+              "name": "_priv_ctxcb"
+            },
+            {
+              "type": "Size",
+              "name": "sizeScreenPxl"
+            }
+          ],
+          "instanceScoped": false,
+          "hasVariableLengthData": false
+        }
+      ]
+    }
+  ]
+}

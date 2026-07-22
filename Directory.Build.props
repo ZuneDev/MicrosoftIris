@@ -23,10 +23,30 @@
     </PropertyGroup>
 
     <Choose>
-        <When Condition=" $(TargetFramework.StartsWith('net6.0-windows')) ">
+        <When Condition=" $([MSBuild]::GetTargetPlatformIdentifier($(TargetFramework))) == 'windows' ">
             <PropertyGroup>
-                <DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows10'))">$(DefineConstants);WINDOWS10</DefineConstants>
-                <DefineConstants Condition="$(TargetFramework.StartsWith('net6.0-windows8'))">$(DefineConstants);WINDOWS8</DefineConstants>
+                <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+                <TargetWindowsVersion>$([MSBuild]::GetTargetPlatformVersion($(TargetFramework)))</TargetWindowsVersion>
+                
+                <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetWindowsVersion), '7.0'))">
+                    $(DefineConstants);WINDOWS7
+                </DefineConstants>
+                <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetWindowsVersion), '8.0'))">
+                    $(DefineConstants);WINDOWS8
+                </DefineConstants>
+                <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals($(TargetWindowsVersion), '10.0'))">
+                    $(DefineConstants);WINDOWS10
+                </DefineConstants>
+            </PropertyGroup>
+        </When>
+
+        <When Condition=" $(TargetFramework.StartsWith('net4')) ">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+                
+                <DefineConstants Condition=" !$(TargetFramework.StartsWith('net40')) ">
+                    $(DefineConstants);NETSTANDARD1_0_OR_GREATER;NETSTANDARD2_0_OR_GREATER
+                </DefineConstants>
             </PropertyGroup>
         </When>
     </Choose>

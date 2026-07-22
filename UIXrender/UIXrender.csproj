@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <AssemblyName>UIXrender</AssemblyName>
+        <RootNamespace>Microsoft.Iris.Render</RootNamespace>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+</Project>
