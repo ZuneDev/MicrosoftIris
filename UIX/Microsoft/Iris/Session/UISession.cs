@@ -64,9 +64,13 @@ namespace Microsoft.Iris.Session
             _inputManager = new InputManager(this);
             s_theOnlySession = this;
             _dispatcher = new UIDispatcher(this, handlerTimeout, timeoutSecValue, true);
-            int pdwDefaultLayout;
+#if WINDOWS
+            int pdwDefaultLayout = 0;
             Win32Api.IFWIN32(Win32Api.GetProcessDefaultLayout(out pdwDefaultLayout));
             _rtl = pdwDefaultLayout == 1;
+#else
+            _rtl = false;
+#endif
             _engine = RenderApi.CreateEngine(IrisEngineInfo.CreateLocal(), Dispatcher);
             _session = _engine.Session;
             TextImageCache.Initialize(this);
