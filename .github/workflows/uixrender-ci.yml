@@ -6,11 +6,12 @@ on:
 
 jobs:
   build:
-    # UIXrender/UIXsup are implemented cross-platform (Silk.NET, no Windows-specific
-    # APIs), but NativeAOT can't cross-compile Linux->Windows, and the P/Invoke-based
+    # UIXrender/UIXsup are implemented cross-platform (the only Windows-specific code is
+    # explicitly `#if WINDOWS` gated -- DPI, registry-change notification, cursor
+    # metrics), but NativeAOT can't cross-compile Linux->Windows, and the P/Invoke-based
     # managed consumers we need to stay compatible with (UIX.dll et al) only run on
-    # Windows today -- so Windows is what Phase 0 verifies against here. Other RIDs can
-    # get their own job later once there's something worth publishing them for.
+    # Windows today -- so Windows is what the interop spike verifies against. The linux
+    # job below covers what doesn't need Windows, including export-surface completeness.
     runs-on: windows-latest
 
     steps:
@@ -25,6 +26,12 @@ jobs:
 
       - name: Build solution
         run: dotnet build MicrosoftIris.sln -c Release --no-restore
+
+      # Exercises EngineService directly (no P/Invoke, no publish needed) -- runs on
+      # any platform since it's pure managed code; on windows-latest here just because
+      # that's the only job today, not because it needs Windows specifically.
+      - name: Run EngineService managed-direct tests
+        run: dotnet run --project Tests/UIXrender.Engine.Tests/UIXrender.Engine.Tests.csproj -c Release
 
       - name: Publish UIXrender (NativeAOT, win-x64)
         run: dotnet publish UIXrender/UIXrender.csproj -c Release -f net8.0 -r win-x64 --self-contained -p:PublishAot=true
@@ -49,3 +56,48 @@ jobs:
           Copy-Item $dll.FullName -Destination $testExe.DirectoryName
           & $testExe.FullName
           if ($LASTEXITCODE -ne 0) { throw "Interop spike failed with exit code $LASTEXITCODE" }
+
+  linux:
+    # Verifies the two things that don't need Windows and that the windows job can't
+    # easily check: that the managed subsystem models actually behave, and that the
+    # NativeAOT-published library exports *exactly* the set of entry points the managed
+    # consumers declare -- no missing export (a runtime EntryPointNotFoundException
+    # waiting to happen) and no stray one.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Run UIXrender subsystem tests
+        run: dotnet run --project Tests/UIXrender.Engine.Tests/UIXrender.Engine.Tests.csproj -c Release -f net8.0
+
+      - name: Publish UIXrender (NativeAOT, linux-x64)
+        run: dotnet publish UIXrender/UIXrender.csproj -c Release -f net8.0 -r linux-x64 --self-contained -p:PublishAot=true
+
+      - name: Verify exported surface matches the managed declarations
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Every Sp* entry point the managed consumers P/Invoke for.
+          grep -hoP 'extern\s+.*?\bSp\w+\s*\(' \
+            UIX/Microsoft/Iris/OS/NativeApi.cs \
+            UIX.RenderApi/Microsoft/Iris/Render/Extensions/ExtensionsApi.cs \
+            UIX.RenderApi/Microsoft/Iris/Render/Internal/FormApi.cs \
+            UIX.RenderApi/Microsoft/Iris/Render/Protocol/EngineApi.cs \
+            | grep -oP 'Sp\w+(?=\s*\()' | sort -u > /tmp/declared.txt
+
+          SO=$(find UIXrender/bin -name UIXrender.so -path '*publish*' | head -1)
+          [ -n "$SO" ] || { echo "Published UIXrender.so not found"; exit 1; }
+          nm -D --defined-only "$SO" | grep -oP '\bSp\w+' | sort -u > /tmp/exported.txt
+
+          echo "declared: $(wc -l < /tmp/declared.txt)  exported: $(wc -l < /tmp/exported.txt)"
+          if ! diff -u /tmp/declared.txt /tmp/exported.txt; then
+            echo "::error::Exported surface does not match the managed declarations (- = declared but missing, + = exported but undeclared)"
+            exit 1
+          fi
+          echo "Export surface matches exactly."

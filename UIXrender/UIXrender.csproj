@@ -18,4 +18,20 @@
     <ItemGroup>
         <ProjectReference Include="..\UIXInterop\UIXInterop.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <!-- Pure-managed, cross-platform, NativeAOT-safe image decoder. Chosen over
+           System.Drawing (Windows-only since .NET 6, and a graphics API this project's
+           dependency policy excludes) so SpBitmapLoad* is real logic on every platform.
+           See logs/UIXrender/FullSurface.md, decision 3. -->
+      <PackageReference Include="StbImageSharp" Version="2.30.15" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <!-- The subsystem models (RichTextObject, UIXList, TextMetrics, WaveParser,
+           XmlLiteReader, SchemaRegistration) are internal, and the exports that wrap them
+           are [UnmanagedCallersOnly] and so uncallable from C#. This lets the managed
+           test harness exercise the real logic directly. -->
+      <InternalsVisibleTo Include="UIXrender.Engine.Tests" />
+    </ItemGroup>
 </Project>

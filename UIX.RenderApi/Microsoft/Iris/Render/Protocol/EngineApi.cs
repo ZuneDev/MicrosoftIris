@@ -10,6 +10,10 @@ using System.Runtime.InteropServices;
 using System.Security;
 using Microsoft.Iris.Render.Common;
 using Microsoft.Iris.Render.Internal;
+#if !NETFRAMEWORK
+using Microsoft.Iris.Render.Engine;
+using Iface = Microsoft.Iris.Render.Interop;
+#endif
 
 namespace Microsoft.Iris.Render.Protocol
 {
@@ -17,6 +21,16 @@ namespace Microsoft.Iris.Render.Protocol
     internal static class EngineApi
     {
         private const string s_stEhRenderDll = "UIXRender.dll";
+
+        // SpInit/SpUninit/SpBufferOpen/SpWrapBufferProc/SpRenderThreadInit/
+        // SpRenderThreadUninit below call directly into UIXrender's managed
+        // Microsoft.Iris.Render.Engine.EngineService instead of P/Invoking into
+        // UIXRender.dll -- no native marshaling when both assemblies are loaded in the
+        // same process. Everything else in this file is untouched DllImport, since
+        // UIXrender doesn't implement those exports yet. See
+        // logs/UIXrender/EngineCore.md for the reasoning (first modification of
+        // previously-decompiled code in this project) and why these 6 are exactly the
+        // set RenderPort.cs/LocalChannel.cs actually use.
 
         public static void IFC(HRESULT hr)
         {
@@ -102,6 +116,49 @@ namespace Microsoft.Iris.Render.Protocol
             }
         }
 
+#if !NETFRAMEWORK
+        public static HRESULT SpInit(ref InitArgs args) => new HRESULT(0);
+
+        public static HRESULT SpUninit() => new HRESULT(0);
+
+        public static unsafe HRESULT SpBufferOpen(
+          BufferInfo* phdrData,
+          void* pvData)
+        {
+            var src = new Iface.ContextID(ContextID.ToUInt32(phdrData->idContextSrc));
+            var dest = new Iface.ContextID(ContextID.ToUInt32(phdrData->idContextDest));
+            var bufferHandle = new Iface.RENDERHANDLE(RENDERHANDLE.ToUInt32(phdrData->idBuffer));
+            var flags = (Iface.BufferFlags)phdrData->nFlags;
+            var span = new ReadOnlySpan<byte>(pvData, (int)phdrData->cbSizeBuffer);
+
+            Iface.HRESULT result = EngineService.SendBuffer(src, dest, bufferHandle, flags, span);
+            return new HRESULT(result.hr);
+        }
+
+        public static unsafe HRESULT SpWrapBufferProc(
+          MessageBufferEventHandler pfnProcessBufferProc,
+          IntPtr* ppNativeProc)
+        {
+            if (ppNativeProc == null)
+                return new HRESULT(unchecked((int)0x80070057));
+
+            if (pfnProcessBufferProc == null)
+            {
+                *ppNativeProc = IntPtr.Zero;
+                return new HRESULT(0);
+            }
+
+            // Managed-direct: store the delegate itself instead of marshaling to a
+            // native function pointer -- SpRenderThreadInit resolves this straight back
+            // to the delegate object and invokes it directly, no calli anywhere on this
+            // path. See logs/UIXrender/EngineCore.md.
+            GCHandle handle = GCHandle.Alloc(pfnProcessBufferProc, GCHandleType.Normal);
+            *ppNativeProc = GCHandle.ToIntPtr(handle);
+            return new HRESULT(0);
+        }
+#else
+        // net461 (EnableNetFXTarget): UIXrender's managed API isn't referenceable from
+        // .NET Framework, so this TFM keeps calling the real native UIXRender.dll.
         [DllImport(s_stEhRenderDll)]
         public static extern HRESULT SpInit(ref InitArgs args);
 
@@ -117,7 +174,41 @@ namespace Microsoft.Iris.Render.Protocol
         public static extern unsafe HRESULT SpWrapBufferProc(
           MessageBufferEventHandler pfnProcessBufferProc,
           IntPtr* ppNativeProc);
+#endif
 
+#if !NETFRAMEWORK
+        // No Win32 message queue exists behind this reimplementation (see EngineService),
+        // and LocalChannel -- the path Zune uses -- never peeks. Reports "no message".
+        public static HRESULT SpPeekMessage(
+          out Win32Api.MSG msg,
+          HWND hwnd,
+          uint nMsgFilterMin,
+          uint nMsgFilterMax,
+          uint wRemoveMsg,
+          out WorkResult nResult)
+        {
+            msg = default;
+            nResult = (WorkResult)EngineService.PeekMessage(nMsgFilterMin, nMsgFilterMax, wRemoveMsg);
+            return new HRESULT(0);
+        }
+
+        public static HRESULT SpWaitMessage(uint nTimeOutMs, IntPtr _unused)
+        {
+            EngineService.WaitMessage(nTimeOutMs);
+            return new HRESULT(0);
+        }
+
+        public static HRESULT SpInvoke(
+          ContextID idContext,
+          IntPtr pfnInvoke,
+          IntPtr pvArgs,
+          bool synchronous)
+        {
+            Iface.HRESULT result = EngineService.Invoke(
+              new Iface.ContextID(ContextID.ToUInt32(idContext)), pfnInvoke, pvArgs, synchronous);
+            return new HRESULT(result.hr);
+        }
+#else
         [DllImport(s_stEhRenderDll, CharSet = CharSet.Auto)]
         public static extern HRESULT SpPeekMessage(
           out Win32Api.MSG msg,
@@ -136,7 +227,65 @@ namespace Microsoft.Iris.Render.Protocol
           IntPtr pfnInvoke,
           IntPtr pvArgs,
           bool synchronous);
+#endif
 
+#if !NETFRAMEWORK
+        public static HRESULT SpRenderThreadInit(
+          ref InitArgs argsRender,
+          out IntPtr pThread)
+        {
+            var contextId = new Iface.ContextID(ContextID.ToUInt32(argsRender.idContext));
+
+            MessageBufferEventHandler managedCallback = argsRender.pfnProcessBuffer != IntPtr.Zero
+              ? GCHandle.FromIntPtr(argsRender.pfnProcessBuffer).Target as MessageBufferEventHandler
+              : null;
+
+            BufferReceivedHandler handler = managedCallback != null
+              ? AdaptCallback(managedCallback, argsRender.idContext)
+              : delegate { };
+
+            IRenderThreadHandle threadHandle = EngineService.StartRenderThread(contextId, handler);
+            pThread = GCHandle.ToIntPtr(GCHandle.Alloc(threadHandle, GCHandleType.Normal));
+            return new HRESULT(0);
+        }
+
+        // Adapts a stored MessageBufferEventHandler (already-decompiled, still
+        // pointer-shaped -- see logs/UIXrender/EngineCore.md) into the idiomatic
+        // BufferReceivedHandler shape EngineService deals in. Factored out of
+        // SpRenderThreadInit so that method reads as resolve -> adapt -> start -> wrap,
+        // and named to make clear it's the same kind of adaptation
+        // UIXrender/Interop/EngineApi.cs's own SpRenderThreadInit does for native
+        // callers (there: raw function pointer -> BufferReceivedHandler; here: managed
+        // delegate -> BufferReceivedHandler -- same shape, different invocation
+        // mechanism at the end).
+        private static unsafe BufferReceivedHandler AdaptCallback(MessageBufferEventHandler callback, ContextID destContext) =>
+            (source, bufferHandle, flags, data) =>
+            {
+                fixed (byte* pData = data)
+                {
+                    var info = new BufferInfo
+                    {
+                        idContextSrc = ContextID.FromUInt32(source.value),
+                        idContextDest = destContext,
+                        idBuffer = RENDERHANDLE.FromUInt32(bufferHandle.value),
+                        nFlags = (BufferFlags)flags,
+                        cbSizeBuffer = (uint)data.Length,
+                    };
+                    callback(IntPtr.Zero, source.value, &info, pData);
+                }
+            };
+
+        public static HRESULT SpRenderThreadUninit(IntPtr pThread)
+        {
+            if (pThread == IntPtr.Zero)
+                return new HRESULT(unchecked((int)0x80070057));
+
+            GCHandle handle = GCHandle.FromIntPtr(pThread);
+            (handle.Target as IDisposable)?.Dispose();
+            handle.Free();
+            return new HRESULT(0);
+        }
+#else
         [DllImport(s_stEhRenderDll)]
         public static extern HRESULT SpRenderThreadInit(
           ref InitArgs argsRender,
@@ -144,7 +293,86 @@ namespace Microsoft.Iris.Render.Protocol
 
         [DllImport(s_stEhRenderDll)]
         public static extern HRESULT SpRenderThreadUninit(IntPtr pThread);
+#endif
 
+#if !NETFRAMEWORK
+        public static HRESULT SpRemoteCreateServerStreams(
+          string stSession,
+          TransportProtocol nProtocol,
+          out IntPtr pSendStream,
+          out IntPtr pReceiveStream)
+        {
+            Iface.HRESULT result = EngineService.RemoteCreateServerStreams(
+              stSession, (Iface.Protocol.TransportProtocol)(int)nProtocol, out pSendStream, out pReceiveStream);
+            return new HRESULT(result.hr);
+        }
+
+        public static HRESULT SpRemoteWaitServerStreamsConnected(
+          TransportProtocol nProtocol,
+          IntPtr pSendStream,
+          IntPtr pReceiveStream)
+        {
+            Iface.HRESULT result = EngineService.RemoteWaitServerStreamsConnected(
+              (Iface.Protocol.TransportProtocol)(int)nProtocol, pSendStream);
+            return new HRESULT(result.hr);
+        }
+
+        public static HRESULT SpRemoteServerInit(
+          IntPtr pSendStream,
+          IntPtr pReceiveStream,
+          InitArgs argsSend,
+          out IntPtr pSession)
+        {
+            var context = new Iface.ContextID(ContextID.ToUInt32(argsSend.idContext));
+
+            // Same delegate-behind-a-GCHandle representation SpRenderThreadInit resolves;
+            // RemoteChannel connects without a receive callback (pfnProcessBuffer == 0),
+            // so this is normally null.
+            MessageBufferEventHandler managedCallback = argsSend.pfnProcessBuffer != IntPtr.Zero
+              ? GCHandle.FromIntPtr(argsSend.pfnProcessBuffer).Target as MessageBufferEventHandler
+              : null;
+            BufferReceivedHandler handler = managedCallback != null
+              ? AdaptCallback(managedCallback, argsSend.idContext)
+              : null;
+
+            Iface.HRESULT result = EngineService.RemoteServerInit(pSendStream, context, handler, out pSession);
+            return new HRESULT(result.hr);
+        }
+
+        public static HRESULT SpRemoteServerUninit(
+          IntPtr pSession,
+          bool fForceShutdown,
+          out ShutdownReason nShutdownReason)
+        {
+            Iface.HRESULT result = EngineService.RemoteServerUninit(
+              pSession, fForceShutdown, out Iface.Protocol.ShutdownReason reason);
+            nShutdownReason = (ShutdownReason)(int)reason;
+            return new HRESULT(result.hr);
+        }
+
+        public static HRESULT SpDx9CompileEffect(
+          string stEffect,
+          string stDefines,
+          out IntPtr pErrorString,
+          out IntPtr pErrorBuffer,
+          out IntPtr pEffectBlob,
+          out uint EffectBlobSize,
+          out IntPtr pEffectBlobBuffer)
+        {
+            pErrorString = IntPtr.Zero;
+            pErrorBuffer = IntPtr.Zero;
+            pEffectBlob = IntPtr.Zero;
+            EffectBlobSize = 0U;
+            pEffectBlobBuffer = IntPtr.Zero;
+            return new HRESULT(EngineService.Dx9CompileEffect().hr);
+        }
+
+        // SpObjectRelease's only callers (RemoteChannel) release the stream handles from
+        // SpRemoteCreateServerStreams, which in the managed-direct path are UIXrender
+        // handles, not COM pointers -- so this drops the handle's reference rather than
+        // calling through a vtable.
+        public static void SpObjectRelease(IntPtr pUnknown) => EngineService.ReleaseRemoteStream(pUnknown);
+#else
         [DllImport(s_stEhRenderDll, CharSet = CharSet.Unicode)]
         public static extern HRESULT SpRemoteCreateServerStreams(
           string stSession,
@@ -183,6 +411,7 @@ namespace Microsoft.Iris.Render.Protocol
 
         [DllImport(s_stEhRenderDll)]
         public static extern void SpObjectRelease(IntPtr pUnknown);
+#endif
 
         [Flags]
         public enum BufferFlags

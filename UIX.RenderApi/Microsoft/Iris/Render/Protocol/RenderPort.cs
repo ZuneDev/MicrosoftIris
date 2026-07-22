@@ -581,7 +581,7 @@ namespace Microsoft.Iris.Render.Protocol
             switch (operation)
             {
                 case ObjectCache.Operation.Alloc:
-                    key = new MessageHeap(8U * Win32Api.GetSystemPageSize(), (uint)sizeof(MessageBatchHeader), (uint)sizeof(MessageBatchEntry));
+                    key = new MessageHeap(8U * (uint)Environment.SystemPageSize, (uint)sizeof(MessageBatchHeader), (uint)sizeof(MessageBatchEntry));
                     this._activeHeaps[key] = key;
                     break;
                 case ObjectCache.Operation.Free:

@@ -10,4 +10,10 @@
         
         <EnableNetFXTarget>true</EnableNetFXTarget>
     </PropertyGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' != 'net461' ">
+        <!-- EngineApi.cs calls directly into UIXrender's managed API on this TFM
+             instead of P/Invoking UIXRender.dll; not referenceable from net461. -->
+        <ProjectReference Include="..\UIXrender\UIXrender.csproj" />
+    </ItemGroup>
 </Project>
