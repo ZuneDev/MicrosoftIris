@@ -1,0 +1,37 @@
+name: UIXrender CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # UIXrender/UIXsup are implemented cross-platform (Silk.NET, no Windows-specific
+    # APIs), but NativeAOT can't cross-compile Linux->Windows, and the P/Invoke-based
+    # managed consumers we need to stay compatible with (UIX.dll et al) only run on
+    # Windows today -- so Windows is what Phase 0 verifies against here. Other RIDs can
+    # get their own job later once there's something worth publishing them for.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore MicrosoftIris.sln
+
+      - name: Build solution
+        run: dotnet build MicrosoftIris.sln -c Release --no-restore
+
+      - name: Publish UIXrender (NativeAOT, win-x64)
+        run: dotnet publish UIXrender/UIXrender.csproj -c Release -f net8.0 -r win-x64 --self-contained -p:PublishAot=true
+
+      - name: Publish UIXsup (NativeAOT, win-x64)
+        run: dotnet publish UIXsup/UIXsup.csproj -c Release -f net8.0 -r win-x64 --self-contained -p:PublishAot=true
+
+      # TODO: run the Windows-only interop test harness (Tests/UIXrender.Interop.Tests)
+      # against the published DLLs once it exists (Phase 0 spike step) — see
+      # logs/UIXrender/Architecture.md and the plan for context.

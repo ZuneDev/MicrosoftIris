@@ -7,5 +7,7 @@
         <RootNamespace></RootNamespace>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        
+        <EnableNetFXTarget>true</EnableNetFXTarget>
     </PropertyGroup>
 </Project>
