@@ -32,6 +32,20 @@ jobs:
       - name: Publish UIXsup (NativeAOT, win-x64)
         run: dotnet publish UIXsup/UIXsup.csproj -c Release -f net8.0 -r win-x64 --self-contained -p:PublishAot=true
 
-      # TODO: run the Windows-only interop test harness (Tests/UIXrender.Interop.Tests)
-      # against the published DLLs once it exists (Phase 0 spike step) — see
-      # logs/UIXrender/Architecture.md and the plan for context.
+      - name: Build Phase 0 interop spike harness
+        run: dotnet build Tests/UIXrender.Interop.Tests/UIXrender.Interop.Tests.csproj -c Release
+
+      - name: Run Phase 0 interop spike
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem -Path UIXrender/bin -Filter UIXrender.dll -Recurse |
+            Where-Object { $_.FullName -like "*publish*" } | Select-Object -First 1
+          if (-not $dll) { throw "Published UIXrender.dll not found" }
+
+          $testExe = Get-ChildItem -Path Tests/UIXrender.Interop.Tests/bin -Filter UIXrender.Interop.Tests.exe -Recurse |
+            Select-Object -First 1
+          if (-not $testExe) { throw "UIXrender.Interop.Tests.exe not found" }
+
+          Copy-Item $dll.FullName -Destination $testExe.DirectoryName
+          & $testExe.FullName
+          if ($LASTEXITCODE -ne 0) { throw "Interop spike failed with exit code $LASTEXITCODE" }

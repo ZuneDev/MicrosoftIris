@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Iris.Interop;
 
 namespace Microsoft.Iris.Support.Interop;
 
@@ -15,7 +16,7 @@ public static unsafe class DebugApi
     {
         string timestamp = DebugState.TimedWriteLines ? $"[{DateTime.Now:HH:mm:ss.fff}] " : string.Empty;
         Console.Error.WriteLine(
-            $"{timestamp}{DebugState.WriteLinePrefix}{PtrToString(title)}: {PtrToString(stMessage)} ({PtrToString(filename)}:{line})\n{PtrToString(stackTrace)}");
+            $"{timestamp}{DebugState.WriteLinePrefix}{NativeString.AnsiToString(title)}: {NativeString.AnsiToString(stMessage)} ({NativeString.AnsiToString(filename)}:{line})\n{NativeString.AnsiToString(stackTrace)}");
 
         // TODO: no interactive dialog UI yet (see logs/UIXrender/UIXsup.md) -- always
         // reports "don't break".
@@ -26,13 +27,11 @@ public static unsafe class DebugApi
     public static void DebugSetTimedWriteLines(int fEnabled) => DebugState.TimedWriteLines = fEnabled != 0;
 
     [UnmanagedCallersOnly(EntryPoint = "DebugSetWriteLinePrefix")]
-    public static void DebugSetWriteLinePrefix(byte* stPrefix) => DebugState.WriteLinePrefix = PtrToString(stPrefix) ?? string.Empty;
+    public static void DebugSetWriteLinePrefix(byte* stPrefix) => DebugState.WriteLinePrefix = NativeString.AnsiToString(stPrefix) ?? string.Empty;
 
     [UnmanagedCallersOnly(EntryPoint = "DebugGetCategoryLevel")]
     public static byte DebugGetCategoryLevel(DebugCategory cat) => DebugState.GetCategoryLevel(cat);
 
     [UnmanagedCallersOnly(EntryPoint = "DebugSetCategoryLevel")]
     public static void DebugSetCategoryLevel(DebugCategory cat, byte level) => DebugState.SetCategoryLevel(cat, level);
-
-    private static string PtrToString(byte* p) => p == null ? null : Marshal.PtrToStringAnsi((IntPtr)p);
 }

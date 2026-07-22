@@ -14,4 +14,8 @@
              alone produces a native executable, not something P/Invoke-able. -->
         <NativeLib>Shared</NativeLib>
     </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\UIXInterop\UIXInterop.csproj" />
+    </ItemGroup>
 </Project>
