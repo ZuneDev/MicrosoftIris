@@ -25,6 +25,7 @@
            dependency policy excludes) so SpBitmapLoad* is real logic on every platform.
            See logs/UIXrender/FullSurface.md, decision 3. -->
       <PackageReference Include="StbImageSharp" Version="2.30.15" />
+      <PackageReference Include="StbTrueTypeSharp" Version="1.26.12" />
     </ItemGroup>
 
     <ItemGroup>

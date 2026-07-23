@@ -145,13 +145,29 @@ public static unsafe class ModuleApi
         return 1;
     }
 
-    // Font resources need a platform font-registration call (AddFontMemResourceEx on
-    // Windows, fontconfig elsewhere) that this project has no abstraction for yet, and
-    // guessing one would silently do nothing while reporting success.
-    // TODO: implement when text rendering gains a real font backend -- see the rich-text
-    // open question in logs/UIXrender/FullSurface.md.
+    // Real, backend-agnostic: reads the embedded font resource and registers its bytes
+    // with the text engine's FontStore (which the CPU StbTrueType backend measures and
+    // rasterizes with), keyed by the resource's base name. No OS font registration
+    // (AddFontMemResourceEx / fontconfig) is involved -- the font lives entirely in the
+    // process for this reimplementation's own text rendering. See logs/UIXrender/Rendering.md.
     [UnmanagedCallersOnly(EntryPoint = "SpLoadFontResource")]
-    public static int SpLoadFontResource(char* moduleBaseName, char* resourceName) => 0;
+    public static int SpLoadFontResource(char* moduleBaseName, char* resourceName)
+    {
+        Assembly assembly = FindAssembly(NativeString.UniToString(moduleBaseName));
+        string name = NativeString.UniToString(resourceName);
+        if (assembly == null || string.IsNullOrEmpty(name))
+            return 0;
+
+        using Stream stream = assembly.GetManifestResourceStream(name);
+        if (stream == null)
+            return 0;
+
+        var bytes = new byte[stream.Length];
+        stream.ReadExactly(bytes);
+
+        string family = Path.GetFileNameWithoutExtension(name);
+        return Subsystems.Text.FontStore.Register(family, bytes) ? 1 : 0;
+    }
 
     private static Assembly FindAssembly(string baseName)
     {

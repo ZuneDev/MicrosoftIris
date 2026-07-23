@@ -37,11 +37,10 @@ public static unsafe class SimpleTextApi
     [UnmanagedCallersOnly(EntryPoint = "SpSimpleTextDestroyObject")]
     public static void SpSimpleTextDestroyObject(HANDLE hSto) => HandleTable.Free(hSto.h);
 
-    // Fills in the caller's RasterizeRunPacket with real layout geometry derived from
-    // TextMetrics (bounds, natural size, ascender/baseline insets, colour, line number).
-    // No glyph run handle is produced, because there are no glyphs -- hGlyphRunInfo comes
-    // back null and the caller's subsequent SpRichTextRasterize would report E_NOTIMPL.
-    // TODO: produce a real glyph run once a font backend exists.
+    // Measures the run with the resolved font (real glyph advances + kerning, or the ratio
+    // fallback if no font is available) and produces a GlyphRun behind hGlyphRunInfo that
+    // SpRichTextRasterize can later draw. Fills the RasterizeRunPacket with the resulting
+    // geometry.
     [UnmanagedCallersOnly(EntryPoint = "SpSimpleTextMeasure")]
     public static HRESULT SpSimpleTextMeasure(HANDLE hSto, char* pszRef, short wAlignment, TextStyleData* textStyle, Size sizeConstraint, IntPtr* hGlyphRunInfo, RasterizeRunPacket* pRun)
     {
@@ -51,36 +50,43 @@ public static unsafe class SimpleTextApi
         *hGlyphRunInfo = IntPtr.Zero;
 
         string text = NativeString.UniToString(pszRef) ?? string.Empty;
+        string face = textStyle != null ? NativeString.UniToString(textStyle->fontFace) : null;
         float fontHeight = textStyle != null && textStyle->fontHeightPts > 0 ? textStyle->fontHeightPts : 12f;
+        Color color = textStyle != null ? textStyle->textColor : default;
 
-        Size measured = TextMetrics.Measure(text, fontHeight, wordWrap: sizeConstraint.width > 0, sizeConstraint.width);
+        LoadedFont font = FontStore.Resolve(face);
+        bool wrap = sizeConstraint.width > 0;
+        Size measured = TextLayout.Measure(font, text, fontHeight, wrap, sizeConstraint.width);
+
+        var run = new GlyphRun(font, text, fontHeight, color, measured);
+        *hGlyphRunInfo = HandleTable.Alloc(run);
 
         if (pRun != null)
         {
+            int ascent = TextLayout.Ascent(font, fontHeight);
             pRun->rcLayoutBounds = new Rectangle { x = 0, y = 0, width = measured.width, height = measured.height };
             pRun->rcfRenderBounds = new RectangleF { x = 0, y = 0, width = measured.width, height = measured.height };
             pRun->sizeRasterizeRun = measured;
             pRun->sizeNatural = measured;
-            pRun->ascenderInset = TextMetrics.Ascent(fontHeight);
-            pRun->baselineInset = TextMetrics.Ascent(fontHeight);
+            pRun->ascenderInset = ascent;
+            pRun->baselineInset = ascent;
             pRun->lineNumber = 0;
-            if (textStyle != null)
-                pRun->clrText = textStyle->textColor;
+            pRun->clrText = color;
         }
 
         return HRESULT.S_OK;
     }
 
-    // "Is this string measurable with this style" -- true whenever there's a style to
-    // measure against, since TextMetrics has no per-glyph coverage requirement (it is
-    // metric-derived, not font-table-derived).
+    // "Is this string measurable with this style" -- true whenever a font resolves (real
+    // or fallback), which is the condition under which SpSimpleTextMeasure will succeed.
     [UnmanagedCallersOnly(EntryPoint = "SpSimpleTextMeasurePossible")]
     public static HRESULT SpSimpleTextMeasurePossible(HANDLE hSto, char* pszRef, TextStyleData* textStyle, int* fPossible)
     {
         if (fPossible == null)
             return HRESULT.E_INVALIDARG;
 
-        *fPossible = textStyle != null ? 1 : 0;
+        string face = textStyle != null ? NativeString.UniToString(textStyle->fontFace) : null;
+        *fPossible = FontStore.Resolve(face) != null || textStyle != null ? 1 : 0;
         return HRESULT.S_OK;
     }
 }

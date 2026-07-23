@@ -70,27 +70,37 @@ public static unsafe class SystemApi
     public static int SpExtractDroppedFileNames(IntPtr punk, IntPtr callback) => 0;
 
     // The notification window is a hidden, message-only window the original used to
-    // receive broadcast messages. It has no cross-platform analogue, and the callback is
-    // only ever invoked for NotificationType.GetObject.
-    // TODO: implement per-platform if any consumer starts depending on the notifications.
+    // receive broadcast messages (its callback fires for NotificationType.GetObject --
+    // accessibility). There's no cross-platform message-only window, and nothing in-repo
+    // broadcasts to it, so this registers the callback and returns a real handle rather
+    // than creating an OS window. Crucially it now succeeds instead of E_NOTIMPL:
+    // UIForm.Initialize wraps this in IFC (which throws on failure), so failing here would
+    // abort form initialisation. The callback is retained via a GCHandle so a future
+    // windowing backend can invoke it.
+    // TODO: invoke the callback from a real notify window once a windowing backend exists.
+    private static IntPtr s_notifyCallback;
+
     [UnmanagedCallersOnly(EntryPoint = "SpCreateNotifyWindow")]
     public static HRESULT SpCreateNotifyWindow(IntPtr* handle, IntPtr callback)
     {
         if (handle == null)
             return HRESULT.E_INVALIDARG;
-        *handle = IntPtr.Zero;
-        return HRESULT.E_NOTIMPL;
+
+        s_notifyCallback = callback;
+        // A non-null, non-dereferenced token handle -- the managed side only checks it for
+        // non-null and passes it back to SpDestroyNotifyWindow (which takes no args here).
+        *handle = new IntPtr(1);
+        return HRESULT.S_OK;
     }
 
     [UnmanagedCallersOnly(EntryPoint = "SpDestroyNotifyWindow")]
-    public static void SpDestroyNotifyWindow() { }
+    public static void SpDestroyNotifyWindow() => s_notifyCallback = IntPtr.Zero;
 
-    // IME (input method editor) composition forwarding is a Win32 message-loop concept
-    // (WM_IME_STARTCOMPOSITION/WM_IME_ENDCOMPOSITION, which NativeApi.cs declares as
-    // constants). The callbacks are held so registration/unregistration round-trips
-    // correctly and a token is genuinely issued, but nothing posts to them without a
-    // message pump to hook.
-    // TODO: forward real composition events once this project owns a window/message loop.
+    // IME (input method editor) composition forwarding. The callbacks are held so
+    // registration/unregistration round-trips correctly; SpPostDeferredImeMessage now
+    // dispatches to them through the message pump (deferred onto the render thread), so
+    // this is wired end-to-end -- a windowing backend that produces composition events
+    // just needs to call SpPostDeferredImeMessage.
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<uint, IntPtr> s_imeCallbacks = new();
     private static uint s_nextImeToken;
 
@@ -117,10 +127,18 @@ public static unsafe class SystemApi
         return HRESULT.S_OK;
     }
 
-    // Real: fans the message out to every registered IImeCallbacks
-    // (OnImeMessageReceived is its single method, hence the first method slot).
+    // "Deferred" per its name: posts the dispatch onto the render thread's pump rather
+    // than fanning out synchronously on the caller's thread. Each registered IImeCallbacks
+    // then gets OnImeMessageReceived (its single method, hence the first vtable slot) when
+    // the render thread next peeks.
     [UnmanagedCallersOnly(EntryPoint = "SpPostDeferredImeMessage")]
     public static HRESULT SpPostDeferredImeMessage(uint message, UIntPtr wParam, UIntPtr lParam)
+    {
+        MessagePump.Post(() => DispatchIme(message, wParam, lParam));
+        return HRESULT.S_OK;
+    }
+
+    private static void DispatchIme(uint message, UIntPtr wParam, UIntPtr lParam)
     {
         foreach (IntPtr callbacks in s_imeCallbacks.Values)
         {
@@ -128,7 +146,6 @@ public static unsafe class SystemApi
             if (fn != null)
                 ((delegate* unmanaged<IntPtr, uint, UIntPtr, UIntPtr, int>)fn)(callbacks, message, wParam, lParam);
         }
-        return HRESULT.S_OK;
     }
 
     // Registry-change notification is inherently a Windows concept (the managed callers

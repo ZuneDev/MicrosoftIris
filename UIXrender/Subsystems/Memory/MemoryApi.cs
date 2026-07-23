@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Iris.Render.Engine;
 
 namespace Microsoft.Iris.Render.Subsystems.Memory;
 
@@ -27,16 +28,9 @@ public static unsafe class MemoryApi
             NativeMemory.Free((void*)pv);
     }
 
+    // Frees a text bitmap produced by SpRichTextRasterize -- the only "DIB" this
+    // reimplementation hands out. The handle wraps an unmanaged ARGB buffer (TextBitmap),
+    // disposed here. See logs/UIXrender/Rendering.md.
     [UnmanagedCallersOnly(EntryPoint = "SpFreeDib")]
-    public static void SpFreeDib(IntPtr hdib)
-    {
-#if WINDOWS
-        if (hdib != IntPtr.Zero)
-            Interop.Win32.Gdi32.DeleteObject(hdib);
-#else
-        // TODO: no non-Windows caller of SpFreeDib exists yet in this repo (DIB sections
-        // are a GDI-specific concept) -- nothing to free cross-platform, logged as an
-        // open question rather than guessed at further. See logs/UIXrender/FullSurface.md.
-#endif
-    }
+    public static void SpFreeDib(IntPtr hdib) => HandleTable.Free(hdib);
 }

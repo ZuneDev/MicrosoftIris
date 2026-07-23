@@ -7,6 +7,7 @@ using Microsoft.Iris.Render.Interop.Protocol;
 using Microsoft.Iris.Render.Interop.XmlLite;
 using Microsoft.Iris.Render.Subsystems.Assets;
 using Microsoft.Iris.Render.Subsystems.Lists;
+using Microsoft.Iris.Render.Subsystems.Os;
 using Microsoft.Iris.Render.Subsystems.Schema;
 using Microsoft.Iris.Render.Subsystems.Text;
 using Microsoft.Iris.Render.Subsystems.Xml;
@@ -179,6 +180,67 @@ Check(sendStream != recvStream, "send and receive are distinct handles, so relea
 EngineService.ReleaseRemoteStream(sendStream);
 EngineService.ReleaseRemoteStream(recvStream);
 Check(true, "releasing both stream handles disposes the connection exactly once, without error");
+
+Console.WriteLine("\n-- Text rendering (StbTrueType, backend-agnostic CPU) --");
+LoadedFont font = FontStore.Resolve("Segoe UI"); // resolves a real face or the fallback
+Check(font != null, "FontStore resolves a font (real or fallback) on a system with fonts");
+if (font != null)
+{
+    Microsoft.Iris.Render.Interop.Drawing.Size narrow = TextLayout.Measure(font, "iii", 24f, false, 0);
+    Microsoft.Iris.Render.Interop.Drawing.Size wide = TextLayout.Measure(font, "WWW", 24f, false, 0);
+    Check(wide.width > narrow.width, "real proportional metrics: 'WWW' is wider than 'iii'");
+    Check(narrow.height > 0, "measured line height is positive");
+
+    string sentence = "the quick brown fox jumps over the lazy dog";
+    Microsoft.Iris.Render.Interop.Drawing.Size wrappedReal = TextLayout.Measure(font, sentence, 24f, true, 120);
+    Microsoft.Iris.Render.Interop.Drawing.Size unwrappedReal = TextLayout.Measure(font, sentence, 24f, false, 0);
+    Check(wrappedReal.height > unwrappedReal.height, "word wrap increases height");
+    Check(wrappedReal.width <= unwrappedReal.width, "word wrap does not exceed the constraint width of one line");
+
+    var white = Microsoft.Iris.Render.Interop.Drawing.Color.FromArgb(255, 255, 255, 255);
+    Microsoft.Iris.Render.Interop.Drawing.Size runSize = TextLayout.Measure(font, "Hi", 32f, false, 0);
+    var run = new GlyphRun(font, "Hi", 32f, white, runSize);
+    IntPtr bits = run.Rasterize(white, out Microsoft.Iris.Render.Interop.Drawing.Size rasterSize);
+    Check(bits != IntPtr.Zero && rasterSize.width > 0 && rasterSize.height > 0, "GlyphRun rasterizes to a non-empty ARGB32 buffer");
+    bool anyInk = false;
+    for (int i = 3; i < rasterSize.width * rasterSize.height * 4 && !anyInk; i += 4)
+        if (System.Runtime.InteropServices.Marshal.ReadByte(bits, i) != 0)
+            anyInk = true;
+    Check(anyInk, "rasterized text has ink (non-zero alpha pixels), i.e. glyphs were actually drawn");
+    if (bits != IntPtr.Zero)
+        System.Runtime.InteropServices.Marshal.FreeHGlobal(bits);
+}
+
+Console.WriteLine("\n-- Message pump (backend-agnostic; backs SpPeekMessage/SpWaitMessage/SpInvoke) --");
+MessagePump.Peek(); // drain any prior state
+bool deferredRan = false;
+MessagePump.Post(() => deferredRan = true);
+Check(MessagePump.Peek() && deferredRan, "Peek runs queued deferred work and reports work done");
+Check(!MessagePump.Peek(), "Peek on an empty queue reports no work");
+
+// InterThreadWake: a blocked WaitMessage must return promptly when another thread wakes it.
+MessagePump.Peek();
+var sw = System.Diagnostics.Stopwatch.StartNew();
+var waiter = new Thread(() => EngineService.WaitMessage(5000)) { IsBackground = true };
+waiter.Start();
+Thread.Sleep(50);
+EngineService.Invoke(new ContextID(1), IntPtr.Zero, IntPtr.Zero, false); // null ptr == InterThreadWake
+bool woke = waiter.Join(1500);
+sw.Stop();
+Check(woke && sw.ElapsedMilliseconds < 2000, $"EngineService.Invoke(null) wakes a blocked WaitMessage in {sw.ElapsedMilliseconds}ms (not the full 5s timeout)");
+
+// The timeout itself is real: with nothing posted, WaitMessage blocks ~the requested time.
+MessagePump.Peek();
+var sw2 = System.Diagnostics.Stopwatch.StartNew();
+EngineService.WaitMessage(120);
+sw2.Stop();
+Check(sw2.ElapsedMilliseconds >= 80, $"WaitMessage honours its timeout when no work arrives ({sw2.ElapsedMilliseconds}ms)");
+
+// PeekMessage reports ProcessedMessage(1) when it ran work, None(0) otherwise.
+bool peekRan = false;
+MessagePump.Post(() => peekRan = true);
+Check(EngineService.PeekMessage(0, 0, 1) == 1u && peekRan, "PeekMessage runs queued work and reports ProcessedMessage(1)");
+Check(EngineService.PeekMessage(0, 0, 1) == 0u, "PeekMessage on an empty queue reports None(0)");
 
 Console.WriteLine();
 Console.WriteLine(failures == 0 ? "ALL CHECKS PASSED" : $"{failures} CHECK(S) FAILED");

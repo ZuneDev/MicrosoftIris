@@ -263,8 +263,10 @@ public static unsafe class RichTextApi
             return HRESULT.E_INVALIDARG;
 
         // Font height isn't carried on the object (it arrives per-measure in a TextStyle),
-        // so natural bounds use the surface's own height as the em size reference.
-        Size bounds = TextMetrics.Measure(text.Text, DefaultFontHeight, text.WordWrap, text.MaximumSurface.width);
+        // so natural bounds use the surface's own height as the em size reference. No face
+        // is known here, so the fallback font resolves.
+        LoadedFont font = FontStore.Resolve(null);
+        Size bounds = TextLayout.Measure(font, text.Text, DefaultFontHeight, text.WordWrap, text.MaximumSurface.width);
         *cWidth = bounds.width;
         *cHeight = bounds.height;
         return HRESULT.S_OK;
@@ -272,10 +274,11 @@ public static unsafe class RichTextApi
 
     private const float DefaultFontHeight = 12f;
 
-    // Approximate: computes real line/extent geometry from TextMetrics, but does not
-    // produce glyph runs -- the ReportRunCallback is therefore not invoked, so a caller
-    // gets correct-ish overall bounds and no per-run detail.
-    // TODO: emit real glyph runs once a font backend exists. See logs/UIXrender/FullSurface.md.
+    // Real measurement over the resolved font (or the ratio fallback). The per-run
+    // ReportRunCallback is still not invoked -- rich text's multi-run layout isn't modelled
+    // yet; a caller gets correct overall bounds via the returned constraint size. Rich-text
+    // rasterization runs through GlyphRun handles produced by the simple-text path.
+    // TODO: emit real per-run glyph runs through rrcb.
     [UnmanagedCallersOnly(EntryPoint = "SpRichTextMeasure")]
     public static HRESULT SpRichTextMeasure(HANDLE hRto, TextMeasureParamsData* measureParams, IntPtr rrcb, IntPtr pvData)
     {
@@ -286,28 +289,42 @@ public static unsafe class RichTextApi
             ? measureParams->pTextStyle->fontHeightPts
             : DefaultFontHeight;
 
+        string face = measureParams->pTextStyle != null ? NativeString.UniToString(measureParams->pTextStyle->fontFace) : null;
         string content = measureParams->content != null ? NativeString.UniToString(measureParams->content) : text.Text;
         bool wordWrap = (measureParams->flags & TextMeasureFlags.WordWrapValue) != 0;
         int constraint = (int)measureParams->constraint.width;
 
-        Size measured = TextMetrics.Measure(content, fontHeight, wordWrap, constraint);
+        LoadedFont font = FontStore.Resolve(face);
+        Size measured = TextLayout.Measure(font, content, fontHeight, wordWrap, constraint);
         measureParams->constraint = new SizeF { width = measured.width, height = measured.height };
         return HRESULT.S_OK;
     }
 
-    // Not implemented: turning a glyph run into pixels requires a rasterizer this project
-    // doesn't have and can't borrow without either a Windows-only graphics API or a large
-    // new text-shaping dependency. Fails honestly with null out-params rather than
-    // returning an empty bitmap that would render as invisible text and look like a
-    // layout bug.
-    // TODO: implement with a real font/rasterizer backend.
+    // Composites the glyph run into a straight-alpha ARGB32 bitmap. `phTextBitmap` is a
+    // handle SpFreeDib frees; `ppvBits` points at the pixels. Returns S_FALSE-shaped
+    // failure (E_FAIL) only if the run can't be resolved; an empty/fallback run yields a
+    // null bitmap with S_OK (nothing to draw), not a fake.
+    // Outline/shadow modes are accepted but not yet rendered.
+    // TODO: outline + shadow passes.
     [UnmanagedCallersOnly(EntryPoint = "SpRichTextRasterize")]
     public static HRESULT SpRichTextRasterize(IntPtr hGlyphRunInfo, int fOutlineMode, Color clrText, int fShadowMode, IntPtr* phTextBitmap, IntPtr* ppvBits, Size* psizeBitmap)
     {
         if (phTextBitmap != null) *phTextBitmap = IntPtr.Zero;
         if (ppvBits != null) *ppvBits = IntPtr.Zero;
         if (psizeBitmap != null) *psizeBitmap = default;
-        return HRESULT.E_NOTIMPL;
+
+        if (!HandleTable.TryGet(hGlyphRunInfo, out GlyphRun run))
+            return HRESULT.E_INVALIDARG;
+
+        IntPtr bits = run.Rasterize(clrText, out Size size);
+        if (psizeBitmap != null) *psizeBitmap = size;
+
+        if (bits == IntPtr.Zero)
+            return HRESULT.S_OK; // nothing to draw (empty run or no real font)
+
+        if (phTextBitmap != null) *phTextBitmap = HandleTable.Alloc(new TextBitmap(bits));
+        if (ppvBits != null) *ppvBits = bits;
+        return HRESULT.S_OK;
     }
 
     [UnmanagedCallersOnly(EntryPoint = "SpRichTextDestroyGlyphRunInfo")]
