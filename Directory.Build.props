@@ -19,9 +19,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" $([MSBuild]::IsOsPlatform('Windows')) ">
-        <TargetFrameworks>$(TargetFrameworks);net8.0-windows10.0.22000</TargetFrameworks>
-        
-        <TargetFrameworks Condition=" $(EnableNetFXTarget) == 'true' ">$(TargetFrameworks);net461;</TargetFrameworks>
+        <TargetFrameworks>$(TargetFrameworks);net8.0-windows10.0.22000;net48</TargetFrameworks>
     </PropertyGroup>
 
     <Choose>
