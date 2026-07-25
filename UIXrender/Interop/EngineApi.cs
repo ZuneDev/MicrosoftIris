@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Iris.Interop;
@@ -215,3 +217,5 @@ public static unsafe class EngineApi
         release(pUnknown);
     }
 }
+
+#endif

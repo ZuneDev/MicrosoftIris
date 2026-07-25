@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -183,3 +185,5 @@ public static unsafe class XmlLiteApi
         return true;
     }
 }
+
+#endif

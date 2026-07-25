@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System.Runtime.InteropServices;
 using Microsoft.Iris.Interop;
 
@@ -23,3 +25,5 @@ public static unsafe class TracingApi
     public static void SpLogTrace(char* categoryName, char* message, int indentLevel) =>
         TracingState.LogTrace(NativeString.UniToString(categoryName), NativeString.UniToString(message), indentLevel);
 }
+
+#endif

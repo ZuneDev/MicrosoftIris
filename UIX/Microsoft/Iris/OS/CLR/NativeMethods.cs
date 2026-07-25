@@ -8,9 +8,6 @@ using System.Security.Permissions;
 
 namespace Microsoft.Iris.OS.CLR
 {
-#if WINDOWS
-    [HostProtection(SecurityAction.LinkDemand, MayLeakOnAbort = true)]
-#endif
     internal static class NativeMethods
     {
         public const int S_OK = 0;

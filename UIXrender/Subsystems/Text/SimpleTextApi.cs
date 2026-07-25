@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Iris.Interop;
@@ -90,3 +92,5 @@ public static unsafe class SimpleTextApi
         return HRESULT.S_OK;
     }
 }
+
+#endif

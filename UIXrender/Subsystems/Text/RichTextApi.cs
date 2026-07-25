@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Iris.Interop;
@@ -341,3 +343,5 @@ public static unsafe class RichTextApi
         return HRESULT.S_OK;
     }
 }
+
+#endif

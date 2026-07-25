@@ -29,7 +29,11 @@ internal sealed class TypeSchema
     // from assemblies loaded at runtime via SpLoadDll -- that is the entire point of this
     // subsystem. Annotating the parameter keeps every member of anything that reaches
     // here rooted, instead of silently trimming the properties/methods markup binds to.
-    public TypeSchema([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type, uint id)
+    public TypeSchema(
+#if NETCOREAPP
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+#endif
+        Type type, uint id)
     {
         Type = type;
         ID = id;
@@ -74,7 +78,13 @@ internal sealed class EnumSchema
         // at runtime, which can genuinely fail under NativeAOT -- and this project
         // publishes AOT. The underlying-type overload returns a boxed primitive array, no
         // dynamic array construction involved.
-        Array underlying = Enum.GetValuesAsUnderlyingType(type);
+        Array underlying =
+#if NETCOREAPP
+            Enum.GetValuesAsUnderlyingType(type);
+#else
+            Enum.GetValues(type);
+#endif
+
         Values = new int[underlying.Length];
         for (int i = 0; i < underlying.Length; i++)
             Values[i] = Convert.ToInt32(underlying.GetValue(i));
@@ -102,7 +112,11 @@ internal sealed class SchemaRegistration
     public IReadOnlyList<TypeSchema> Types => _types;
     public IReadOnlyList<EnumSchema> Enums => _enums;
 
-    public void Add([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] Type type)
+    public void Add(
+#if NETCOREAPP
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+#endif
+        Type type)
     {
         if (type.IsEnum)
             _enums.Add(new EnumSchema(type, (uint)_enums.Count));
@@ -110,6 +124,7 @@ internal sealed class SchemaRegistration
             _types.Add(new TypeSchema(type, (uint)_types.Count));
     }
 
+#if NETCOREAPP
     // Unavoidably trim-unsafe by design, and suppressed rather than left to warn so a real
     // future warning isn't lost in the noise: this projects types out of an assembly the
     // host chose at *runtime* (SpLoadDll), which the trimmer cannot see into by
@@ -118,6 +133,7 @@ internal sealed class SchemaRegistration
     // assembly), not by static analysis of UIXrender.
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Types come from assemblies loaded at runtime via SpLoadDll; the host must root them. See comment above.")]
     [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "Types come from assemblies loaded at runtime via SpLoadDll; the host must root them. See comment above.")]
+#endif
     public static SchemaRegistration FromAssembly(Assembly assembly)
     {
         var registration = new SchemaRegistration();

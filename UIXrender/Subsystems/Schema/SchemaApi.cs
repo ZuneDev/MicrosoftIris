@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -610,3 +612,5 @@ public static unsafe class SchemaApi
         return OK;
     }
 }
+
+#endif

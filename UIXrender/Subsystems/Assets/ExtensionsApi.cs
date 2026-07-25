@@ -1,3 +1,5 @@
+#if NETCOREAPP
+
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -148,3 +150,5 @@ internal sealed class LoadedSound(IntPtr samples) : IDisposable
         }
     }
 }
+
+#endif
