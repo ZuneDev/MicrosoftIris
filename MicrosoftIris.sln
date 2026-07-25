@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIXrender.Interop.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIXrender.Engine.Tests", "Tests\UIXrender.Engine.Tests\UIXrender.Engine.Tests.csproj", "{568E8DCD-CAB3-499B-A264-C62B1E1082B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UIX.RenderApi.OpenGL", "UIX.RenderApi.OpenGL\UIX.RenderApi.OpenGL.csproj", "{6FE88A00-7281-4571-BBA3-83AAD8690049}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +148,18 @@ Global
 		{568E8DCD-CAB3-499B-A264-C62B1E1082B7}.Release|x64.Build.0 = Release|x64
 		{568E8DCD-CAB3-499B-A264-C62B1E1082B7}.Release|x86.ActiveCfg = Release|x86
 		{568E8DCD-CAB3-499B-A264-C62B1E1082B7}.Release|x86.Build.0 = Release|x86
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|x64.ActiveCfg = Debug|x64
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|x64.Build.0 = Debug|x64
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|x86.ActiveCfg = Debug|x86
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Debug|x86.Build.0 = Debug|x86
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|x64.ActiveCfg = Release|x64
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|x64.Build.0 = Release|x64
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|x86.ActiveCfg = Release|x86
+		{6FE88A00-7281-4571-BBA3-83AAD8690049}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
