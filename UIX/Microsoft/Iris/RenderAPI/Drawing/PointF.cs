@@ -5,7 +5,6 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Render;
-using System;
 using System.Globalization;
 using System.Text;
 

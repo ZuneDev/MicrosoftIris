@@ -7,7 +7,6 @@
 using Microsoft.Iris.Data;
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Render;
-using System;
 using System.Globalization;
 
 namespace Microsoft.Iris.Markup.UIX

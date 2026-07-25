@@ -2,7 +2,6 @@
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup;
 using Microsoft.Iris.Session;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;

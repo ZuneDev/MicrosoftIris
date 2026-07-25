@@ -6,7 +6,6 @@
 
 using Microsoft.Iris.Render.Common;
 using Microsoft.Iris.Render.Graphics;
-using System;
 using System.Globalization;
 
 namespace Microsoft.Iris.Render

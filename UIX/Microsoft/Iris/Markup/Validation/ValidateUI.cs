@@ -5,7 +5,6 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Markup.UIX;
-using System;
 
 namespace Microsoft.Iris.Markup.Validation
 {

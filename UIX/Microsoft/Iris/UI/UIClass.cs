@@ -18,7 +18,6 @@ using Microsoft.Iris.Render;
 using Microsoft.Iris.RenderAPI.Drawing;
 using Microsoft.Iris.Session;
 using Microsoft.Iris.ViewItems;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;

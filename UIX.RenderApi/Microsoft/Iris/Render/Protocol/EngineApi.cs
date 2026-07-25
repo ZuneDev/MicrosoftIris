@@ -10,10 +10,6 @@ using System.Runtime.InteropServices;
 using System.Security;
 using Microsoft.Iris.Render.Common;
 using Microsoft.Iris.Render.Internal;
-#if !NETFRAMEWORK
-using Microsoft.Iris.Render.Engine;
-using Iface = Microsoft.Iris.Render.Interop;
-#endif
 
 namespace Microsoft.Iris.Render.Protocol
 {

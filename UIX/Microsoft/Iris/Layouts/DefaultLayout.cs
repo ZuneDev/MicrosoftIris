@@ -6,7 +6,6 @@
 
 using Microsoft.Iris.Layout;
 using Microsoft.Iris.Render;
-using System;
 
 namespace Microsoft.Iris.Layouts
 {

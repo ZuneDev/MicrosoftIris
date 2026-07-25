@@ -4,8 +4,4 @@
         <OutputType>Exe</OutputType>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\UIXrender\UIXrender.csproj" />
-    </ItemGroup>
 </Project>

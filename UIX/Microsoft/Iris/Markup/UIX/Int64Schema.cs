@@ -5,7 +5,6 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Library;
-using System;
 using System.Globalization;
 
 namespace Microsoft.Iris.Markup.UIX
