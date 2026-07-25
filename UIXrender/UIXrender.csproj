@@ -8,15 +8,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" $(TargetFrameworkIdentifier) == '.NETCoreApp' ">
-        <PublishAot>true</PublishAot>
-
-        <!-- Required for PublishAot to emit an actual exporting shared library (.dll/.so)
-             for the [UnmanagedCallersOnly] methods below: without this, PublishAot
-             alone produces a native executable, not something P/Invoke-able. -->
-        <NativeLib>Shared</NativeLib>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\UIXInterop\UIXInterop.csproj" />
     </ItemGroup>
