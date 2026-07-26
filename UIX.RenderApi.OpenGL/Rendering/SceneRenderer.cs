@@ -10,38 +10,44 @@ namespace Microsoft.Iris.Render.OpenGL
     /// </summary>
     internal sealed unsafe class SceneRenderer : IDisposable
     {
-        private const string VertexSource = @"#version 330 core
-layout(location = 0) in vec2 aPos;
-layout(location = 1) in vec2 aTex;
-uniform mat4 uModel;
-uniform mat4 uProj;
-uniform vec2 uSize;
-out vec2 vTex;
-void main()
-{
-    vTex = aTex;
-    gl_Position = uProj * uModel * vec4(aPos * uSize, 0.0, 1.0);
-}";
+        private const string VertexSource =
+            """
+            #version 330 core
+            layout(location = 0) in vec2 aPos;
+            layout(location = 1) in vec2 aTex;
+            uniform mat4 uModel;
+            uniform mat4 uProj;
+            uniform vec2 uSize;
+            out vec2 vTex;
+            void main()
+            {
+                vTex = aTex;
+                gl_Position = uProj * uModel * vec4(aPos * uSize, 0.0, 1.0);
+            }
+""";
 
-        private const string FragmentSource = @"#version 330 core
-in vec2 vTex;
-out vec4 fragColor;
-uniform sampler2D uTex;
-uniform int uUseTexture;
-uniform vec4 uColor;
-uniform float uAlpha;
-void main()
-{
-    if (uUseTexture == 1)
-    {
-        vec4 t = texture(uTex, vTex);
-        fragColor = vec4(t.rgb, t.a * uAlpha);
-    }
-    else
-    {
-        fragColor = vec4(uColor.rgb, uColor.a * uAlpha);
-    }
-}";
+        private const string FragmentSource =
+            """
+            #version 330 core
+            in vec2 vTex;
+            out vec4 fragColor;
+            uniform sampler2D uTex;
+            uniform int uUseTexture;
+            uniform vec4 uColor;
+            uniform float uAlpha;
+            void main()
+            {
+              if (uUseTexture == 1)
+              {
+                  vec4 t = texture(uTex, vTex);
+                  fragColor = vec4(t.rgb, t.a * uAlpha);
+              }
+              else
+              {
+                  fragColor = vec4(uColor.rgb, uColor.a * uAlpha);
+              }
+            }
+            """;
 
         private readonly GL m_gl;
         private readonly uint m_program;

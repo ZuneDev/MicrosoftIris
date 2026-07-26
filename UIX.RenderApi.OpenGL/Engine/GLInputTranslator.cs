@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Iris.Input;
 using Silk.NET.Input;
 using SilkKey = Silk.NET.Input.Key;
@@ -37,9 +38,9 @@ namespace Microsoft.Iris.Render.OpenGL
             m_input = input;
             m_window = window;
 
-            foreach (IKeyboard keyboard in context.Keyboards)
+            foreach (var keyboard in context.Keyboards)
                 Hook(keyboard);
-            foreach (IMouse mouse in context.Mice)
+            foreach (var mouse in context.Mice)
                 Hook(mouse);
 
             context.ConnectionChanged += OnConnectionChanged;
@@ -120,7 +121,14 @@ namespace Microsoft.Iris.Render.OpenGL
 
         private void OnMouseDown(IMouse mouse, SilkMouseButton button)
         {
-            (uint message, MouseButtons iris) = button switch
+            var message = MapSilkMouseButton(button, out var iris);
+            if (message != 0)
+                DispatchMouse(mouse, message, iris, 0);
+        }
+
+        private static uint MapSilkMouseButton(SilkMouseButton button, out MouseButtons iris)
+        {
+            (var message, iris) = button switch
             {
                 SilkMouseButton.Left => (WM_LBUTTONDOWN, MouseButtons.Left),
                 SilkMouseButton.Right => (WM_RBUTTONDOWN, MouseButtons.Right),
@@ -129,36 +137,19 @@ namespace Microsoft.Iris.Render.OpenGL
                 SilkMouseButton.Button5 => (WM_XBUTTONDOWN, MouseButtons.XButton2),
                 _ => (0u, MouseButtons.None),
             };
-            if (message != 0)
-                DispatchMouse(mouse, message, iris, 0);
+            return message;
         }
 
         private void OnMouseUp(IMouse mouse, SilkMouseButton button)
         {
-            (uint message, MouseButtons iris) = button switch
-            {
-                SilkMouseButton.Left => (WM_LBUTTONUP, MouseButtons.Left),
-                SilkMouseButton.Right => (WM_RBUTTONUP, MouseButtons.Right),
-                SilkMouseButton.Middle => (WM_MBUTTONUP, MouseButtons.Middle),
-                SilkMouseButton.Button4 => (WM_XBUTTONUP, MouseButtons.XButton1),
-                SilkMouseButton.Button5 => (WM_XBUTTONUP, MouseButtons.XButton2),
-                _ => (0u, MouseButtons.None),
-            };
+            var message = MapSilkMouseButton(button, out var iris);
             if (message != 0)
                 DispatchMouse(mouse, message, iris, 0);
         }
 
         private void OnDoubleClick(IMouse mouse, SilkMouseButton button, System.Numerics.Vector2 position)
         {
-            (uint message, MouseButtons iris) = button switch
-            {
-                SilkMouseButton.Left => (WM_LBUTTONDBLCLK, MouseButtons.Left),
-                SilkMouseButton.Right => (WM_RBUTTONDBLCLK, MouseButtons.Right),
-                SilkMouseButton.Middle => (WM_MBUTTONDBLCLK, MouseButtons.Middle),
-                SilkMouseButton.Button4 => (WM_XBUTTONDBLCLK, MouseButtons.XButton1),
-                SilkMouseButton.Button5 => (WM_XBUTTONDBLCLK, MouseButtons.XButton2),
-                _ => (0u, MouseButtons.None),
-            };
+            var message = MapSilkMouseButton(button, out var iris);
             if (message != 0)
                 DispatchMouse(mouse, message, iris, 0, doubleClick: true);
         }
@@ -216,41 +207,53 @@ namespace Microsoft.Iris.Render.OpenGL
             InputModifiers m = InputModifiers.None;
             foreach (IKeyboard k in m_context.Keyboards)
             {
-                if (k.IsKeyPressed(SilkKey.ControlLeft) || k.IsKeyPressed(SilkKey.ControlRight)) m |= InputModifiers.ControlKey;
-                if (k.IsKeyPressed(SilkKey.ShiftLeft) || k.IsKeyPressed(SilkKey.ShiftRight)) m |= InputModifiers.ShiftKey;
-                if (k.IsKeyPressed(SilkKey.AltLeft) || k.IsKeyPressed(SilkKey.AltRight)) m |= InputModifiers.AltKey;
-                if (k.IsKeyPressed(SilkKey.SuperLeft) || k.IsKeyPressed(SilkKey.SuperRight)) m |= InputModifiers.WindowsKey;
+                if (k.IsKeyPressed(SilkKey.ControlLeft) || k.IsKeyPressed(SilkKey.ControlRight))
+                    m |= InputModifiers.ControlKey;
+                
+                if (k.IsKeyPressed(SilkKey.ShiftLeft) || k.IsKeyPressed(SilkKey.ShiftRight))
+                    m |= InputModifiers.ShiftKey;
+                
+                if (k.IsKeyPressed(SilkKey.AltLeft) || k.IsKeyPressed(SilkKey.AltRight))
+                    m |= InputModifiers.AltKey;
+                
+                if (k.IsKeyPressed(SilkKey.SuperLeft) || k.IsKeyPressed(SilkKey.SuperRight))
+                    m |= InputModifiers.WindowsKey;
             }
 
             mouse ??= FirstMouse();
             if (mouse != null)
             {
-                if (mouse.IsButtonPressed(SilkMouseButton.Left)) m |= InputModifiers.LeftMouse;
-                if (mouse.IsButtonPressed(SilkMouseButton.Right)) m |= InputModifiers.RightMouse;
-                if (mouse.IsButtonPressed(SilkMouseButton.Middle)) m |= InputModifiers.MiddleMouse;
-                if (mouse.IsButtonPressed(SilkMouseButton.Button4)) m |= InputModifiers.XMouse1;
-                if (mouse.IsButtonPressed(SilkMouseButton.Button5)) m |= InputModifiers.XMouse2;
+                if (mouse.IsButtonPressed(SilkMouseButton.Left))
+                    m |= InputModifiers.LeftMouse;
+                
+                if (mouse.IsButtonPressed(SilkMouseButton.Right))
+                    m |= InputModifiers.RightMouse;
+                
+                if (mouse.IsButtonPressed(SilkMouseButton.Middle))
+                    m |= InputModifiers.MiddleMouse;
+                
+                if (mouse.IsButtonPressed(SilkMouseButton.Button4))
+                    m |= InputModifiers.XMouse1;
+                
+                if (mouse.IsButtonPressed(SilkMouseButton.Button5))
+                    m |= InputModifiers.XMouse2;
             }
+            
             return m;
         }
 
-        private IMouse? FirstMouse()
-        {
-            foreach (IMouse mouse in m_context.Mice)
-                return mouse;
-            return null;
-        }
+        private IMouse? FirstMouse() => m_context.Mice.Count > 0 ? m_context.Mice[0] : null;
 
         public void Dispose()
         {
             m_context.ConnectionChanged -= OnConnectionChanged;
-            foreach (IKeyboard keyboard in m_context.Keyboards)
+            foreach (var keyboard in m_context.Keyboards)
             {
                 keyboard.KeyDown -= OnKeyDown;
                 keyboard.KeyUp -= OnKeyUp;
                 keyboard.KeyChar -= OnKeyChar;
             }
-            foreach (IMouse mouse in m_context.Mice)
+            foreach (var mouse in m_context.Mice)
             {
                 mouse.MouseMove -= OnMouseMove;
                 mouse.MouseDown -= OnMouseDown;

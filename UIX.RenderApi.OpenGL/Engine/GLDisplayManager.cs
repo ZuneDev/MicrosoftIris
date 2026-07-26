@@ -33,11 +33,10 @@ namespace Microsoft.Iris.Render.OpenGL
 
         public IDisplay DisplayFromDeviceName(string stDeviceName)
         {
-            foreach (GLDisplay d in m_displays)
-            {
+            foreach (var d in m_displays)
                 if (d.DeviceName == stDeviceName)
                     return d;
-            }
+                
             return PrimaryDisplay;
         }
     }

@@ -55,7 +55,7 @@ namespace Microsoft.Iris.Render.OpenGL
         {
             get
             {
-                foreach (object v in m_values.Values)
+                foreach (var v in m_values.Values)
                 {
                     if (v is GLImage img)
                         return img;

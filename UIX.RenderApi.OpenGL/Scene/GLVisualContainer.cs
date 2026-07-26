@@ -10,15 +10,14 @@ namespace Microsoft.Iris.Render.OpenGL
     public sealed class GLVisualContainer : GLVisual, IVisualContainer
     {
         private readonly List<GLVisual> m_children = new List<GLVisual>();
-        private readonly bool m_isRoot;
 
         public GLVisualContainer(GLRenderSession session, object ownerData, bool isRoot)
             : base(session, ownerData)
         {
-            m_isRoot = isRoot;
+            IsRoot = isRoot;
         }
 
-        public bool IsRoot => m_isRoot;
+        public bool IsRoot { get; }
         public int ChildCount => m_children.Count;
         public ICamera? Camera { get; set; }
 
@@ -52,11 +51,10 @@ namespace Microsoft.Iris.Render.OpenGL
 
         public void RemoveChild(IVisual vChild)
         {
-            if (vChild is GLVisual child && m_children.Remove(child))
-            {
-                child.ParentContainer = null;
-                child.UnregisterUsage(this);
-            }
+            if (vChild is not GLVisual child || !m_children.Remove(child))
+                return;
+            child.ParentContainer = null;
+            child.UnregisterUsage(this);
         }
 
         public void RemoveAllChildren()
@@ -77,7 +75,7 @@ namespace Microsoft.Iris.Render.OpenGL
             // Draw children back-to-front by layer. OrderBy is stable, preserving
             // insertion order within a layer.
             m_children.Sort((a, b) => a.Layer.CompareTo(b.Layer));
-            foreach (GLVisual child in m_children)
+            foreach (var child in m_children)
                 child.Render(renderer, matrix, alpha);
         }
 
@@ -93,7 +91,7 @@ namespace Microsoft.Iris.Render.OpenGL
             m_children.Sort((a, b) => a.Layer.CompareTo(b.Layer));
             for (int i = m_children.Count - 1; i >= 0; i--)
             {
-                GLVisual? hit = m_children[i].HitTest(screenPoint, world);
+                var hit = m_children[i].HitTest(screenPoint, world);
                 if (hit != null)
                     return hit;
             }

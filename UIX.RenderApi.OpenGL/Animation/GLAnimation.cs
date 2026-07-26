@@ -52,7 +52,7 @@ namespace Microsoft.Iris.Render.OpenGL
         public override void Play()
         {
             base.Play();
-            foreach (GLAnimation a in m_members)
+            foreach (var a in m_members)
                 a.Play();
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.Iris.Render.OpenGL
 
         internal override void Advance(int advanceMs)
         {
-            foreach (GLAnimation a in m_members)
+            foreach (var a in m_members)
                 a.Advance(advanceMs);
         }
     }

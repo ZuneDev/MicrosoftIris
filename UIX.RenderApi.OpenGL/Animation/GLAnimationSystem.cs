@@ -36,23 +36,18 @@ namespace Microsoft.Iris.Render.OpenGL
         {
             if (m_paused)
                 return;
-            int scaled = (int)(nAdvanceMs * SpeedAdjustment);
-            foreach (GLAnimation a in m_animations)
-            {
-                if (a.IsPlaying)
-                    a.Advance(scaled);
-            }
+            
+            var scaled = (int)(nAdvanceMs * SpeedAdjustment);
+            StepAnimations(scaled);
         }
 
         public void PauseAnimations() => m_paused = true;
 
         public void StepAnimations(int nAdvanceMs)
         {
-            foreach (GLAnimation a in m_animations)
-            {
+            foreach (var a in m_animations)
                 if (a.IsPlaying)
                     a.Advance(nAdvanceMs);
-            }
         }
 
         public void ResumeAnimations() => m_paused = false;

@@ -9,8 +9,6 @@ namespace Microsoft.Iris.Render.OpenGL
     /// </summary>
     public sealed class GLDisplay : IDisplay
     {
-        private readonly DisplayMode m_mode;
-
         public GLDisplay(IMonitor monitor, bool isPrimary)
         {
             DeviceName = monitor.Name ?? $"Monitor{monitor.Index}";
@@ -21,7 +19,7 @@ namespace Microsoft.Iris.Render.OpenGL
 
             var size = new Size(b.Size.X, b.Size.Y);
             LogicalFullScreenResolution = size;
-            m_mode = new DisplayMode
+            CurrentMode = new DisplayMode
             {
                 sizePhysicalPxl = size,
                 sizeLogicalPxl = size,
@@ -39,11 +37,11 @@ namespace Microsoft.Iris.Render.OpenGL
         public bool TvMode => false;
         public Size LogicalFullScreenResolution { get; }
 
-        public DisplayMode[] SupportedModes => new[] { m_mode };
+        public DisplayMode[] SupportedModes => new[] { CurrentMode };
         public DisplayMode[] ExtraModes => DisplayMode.EmptyModes;
         public DisplayMode[] AllModes => SupportedModes;
-        public DisplayMode CurrentMode => m_mode;
-        public DisplayMode DesktopMode => m_mode;
+        public DisplayMode CurrentMode { get; }
+        public DisplayMode DesktopMode => CurrentMode;
         public string MonitorPnP => DeviceName;
 
         public bool ValidateDisplayMode(
@@ -54,7 +52,7 @@ namespace Microsoft.Iris.Render.OpenGL
             out DisplayModeFlags nCompleteCheck)
         {
             // We only expose the desktop mode, so echo it back as the completed mode.
-            modeComplete = m_mode;
+            modeComplete = CurrentMode;
             nCompleteCheck = nCheck;
             return true;
         }

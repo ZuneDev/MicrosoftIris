@@ -77,16 +77,15 @@ namespace Microsoft.Iris.Render.OpenGL
 
         public void AddGradient(IGradient gradient)
         {
-            if (gradient is GLGradient g)
-            {
-                g.RegisterUsage(this);
-                m_gradients.Add(g);
-            }
+            if (gradient is not GLGradient g)
+                return;
+            g.RegisterUsage(this);
+            m_gradients.Add(g);
         }
 
         public void RemoveAllGradients()
         {
-            foreach (GLGradient g in m_gradients)
+            foreach (var g in m_gradients)
                 g.UnregisterUsage(this);
             m_gradients.Clear();
         }
