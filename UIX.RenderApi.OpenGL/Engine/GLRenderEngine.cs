@@ -85,7 +85,13 @@ namespace Microsoft.Iris.Render.OpenGL
             m_inputTranslator = new GLInputTranslator(m_inputContext, (GLInputSystem)m_session.InputSystem, m_window);
 
             m_windowLoaded.Set();
-            m_window.RaiseLoad();
+            // Do NOT raise Load here: this runs during the engine constructor, before
+            // Microsoft.Iris.Session.Form exists to subscribe to IRenderWindow.LoadEvent
+            // (Form's ctor needs session.GetRenderWindow(), which needs the engine to
+            // already exist). Raising it here means Form's OnRenderWindowLoad -- and the
+            // whole UIForm.OnLoad -> OnInitialize -> Zone/markup chain -- silently never
+            // fires. GLRenderWindow.Initialize() (invoked from Form.InitializeWindow,
+            // which runs after Form has subscribed) raises it at the right time instead.
         }
 
         private void OnRender(double deltaSeconds)
@@ -102,28 +108,54 @@ namespace Microsoft.Iris.Render.OpenGL
                 m_silkWindow.DoRender();
         }
 
-        private bool m_didWork = false;
+        private bool m_didWork = true;
         public bool ProcessNativeEvents()
         {
             m_silkWindow.DoEvents();
-            m_didWork = !m_didWork;
-            return m_didWork;
+            if (!m_didWork)
+                return false;
+
+            m_didWork = false;
+            return true;
         }
+
+        private readonly ManualResetEventSlim m_wakeEvent = new(false);
 
         public void WaitForWork(uint nTimeoutInMsecs)
         {
-            // Cooperative wait: return promptly if another thread requested a wake.
-            uint waited = 0;
-            const uint slice = 5;
-            // while (waited < nTimeoutInMsecs && !m_wakeRequested)
-            // {
-            //     Thread.Sleep((int)Math.Min(slice, nTimeoutInMsecs - waited));
-            //     waited += slice;
-            // }
+            // There's no native message queue to block on here (in-process GL engine),
+            // so approximate the original's SpWaitMessage: block until InterThreadWake
+            // signals us or the timeout elapses, polling Silk's event pump on a short
+            // cadence in between so window/input events aren't starved for the whole
+            // wait. uint.MaxValue is TimeoutManager's "no pending timeout" sentinel
+            // (see TimeoutManager.NextTimeoutMillis) -- treat it as "wait until woken".
+            const int pollSliceMs = 15;
+            long deadline = nTimeoutInMsecs >= int.MaxValue
+                ? long.MaxValue
+                : Environment.TickCount64 + nTimeoutInMsecs;
+
+            while (!m_wakeRequested && Environment.TickCount64 < deadline)
+            {
+                int waitMs = deadline == long.MaxValue
+                    ? pollSliceMs
+                    : (int)Math.Min(pollSliceMs, Math.Max(0, deadline - Environment.TickCount64));
+                m_wakeEvent.Wait(waitMs);
+                m_wakeEvent.Reset();
+                m_silkWindow.DoEvents();
+            }
             m_wakeRequested = false;
+
+            // A wait just completed (woken, timed out, or events were pumped above) --
+            // let the next RPC-priority ProcessNativeEvents call report "did work" once,
+            // so anything newly queued gets processed before the loop tries to sleep again.
+            m_didWork = true;
         }
 
-        public void InterThreadWake() => m_wakeRequested = true;
+        public void InterThreadWake()
+        {
+            m_wakeRequested = true;
+            m_wakeEvent.Set();
+        }
 
         public void FlushBatch() => RenderNow();
 
@@ -141,6 +173,8 @@ namespace Microsoft.Iris.Render.OpenGL
             if (!m_silkWindow.IsClosing)
                 m_silkWindow.Close();
             m_silkWindow.Dispose();
+            m_windowLoaded.Dispose();
+            m_wakeEvent.Dispose();
         }
     }
 }

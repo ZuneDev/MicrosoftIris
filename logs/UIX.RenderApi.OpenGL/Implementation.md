@@ -2,6 +2,112 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-26 — Dispatcher stall FIXED: premature Load event + busy-spin WaitForWork
+
+User report (console ZuneHost on Linux): everything initializes with no errors, but
+the Iris dispatcher only ever processes 2 items total, every other priority queue
+stays empty forever, and the app spins doing nothing (high CPU, no crash, no window
+visible via `wmctrl`).
+
+### Diagnosis method
+
+Static reading first (own pass, not just the earlier Explore-agent summary — verified
+every claim against the actual source before trusting it): read `UIDispatcher`
+(`UIX/Microsoft/Iris/Session/UIDispatcher.cs`), `PriorityQueue`
+(`UIX/Microsoft/Iris/Queues/PriorityQueue.cs`), `UISession.cs`, `Form.cs`, `UIForm.cs`,
+`GLRenderEngine.cs`, `GLRenderWindow.cs`. Then **empirically verified** by temporarily
+instrumenting (`Console.Error.WriteLine`) `Dispatcher.MainLoop`'s per-item dispatch
+(reusing the `debugString` already computed there for `Trace.WriteLine`),
+`UISession.Schedule*`/`Process*`, and `GLRenderEngine.ProcessNativeEvents`/
+`WaitForWork`, then building and running `ZuneHost` under `dotnet build -f net8.0` on
+Linux (Wayland/XWayland desktop, `wmctrl` to check for a mapped window). All temporary
+instrumentation was reverted before the real fix — `git diff` was checked file-by-file
+against pre-existing WIP (`UISession.cs`/`Dispatcher.cs` were untouched otherwise;
+`PriorityQueue.cs` had unrelated pre-existing WIP from a prior session, left alone).
+
+Trace of the very first run confirmed the user's "2 items" exactly:
+```
+[TRACE] dispatch: Microsoft.Iris.UI.UIForm.InitializeWindow
+[TRACE] dispatch: Microsoft.Zune.Shell.StandAlone+<>c.<Startup>b__1_0()
+```
+(the second is the `Windowing.ForceSetForegroundWindow` deferred call queued eagerly
+at `DispatchPriority.Idle` in `StandAlone.Startup`, see [[Windowing]] in the ZuneDBApi
+logs) — then nothing else, ever; `UISession.ScheduleInitialization`/`ScheduleLayout`
+never fired even once.
+
+### Root cause #1 (the actual stall): Load event raised before anyone can hear it
+
+`Form`'s constructor (`UIX/Microsoft/Iris/Session/Form.cs:39`) subscribes
+`InternalWindow.LoadEvent += OnRenderWindowLoad` — but `Form` can only be constructed
+*after* `UISession`'s constructor has already built the render engine
+(`Form(UISession session)` calls `session.GetRenderWindow()`, which needs `_engine` to
+already exist). `GLRenderEngine`'s constructor eagerly did
+`m_silkWindow.Initialize(); m_windowLoaded.Wait();` and its `OnLoad()` handler called
+`m_window.RaiseLoad()` — i.e. the **one-shot** Iris `LoadEvent` was raised and consumed
+during `UISession`'s own constructor, long before `Form` (which lives inside that same
+call chain, but is constructed later, elsewhere in `ZuneApplication.Launch`) ever got a
+chance to subscribe. `Form.InitializeWindow()` (the dispatched item we saw,
+`Form.cs:60`) then called `GLRenderWindow.Initialize()`, which just called
+`m_window.Initialize()` on the *already-initialized* Silk window — a no-op that does
+not re-raise `Load` (Silk doesn't fire `Load` twice). Net effect: `Form.OnRenderWindowLoad`
+→ `UIForm.OnLoad()` → `OnInitialize()` (Zone/markup construction, the thing that calls
+`UISession.ScheduleUiTask(Initialization)` and kicks off Layout/Render) **never runs**.
+No exception anywhere, matching "everything initializes with success."
+
+Fix: stopped raising `LoadEvent` from `GLRenderEngine.OnLoad()` (still does all the real
+GL/device/session setup there, just not the Iris-level notification). Moved the
+`RaiseLoad()` call into `GLRenderWindow.Initialize()` (`UIX.RenderApi.OpenGL/Engine/GLRenderWindow.cs`),
+which is what `Form.InitializeWindow` calls, i.e. exactly the point where `Form` has
+already subscribed. Removed the now-redundant/harmful second `m_window.Initialize()`
+call there (window+GL context already exist by construction time); `Initialize()` now
+just applies the requested `InitialClientSize` and raises `Load`.
+
+**Verified**: rebuilt, reran — the dispatch chain now reaches all the way into
+`UIForm.OnLoad() → Graphic.EnsureFallbackImages() → ... → ExtensionsApi.SpBitmapLoadBuffer`
+(full stack trace observed), i.e. far past where it used to permanently stall. It then
+throws `DllNotFoundException` for `UIXRender.dll`/`libUIXRender.dll` — a **separate,
+pre-existing, unrelated** gap: `Microsoft.Iris.Render.Extensions.ExtensionsApi` has
+several unconditional `[DllImport("UIXRender.dll")]` declarations (bitmap
+load/decode) left over from stage-1 decompilation that were never ported for
+non-Windows (no `#if WINDOWS` gate, no managed fallback). Out of scope for this fix —
+flagged here as the next blocker for anyone continuing this thread; needs a stage-2
+managed image-decoding path (e.g. `System.Drawing`-free decoder or `SixLabors.ImageSharp`)
+behind the same abstraction, TODO.
+
+### Root cause #2 (independent, would matter once #1 is fixed further): busy-spin idle wait
+
+`UIDispatcher`'s `Sleep`-priority drain hook (`WaitForWork`, `UIDispatcher.cs:279-297`)
+always reports `didWork = true` (by design — it's supposed to represent "we did some
+waiting") and always calls `UISession.WaitForWork(nextTimeoutMillis)` when there's no
+pending timeout to process immediately. `TimeoutManager.NextTimeoutMillis` returns
+`uint.MaxValue` as its "no pending timeout" sentinel (`TimeoutManager.cs:36`) — verified
+this is exactly the value observed at runtime (`4294967295`). Because `didWork` is
+always `true` here, `PriorityQueue.GetNextItemWorker` restarts its scan from the top
+every single call (`PriorityQueue.cs`, drain-hook-did-work branch) — this is correct
+*only if* the engine's `WaitForWork` actually blocks for a while first. `GLRenderEngine`'s
+`WaitForWork(uint)` (`UIX.RenderApi.OpenGL/Engine/GLRenderEngine.cs`) had its real wait
+loop commented out and returned instantly. Combined with `ProcessNativeEvents`'s
+one-shot `m_didWork` latch (`true` exactly once, `false` forever after — never reset),
+the loop bounces `RPC → Sleep → RPC → Sleep → …` at native speed: confirmed **~90% CPU
+on the main thread** via `ps -T` before the fix (all other threads idle), with no
+window ever appearing in `wmctrl -l`.
+
+Fix: `WaitForWork` now does a real bounded wait using a `ManualResetEventSlim`
+(`m_wakeEvent`), polling `m_silkWindow.DoEvents()` every ~15ms so window/input events
+aren't starved during a long/indefinite wait, and treating `nTimeoutInMsecs >=
+int.MaxValue` as "wait until `InterThreadWake` signals us" (matches the
+`uint.MaxValue` sentinel). At the end of a wait it sets `m_didWork = true` again so the
+next `ProcessNativeEvents` call reports "did work" once per wait cycle — restoring the
+intended `SpPeekMessage`/`SpWaitMessage`-style rhythm (pump once, then actually sleep)
+instead of a permanent one-shot. `InterThreadWake()` now signals the same event.
+
+This part is code-reviewed but not empirically observed in a steady idle state in this
+session — the run above hits the `UIXRender.dll` crash (root cause above) before the
+dispatcher ever reaches genuine idle, so there was no window to watch spin at 0% CPU.
+Logic re-verified by inspection (bounded `ManualResetEventSlim.Wait` per 15ms slice,
+real blocking primitive, no remaining unconditional-instant-return path). Worth a
+follow-up empirical check once the image-loading blocker above is resolved.
+
 ## 2026-07-25 — Animation curve formulas RECOVERED from native (Ghidra)
 
 Resolves the "unverifiable — the real curves/formulas run in native code" caveat

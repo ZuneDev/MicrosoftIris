@@ -121,10 +121,15 @@ namespace Microsoft.Iris.Render.OpenGL
         // ---- Methods -------------------------------------------------------------
         public void Initialize()
         {
-            // Creates the OS window + GL context; Silk raises Load, which the engine
-            // handles to build the GL device and then re-raises LoadEvent.
+            // Called from Microsoft.Iris.Session.Form.InitializeWindow, which Form posts
+            // from its own constructor -- i.e. after Form has already subscribed to
+            // LoadEvent. The Silk window + GL context were already created (and Silk's
+            // own Load already fired once) by GLRenderEngine's constructor, so we must
+            // NOT call m_window.Initialize() again here (Silk doesn't re-raise Load on a
+            // second call). Apply the requested initial size and raise Iris's LoadEvent
+            // ourselves, now that someone is listening for it.
             m_window.Size = new Vector2D<int>(m_initialClientSize.Width, m_initialClientSize.Height);
-            m_window.Initialize();
+            RaiseLoad();
         }
 
         public void SetIcon(string sModuleName, uint nResourceID, IconFlags nOptions) { /* TODO(stage 3): load icon */ }
