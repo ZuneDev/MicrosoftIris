@@ -158,14 +158,16 @@ namespace Microsoft.Iris.Session
 
         public override string ToDebugPacketString()
         {
-            string packetString = _target?.Target == null
+            if (_target.Target is DeferredInvokeProxy deferredInvokeProxy)
+                return $"{deferredInvokeProxy}({_param})";
+            
+            var packetString = _target?.Target == null
                 ? string.Empty
                 : $"{_target.Target}.";
 
             packetString += _target switch
             {
                 SimpleCallback simpleCallback => simpleCallback.Method.Name,
-                DeferredHandler deferredHandler => $"{deferredHandler.Method.Name}({_param})",
                 EventHandler eventHandler => $"{eventHandler.Method.Name}({_param}, {_args})",
                 _ when _param is IDeferredInvokeItem deferredInvokeItem => deferredInvokeItem.ToString(),
 

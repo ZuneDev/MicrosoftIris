@@ -10,13 +10,17 @@ namespace Microsoft.Iris
 {
     internal class DeferredInvokeProxy
     {
-        private DeferredInvokeHandler _method;
+        private readonly DeferredInvokeHandler _method;
 
-        public static DeferredHandler Thunk(DeferredInvokeHandler method) => new DeferredHandler(new DeferredInvokeProxy()
+        private DeferredInvokeProxy(DeferredInvokeHandler method)
         {
-            _method = method
-        }.Thunk);
+            _method = method;
+        }
+
+        public static DeferredHandler Thunk(DeferredInvokeHandler method) => new DeferredInvokeProxy(method).Thunk;
 
         private void Thunk(object args) => _method(args);
+
+        public override string ToString() => $"{_method.Method.DeclaringType?.FullName}.{_method.Method.Name}";
     }
 }
