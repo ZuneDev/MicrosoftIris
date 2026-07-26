@@ -246,6 +246,15 @@ namespace Microsoft.Iris.Session
             DeferredCall.Post(DispatchPriority.RenderSync, _syncWindowHandler);
         }
 
+        public void ForceSetForegroundWindow(IntPtr hwnd)
+        {
+#if WINDOWS
+            // TODO: See logs/Microsoft.Zune/Util/Windowing.md, requires Win32 calls
+#else
+            _engine.Window.TakeForeground(true);
+#endif
+        }
+
         private void SyncWindowHandler()
         {
             _syncWindowPending = false;

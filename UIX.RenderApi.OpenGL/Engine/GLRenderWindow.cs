@@ -148,9 +148,9 @@ namespace Microsoft.Iris.Render.OpenGL
         public void ForceMouseIdle(bool fIdle) => MouseIdleEvent?.Invoke(fIdle);
         public void LockMouseActive(bool fActive) { }
         public void RefreshHitTarget() { }
-        public void TakeFocus() { }
-        public void TakeForeground(bool fForce) { }
-        public void BringToTop() { }
+        public void TakeFocus() => m_window.Focus();
+        public void TakeForeground(bool fForce) => TakeFocus();
+        public void BringToTop() => TakeFocus();
         public void Restore() => WindowState = WindowState.Normal;
         public void TemporarilyExitExclusiveMode() { }
 
