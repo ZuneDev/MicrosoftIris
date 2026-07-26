@@ -30,6 +30,8 @@ namespace Microsoft.Iris.Render.OpenGL
         private GraphicsRenderingQuality m_quality;
         private SoundDeviceType m_soundType;
         private volatile bool m_wakeRequested;
+        
+        private readonly ManualResetEventSlim m_windowLoaded = new(false);
 
         public GLRenderEngine(EngineInfo engineInfo, IRenderHost renderHost)
         {
@@ -47,6 +49,9 @@ namespace Microsoft.Iris.Render.OpenGL
             m_window = new GLRenderWindow(m_silkWindow, m_session);
 
             m_silkWindow.Load += OnLoad;
+            m_silkWindow.Initialize();
+            m_windowLoaded.Wait();
+            
             m_silkWindow.Render += OnRender;
             m_silkWindow.Resize += _ => m_window.RaiseResize();
             m_silkWindow.Move += _ => m_window.RaiseMove();
@@ -71,15 +76,15 @@ namespace Microsoft.Iris.Render.OpenGL
 
         private void OnLoad()
         {
-            m_gl = GL.GetApi(m_silkWindow);
+            m_gl = m_silkWindow.CreateOpenGL();
             m_renderer = new SceneRenderer(m_gl);
             m_displayManager = new GLDisplayManager(m_silkWindow);
             m_session.GraphicsDevice = new GLGraphicsDevice(m_gl, m_quality, RenderNow);
             m_session.SoundDevice = new GLSoundDevice(m_soundType);
-
             m_inputContext = m_silkWindow.CreateInput();
             m_inputTranslator = new GLInputTranslator(m_inputContext, (GLInputSystem)m_session.InputSystem, m_window);
 
+            m_windowLoaded.Set();
             m_window.RaiseLoad();
         }
 
