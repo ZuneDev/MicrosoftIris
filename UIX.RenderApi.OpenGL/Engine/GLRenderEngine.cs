@@ -102,10 +102,12 @@ namespace Microsoft.Iris.Render.OpenGL
                 m_silkWindow.DoRender();
         }
 
+        private bool m_didWork = false;
         public bool ProcessNativeEvents()
         {
             m_silkWindow.DoEvents();
-            return !m_silkWindow.IsClosing;
+            m_didWork = !m_didWork;
+            return m_didWork;
         }
 
         public void WaitForWork(uint nTimeoutInMsecs)
@@ -113,11 +115,11 @@ namespace Microsoft.Iris.Render.OpenGL
             // Cooperative wait: return promptly if another thread requested a wake.
             uint waited = 0;
             const uint slice = 5;
-            while (waited < nTimeoutInMsecs && !m_wakeRequested)
-            {
-                Thread.Sleep((int)Math.Min(slice, nTimeoutInMsecs - waited));
-                waited += slice;
-            }
+            // while (waited < nTimeoutInMsecs && !m_wakeRequested)
+            // {
+            //     Thread.Sleep((int)Math.Min(slice, nTimeoutInMsecs - waited));
+            //     waited += slice;
+            // }
             m_wakeRequested = false;
         }
 

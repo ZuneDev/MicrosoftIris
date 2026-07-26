@@ -35,7 +35,14 @@ namespace Microsoft.Iris.Debug
             if (s_isInitialized)
                 return;
             s_isInitialized = true;
+#if WINDOWS
             NativeApi.SpInitializeTracing();
+#endif
+            
+#if DEBUG
+            EnableAllCategories(true);
+#endif
+            
             TraceSettings.Current.Refresh();
             TraceSettings.Current.ListenForRegistryUpdates();
         }
@@ -45,7 +52,9 @@ namespace Microsoft.Iris.Debug
             if (!s_isInitialized)
                 return;
             TraceSettings.Current.StopListeningForRegistryUpdates();
+#if WINDOWS
             NativeApi.SpUninitializeTracing();
+#endif
             s_isInitialized = false;
         }
 

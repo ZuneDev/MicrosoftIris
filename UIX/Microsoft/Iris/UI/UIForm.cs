@@ -51,10 +51,16 @@ namespace Microsoft.Iris.UI
             _preventInterruption = false;
             UpdateStyles();
             SetWindowOptions(WindowOptions.FreeformResize, true);
+            
+#if WINDOWS
+            // Sets up callbacks for accessibility proxy
             _notificationCallback = new NativeApi.NotifyWindowCallback(OnNotifyCallback);
             IntPtr handle;
             RendererApi.IFC(NativeApi.SpCreateNotifyWindow(out handle, _notificationCallback));
             AppNotifyWindow = handle;
+#else
+            // TODO: How to implement accessibility for non-Windows targets?
+#endif
         }
 
         private void OnInitialize()

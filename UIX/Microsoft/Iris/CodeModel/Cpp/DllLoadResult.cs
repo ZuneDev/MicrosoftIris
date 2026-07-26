@@ -30,7 +30,12 @@ namespace Microsoft.Iris.CodeModel.Cpp
         public static void Startup()
         {
             DllLoadResultFactory.Startup();
+            
+#if WINDOWS
+            // TODO: Is this necessary if the render engine is implemented in C#?
             DllProxyServices.Startup();
+#endif
+            
             LoadIntrinsicTypeData();
         }
 

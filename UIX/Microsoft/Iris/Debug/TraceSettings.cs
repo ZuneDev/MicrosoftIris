@@ -46,7 +46,10 @@ namespace Microsoft.Iris.Debug
         public void Refresh()
         {
             s_debugTraceFile = Environment.GetEnvironmentVariable("SPLASH_TRACE_FILE");
+#if WINDOWS
             NativeApi.SpUpdateTraceSettings(s_debugTraceFile, string.Empty, true, false, false);
+#endif
+            // TODO: Persist trace settings for non-Windows targets
         }
 
         public byte GetCategoryLevel(TraceCategory cat)

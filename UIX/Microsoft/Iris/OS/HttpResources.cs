@@ -19,14 +19,20 @@ namespace Microsoft.Iris.OS
         {
             ResourceManager.Instance.RegisterSource("http", s_instance);
             ResourceManager.Instance.RegisterSource("https", s_instance);
+            
+            #if WINDOWS
             NativeApi.SpHttpStartup();
+            #endif
         }
 
         public static void Shutdown()
         {
             if (s_activationChangeHandler != null)
                 UISession.Default.Form.ActivationChange -= s_activationChangeHandler;
+            
+            #if WINDOWS
             NativeApi.SpHttpShutdown();
+            #endif
         }
 
         private static void OnActivationChanged(object sender, EventArgs args) => NativeApi.SpHttpFlushProxyCache();
