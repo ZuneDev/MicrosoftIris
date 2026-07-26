@@ -13,17 +13,23 @@ namespace Microsoft.Iris.Render.OpenGL
     public sealed class GLRenderWindow : IRenderWindow
     {
         private readonly SilkWindow m_window;
+        private readonly GLRenderSession m_session;
         private readonly GLVisualContainer m_root;
         private Size m_initialClientSize = new Size(1024, 768);
 
         public GLRenderWindow(SilkWindow window, GLRenderSession session)
         {
             m_window = window;
+            m_session = session;
             m_root = new GLVisualContainer(session, null!, isRoot: true);
             m_root.RegisterUsage(this);
         }
 
         internal GLVisualContainer Root => m_root;
+
+        /// <summary>Frontmost hittable visual under a client-space point, or null.</summary>
+        internal GLVisual? HitTest(Vector2D<float> clientPoint)
+            => m_root.HitTest(new Vector2(clientPoint.X, clientPoint.Y), Matrix4X4<float>.Identity);
 
         // ---- Geometry ------------------------------------------------------------
         public int Left => m_window.Position.X;
@@ -125,7 +131,8 @@ namespace Microsoft.Iris.Render.OpenGL
         public void SetEdgeImages(bool fActiveEdges, ShadowEdgePart[] edges) { /* TODO(stage 3): window shadow edges */ }
         public void SetWindowOptions(WindowOptions options, bool enable) { /* TODO(stage 3): map to Silk window flags */ }
         public void SetMouseIdleOptions(Size sizeMouseIdleTolerance, uint nMouseIdleDelay) { }
-        public void SetCapture(IRawInputSite captureSite, bool state) { }
+        public void SetCapture(IRawInputSite captureSite, bool state)
+            => ((GLInputSystem)m_session.InputSystem).CaptureSite = state ? captureSite : null;
         public void SetDragDropResult(uint nDragOverResult, uint nDragDropResult) { }
 
         public void ClientToScreen(ref Point point)

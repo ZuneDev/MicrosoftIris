@@ -2,6 +2,39 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-25 — Input-event translation (Silk.NET.Input)
+
+Wired real keyboard/mouse input via `GLInputTranslator`, created by the engine on
+window Load from `IWindow.CreateInput()`. It hooks every keyboard/mouse (and new
+devices via `ConnectionChanged`) and dispatches to the registered
+`IRawInputCallbacks`.
+
+Message-id conventions were confirmed by reading the UIX consumer, not guessed:
+- Keyboard (`KeyboardDevice.OnRawInput`): the `message` is the `KeyboardMessageId`
+  ordinal — 0 Down, 1 Up, 2 Char, 3 SysDown, 4 SysUp, 5 SysChar. We emit Sys*
+  variants while Alt is held. Character events put the char in
+  `RawKeyboardData._virtualKey` (matches `OnRawKeyCharacter`'s `(char)_virtualKey`).
+- Mouse (`MouseDevice.OnRawInput`): the `message` is the Win32 `WM_*` code
+  (0x200 move, 0x201/0x202 L down/up, 0x204/5 R, 0x207/8 M, 0x20A wheel,
+  0x20B-D X buttons, dblclk variants 0x203/6/9/20D). Wheel delta is `scroll.Y*120`.
+
+`InputModifiers` is computed from live Silk key/button state each event. Silk
+`Key` → Iris `Keys` (Win32 VK) mapping uses contiguous-range arithmetic for
+A–Z / 0–9 / Keypad / F-keys plus an explicit table for the rest; unmapped → None.
+
+Hit-testing: added `GLVisual.HitTest` (frontmost-first, honoring `Visible` and
+`MouseOptions.Hittable`) so `RawMouseData._visNatural` is the visual under the
+cursor. `_visCapture` is the `SetCapture` site when set (now stored on
+`GLInputSystem.CaptureSite`), else the natural target. Screen<->local uses the
+inverse of the visual's world matrix (same row-vector convention as rendering).
+
+TODOs (still stage-3): HID/AppCommand (media/remote) and drag/drop translation are
+not sourced from Silk yet; `_repCount` is a simple per-key press counter; keyboard
+`_flags` is 0.
+
+Validated the same way as before (compile against the prebuilt `UIX.RenderApi.dll`
++ Silk.NET, incl. Silk.NET.Input) — build succeeded.
+
 ## 2026-07-25 — Initial in-process OpenGL renderer
 
 ### Goal

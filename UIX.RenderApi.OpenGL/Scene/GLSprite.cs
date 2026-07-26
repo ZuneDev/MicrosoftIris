@@ -57,5 +57,13 @@ namespace Microsoft.Iris.Render.OpenGL
                     renderer.DrawColoredQuad(matrix, Size.X, Size.Y, c, alpha);
             }
         }
+
+        internal override GLVisual? HitTest(Vector2 screenPoint, Matrix4X4<float> parentMatrix)
+        {
+            if (!Visible || (MouseOptions & MouseOptions.Hittable) == 0)
+                return null;
+            Matrix4X4<float> world = LocalMatrix * parentMatrix;
+            return ContainsPoint(screenPoint, world) ? this : null;
+        }
     }
 }

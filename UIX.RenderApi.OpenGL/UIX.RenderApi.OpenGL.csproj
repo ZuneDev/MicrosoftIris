@@ -8,35 +8,20 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
-
-        <!-- The task requires targeting both modern .NET and .NET Framework 4.8.
-             net48 only builds on Windows in this repo (the projects we reference,
-             e.g. UIX.RenderApi, only produce their netfx output there — see the
-             MicrosoftIris Directory.Build.props and the note in ZuneDBApi/CLAUDE.md
-             that "on Linux only net8.0 TFMs build"). We mirror that so the project
-             stays buildable on both hosts. -->
-        <TargetFrameworks>net8.0</TargetFrameworks>
-        <TargetFrameworks Condition=" $([MSBuild]::IsOsPlatform('Windows')) ">net8.0;net48</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- We only implement the interfaces defined in UIX.RenderApi; per the task we
-             must not modify that project, so this is a plain reference. -->
         <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+        
         <!-- Silk.NET provides the windowing/GL/input abstractions and OpenGL bindings.
              The meta-packages register the GLFW/SDL backends automatically. -->
-        <PackageReference Include="Silk.NET.Windowing" Version="2.21.0" />
-        <PackageReference Include="Silk.NET.Input" Version="2.21.0" />
-        <PackageReference Include="Silk.NET.OpenGL" Version="2.21.0" />
-        <PackageReference Include="Silk.NET.Maths" Version="2.21.0" />
+        <PackageReference Include="Silk.NET.Windowing" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
-        <!-- PolySharp backfills modern C# language features (init accessors,
-             nullable attributes, records, etc.) for the netfx target. -->
         <PackageReference Include="PolySharp" Version="1.16.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

@@ -81,6 +81,30 @@ namespace Microsoft.Iris.Render.OpenGL
                 child.Render(renderer, matrix, alpha);
         }
 
+        internal override GLVisual? HitTest(Vector2 screenPoint, Matrix4X4<float> parentMatrix)
+        {
+            if (!Visible)
+                return null;
+
+            Matrix4X4<float> world = LocalMatrix * parentMatrix;
+
+            // Children draw ascending by layer (back-to-front), so the frontmost hit is
+            // found by testing in reverse order.
+            m_children.Sort((a, b) => a.Layer.CompareTo(b.Layer));
+            for (int i = m_children.Count - 1; i >= 0; i--)
+            {
+                GLVisual? hit = m_children[i].HitTest(screenPoint, world);
+                if (hit != null)
+                    return hit;
+            }
+
+            // Otherwise the container itself, if it is hittable and has extent.
+            if ((MouseOptions & MouseOptions.Hittable) != 0 && ContainsPoint(screenPoint, world))
+                return this;
+
+            return null;
+        }
+
         protected override void DisposeCore() => RemoveAllChildren();
     }
 }

@@ -116,5 +116,25 @@ namespace Microsoft.Iris.Render.OpenGL
 
         /// <summary>Draw this visual (and its subtree) with the accumulated parent transform.</summary>
         internal abstract void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha);
+
+        /// <summary>
+        /// Return the frontmost hittable visual under <paramref name="screenPoint"/>
+        /// (client pixel space), or null. <paramref name="parentMatrix"/> is the
+        /// accumulated transform of this visual's parent.
+        /// </summary>
+        internal abstract GLVisual? HitTest(Vector2 screenPoint, Matrix4X4<float> parentMatrix);
+
+        /// <summary>Is the client-space point inside this visual's local quad?</summary>
+        private protected bool ContainsPoint(Vector2 screenPoint, Matrix4X4<float> worldMatrix)
+        {
+            if (Size.X <= 0f || Size.Y <= 0f)
+                return false;
+            if (!Matrix4X4.Invert(worldMatrix, out Matrix4X4<float> inverse))
+                return false;
+            // Our world matrix maps local -> screen as (local * world) under the
+            // renderer's convention, so the inverse maps screen -> local the same way.
+            Vector3D<float> local = Vector3D.Transform(new Vector3D<float>(screenPoint.X, screenPoint.Y, 0f), inverse);
+            return local.X >= 0f && local.X <= Size.X && local.Y >= 0f && local.Y <= Size.Y;
+        }
     }
 }

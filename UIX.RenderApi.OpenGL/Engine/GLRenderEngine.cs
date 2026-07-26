@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -23,6 +24,8 @@ namespace Microsoft.Iris.Render.OpenGL
         private GL? m_gl;
         private SceneRenderer? m_renderer;
         private GLDisplayManager? m_displayManager;
+        private IInputContext? m_inputContext;
+        private GLInputTranslator? m_inputTranslator;
 
         private GraphicsRenderingQuality m_quality;
         private SoundDeviceType m_soundType;
@@ -73,6 +76,10 @@ namespace Microsoft.Iris.Render.OpenGL
             m_displayManager = new GLDisplayManager(m_silkWindow);
             m_session.GraphicsDevice = new GLGraphicsDevice(m_gl, m_quality, RenderNow);
             m_session.SoundDevice = new GLSoundDevice(m_soundType);
+
+            m_inputContext = m_silkWindow.CreateInput();
+            m_inputTranslator = new GLInputTranslator(m_inputContext, (GLInputSystem)m_session.InputSystem, m_window);
+
             m_window.RaiseLoad();
         }
 
@@ -121,6 +128,7 @@ namespace Microsoft.Iris.Render.OpenGL
 
         public void Dispose()
         {
+            m_inputTranslator?.Dispose();
             m_renderer?.Dispose();
             m_session.Dispose();
             if (!m_silkWindow.IsClosing)
