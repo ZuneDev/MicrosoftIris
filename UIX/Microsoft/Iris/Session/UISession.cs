@@ -15,6 +15,7 @@ using Microsoft.Iris.Render;
 using Microsoft.Iris.RenderAPI.Audio;
 using Microsoft.Iris.UI;
 using System;
+using Microsoft.Iris.Render.OpenGL;
 
 namespace Microsoft.Iris.Session
 {
@@ -68,10 +69,14 @@ namespace Microsoft.Iris.Session
             int pdwDefaultLayout = 0;
             Win32Api.IFWIN32(Win32Api.GetProcessDefaultLayout(out pdwDefaultLayout));
             _rtl = pdwDefaultLayout == 1;
+
+            _engine = RenderApi.CreateEngine(IrisEngineInfo.CreateLocal(), Dispatcher);
 #else
             _rtl = false;
+            
+            _engine = OpenGLRenderApi.CreateEngine(IrisEngineInfo.CreateLocal(), Dispatcher);
 #endif
-            _engine = RenderApi.CreateEngine(IrisEngineInfo.CreateLocal(), Dispatcher);
+            
             _session = _engine.Session;
             TextImageCache.Initialize(this);
             ScavengeImageCache.Initialize(this);

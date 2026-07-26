@@ -10,7 +10,7 @@ namespace Microsoft.Iris.Render.OpenGL
     public static class OpenGLRenderApi
     {
         /// <summary>Create an OpenGL render engine for the given Iris engine info.</summary>
-        public static IRenderEngine CreateEngine(IrisEngineInfo engineInfo, IRenderHost renderHost)
+        public static IRenderEngine CreateEngine(EngineInfo engineInfo, IRenderHost renderHost)
         {
             // Explicit null checks (not ArgumentNullException.ThrowIfNull, which is net6+
             // and does not exist on the net48 target).

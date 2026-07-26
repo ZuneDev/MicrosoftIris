@@ -31,7 +31,7 @@ namespace Microsoft.Iris.Render.OpenGL
         private SoundDeviceType m_soundType;
         private volatile bool m_wakeRequested;
 
-        public GLRenderEngine(IrisEngineInfo engineInfo, IRenderHost renderHost)
+        public GLRenderEngine(EngineInfo engineInfo, IRenderHost renderHost)
         {
             m_host = renderHost;
 
