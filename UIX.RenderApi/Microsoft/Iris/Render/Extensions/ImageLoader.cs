@@ -13,11 +13,8 @@ namespace Microsoft.Iris.Render.Extensions
 {
     public static class ImageLoader
     {
-        public static bool LoadHeader(IntPtr rgData, int length, out ImageHeader header)
-        {
-            ImageRequirements req = new ImageRequirements();
-            return LoadHeader(rgData, length, req, out header);
-        }
+        public static bool LoadHeader(IntPtr rgData, int length, out ImageHeader header) =>
+            LoadHeader(rgData, length, new ImageRequirements(), out header);
 
         public static bool LoadHeader(
           IntPtr rgData,
@@ -28,21 +25,24 @@ namespace Microsoft.Iris.Render.Extensions
             Debug2.Validate(rgData != IntPtr.Zero, typeof(ArgumentNullException), "Must provide valid data to load");
             Debug2.Validate(length > 0, typeof(ArgumentOutOfRangeException), "Must provide non-zero length data to load");
             Debug2.Validate(req != null, typeof(ArgumentNullException), "Must provide valid ImageRequirements");
-            ExtensionsApi.BitmapOptions nOptions = ExtensionsApi.BitmapOptions.None;
-            BitmapInformation bitmapInformation = new BitmapInformation();
-            HRESULT hresult = new HRESULT(-1);
+
+            var bitmapInformation = new BitmapInformation();
+            var hresult = new HRESULT(-1);
+            
             try
             {
-                hresult = ExtensionsApi.SpBitmapLoadBuffer(rgData, (uint)length, req, nOptions, out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
-                if (!hresult.IsSuccess())
-                    header = new ImageHeader();
-                else
-                    header = bitmapInformation.imageInfo.Header;
+                hresult = ExtensionsApi.SpBitmapLoadBuffer(rgData, (uint)length, req, ExtensionsApi.BitmapOptions.None,
+                    out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+                
+                header = !hresult.IsSuccess()
+                    ? new ImageHeader()
+                    : bitmapInformation.imageInfo.Header;
             }
             finally
             {
                 bitmapInformation.Dispose();
             }
+            
             return hresult.IsSuccess();
         }
 
@@ -57,23 +57,35 @@ namespace Microsoft.Iris.Render.Extensions
           out BitmapInformation bitmapInfo)
         {
             Debug2.Validate(image != null, typeof(ArgumentNullException), "Image must be valid");
-            ImageRequirements req = new ImageRequirements();
-            req.BorderWidth = borderWidth;
-            req.BorderColor = borderColor;
-            req.Flippable = flipRTL;
-            req.AntialiasEdges = antialiasEdges;
-            req.MaximumSize = maxSize;
-            ExtensionsApi.BitmapOptions nOptions = ExtensionsApi.BitmapOptions.Decode;
+            var req = new ImageRequirements
+            {
+                BorderWidth = borderWidth,
+                BorderColor = borderColor,
+                Flippable = flipRTL,
+                AntialiasEdges = antialiasEdges,
+                MaximumSize = maxSize
+            };
+            
+            var nOptions = ExtensionsApi.BitmapOptions.Decode;
             if (flipRTL)
                 nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            BitmapInformation bitmapInformation = new BitmapInformation();
-            if (!ExtensionsApi.SpBitmapLoadFile(filename, req, nOptions, out bitmapInformation.hBitmap, out bitmapInformation.imageInfo).IsSuccess())
+            
+            var bitmapInformation = new BitmapInformation();
+            var hresult = ExtensionsApi.SpBitmapLoadFile(filename, req, nOptions,
+                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
                 return false;
             }
-            bool flag = image.LoadContent(SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat), bitmapInformation.imageInfo.Header.sizeActualPxl, bitmapInformation.imageInfo.Header.nStride, bitmapInformation.imageInfo.Data.rgData);
-            if (flag)
+
+            var loadSuccess = image.LoadContent(
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
+                bitmapInformation.imageInfo.Header.sizeActualPxl,
+                bitmapInformation.imageInfo.Header.nStride,
+                bitmapInformation.imageInfo.Data.rgData);
+            
+            if (loadSuccess)
             {
                 bitmapInfo = bitmapInformation;
             }
@@ -82,7 +94,8 @@ namespace Microsoft.Iris.Render.Extensions
                 bitmapInfo = null;
                 bitmapInformation.Dispose();
             }
-            return flag;
+            
+            return loadSuccess;
         }
 
         public static bool FromResource(
@@ -97,29 +110,42 @@ namespace Microsoft.Iris.Render.Extensions
           out BitmapInformation bitmapInfo)
         {
             Debug2.Validate(image != null, typeof(ArgumentNullException), "Image must be valid");
-            ImageRequirements req = new ImageRequirements();
-            req.BorderWidth = borderWidth;
-            req.BorderColor = borderColor;
-            req.Flippable = flipRTL;
-            req.AntialiasEdges = antialiasEdges;
-            req.MaximumSize = maxSize;
-            Win32Api.HINSTANCE hinst = ModuleManager.Instance.LoadModule(moduleName);
+            var req = new ImageRequirements
+            {
+                BorderWidth = borderWidth,
+                BorderColor = borderColor,
+                Flippable = flipRTL,
+                AntialiasEdges = antialiasEdges,
+                MaximumSize = maxSize
+            };
+            
+            var hinst = ModuleManager.Instance.LoadModule(moduleName);
             if (hinst == Win32Api.HINSTANCE.NULL)
             {
                 bitmapInfo = null;
                 return false;
             }
-            ExtensionsApi.BitmapOptions nOptions = ExtensionsApi.BitmapOptions.Decode;
+            
+            var nOptions = ExtensionsApi.BitmapOptions.Decode;
             if (flipRTL)
                 nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            BitmapInformation bitmapInformation = new BitmapInformation();
-            if (!ExtensionsApi.SpBitmapLoadResource(hinst, resourceID, 10, req, nOptions, out bitmapInformation.hBitmap, out bitmapInformation.imageInfo).IsSuccess())
+            
+            var bitmapInformation = new BitmapInformation();
+            var hresult = ExtensionsApi.SpBitmapLoadResource(hinst, resourceID, 10, req, nOptions,
+                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            if (hresult.IsError())
             {
                 bitmapInfo = null;
                 return false;
             }
-            bool flag = image.LoadContent(SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat), bitmapInformation.imageInfo.Header.sizeActualPxl, bitmapInformation.imageInfo.Header.nStride, bitmapInformation.imageInfo.Data.rgData);
-            if (flag)
+            
+            var loadSuccess = image.LoadContent(
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
+                bitmapInformation.imageInfo.Header.sizeActualPxl,
+                bitmapInformation.imageInfo.Header.nStride,
+                bitmapInformation.imageInfo.Data.rgData);
+            
+            if (loadSuccess)
             {
                 bitmapInfo = bitmapInformation;
             }
@@ -128,7 +154,8 @@ namespace Microsoft.Iris.Render.Extensions
                 bitmapInfo = null;
                 bitmapInformation.Dispose();
             }
-            return flag;
+            
+            return loadSuccess;
         }
 
         public static bool FromBuffer(
@@ -144,23 +171,35 @@ namespace Microsoft.Iris.Render.Extensions
         {
             Debug2.Validate(image != null, typeof(ArgumentNullException), "Image must be valid");
             Debug2.Validate(length > 0, typeof(ArgumentException), "Do not call for zero-length buffer");
-            ImageRequirements req = new ImageRequirements();
-            req.BorderWidth = borderWidth;
-            req.BorderColor = borderColor;
-            req.Flippable = flipRTL;
-            req.AntialiasEdges = antialiasEdges;
-            req.MaximumSize = maxSize;
-            ExtensionsApi.BitmapOptions nOptions = ExtensionsApi.BitmapOptions.Decode;
+            var req = new ImageRequirements
+            {
+                BorderWidth = borderWidth,
+                BorderColor = borderColor,
+                Flippable = flipRTL,
+                AntialiasEdges = antialiasEdges,
+                MaximumSize = maxSize
+            };
+            
+            var nOptions = ExtensionsApi.BitmapOptions.Decode;
             if (flipRTL)
                 nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            BitmapInformation bitmapInformation = new BitmapInformation();
-            if (!ExtensionsApi.SpBitmapLoadBuffer(buffer, (uint)length, req, nOptions, out bitmapInformation.hBitmap, out bitmapInformation.imageInfo).IsSuccess())
+            
+            var bitmapInformation = new BitmapInformation();
+            var hresult = ExtensionsApi.SpBitmapLoadBuffer(buffer, (uint)length, req, nOptions,
+                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
                 return false;
             }
-            bool flag = image.LoadContent(SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat), bitmapInformation.imageInfo.Header.sizeActualPxl, bitmapInformation.imageInfo.Header.nStride, bitmapInformation.imageInfo.Data.rgData);
-            if (flag)
+            
+            var loadSuccess = image.LoadContent(
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
+                bitmapInformation.imageInfo.Header.sizeActualPxl,
+                bitmapInformation.imageInfo.Header.nStride,
+                bitmapInformation.imageInfo.Data.rgData);
+            
+            if (loadSuccess)
             {
                 bitmapInfo = bitmapInformation;
             }
@@ -169,7 +208,7 @@ namespace Microsoft.Iris.Render.Extensions
                 bitmapInfo = null;
                 bitmapInformation.Dispose();
             }
-            return flag;
+            return loadSuccess;
         }
 
         public static bool FromRaw(
@@ -188,23 +227,35 @@ namespace Microsoft.Iris.Render.Extensions
         {
             Debug2.Validate(image != null, typeof(ArgumentNullException), "Image must be valid");
             Debug2.Validate(length > 0, typeof(ArgumentException), "Do not call for zero-length buffer");
-            ImageRequirements req = new ImageRequirements();
-            req.BorderWidth = borderWidth;
-            req.BorderColor = borderColor;
-            req.Flippable = flipRTL;
-            req.AntialiasEdges = antialiasEdges;
-            req.MaximumSize = maxSize;
-            ExtensionsApi.BitmapOptions nOptions = ExtensionsApi.BitmapOptions.Decode;
+            var req = new ImageRequirements
+            {
+                BorderWidth = borderWidth,
+                BorderColor = borderColor,
+                Flippable = flipRTL,
+                AntialiasEdges = antialiasEdges,
+                MaximumSize = maxSize
+            };
+            
+            var nOptions = ExtensionsApi.BitmapOptions.Decode;
             if (flipRTL)
                 nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            BitmapInformation bitmapInformation = new BitmapInformation();
-            if (!ExtensionsApi.SpBitmapLoadRaw(imageSize, stride, format, buffer, req, nOptions, out bitmapInformation.hBitmap, out bitmapInformation.imageInfo).IsSuccess())
+            
+            var bitmapInformation = new BitmapInformation();
+            var hresult = ExtensionsApi.SpBitmapLoadRaw(imageSize, stride, format, buffer, req, nOptions,
+                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
                 return false;
             }
-            bool flag = image.LoadContent(SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat), bitmapInformation.imageInfo.Header.sizeActualPxl, bitmapInformation.imageInfo.Header.nStride, bitmapInformation.imageInfo.Data.rgData);
-            if (flag)
+            
+            var loadSuccess = image.LoadContent(
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
+                bitmapInformation.imageInfo.Header.sizeActualPxl,
+                bitmapInformation.imageInfo.Header.nStride,
+                bitmapInformation.imageInfo.Data.rgData);
+            
+            if (loadSuccess)
             {
                 bitmapInfo = bitmapInformation;
             }
@@ -213,7 +264,8 @@ namespace Microsoft.Iris.Render.Extensions
                 bitmapInfo = null;
                 bitmapInformation.Dispose();
             }
-            return flag;
+            
+            return loadSuccess;
         }
 
         public static bool FromGradient(
