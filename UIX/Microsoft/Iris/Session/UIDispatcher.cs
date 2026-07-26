@@ -235,14 +235,14 @@ namespace Microsoft.Iris.Session
 
         protected override void PostItem_SameThread(QueueItem item, int priority)
         {
-            if (!(_masterQueue[priority] is SimpleQueue master))
+            if (_masterQueue[priority] is not SimpleQueue master)
                 return;
             master.PostItem(item);
         }
 
         protected override void PostItems_SameThread(QueueItem.FIFO items, int priority)
         {
-            if (!(_masterQueue[priority] is SimpleQueue master))
+            if (_masterQueue[priority] is not SimpleQueue master)
                 return;
             master.PostItems(items);
         }

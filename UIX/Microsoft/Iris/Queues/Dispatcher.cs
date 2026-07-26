@@ -71,18 +71,14 @@ namespace Microsoft.Iris.Queues
                 while (true)
                 {
                     QueueItem nextItem = queue.GetNextItem();
-                    if (nextItem != null)
-                    {
-                        var debugString = nextItem.ToDebugPacketString();
-                        Application.Debugger?.LogDispatcher(debugString);
-                        Trace.WriteLine(TraceCategory.Queues, 0, "Dispatcher nextItem := {0}", debugString);
-                        
-                        nextItem.Dispatch();
-                    }
-                    else
-                    {
+                    if (nextItem == null)
                         break;
-                    }
+
+                    var debugString = nextItem.ToDebugPacketString();
+                    Application.Debugger?.LogDispatcher(debugString);
+                    Trace.WriteLine(TraceCategory.Queues, 0, "Dispatcher nextItem := {0}", debugString);
+
+                    nextItem.Dispatch();
                 }
             }
             finally

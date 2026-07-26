@@ -13,19 +13,15 @@ namespace Microsoft.Iris.Render.Extensions
     {
         private static TimeSpan s_tsUpdateThreshhold = new TimeSpan(0, 0, 2);
         private bool m_fObjectDisposed;
-        private string m_stIdentifier;
-        private IImage m_image;
         protected ImageRequirements m_req;
         protected Size m_size;
         protected BitmapInformation m_info;
         protected IntPtr m_buffer;
         protected uint m_length;
-        private int m_countUsers;
         private int m_countLoadsInProgress;
         private bool m_fFullLoadRequested;
         private ArrayList m_prevLoadInfos;
         private DateTime m_dtLastUsed;
-        private ImageCache m_owner;
 
         public ImageCacheItem(
           IRenderSession renderSession,
@@ -37,8 +33,8 @@ namespace Microsoft.Iris.Render.Extensions
           bool antialiasEdges)
           : this(renderSession, identifier, maxSize, flippable, antialiasEdges)
         {
-            this.m_buffer = buffer;
-            this.m_length = length;
+            m_buffer = buffer;
+            m_length = length;
         }
 
         public ImageCacheItem(
@@ -49,24 +45,24 @@ namespace Microsoft.Iris.Render.Extensions
           bool antialiasEdges)
           : this(renderSession, identifier)
         {
-            this.m_req = new ImageRequirements();
-            this.m_req.MaximumSize = maxSize;
-            this.m_req.Flippable = flippable;
-            this.m_req.AntialiasEdges = antialiasEdges;
+            m_req = new ImageRequirements();
+            m_req.MaximumSize = maxSize;
+            m_req.Flippable = flippable;
+            m_req.AntialiasEdges = antialiasEdges;
         }
 
         protected ImageCacheItem(IRenderSession renderSession, string identifier)
         {
-            this.m_stIdentifier = identifier;
-            this.m_image = renderSession.CreateImage(this, this.m_stIdentifier, new ContentNotifyHandler(this.ReloadImage));
-            this.UpdateLastUsedTime();
+            Identifier = identifier;
+            RenderImage = renderSession.CreateImage(this, Identifier, ReloadImage);
+            UpdateLastUsedTime();
         }
 
-        ~ImageCacheItem() => this.Dispose(false);
+        ~ImageCacheItem() => Dispose(false);
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -74,212 +70,220 @@ namespace Microsoft.Iris.Render.Extensions
         {
             if (!fInDispose)
                 return;
-            this.OnDispose();
+            OnDispose();
         }
 
         protected virtual void OnDispose()
         {
-            if (this.m_image != null)
+            if (RenderImage != null)
             {
-                this.m_image.UnregisterUsage(this);
-                this.m_image = null;
+                RenderImage.UnregisterUsage(this);
+                RenderImage = null;
             }
-            if (this.m_info != null)
+            if (m_info != null)
             {
-                this.m_info.Dispose();
-                this.m_info = null;
+                m_info.Dispose();
+                m_info = null;
             }
-            this.m_fObjectDisposed = true;
+            m_fObjectDisposed = true;
         }
 
         public virtual void ReleaseImage()
         {
-            if (this.m_image == null)
+            if (RenderImage == null)
                 return;
-            this.m_image.UnregisterUsage(this);
-            this.m_image = null;
+            RenderImage.UnregisterUsage(this);
+            RenderImage = null;
         }
 
-        public int UsageCount => this.m_countUsers;
+        public int UsageCount { get; private set; }
 
         public void RegisterUsage(object user)
         {
-            this.AssertValidState();
-            ++this.m_countUsers;
-            this.UpdateLastUsedTime();
+            AssertValidState();
+            ++UsageCount;
+            UpdateLastUsedTime();
         }
 
         public void UnregisterUsage(object user)
         {
-            this.AssertValidState();
-            --this.m_countUsers;
-            this.UpdateLastUsedTime();
+            AssertValidState();
+            --UsageCount;
+            UpdateLastUsedTime();
         }
 
-        public string Identifier => this.m_stIdentifier;
+        public string Identifier { get; }
 
-        public IImage RenderImage => this.m_image;
+        public IImage RenderImage { get; private set; }
 
         public Size ImageSize
         {
             get
             {
-                if (this.m_size.IsZero)
-                    this.LoadBuffer();
-                return this.m_size;
+                if (m_size.IsZero)
+                    LoadBuffer();
+                return m_size;
             }
         }
 
-        public bool HasLoadsInProgress => this.m_countLoadsInProgress > 0;
+        public bool HasLoadsInProgress => m_countLoadsInProgress > 0;
 
-        public bool InUse => this.m_image != null && this.m_image.UsageCount > 1 || this.m_countUsers > 0;
+        public bool InUse => RenderImage != null && RenderImage.UsageCount > 1 || UsageCount > 0;
 
         public virtual void RemoveData()
         {
-            if (this.HasLoadsInProgress)
+            if (HasLoadsInProgress)
             {
-                if (this.m_prevLoadInfos == null)
-                    this.m_prevLoadInfos = new ArrayList();
-                this.m_prevLoadInfos.Add(m_info);
-                this.m_size = Size.Zero;
-                this.m_info = null;
+                m_prevLoadInfos ??= new ArrayList();
+                m_prevLoadInfos.Add(m_info);
+                m_size = Size.Zero;
             }
             else
             {
-                this.m_size = Size.Zero;
-                if (this.m_info == null)
-                    return;
-                this.m_info.Dispose();
-                this.m_info = null;
+                m_size = Size.Zero;
+                m_info?.Dispose();
             }
+
+            m_info = null;
         }
 
-        public virtual void StartLoad() => this.LoadBuffer();
+        public virtual void StartLoad() => LoadBuffer();
 
         protected void SetBuffer(IntPtr buffer, uint length)
         {
-            this.m_buffer = buffer;
-            this.m_length = length;
+            m_buffer = buffer;
+            m_length = length;
         }
 
-        protected void SetSize(Size size) => this.m_size = size;
+        protected void SetSize(Size size) => m_size = size;
 
         internal void ReloadImage(ContentNotification notification, IImage image, IntPtr data)
         {
             switch (notification)
             {
                 case ContentNotification.Acquire:
-                    if (this.m_image == null)
+                    if (RenderImage == null)
                         break;
-                    this.m_fFullLoadRequested = true;
-                    this.LoadBuffer();
+                    m_fFullLoadRequested = true;
+                    LoadBuffer();
                     break;
                 case ContentNotification.Release:
-                    this.EndLoadImageData();
+                    EndLoadImageData();
                     break;
             }
         }
 
         private void LoadBuffer()
         {
-            if (!this.EnsureBuffer())
+            if (!EnsureBuffer())
                 return;
-            this.ProcessBuffer();
+            ProcessBuffer();
         }
 
         protected bool ProcessBuffer()
         {
-            this.UpdateLastUsedTime();
-            return !this.m_fFullLoadRequested ? this.DoHeaderLoad() : this.BeginLoadImageData();
+            UpdateLastUsedTime();
+            return !m_fFullLoadRequested ? DoHeaderLoad() : BeginLoadImageData();
         }
 
         private bool BeginLoadImageData()
         {
-            if (!this.DoImageLoad())
+            if (!DoImageLoad())
                 return false;
-            ++this.m_countLoadsInProgress;
+            ++m_countLoadsInProgress;
             return true;
         }
 
         private void EndLoadImageData()
         {
-            this.AssertValidState();
-            --this.m_countLoadsInProgress;
-            this.OnImageLoadComplete();
-            if (!this.HasLoadsInProgress)
+            AssertValidState();
+            --m_countLoadsInProgress;
+            OnImageLoadComplete();
+            if (!HasLoadsInProgress)
             {
-                if (this.m_info != null)
+                if (m_info != null)
                 {
-                    this.m_info.Dispose();
-                    this.m_info = null;
+                    m_info.Dispose();
+                    m_info = null;
                 }
-                if (this.m_prevLoadInfos != null)
+                if (m_prevLoadInfos != null)
                 {
-                    foreach (BitmapInformation prevLoadInfo in this.m_prevLoadInfos)
+                    foreach (BitmapInformation prevLoadInfo in m_prevLoadInfos)
                         prevLoadInfo?.Dispose();
-                    this.m_prevLoadInfos.Clear();
-                    this.m_prevLoadInfos = null;
+                    m_prevLoadInfos.Clear();
+                    m_prevLoadInfos = null;
                 }
             }
-            this.UpdateLastUsedTime();
+            UpdateLastUsedTime();
         }
 
         protected virtual bool EnsureBuffer() => true;
 
         protected virtual bool DoHeaderLoad()
         {
-            ImageHeader header;
-            if (!(this.m_buffer != IntPtr.Zero) || this.m_length <= 0U || !ImageLoader.LoadHeader(this.m_buffer, (int)this.m_length, this.m_req, out header))
+            if (m_buffer == IntPtr.Zero
+                || m_length <= 0U
+                || !ImageLoader.LoadHeader(m_buffer, (int)m_length, m_req, out var header))
                 return false;
-            this.SetSize(header.sizeActualPxl);
+            
+            SetSize(header.sizeActualPxl);
             return true;
         }
 
         protected virtual bool DoImageLoad()
         {
             BitmapInformation bitmapInfo = null;
-            bool flag = false;
-            if (this.m_image != null)
-                flag = !(this.m_buffer == IntPtr.Zero) ? ImageLoader.FromBuffer(this.m_image, this.m_buffer, (int)this.m_length, this.m_req.MaximumSize, this.m_req.Flippable, this.m_req.AntialiasEdges, this.m_req.BorderWidth, this.m_req.BorderColor, out bitmapInfo) : ImageLoader.FromFile(this.m_image, this.m_image.Identifier, this.m_req.MaximumSize, this.m_req.Flippable, this.m_req.AntialiasEdges, this.m_req.BorderWidth, this.m_req.BorderColor, out bitmapInfo);
-            if (flag)
+            var loadSuccess = false;
+            if (RenderImage != null)
             {
-                this.m_info = bitmapInfo;
-                this.SetSize(this.m_info.imageInfo.Header.sizeActualPxl);
+                if (m_buffer != IntPtr.Zero)
+                {
+                    loadSuccess = ImageLoader.FromBuffer(RenderImage, m_buffer, (int)m_length, m_req.MaximumSize,
+                        m_req.Flippable, m_req.AntialiasEdges, m_req.BorderWidth, m_req.BorderColor,
+                        out bitmapInfo);
+                }
+                else
+                {
+                    loadSuccess = ImageLoader.FromFile(RenderImage, RenderImage.Identifier, m_req.MaximumSize,
+                        m_req.Flippable,m_req.AntialiasEdges, m_req.BorderWidth, m_req.BorderColor,
+                        out bitmapInfo);
+                }
             }
-            return flag;
+
+            if (!loadSuccess)
+                return false;
+            
+            m_info = bitmapInfo;
+            SetSize(m_info.imageInfo.Header.sizeActualPxl);
+            return true;
         }
 
         protected virtual void OnImageLoadComplete()
         {
         }
 
-        internal ImageCache ImageCacheOwner
-        {
-            get => this.m_owner;
-            set => this.m_owner = value;
-        }
+        internal ImageCache ImageCacheOwner { get; set; }
 
         protected void UpdateLastUsedTime()
         {
-            this.AssertValidState();
-            if (!(DateTime.UtcNow - this.m_dtLastUsed > s_tsUpdateThreshhold))
+            AssertValidState();
+            if (DateTime.UtcNow - m_dtLastUsed <= s_tsUpdateThreshhold)
                 return;
-            this.m_dtLastUsed = DateTime.UtcNow;
-            if (this.m_owner == null)
-                return;
-            this.m_owner.UpdateLastUsedItem(this);
+            
+            m_dtLastUsed = DateTime.UtcNow;
+            ImageCacheOwner?.UpdateLastUsedItem(this);
         }
 
         public bool IsOlder(DateTime dtCompare)
         {
-            this.AssertValidState();
-            return this.m_dtLastUsed < dtCompare;
+            AssertValidState();
+            return m_dtLastUsed < dtCompare;
         }
 
         protected void AssertValidState()
         {
         }
 
-        public override string ToString() => this.m_stIdentifier;
+        public override string ToString() => Identifier;
     }
 }

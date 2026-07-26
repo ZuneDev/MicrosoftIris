@@ -14,16 +14,15 @@ namespace Microsoft.Iris.Render.Extensions
         public ImageInformation imageInfo;
         internal HSpBitmap hBitmap;
 
-        public void Dispose() => this.ReleaseData();
+        public void Dispose() => ReleaseData();
 
         private void ReleaseData()
         {
-            if (!(this.hBitmap != HSpBitmap.NULL))
+            if (hBitmap == HSpBitmap.NULL)
                 return;
-            EngineApi.IFC(ExtensionsApi.SpBitmapDelete(this.hBitmap));
-            this.hBitmap = HSpBitmap.NULL;
+            
+            EngineApi.IFC(ExtensionsApi.SpBitmapDelete(hBitmap));
+            hBitmap = HSpBitmap.NULL;
         }
-
-        public override string ToString() => base.ToString();
     }
 }

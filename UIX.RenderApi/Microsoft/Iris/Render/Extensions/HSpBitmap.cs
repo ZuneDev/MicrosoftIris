@@ -19,8 +19,8 @@ namespace Microsoft.Iris.Render.Extensions
 
         public static bool operator !=(HSpBitmap hA, HSpBitmap hB) => hA.h != hB.h;
 
-        public override bool Equals(object oCompare) => oCompare is HSpBitmap hspBitmap && this.h == hspBitmap.h;
+        public override bool Equals(object oCompare) => oCompare is HSpBitmap hspBitmap && h == hspBitmap.h;
 
-        public override int GetHashCode() => (int)this.h.ToInt64();
+        public override int GetHashCode() => (int)h.ToInt64();
     }
 }
