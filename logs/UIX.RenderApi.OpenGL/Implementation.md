@@ -2,6 +2,89 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-25 — Animation curve formulas RECOVERED from native (Ghidra)
+
+Resolves the "unverifiable — the real curves/formulas run in native code" caveat
+from the entry below. The formulas are now **verified**, not assumed. Source:
+`UIXrender.dll` (the native Splash render engine) in the `ZuneDesktop` Ghidra
+project. All addresses below are in that image.
+
+### How the pieces fit (verified end-to-end)
+- Managed `KeyframeAnimation.SendInterpolation` (UIX.renderapi.dll) does NOT compute
+  curves; it sends a distinct, parameterized message per curve type to native
+  `RemoteAnimation`. Opcodes (from `RemoteAnimation` Msg structs):
+  8=SetEaseOut, 9=SetEaseIn, 10=SetBezier, 11=SetCosine, 12=SetSine,
+  13=SetSCurve, 14=SetLogarithmic, 15=SetExponential, 16=SetLinear.
+  Params carried: Exp/Log/SCurve → `flWeight`; EaseIn/Out → `flWeight`+`flHandle`;
+  Bezier → `flHandle1`+`flHandle2` (= ControlPoint1/2); Sine/Cosine/Linear → none.
+  Every message also carries `fSpherical` (→ `UseSphericalCombination`).
+- Native message dispatch table for the Animation class is at `0x311f9d90`
+  (indexed by opcode). Handler[8..16] each allocate a small C++ "interpolation"
+  object, store its params (weight @obj+0x10, handle/cp2 @obj+0x14), set a
+  per-type vtable, and stash it in the keyframe array element (stride 0x18) at
+  `keyframe+0x10`. Spherical flag → bit 0 of `obj+0xc`.
+- Each interpolation object's vtable slot 1 is its **evaluate** method with
+  signature `eval(obj, float t, uint channelCount, float* A, float* B, float* out)`.
+  `t` is the already-normalized segment fraction [0,1]; A/B are the two keyframe
+  endpoint value vectors (up to 4 floats). Evaluate computes an eased factor `f`
+  then calls the **combine** routine: `FUN_310bb984` = linear `out = (1-f)·A + f·B`
+  (per component), or `FUN_310bba70` = **slerp** `out = (sin((1-f)Ω)·A + sin(fΩ)·B)/sinΩ`,
+  `Ω = acos(dot(Â,B̂))`, normalized per channel count, lerp fallback when Ω≈0
+  (used when `UseSphericalCombination`).
+
+### The core weighted-exponential ease (`FUN_310bbf90`)
+```
+ExpEase(x, w) = (w == 1) ? x : (pow(w, x) - 1) / (w - 1)
+```
+This single function underlies Exponential, Logarithmic, and SCurve.
+
+### Per-type eased factor `f(t)` (verified)
+- **Linear** (`FUN_310bbee0`):        f = t
+- **Sine**   (`FUN_310bc128`):        f = sin(t · π/2)                       ← ease-out shape
+- **Cosine** (`FUN_310bc1a4`):        f = sin((t−1)·π/2) + 1 = 1 − cos(t·π/2) ← ease-in shape
+- **Exponential(w)** (`FUN_310bbf1c`): f = ExpEase(t, w)                     (w = Weight, >0)
+- **Logarithmic(w)** (`FUN_310bbfdc`): f = ExpEase(t, 1/w)                   (reciprocal exponent)
+- **SCurve(w)** (`FUN_310bc05c`):
+    t < 0.5 : f = 0.5 · ExpEase(2t, w)
+    t ≥ 0.5 : f = 0.5 + 0.5 · ExpEase(2(t−0.5), 1/w)                         (symmetric S)
+- **Bezier(cp1, cp2)** (`FUN_310bc230`), u = 1−t — a **quintic Bézier** (Bernstein
+  degree 5) easing with control values P0=0, P1=0, P2=cp1, P3=cp2, P4=1, P5=1:
+    f = 10·cp1·u³·t² + 10·cp2·u²·t³ + 5·u·t⁴ + t⁵
+  (`π` constant used by Sine/Cosine is the float `3.1415927`, not a double.)
+
+### EaseIn / EaseOut are VALUE-SPACE, not scalar (`FUN_310bc3d0` / `0x310b8948`)
+These do NOT remap `t` and lerp straight A→B. They split the segment at time
+`handle` (h, 0<h<1) around a **computed intermediate control value** `mid`:
+```
+d      = ExpEase(0.99, w)
+d      = (1 − d) · h
+ctrl[] = (d / ((1−h)·0.01 + d)) · (B − A)      // per component
+mid[]  = A + ctrl                               // intermediate control value
+
+if (t >= h):  f = ExpEase((t−h)/(1−h), 1/w);  combine(mid, B, f)
+else:         f = t / h;                       combine(A,   mid, f)
+```
+EaseOut (`0x310b8948`, vtable `0x3108b6f8`) is the mirror. Consequence for our
+renderer: EaseIn/EaseOut **cannot** be expressed as a scalar `Ease(interp, t)`
+fed to a plain A→B lerp — they need `mid` computed in value space and a
+sub-segment choice. Flagged in code; the scalar path handles the other 7 types
+exactly.
+
+### Native vtables (for future reference)
+Linear `0x3108b678`, SCurve `0x3108b6a8`, Sine `0x3108b6b8`, Cosine `0x3108b6c8`,
+Bezier `0x3108b6d8`, Exponential `0x3108b688`, Logarithmic (shares ExpEase via
+1/w), EaseIn `0x3108b6e8`, EaseOut `0x3108b6f8`.
+
+### Also confirmed while here
+- Keyframe time is **seconds** on the wire; native converts to ms via `×1000`
+  then rounds to int (e.g. AddTimeEvent handler `0x310b853c`: `FUN_310e7d28(t*1000.0)`).
+  Matches the existing time-unit assumption.
+- Interpolation belongs to a **segment**, keyed by keyframe index
+  (`idxKeyframe = keyframeIndex-1` when !BackCompat, else `keyframeIndex`). Our
+  evaluator currently reads `b.Interpolation` (the segment's END keyframe); native
+  stores per keyframe slot — the exact start-vs-end association for BackCompat is
+  still worth a targeted check but does not affect the formulas above.
+
 ## 2026-07-25 — Real keyframe animation evaluation
 
 Replaced the no-op animation stubs with a working evaluator. `GLKeyframeAnimation`
