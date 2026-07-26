@@ -2,6 +2,55 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-25 — Real keyframe animation evaluation
+
+Replaced the no-op animation stubs with a working evaluator. `GLKeyframeAnimation`
+now advances a clock, finds the surrounding keyframes, eases + interpolates their
+values and writes the result onto every target property. Repeat, auto-reset and
+reset-behavior are implemented; Reference/Scale are applied as `ref + scale*value`.
+
+New files: `Animation/AnimValue.cs` (resolve/lerp/slerp values),
+`Animation/AnimationEasing.cs` (curve → eased t), `Animation/AnimationTargetApplier.cs`
+(write value to a named property with channel masking). `GLAnimation` gained
+protected play-state setters + an abstract `Advance`.
+
+**One UIX.RenderApi change (approved by the human — "public accessors"):** added
+`public virtual bool AnimationInput.TryGetConstantValue(out object)` (false by default)
+and an override on `ConstantAnimationInput` returning its masked value. This is the
+only supported way for a separate assembly to read keyframe values — the payload was
+`internal`, and the original animation *engine* lives inside UIX.RenderApi so it never
+needed a public accessor. `BinaryOperation` already exposes its operands publicly, so
+expression inputs (relative keyframes) fold over `TryGetConstantValue` leaves; no
+reflection is used anywhere.
+
+Confirmed against the UIX consumer (`AnimationManager`, `KeyframeAnimation`):
+- UIX sets `BackCompat = true`, so keyframe 0 is NOT auto-populated with the initial
+  value (we honor the flag; the auto-keyframe only happens when BackCompat is false).
+- UIX drives `PulseTimeAdvance` itself, so the render loop must NOT pulse animations.
+- Keyframe 0 at t=0 = initial value (original behavior, used when !BackCompat).
+
+Documented assumptions (unverifiable — the real curves/formulas run in native code;
+logged per the CLAUDE.md unknowns procedure):
+- Time units: pulse is milliseconds (`nAdvanceMs`), keyframe times / InstantAdvance are
+  seconds. Our conversion matches both.
+- RepeatCount: 0 = play once, N>0 = N extra loops (N+1 total), <0 = infinite.
+- Easing shapes are standard curves matched to each interpolation class's name
+  (Bezier falls back to smoothstep since its control points are internal).
+- Reference/Scale combine as `reference + scale*value`.
+
+Known gap (NOT done — needs a decision): stage/time/progress/value **event dispatch**.
+`AnimationEvent`'s ctor hard-casts its target to the render-internal
+`IActivatableObject`, which an external animation object cannot implement, so UIX's
+`AnimationProxy` (which registers `AnimationEvent(anim, "AsyncNotify", …)` for
+Complete/Reset) can't target our animations, and completion/reset notifications don't
+flow back. Resolving this needs `IActivatableObject` made public + implemented on our
+animation objects (+ an in-process activation dispatch), a larger change than the value
+accessor. Events are stored today but not fired. Flagged to the human.
+
+Validation: compiled the whole project against the prebuilt `UIX.RenderApi.dll` + a
+one-method harness shim for the new `TryGetConstantValue` (the prebuilt DLL predates it)
+— build succeeded.
+
 ## 2026-07-25 — Input-event translation (Silk.NET.Input)
 
 Wired real keyboard/mouse input via `GLInputTranslator`, created by the engine on

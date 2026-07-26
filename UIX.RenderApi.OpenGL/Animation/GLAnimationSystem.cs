@@ -11,13 +11,20 @@ namespace Microsoft.Iris.Render.OpenGL
         private readonly List<GLAnimation> m_animations = new List<GLAnimation>();
         private bool m_paused;
 
+        private bool m_backCompat;
+
         public int UpdatesPerSecond { get; set; } = 60;
         public float SpeedAdjustment { get; set; } = 1f;
-        public bool BackCompat { set { /* compatibility flag; no behavioral change */ } }
+
+        // When set, keyframe 0 is not auto-populated with the initial value (matching the
+        // original AnimationSystem.BackCompat behavior).
+        public bool BackCompat { set => m_backCompat = value; }
 
         public IKeyframeAnimation CreateKeyframeAnimation(object objUser, AnimationInput initialValue)
         {
             var a = new GLKeyframeAnimation(initialValue);
+            if (!m_backCompat)
+                a.AddInitialKeyframe();
             m_animations.Add(a);
             return a;
         }

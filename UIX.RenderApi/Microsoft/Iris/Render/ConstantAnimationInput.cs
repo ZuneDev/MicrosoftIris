@@ -74,6 +74,12 @@ namespace Microsoft.Iris.Render
 
         internal object RawValue => this.m_inputValue;
 
+        public override bool TryGetConstantValue(out object value)
+        {
+            value = this.m_inputValue;
+            return true;
+        }
+
         private object ApplyMask(AnimationTypeMask mask, object value)
         {
             object obj = null;

@@ -12,8 +12,10 @@ namespace Microsoft.Iris.Render.OpenGL
         /// <summary>Create an OpenGL render engine for the given Iris engine info.</summary>
         public static IRenderEngine CreateEngine(IrisEngineInfo engineInfo, IRenderHost renderHost)
         {
-            ArgumentNullException.ThrowIfNull(engineInfo);
-            ArgumentNullException.ThrowIfNull(renderHost);
+            // Explicit null checks (not ArgumentNullException.ThrowIfNull, which is net6+
+            // and does not exist on the net48 target).
+            if (engineInfo == null) throw new ArgumentNullException(nameof(engineInfo));
+            if (renderHost == null) throw new ArgumentNullException(nameof(renderHost));
             return new GLRenderEngine(engineInfo, renderHost);
         }
     }

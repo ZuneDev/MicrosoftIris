@@ -48,6 +48,16 @@ namespace Microsoft.Iris.Render
 
         public AnimationInputType InputType => this.m_inputType;
 
+        // Public read accessor so an out-of-assembly animation engine can evaluate
+        // keyframe values without reaching internal state. Only constant inputs carry a
+        // directly-readable value; expression/object inputs return false (a consumer can
+        // still walk BinaryOperation's public operands, and read the leaves this way).
+        public virtual bool TryGetConstantValue(out object value)
+        {
+            value = null;
+            return false;
+        }
+
         internal AnimationInputType SourceType => this.m_sourceType;
 
         internal AnimationTypeMask SourceMask => this.m_sourceMask;

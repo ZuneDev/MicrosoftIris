@@ -3,15 +3,14 @@ using System.Collections.Generic;
 namespace Microsoft.Iris.Render.OpenGL
 {
     /// <summary>
-    /// Shared state machine for animations: play/pause/reset, repeat counting and the
-    /// async-notify event. Target property interpolation is intentionally minimal here
-    /// (see <see cref="GLKeyframeAnimation"/>); full per-frame evaluation is a stage-3 TODO.
+    /// Shared state machine for animations: play/pause/reset, repeat and the async-notify
+    /// event. Time evaluation lives in the concrete subclasses (see <see cref="GLKeyframeAnimation"/>).
     /// </summary>
     public abstract class GLAnimation : SharedRenderObject, IAnimation
     {
         public int RepeatCount { get; set; }
-        public bool IsPlaying { get; private set; }
-        public bool IsActive { get; private set; }
+        public bool IsPlaying { get; protected set; }
+        public bool IsActive { get; protected set; }
         public bool AutoReset { get; set; }
         public AnimationResetBehavior ResetBehavior { get; set; } = AnimationResetBehavior.LeaveCurrent;
 
@@ -23,7 +22,11 @@ namespace Microsoft.Iris.Render.OpenGL
             IsActive = true;
         }
 
-        public virtual void Pause() => IsPlaying = false;
+        public virtual void Pause()
+        {
+            if (IsActive)
+                IsPlaying = false;
+        }
 
         public virtual void Reset()
         {
@@ -41,10 +44,15 @@ namespace Microsoft.Iris.Render.OpenGL
 
         protected void RaiseAsyncNotify(int cookie) => AsyncNotifyEvent?.Invoke(cookie);
 
-        /// <summary>Advance internal time. Called by the animation system each pulse.</summary>
-        internal virtual void Advance(int advanceMs) { }
+        /// <summary>Advance internal time by <paramref name="advanceMs"/>. Driven by the system's pulse.</summary>
+        internal abstract void Advance(int advanceMs);
     }
 
+    /// <summary>
+    /// Aggregates child animations and drives them together. The public API exposes no way
+    /// to add members (IAnimationGroup has no members beyond IAnimation), so membership is
+    /// only available internally; kept for lifecycle parity.
+    /// </summary>
     public sealed class GLAnimationGroup : GLAnimation, IAnimationGroup
     {
         private readonly List<GLAnimation> m_members = new List<GLAnimation>();
@@ -52,16 +60,31 @@ namespace Microsoft.Iris.Render.OpenGL
         public override void Play()
         {
             base.Play();
-            foreach (var a in m_members)
+            foreach (GLAnimation a in m_members)
                 a.Play();
+        }
+
+        public override void Pause()
+        {
+            base.Pause();
+            foreach (GLAnimation a in m_members)
+                a.Pause();
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            foreach (GLAnimation a in m_members)
+                a.Reset();
         }
 
         internal void Add(GLAnimation animation) => m_members.Add(animation);
 
         internal override void Advance(int advanceMs)
         {
-            foreach (var a in m_members)
-                a.Advance(advanceMs);
+            foreach (GLAnimation a in m_members)
+                if (a.IsPlaying)
+                    a.Advance(advanceMs);
         }
     }
 }
