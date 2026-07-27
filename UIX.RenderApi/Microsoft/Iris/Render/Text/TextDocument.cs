@@ -35,11 +35,31 @@ public abstract class TextDocument : IDisposable
     public virtual HRESULT Measure(string content, TextAlignment alignment, TextStyleInfo baseStyle, IReadOnlyList<TextStyleRun> formattedRanges, Size constraint, bool wordWrap, out GlyphRunInfo[] glyphRuns)
     {
         var hresult = Measure(content, alignment, baseStyle, constraint, out var glyphRun);
-        glyphRuns = hresult.IsSuccess() && glyphRun != null ? new[] { glyphRun } : Array.Empty<GlyphRunInfo>();
+        glyphRuns = hresult.IsSuccess() && glyphRun != null ? [glyphRun] : [];
         return hresult;
     }
 
     public abstract HRESULT Rasterize(GlyphRunInfo glyphRun, ColorF textColor, bool outline, bool shadow, out RasterizedGlyphBitmap bitmap);
+
+    // Caret/hit-testing support for Microsoft.Iris.Drawing.RichText's hosted
+    // (interactive-editing) mode on non-Windows platforms: on Windows the
+    // native RichEdit-style control computes caret position and mouse hit
+    // testing internally and reports it via IRichTextCallbacks, so RichText
+    // never needs to ask _textDocument for it there. Default implementation
+    // reports "not implemented" so backends that never host interactive
+    // editing (SpTextDocument - hosted mode stays fully native on Windows,
+    // see RichText.cs) don't have to override it.
+    public virtual HRESULT GetCaretMetrics(string content, TextStyleInfo style, Size constraint, bool wordWrap, int characterIndex, out Rectangle caretBounds)
+    {
+        caretBounds = Rectangle.Zero;
+        return unchecked((int)0x80004001); // E_NOTIMPL
+    }
+
+    public virtual HRESULT HitTest(string content, TextStyleInfo style, Size constraint, bool wordWrap, Point point, out int characterIndex)
+    {
+        characterIndex = 0;
+        return unchecked((int)0x80004001); // E_NOTIMPL
+    }
 
     public abstract void Dispose();
 }

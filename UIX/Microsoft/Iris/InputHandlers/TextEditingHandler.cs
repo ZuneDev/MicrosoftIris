@@ -140,7 +140,16 @@ namespace Microsoft.Iris.InputHandlers
             _editData.ValueChanged += _valueChangedHandler;
         }
 
-        private void UnregisterImeMessageHandler() => RendererApi.IFC(NativeApi.SpUnregisterImeCallbacks(_ImeCallbackToken));
+        private void UnregisterImeMessageHandler()
+        {
+#if WINDOWS
+            RendererApi.IFC(NativeApi.SpUnregisterImeCallbacks(_ImeCallbackToken));
+#endif
+            // TODO: IME composition isn't implemented cross-platform yet -
+            // see Microsoft.Iris.Render.Text.Editing.IImeAdapter and
+            // logs/text-abstraction.md - so there's nothing to unregister on
+            // non-Windows.
+        }
 
         private void OnEditableTextMaxLengthChanged(object sender, EventArgs unused) => UpdateMaxLengthOnRichEdit();
 
@@ -383,7 +392,9 @@ namespace Microsoft.Iris.InputHandlers
 
         protected override void OnGainKeyFocus(UIClass ui, KeyFocusInfo info)
         {
+#if WINDOWS
             RendererApi.IFC(NativeApi.SpRegisterImeCallbacks(this, out _ImeCallbackToken));
+#endif
             _editControl.NotifyOfFocusChange(true);
             if (Overtype)
                 SelectAll();
@@ -392,7 +403,12 @@ namespace Microsoft.Iris.InputHandlers
                 UpdateActivationStateHandler(true);
             if (!_textDisplay.UsePasswordMask && !_textDisplay.DisableIme)
                 return;
+#if WINDOWS
             RendererApi.IFC(NativeApi.SpPostDeferredImeMessage(1032U, new UIntPtr(_ImeCallbackToken), UIntPtr.Zero));
+#endif
+            // TODO: IME composition isn't implemented cross-platform yet -
+            // see Microsoft.Iris.Render.Text.Editing.IImeAdapter and
+            // logs/text-abstraction.md.
         }
 
         protected override void OnLoseKeyFocus(UIClass ui, KeyFocusInfo info)
@@ -403,7 +419,9 @@ namespace Microsoft.Iris.InputHandlers
             if (UI.IsZoned)
                 UpdateActivationStateHandler(false);
             ClearPendingPointerDown();
+#if WINDOWS
             RendererApi.IFC(NativeApi.SpUnregisterImeCallbacks(_ImeCallbackToken));
+#endif
         }
 
         protected override void OnLoseMouseFocus(UIClass ui, MouseFocusInfo info)

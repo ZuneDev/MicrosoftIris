@@ -137,14 +137,23 @@ public sealed class SixLaborsTextDocument : TextDocument
         var result = new List<GlyphRunInfo>();
         int groupStart = 0;
         int line = 0;
-        float lineY = metrics[0].Bounds.Y;
+        // Line-break detection must use the positioned *advance* rectangle,
+        // not the rendered glyph ink Bounds: Bounds is tight to each glyph's
+        // visible pixels (e.g. a space has near-zero height, 'l' sits higher
+        // than 'o'), so its Y bounces around within a single visual line and
+        // would misfire a "new line" on almost every character. Advance.Y is
+        // the cell position SixLabors.Fonts itself laid the grapheme into,
+        // which is uniform for every grapheme on the same line (confirmed
+        // against the shipped XML docs - Bounds is "rendered glyph bounds",
+        // Advance is "positioned logical advance rectangle").
+        float lineY = metrics[0].Advance.Y;
         int rangeIndex = FindRangeIndex(formattedRanges, metrics[0].StringIndex);
 
         for (int i = 1; i < metrics.Length; i++)
         {
             var g = metrics[i];
             var gRangeIndex = FindRangeIndex(formattedRanges, g.StringIndex);
-            var newLine = g.Bounds.Y != lineY;
+            var newLine = g.Advance.Y != lineY;
             if (newLine || gRangeIndex != rangeIndex)
             {
                 FlushGlyphRun(result, metrics, content, formattedRanges, baseStyle, groupStart, i, line, rangeIndex);
@@ -153,7 +162,7 @@ public sealed class SixLaborsTextDocument : TextDocument
                 if (newLine)
                 {
                     line++;
-                    lineY = g.Bounds.Y;
+                    lineY = g.Advance.Y;
                 }
             }
         }
@@ -212,6 +221,148 @@ public sealed class SixLaborsTextDocument : TextDocument
                 return i;
         }
         return -1;
+    }
+
+    // Backs RichText's hosted (interactive-editing) mode on non-Windows: caret
+    // placement after keyboard navigation. Windows never calls this - native
+    // RichEdit tracks caret position internally and reports it via
+    // IRichTextCallbacks.SetCaretPos - see TextDocument.GetCaretMetrics.
+    public override HRESULT GetCaretMetrics(string content, TextStyleInfo style, Size constraint, bool wordWrap, int characterIndex, out Rectangle caretBounds)
+    {
+        content ??= string.Empty;
+        style ??= DefaultStyle;
+        if (!TryResolveFont(style, out var font))
+        {
+            caretBounds = Rectangle.Zero;
+            return 0x80070490; // ERROR_NOT_FOUND
+        }
+
+        var fallbackLineHeight = (int)MathF.Ceiling(font.FontMetrics.HorizontalMetrics.LineHeight * font.Size / font.FontMetrics.UnitsPerEm);
+        characterIndex = Math.Clamp(characterIndex, 0, content.Length);
+
+        if (content.Length == 0)
+        {
+            caretBounds = new Rectangle(0, 0, 1, Math.Max(1, fallbackLineHeight));
+            return HRESULT.S_OK;
+        }
+
+        var options = new TextOptions(font);
+        if (constraint.Width > 0 && wordWrap)
+            options.WrappingLength = constraint.Width;
+
+        var linesSpan = TextMeasurer.GetLineMetrics(content, options).Span;
+        var metrics = TextMeasurer.GetGraphemeMetrics(content, options).Span;
+        if (linesSpan.Length == 0 || metrics.Length == 0)
+        {
+            caretBounds = new Rectangle(0, 0, 1, Math.Max(1, fallbackLineHeight));
+            return HRESULT.S_OK;
+        }
+
+        var line = FindLine(linesSpan, characterIndex, content.Length);
+        var lineEndExclusive = LineEndExclusive(linesSpan, line, content.Length);
+        var height = Math.Max(1, (int)MathF.Ceiling(line.LineHeight));
+
+        GraphemeMetrics? lastInLine = null;
+        for (int i = 0; i < metrics.Length; i++)
+        {
+            if (metrics[i].StringIndex < line.StringIndex || metrics[i].StringIndex >= lineEndExclusive)
+                continue;
+            if (metrics[i].StringIndex == characterIndex)
+            {
+                caretBounds = new Rectangle((int)metrics[i].Advance.X, (int)line.Start.Y, 1, height);
+                return HRESULT.S_OK;
+            }
+            lastInLine = metrics[i];
+        }
+
+        // Caret is past the last grapheme on this line (end of content, or
+        // end of a wrapped line where trailing whitespace was trimmed) -
+        // place it right after the last grapheme this line actually has.
+        caretBounds = lastInLine is { } last
+            ? new Rectangle((int)MathF.Ceiling(last.Advance.Right), (int)line.Start.Y, 1, height)
+            : new Rectangle((int)line.Start.X, (int)line.Start.Y, 1, height);
+        return HRESULT.S_OK;
+    }
+
+    // Backs RichText's hosted mode on non-Windows: mapping a mouse-click
+    // point to a character index for caret placement / click-to-select.
+    public override HRESULT HitTest(string content, TextStyleInfo style, Size constraint, bool wordWrap, Point point, out int characterIndex)
+    {
+        content ??= string.Empty;
+        style ??= DefaultStyle;
+        if (content.Length == 0 || !TryResolveFont(style, out var font))
+        {
+            characterIndex = 0;
+            return HRESULT.S_OK;
+        }
+
+        var options = new TextOptions(font);
+        if (constraint.Width > 0 && wordWrap)
+            options.WrappingLength = constraint.Width;
+
+        var linesSpan = TextMeasurer.GetLineMetrics(content, options).Span;
+        var metrics = TextMeasurer.GetGraphemeMetrics(content, options).Span;
+        if (linesSpan.Length == 0 || metrics.Length == 0)
+        {
+            characterIndex = 0;
+            return HRESULT.S_OK;
+        }
+
+        // Find the visual line whose box is closest to the point's Y.
+        var line = linesSpan[0];
+        var bestDy = float.MaxValue;
+        foreach (var candidate in linesSpan)
+        {
+            var dy = MathF.Abs(candidate.Start.Y + candidate.LineHeight / 2f - point.Y);
+            if (dy < bestDy)
+            {
+                bestDy = dy;
+                line = candidate;
+            }
+        }
+        var lineEndExclusive = LineEndExclusive(linesSpan, line, content.Length);
+
+        var resultIndex = line.StringIndex;
+        for (int i = 0; i < metrics.Length; i++)
+        {
+            if (metrics[i].StringIndex < line.StringIndex || metrics[i].StringIndex >= lineEndExclusive)
+                continue;
+            var g = metrics[i];
+            if (point.X < g.Advance.X + g.Advance.Width / 2f)
+            {
+                characterIndex = g.StringIndex;
+                return HRESULT.S_OK;
+            }
+            resultIndex = g.StringIndex + 1;
+        }
+        characterIndex = Math.Clamp(resultIndex, 0, content.Length);
+        return HRESULT.S_OK;
+    }
+
+    // Finds the laid-out line containing characterIndex: each line covers
+    // [line.StringIndex, nextLine.StringIndex) except the last, which runs
+    // to the end of the content (so the caret-at-end-of-text position
+    // resolves to the last line).
+    private static LineMetrics FindLine(ReadOnlySpan<LineMetrics> lines, int characterIndex, int contentLength)
+    {
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var nextStart = i + 1 < lines.Length ? lines[i + 1].StringIndex : contentLength + 1;
+            if (characterIndex >= lines[i].StringIndex && characterIndex < nextStart)
+                return lines[i];
+        }
+        return lines[^1];
+    }
+
+    private static int LineEndExclusive(ReadOnlySpan<LineMetrics> lines, LineMetrics line, int contentLength)
+    {
+        for (int i = 0; i < lines.Length; i++)
+        {
+            if (lines[i].StringIndex != line.StringIndex)
+                continue;
+            return i + 1 < lines.Length ? lines[i + 1].StringIndex : contentLength + 1;
+        }
+        return contentLength + 1;
     }
 
     public override unsafe HRESULT Rasterize(GlyphRunInfo glyphRun, ColorF textColor, bool outline, bool shadow, out RasterizedGlyphBitmap bitmap)

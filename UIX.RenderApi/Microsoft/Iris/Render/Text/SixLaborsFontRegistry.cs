@@ -14,6 +14,7 @@ internal static class SixLaborsFontRegistry
         if (!string.IsNullOrEmpty(name) && Collection.TryGet(name, out family))
             return true;
 
-        return SystemFonts.TryGet(name, out family);
+        // TODO: Fallback to a known system font until MemoryFont is implemented
+        return SystemFonts.TryGet("Inter", out family);
     }
 }

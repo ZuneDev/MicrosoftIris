@@ -259,8 +259,22 @@ namespace Microsoft.Iris.OS
             return pParam;
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetCaretBlinkTime();
+        public static int GetCaretBlinkTime()
+        {
+#if WINDOWS
+            return GetCaretBlinkTimeCore();
+#else
+            // TODO: query the platform for a real blink rate; 530ms matches
+            // the classic Windows default (see GetCaretWidth's fallback
+            // above for the same "no known non-Windows API yet" situation).
+            return 530;
+#endif
+        }
+
+#if WINDOWS
+        [DllImport("user32.dll", SetLastError = true, EntryPoint = "GetCaretBlinkTime")]
+        private static extern int GetCaretBlinkTimeCore();
+#endif
 
         [DllImport("user32.dll")]
         public static extern uint SendInput(uint nInputs, Win32Api.INPUT[] pInputs, int cbSize);

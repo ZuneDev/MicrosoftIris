@@ -4,6 +4,182 @@ Append-only. Do not edit previous entries.
 
 ---
 
+## 2026-07-27 — Cross-platform hosted RichText: real interactive editing, not just a stub
+
+Follow-up to "Continue the implementation with rich edit capability,
+cross-platform" - this closes the gap piece 2 (below) deliberately left open:
+`RichText`'s hosted (interactive-editing) constructor branch threw
+`PlatformNotSupportedException` on non-Windows. This entry replaces that
+throw with a real, working implementation built on `TextEditBuffer` (piece 2)
+plus new caret/hit-testing primitives on `TextDocument`/`SixLaborsTextDocument`.
+
+### What changed
+
+**`TextDocument`/`SixLaborsTextDocument`** (`UIX.RenderApi/.../Render/Text/`):
+added `virtual HRESULT GetCaretMetrics(content, style, constraint, wordWrap,
+characterIndex, out Rectangle)` and `virtual HRESULT HitTest(content, style,
+constraint, wordWrap, Point, out int characterIndex)`. Base `TextDocument`
+returns `E_NOTIMPL` (only `SixLaborsTextDocument` needs these - on Windows,
+`RichText`'s hosted mode stays on the native RichEdit-style control, which
+tracks caret/hit-testing internally and reports it via `IRichTextCallbacks`,
+so `SpTextDocument` never has to implement them). `SixLaborsTextDocument`
+implements both using `SixLabors.Fonts.TextMeasurer.GetLineMetrics` (per-line
+`Start`/`LineHeight`/`StringIndex`) plus `GetGraphemeMetrics` (per-grapheme
+`Advance`/`StringIndex`) - confirmed via the package's shipped XML doc
+comments, not decompilation, per the user's earlier "read the docs" correction.
+
+**`RichText.cs`**: the non-Windows `#else` branch of the constructor no
+longer throws for `_hosted` instances - it builds a `TextEditBuffer` and
+wires its `TextChanged`/`SelectionChanged` events to drive `callbacks`
+(`IRichTextCallbacks.TextChanged`/`SelectionChanged`/`InvalidateContent`/
+`CreateCaret`/`SetCaretPos`/`ShowCaret`/`MaxLengthExceeded`) the way the
+native RTO would. Every hosted-only member got a `#if WINDOWS`/`#else` split
+(Windows branches are byte-identical to the pre-existing code, zero behavior
+change there, per CLAUDE.md's backwards-compatibility rule):
+- `MaxLength`/`ReadOnly` set `_editBuffer.MaxLength`/`.ReadOnly`.
+- `SetSelectionRange` calls `_editBuffer.SetSelection`.
+- `Measure`'s non-Windows branch (previously guarded by "only reachable in
+  non-hosted mode" from piece 1) is now used by hosted instances too - a
+  hosted `RichText` is still rendered through `Text.ExternalRasterizer` via
+  the same `Measure` path as a non-hosted one (see piece 1's "RichText is
+  used for two very different roles" discovery below) - and caches the
+  content/style/constraint/wordWrap of the most recent call in
+  `_lastMeasure*` fields, since caret placement and mouse hit-testing need
+  to reuse the same layout between render passes (a real native RTO tracks
+  this internally; `SixLaborsTextDocument` recomputes layout on demand
+  instead, so `RichText` approximates persistence by caching the inputs).
+- `ForwardKeyStateNotification`/`ForwardKeyCharacterNotification` implement
+  real keyboard editing: Left/Right/Up/Down/Home/End caret movement (Up/Down
+  via `GetCaretMetrics` + `HitTest` one line-height away - hit-testing the
+  layout instead of tracking visual line geometry directly, matching piece
+  1's "good enough, functionally correct" precedent), Ctrl+arrow word jumps,
+  Shift+movement selection (tracked via a `_selectionAnchor` field since
+  `TextSelection` only stores a sorted Start/End, not which end is the
+  anchor), Backspace/Delete, Ctrl+Z/Y undo/redo, Ctrl+C/X/V, and character
+  insertion with `MaxLengthExceeded` callback parity.
+- `ForwardMouseInput` implements click-to-place-caret and click-drag-to-select
+  via `HitTest`, tracking its own drag anchor (`_dragAnchor`, independent of
+  the keyboard's `_selectionAnchor`).
+- `NotifyOfFocusChange`/`OnTimerTick` implement caret blink themselves (on
+  real Windows the native RTO drives this internally and calls
+  `IRichTextCallbacks.SetTimer`/`ShowCaret`; here `RichText` calls its own
+  already-existing `SetTimer`/`KillTimer` - which were already fully
+  cross-platform via the pure-managed `DispatcherTimer`, no change needed -
+  and toggles `ShowCaret` on tick).
+- `CanUndo`/`Undo`/`Cut`/`Copy`/`Paste`/`Delete` forward to `_editBuffer`.
+  Cut/Copy/Paste are real against `_editBuffer`'s own text but no-op against
+  the *system* clipboard, since no `IClipboardAdapter` is registered on any
+  platform yet (unchanged from piece 2's scope decision).
+- `ForwardImeMessage`, `ScrollUp`/`ScrollDown`/`PageUp`/`PageDown`/
+  `ScrollToPosition`/`SetScrollbars`, and `DetectUrls` are explicit,
+  documented no-ops on non-Windows (`// TODO` comments in place) - IME
+  composition, scrollbar/viewport tracking, and URL detection are each
+  separate, non-trivial features not attempted in this pass.
+
+### Latent native-call audit (the "scan the whole method body" lesson from the correction below, applied proactively this time)
+
+Before wiring hosted mode live, traced every code path a focused, typing
+`TextEditingHandler` would actually execute on non-Windows and found three
+more unconditional native calls that piece 1/2 never reached (because hosted
+`RichText` could never construct until now, so these were unreachable dead
+ends, not yet-triggered bugs):
+- `Win32Api.GetCaretBlinkTime()` - raw unconditional `[DllImport]`, called
+  from `CaretInfo.BlinkTime` (bound into UIX markup via
+  `CaretInfoSchema`/`NotificationID.BlinkTime`, i.e. reachable from normal
+  caret-blink markup binding, not just my new code). Fixed following the
+  exact pattern already established by `Win32Api.GetCaretWidth()` right
+  above it: wrapped in a public method, `#if WINDOWS` calls the real
+  P/Invoke (renamed to `GetCaretBlinkTimeCore`, `EntryPoint` preserves the
+  original native symbol), `#else` returns `530` (classic Windows default
+  blink rate) with a `// TODO` for a real per-platform query.
+- `Clipboard.ContainsText()` (`Win32Api.IsClipboardFormatAvailable`) -
+  used by `TextEditingHandler.TextPasteCommand.Available` to decide whether
+  the Paste command is enabled. Guarded the same way: `#else` returns
+  `false` (matches "no clipboard adapter registered" - nothing to paste).
+- `TextEditingHandler.OnGainKeyFocus`/`OnLoseKeyFocus`/`OnDispose`'s
+  `NativeApi.SpRegisterImeCallbacks`/`SpUnregisterImeCallbacks`/
+  `SpPostDeferredImeMessage` calls - guarded with `#if WINDOWS`, non-Windows
+  no-ops (IME composition isn't implemented cross-platform - matches
+  `IImeAdapter`'s existing documented gap from piece 2).
+
+### Bug found during verification: `GraphemeMetrics.Bounds` is per-glyph ink bounds, not a line cell
+
+While writing a verification harness for the new `GetCaretMetrics`/`HitTest`
+methods (see below), round-tripping "click at caret N's own position" back
+through `HitTest` produced wrong indices for several characters in a plain
+"Hello, world!" string. Debug-dumped the raw
+`TextMeasurer.GetGraphemeMetrics` output and found each grapheme's
+`Bounds.Y`/`Bounds.Height` varies per-character within a single visual line
+(e.g. a space has ~0 height and sits near the baseline; `l` sits higher than
+`o` because of ascender/x-height differences) - `Bounds` is documented as
+"the rendered glyph bounds", i.e. tight ink extents, not a uniform per-line
+cell. My first-draft `HitTest`/`GetCaretMetrics` grouped/positioned by
+`Bounds.Y`, so it effectively saw a "new line" on almost every character.
+
+Checked whether this also affected already-"complete" code: piece 1's
+`SixLaborsTextDocument.BuildFormattedGlyphRuns`/`FlushGlyphRun` (the
+formatted-range line-grouping logic backing non-hosted `RichText.Measure`)
+has the exact same `g.Bounds.Y != lineY` pattern - meaning it had the same
+latent bug the whole time, just never exercised by a test that checked
+run *count* (piece 1's log only describes what the reconstruction does, not
+a verified line-grouping test). A single-style, single-line, multi-character
+formatted range would have been fragmented into ~one `GlyphRunInfo` per
+character instead of one run for the line.
+
+Fixed both: switched line-break/line-cell detection to
+`GraphemeMetrics.Advance` ("the positioned logical advance rectangle for the
+grapheme", confirmed via the shipped XML docs) instead of `Bounds`, and
+additionally switched `GetCaretMetrics`/`HitTest` to use
+`TextMeasurer.GetLineMetrics` for line vertical geometry (`Start.Y`/
+`LineHeight`) rather than inferring it from grouped grapheme Y values at all
+- more direct and doesn't depend on grapheme ordering assumptions.
+`GlyphRunInfo`'s reported *rendered* rectangle still unions `Bounds` (ink
+extents are correct there - that's what should be drawn), only the
+line/range grouping *decision* changed to `Advance`.
+
+Lesson: when using an unfamiliar library API by name+doc-comment alone
+(per the "read the docs, don't decompile" rule), a doc comment confirms what
+a field *contains*, not that it's *interchangeable* with a similarly-shaped
+field for a different purpose - `Bounds` and `Advance` are both
+`FontRectangle`s and both looked plausible for line-grouping until actually
+exercised against real (non-monospace, mixed-ascender) text.
+
+### Not done / explicitly deferred
+
+- IME composition (still just a documented no-op, per `IImeAdapter`/piece 2).
+- Scrollbar/viewport-aware scrolling (`ScrollUp`/`SetScrollbars`/etc. are
+  no-ops on non-Windows) - needs `RichText` to track a persistent viewport
+  size it doesn't have today (only receives per-`Measure`-call wrapping
+  constraints).
+- System clipboard integration (`IClipboardAdapter` still has no
+  implementation registered on any platform).
+- Home/End move to the nearest `'\n'`-delimited paragraph boundary, not the
+  current *wrapped visual line* - wrong for Home/End in the middle of a
+  word-wrapped paragraph. `MoveCaretToLineBoundary`'s `// TODO` covers this.
+- URL detection/highlighting (`DetectUrls`).
+- Oversampled/high-DPI rendering (unchanged from piece 1's existing gap).
+- Double-click-to-select-word, drag-select across GetLineMetrics rewraps
+  mid-drag, and undo coalescing (unchanged from piece 2's existing gap).
+
+### Verification
+
+No test project exists in this repo (per CLAUDE.md). Wrote a disposable
+scratchpad console harness referencing `UIX.RenderApi.csproj` directly
+(`SixLaborsTextDocument`/`TextDocument` are usable standalone without the
+rest of `UIX`'s session/rendering machinery, unlike `RichText` itself, which
+is `internal` and deeply tied to `UISession`): 58 checks covering
+`GetCaretMetrics` monotonicity/height/width across a plain string,
+`HitTest` round-tripping back to (approximately) the right index for every
+caret position, word-wrapped content producing carets on multiple lines,
+empty-content edge cases, and the formatted-range single-run regression
+check described above. All passed after the `Advance`-vs-`Bounds` fix
+(56 passed pre-fix with 4 documented `HitTest` mismatches; 58/58 after).
+Deleted the scratchpad project afterward. `UIX.RenderApi.csproj` and
+`UIX.csproj` (net8.0, the only TFM buildable on this Linux dev machine, per
+CLAUDE.md) both build with 0 errors.
+
+---
+
 ## 2026-07-27 — Correction: missed `NativeApi.SpSimpleTextIsAvailable()` call in the piece-1 RichText fix
 
 User caught this by inspection after the piece-1 entry below. The

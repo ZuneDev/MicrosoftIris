@@ -28,14 +28,19 @@ namespace UIXControls
         private static int GetDefaultKeyDelay()
         {
             int pParam;
+#if WINDOWS
             if (!SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0U, out pParam, 0))
+#endif
                 pParam = 1;
             return (pParam + 1) * 250;
         }
 
         private static int GetDefaultKeyRepeat()
         {
-            if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0U, out int pParam, 0))
+            int pParam;
+#if WINDOWS
+            if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0U, out pParam, 0))
+#endif
                 pParam = 1;
             return 31000 / (62 + 28 * pParam);
         }

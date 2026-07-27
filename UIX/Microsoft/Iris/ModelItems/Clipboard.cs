@@ -10,7 +10,18 @@ namespace Microsoft.Iris.ModelItems
 {
     internal static class Clipboard
     {
-        public static bool ContainsText() => Win32Api.IsClipboardFormatAvailable(13U);
+        public static bool ContainsText()
+        {
+#if WINDOWS
+            return Win32Api.IsClipboardFormatAvailable(13U);
+#else
+            // TODO: no cross-platform clipboard access is wired up yet (see
+            // Microsoft.Iris.Render.Text.Editing.IClipboardAdapter, unused by
+            // any platform so far) - report "nothing to paste" rather than
+            // crashing on the native check.
+            return false;
+#endif
+        }
 
         private enum ClipboardFormats
         {
