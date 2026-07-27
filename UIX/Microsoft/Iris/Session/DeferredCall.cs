@@ -171,7 +171,8 @@ namespace Microsoft.Iris.Session
                 EventHandler eventHandler => $"{eventHandler.Method.Name}({_param}, {_args})",
                 _ when _param is IDeferredInvokeItem deferredInvokeItem => deferredInvokeItem.ToString(),
 
-                _ => throw new InvalidOperationException()
+                not null => $"{_target.Method.DeclaringType?.FullName}.{_target.Method.Name}({_param})",
+                _ => "{null}"
             };
 
             return packetString;
