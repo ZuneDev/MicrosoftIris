@@ -19,7 +19,19 @@ namespace Microsoft.Iris.UI
         private bool _soundEffectsEnabledFlag;
         private ColorScheme _currentColorScheme;
         private static Environment s_instance;
-        private static float s_dpiScale = Math.Max(1f, NativeApi.SpGetDpi() / 96f);
+        private static float s_dpiScale = Math.Max(1f, GetDisplayScale());
+
+        private static unsafe float GetDisplayScale()
+        {
+#if WINDOWS
+            return NativeApi.SpGetDpi() / 96f;
+#else
+            var glfw = Silk.NET.GLFW.Glfw.GetApi();
+            var monitor = glfw.GetPrimaryMonitor();
+            glfw.GetMonitorContentScale(monitor, out var xscale, out _);
+            return xscale;
+#endif
+        }
 
         private Environment() => _soundEffectsEnabledFlag = true;
 

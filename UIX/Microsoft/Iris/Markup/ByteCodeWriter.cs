@@ -7,6 +7,7 @@
 using Microsoft.Iris.OS;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.Iris.Markup
@@ -121,35 +122,26 @@ namespace Microsoft.Iris.Markup
             if (value == null)
             {
                 WriteUInt16(ushort.MaxValue);
+                return;
             }
-            else
-            {
-                if (value.Length >= short.MaxValue)
-                    throw new ArgumentException("String too long");
-                
-                bool useUtf16 = false;
-                foreach (char ch in value)
-                {
-                    if (ch > 'ÿ')
-                    {
-                        useUtf16 = true;
-                        break;
-                    }
-                }
 
-                uint preamble = (uint)value.Length;
-                if (!useUtf16)
-                    preamble |= 1 << 15;
+            if (value.Length >= short.MaxValue)
+                throw new ArgumentException("String too long");
                 
-                WriteUInt16((ushort)preamble);
+            var useUtf16 = value.Any(ch => ch > '\u00ff');
+
+            var preamble = (uint)value.Length;
+            if (!useUtf16)
+                preamble |= 1 << 15;
                 
-                foreach (char ch in value)
-                {
-                    if (useUtf16)
-                        WriteChar(ch);
-                    else
-                        WriteByte((byte)ch);
-                }
+            WriteUInt16((ushort)preamble);
+                
+            foreach (var ch in value)
+            {
+                if (useUtf16)
+                    WriteChar(ch);
+                else
+                    WriteByte((byte)ch);
             }
         }
 
@@ -205,7 +197,13 @@ namespace Microsoft.Iris.Markup
 
         private unsafe byte* ComposeFinalBuffer(out uint totalSize)
         {
-            byte* pointer = (byte*)NativeApi.MemAlloc(_totalSize, false).ToPointer();
+            var pointer =
+#if WINDOWS
+                (byte*)NativeApi.MemAlloc(_totalSize, false).ToPointer();
+#else
+                (byte*)Marshal.AllocHGlobal((int)_totalSize);
+#endif
+            
             byte* numPtr = pointer;
             for (int index = 0; index < _blockList.Count - 1; ++index)
             {
@@ -225,8 +223,7 @@ namespace Microsoft.Iris.Markup
 
         public unsafe ByteCodeReader CreateReader()
         {
-            uint totalSize;
-            return new ByteCodeReader(new IntPtr(ComposeFinalBuffer(out totalSize)), totalSize, true);
+            return new ByteCodeReader(new IntPtr(ComposeFinalBuffer(out var totalSize)), totalSize, true);
         }
     }
 }
