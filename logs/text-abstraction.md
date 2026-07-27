@@ -4,6 +4,53 @@ Append-only. Do not edit previous entries.
 
 ---
 
+## 2026-07-27 — Proposed follow-up: full cross-platform text engine
+
+Not implemented — this is a proposal only, written down at the user's request
+after discussing what a "full text engine" would take, so it isn't lost
+before someone picks it up. Follows on directly from the entry below: it
+addresses the two things that entry scoped *out* of the `TextDocument`/
+`FontResource` abstraction (`RichText.Measure`'s multi-range formatting, and
+`RichText`'s interactive-editing surface).
+
+Recommend splitting this into two independent pieces rather than trying to
+grow `TextDocument` to cover everything:
+
+**1. Multi-range formatting (closes the `RichText.Measure` gap).**
+`SixLabors.Fonts`/`SixLabors.ImageSharp.Drawing` (already referenced by
+`UIX.RenderApi.csproj` as of this work) has `RichTextOptions.TextRuns`
+(`IReadOnlyList<RichTextRun>`) for applying different styles to sub-ranges of
+one text block — this was found during research for the abstraction above but
+not used, since `TextDocument.Measure` only accepts one `TextStyleInfo` per
+call. Extending `TextDocument.Measure` (or adding a parallel method) to accept
+a list of styled ranges instead of a single style would let
+`SixLaborsTextDocument` match `NativeApi.SpRichTextMeasure`/
+`Drawing.TextMeasureParams`'s formatted-range capability (used today for
+things like differently-colored hyperlink runs inside one `RichText` control)
+without inventing new machinery — the SixLabors-side support already exists.
+
+**2. Editing state (cursor, selection, undo/redo, clipboard, IME) is a
+different problem from rendering and should not be a `TextDocument` backend.**
+Recommend a pure-managed C# text-editor core (buffer + selection + undo
+stack) shared across *all* platforms, including Windows, rather than
+continuing to wrap the native RichEdit-style control via
+`NativeApi.SpRichText*`. This is a larger, standalone effort — a real
+text-editor implementation, not a thin backend swap like `TextDocument`/
+`FontResource` — but it's the only path to genuine cross-platform parity for
+`RichText`, and it would let `RichText` eventually drop its `NativeApi`
+dependency entirely (today it's the last text-related class that's still
+Windows/native-only unconditionally, per the scope decision in the entry
+below). IME composition and clipboard access genuinely need OS hooks and
+would stay behind a small per-platform adapter interface (Windows already has
+IMM32 access via `Win32Api`; other platforms would start with minimal/stubbed
+support, explicitly documented as a gap, rather than blocking the rest of the
+engine on full IME parity).
+
+No decision has been made on priority or timing for either piece; logged here
+so the reasoning and the `RichTextOptions.TextRuns` finding aren't lost.
+
+---
+
 ## 2026-07-27 — TextDocument/FontResource abstraction (UIX.RenderApi + UIX)
 
 **Goal:** isolate `NativeApi.SpLoadFontResource`, `NativeApi.SpRichTextGetSimpleContentLength`,
@@ -26,7 +73,8 @@ it's a font-shaping/rendering library, not a text editor. Confirmed with the
 user (2026-07-27, via AskUserQuestion) that these stay calling
 `NativeApi.SpRichText*` directly, unconditionally, exactly as before. A
 cross-platform interactive text-editing engine is a separate, much larger
-project for a future stage, not attempted here.
+project for a future stage, not attempted here. (See the follow-up entry
+above for a proposed shape of that project.)
 
 ### Scope decision: RichText.Measure/Rasterize also stay native-only
 
@@ -48,6 +96,9 @@ entirely backwards-compatible") forbids. So `RichText.Measure` and the static
 `NativeApi.SpRichTextGetSimpleContentLength`/`SpRichTextGetSimpleContent` back),
 and `RichText.GetNaturalBounds()` were routed through the new
 `TextDocument` abstraction, since none of those touch formatted ranges.
+(See the follow-up entry above: `SixLabors.Fonts` does have a multi-range
+formatting API — `RichTextOptions.TextRuns` — that could close this gap in a
+later pass.)
 
 `Drawing.SimpleText` (used for static/label text, not editable) has no such
 formatting-range capability to begin with, so it was fully routed through the
