@@ -15,5 +15,9 @@
         <!-- TODO: Only import on non-Windows targets -->
         <!-- ImageSharp provides support for decoding images -->
         <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
+        <!-- ImageSharp.Drawing provides glyph rasterization on top of ImageSharp -->
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="3.0.0" />
+        <!-- Fonts provides font loading/measurement independent of ImageSharp -->
+        <PackageReference Include="SixLabors.Fonts" Version="3.0.0" />
     </ItemGroup>
 </Project>

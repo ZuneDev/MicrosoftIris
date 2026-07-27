@@ -6,6 +6,7 @@
 
 using Microsoft.Iris.OS;
 using Microsoft.Iris.Render;
+using Microsoft.Iris.Render.Text;
 using Microsoft.Iris.RenderAPI;
 using Microsoft.Iris.RenderAPI.Drawing;
 using Microsoft.Iris.Session;
@@ -22,6 +23,15 @@ namespace Microsoft.Iris.Drawing
         public const float MaxWidthConstraint = 4095f;
         public const float MaxHeightConstraint = 8191f;
         private Win32Api.HANDLE _rtoHandle;
+        // Bound to _rtoHandle: routes SetContent/GetSimpleContent/GetNaturalBounds
+        // through the cross-platform Microsoft.Iris.Render.Text.TextDocument
+        // abstraction. Measure/Rasterize stay on NativeApi.SpRichText* directly
+        // below - TextMeasureParams' multi-range formatting doesn't fit this
+        // simplified single-style abstraction without losing fidelity. See
+        // logs/ for the rationale. Only meaningful on Windows: RichText's own
+        // constructor is native-only already (SpRichTextBuildObject), so this
+        // instance is always the Sp-backed implementation in practice.
+        private readonly TextDocument _textDocument;
         private NativeApi.ReportRunCallback _rrcb;
         private string _currentlyMeasuringText;
         private bool _oversampled;
@@ -48,6 +58,7 @@ namespace Microsoft.Iris.Drawing
                 _timerTickHandler = new EventHandler(OnTimerTick);
             }
             RendererApi.IFC(NativeApi.SpRichTextBuildObject(richTextMode, sizeMaximumSurface, callbacks, out _rtoHandle));
+            _textDocument = new SpTextDocument(_rtoHandle);
             _oversampled = false;
             _lock = new object();
             _rrcb = new NativeApi.ReportRunCallback(OnReportRun);
@@ -62,6 +73,7 @@ namespace Microsoft.Iris.Drawing
             GC.SuppressFinalize(this);
             lock (_lock)
             {
+                _textDocument.Dispose();
                 NativeApi.SpRichTextDestroyObject(_rtoHandle);
                 _rtoHandle.h = IntPtr.Zero;
             }
@@ -79,7 +91,7 @@ namespace Microsoft.Iris.Drawing
             set
             {
                 lock (_lock)
-                    RendererApi.IFC(NativeApi.SpRichTextSetContent(_rtoHandle, value));
+                    RendererApi.IFC(new HRESULT(_textDocument.SetContent(value).Int));
             }
         }
 
@@ -87,19 +99,11 @@ namespace Microsoft.Iris.Drawing
         {
             get
             {
-                string str = null;
-                int textLength = 0;
                 lock (_lock)
                 {
-                    RendererApi.IFC(NativeApi.SpRichTextGetSimpleContentLength(_rtoHandle, out textLength));
-                    if (textLength != 0)
-                    {
-                        StringBuilder textBuffer = new StringBuilder(textLength);
-                        RendererApi.IFC(NativeApi.SpRichTextGetSimpleContent(_rtoHandle, textBuffer, textBuffer.Capacity));
-                        str = textBuffer.ToString();
-                    }
+                    RendererApi.IFC(new HRESULT(_textDocument.GetSimpleContent(out var content).Int));
+                    return content;
                 }
-                return str;
             }
         }
 
@@ -153,11 +157,11 @@ namespace Microsoft.Iris.Drawing
 
         public Size GetNaturalBounds()
         {
-            int cWidth;
-            int cHeight;
             lock (_lock)
-                RendererApi.IFC(NativeApi.SpRichTextGetNaturalBounds(_rtoHandle, out cWidth, out cHeight));
-            return new Size(cWidth, cHeight);
+            {
+                RendererApi.IFC(new HRESULT(_textDocument.GetNaturalBounds(out var bounds).Int));
+                return bounds;
+            }
         }
 
         public void SetSelectionRange(int selectionStart, int selectionEnd)

@@ -7,6 +7,7 @@
 using Microsoft.Iris.Library;
 using Microsoft.Iris.OS;
 using Microsoft.Iris.Render;
+using Microsoft.Iris.Render.Text;
 using Microsoft.Iris.RenderAPI.Drawing;
 using System;
 
@@ -17,6 +18,9 @@ namespace Microsoft.Iris.Drawing
         private const int CFE_LINK = 32;
         private IntPtr _hGlyphRunInfo;
         private IntPtr _hRasterizeRunPacket;
+        private readonly GlyphRunInfo _glyphRunInfo;
+        private readonly TextDocument _owner;
+        private NativeApi.UnderlineStyle _underlineStyleManaged;
         private Rectangle _layoutBounds;
         private RectangleF _renderBounds;
         private Point _offsetPoint;
@@ -63,7 +67,7 @@ namespace Microsoft.Iris.Drawing
             _lfWeight = runPacketPtr->lf.lfWeight;
             SetBit(Bits.Italic, runPacketPtr->lf.lfItalic != 0);
             SetBit(Bits.Underline, runPacketPtr->lf.lfUnderline != 0);
-            SetBit(Bits.Link, (runPacketPtr->dwEffects & 32) != 0);
+            SetBit(Bits.Link, (runPacketPtr->dwEffects & CFE_LINK) != 0);
             _underlineBounds = runPacketPtr->rcUnderlineBounds;
             _lineNumber = runPacketPtr->nLineNumber;
             _naturalRunExtent = runPacketPtr->sizeNatural;
@@ -72,9 +76,46 @@ namespace Microsoft.Iris.Drawing
             _content = content;
         }
 
+        // Used for runs measured through the cross-platform TextDocument
+        // abstraction (currently only Microsoft.Iris.Drawing.SimpleText) rather
+        // than a raw native RasterizeRunPacket.
+        private TextRun(GlyphRunInfo info, TextDocument owner)
+        {
+            _glyphRunInfo = info;
+            _owner = owner;
+            _layoutBounds = info.LayoutBounds;
+            _renderBounds = new RectangleF(info.RenderBoundsX, info.RenderBoundsY, info.RenderBoundsWidth, info.RenderBoundsHeight);
+            _naturalX = info.NaturalX;
+            _naturalY = info.NaturalY;
+            _rasterizeX = info.RasterizeX;
+            _rasterizeY = info.RasterizeY;
+            _rasterizerConfig = info.RasterizerConfig;
+            _runColor = FromColorF(info.RunColor);
+            _overrideColor = Color.Transparent;
+            _highlightColor = FromColorF(info.HighlightColor);
+            _fontFaceUniqueId = info.FontFaceUniqueId;
+            _lfHeight = info.FontHeight;
+            _lfWeight = info.FontWeight;
+            SetBit(Bits.Italic, info.Italic);
+            SetBit(Bits.Underline, info.Underline);
+            SetBit(Bits.Link, info.Link);
+            _underlineBounds = info.UnderlineBounds;
+            _underlineStyleManaged = (NativeApi.UnderlineStyle)info.UnderlineStyle;
+            _lineNumber = info.Line;
+            _naturalRunExtent = info.NaturalExtent;
+            _ascenderInset = info.AscenderInset;
+            _baselineInset = info.BaselineInset;
+            _content = info.Content;
+        }
+
+        private static Color FromColorF(ColorF color) => new(color.A, color.R, color.G, color.B);
+
         protected override void OnDispose()
         {
-            NativeApi.SpRichTextDestroyGlyphRunInfo(_hGlyphRunInfo);
+            if (_glyphRunInfo != null)
+                _glyphRunInfo.Dispose();
+            else
+                NativeApi.SpRichTextDestroyGlyphRunInfo(_hGlyphRunInfo);
             base.OnDispose();
         }
 
@@ -140,9 +181,19 @@ namespace Microsoft.Iris.Drawing
 
         public unsafe NativeApi.UnderlineStyle UnderlineStyle
         {
-            get => _hRasterizeRunPacket == IntPtr.Zero ? NativeApi.UnderlineStyle.None : ((NativeApi.RasterizeRunPacket*)(void*)_hRasterizeRunPacket)->usUnderlineStyle;
+            get
+            {
+                if (_glyphRunInfo != null)
+                    return _underlineStyleManaged;
+                return _hRasterizeRunPacket == IntPtr.Zero ? NativeApi.UnderlineStyle.None : ((NativeApi.RasterizeRunPacket*)(void*)_hRasterizeRunPacket)->usUnderlineStyle;
+            }
             set
             {
+                if (_glyphRunInfo != null)
+                {
+                    _underlineStyleManaged = value;
+                    return;
+                }
                 if (!(_hRasterizeRunPacket != IntPtr.Zero))
                     return;
                 ((NativeApi.RasterizeRunPacket*)(void*)_hRasterizeRunPacket)->usUnderlineStyle = value;
@@ -171,6 +222,15 @@ namespace Microsoft.Iris.Drawing
             bool shadowMode = false;
             if (samplingMode == "sdw")
                 shadowMode = true;
+
+            if (_glyphRunInfo != null)
+            {
+                var hresult = _owner.Rasterize(_glyphRunInfo, textColor.RenderConvert(), outlineFlag, shadowMode, out var bitmap);
+                return hresult.IsSuccess() && bitmap != null
+                    ? new Dib(bitmap.NativeHandle, bitmap.Bits, bitmap.Size, bitmap.Dispose)
+                    : null;
+            }
+
             return RichText.Rasterize(_hGlyphRunInfo, outlineFlag, textColor, shadowMode);
         }
 
@@ -181,6 +241,8 @@ namespace Microsoft.Iris.Drawing
         {
             return new TextRun(hGlyphRunInfo, runPacketPtr, content);
         }
+
+        internal static TextRun FromGlyphRunInfo(GlyphRunInfo info, TextDocument owner) => new(info, owner);
 
         public void RemoveSprites(IVisualContainer container)
         {

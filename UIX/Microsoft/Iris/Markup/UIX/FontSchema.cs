@@ -8,6 +8,7 @@ using Microsoft.Iris.Data;
 using Microsoft.Iris.Drawing;
 using Microsoft.Iris.Library;
 using Microsoft.Iris.OS;
+using Microsoft.Iris.Render.Text;
 using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Markup.UIX
@@ -217,27 +218,23 @@ namespace Microsoft.Iris.Markup.UIX
             if (string.IsNullOrEmpty(resourceName))
                 ErrorManager.ReportError("Script runtime failure: Invalid 'null' value for '{0}'", "resourceName");
 
-            bool error;
+            bool loaded;
 
             // UIXRender doesn't know how to load resources from .NET assemblies, so we'll
-            // call the relevant GDI API manually for CLR DLLs.
+            // read the bytes ourselves for CLR DLLs and hand them to the platform's font loader.
             var assemblyName = System.IO.Path.GetFileNameWithoutExtension(moduleName);
 
             if (ClrDllResources.Instance.TryGetResource($"{assemblyName}!{resourceName}", $"clr-res://{assemblyName}", true, out var resource))
             {
                 resource.Acquire();
-
-                uint cFonts = 0;
-                var hFont = Win32Api.AddFontMemResourceEx(resource.Buffer, resource.Length, System.IntPtr.Zero, ref cFonts);
-
-                error = hFont == System.IntPtr.Zero;
+                loaded = FontResourceLoader.LoadFromBuffer(resource.Buffer, (int)resource.Length);
             }
             else
             {
-                error = !NativeApi.SpLoadFontResource(moduleName, resourceName);
+                loaded = FontResourceLoader.LoadFromModuleResource(moduleName, resourceName);
             }
 
-            if (error)
+            if (!loaded)
                 ErrorManager.ReportError("Font Resource {1} not found in module {0}", moduleName, resourceName);
 
             return null;

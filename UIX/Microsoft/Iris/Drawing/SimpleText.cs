@@ -1,53 +1,43 @@
-﻿// Decompiled with JetBrains decompiler
+// Based on decompilation with JetBrains decompiler
 // Type: Microsoft.Iris.Drawing.SimpleText
 // Assembly: UIX, Version=4.8.0.0, Culture=neutral, PublicKeyToken=ddd0da4d3e678217
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
-using Microsoft.Iris.OS;
 using Microsoft.Iris.Render;
-using Microsoft.Iris.RenderAPI;
-using Microsoft.Iris.Session;
+using Microsoft.Iris.Render.Text;
 using Microsoft.Iris.ViewItems;
 using System;
 
 namespace Microsoft.Iris.Drawing
 {
+    // Uses the cross-platform TextDocument abstraction (Microsoft.Iris.Render.Text)
+    // instead of calling NativeApi.SpSimpleText* directly, so this class works on
+    // any platform: TextDocumentFactory.CreateStandalone() resolves to the native
+    // SpTextDocument on Windows and to a SixLabors.Fonts-backed TextDocument
+    // elsewhere.
     internal class SimpleText : IDisposable
     {
-        private Win32Api.HANDLE _stoHandle;
+        private readonly TextDocument _document;
 
         public SimpleText()
         {
-            Size sizeMaximumSurface = Size.Zero;
-            if (UISession.Default != null)
-                sizeMaximumSurface = UIImage.MaximumSurfaceSize(UISession.Default);
-            RendererApi.IFC(NativeApi.SpSimpleTextBuildObject(sizeMaximumSurface, out _stoHandle));
+            _document = TextDocumentFactory.CreateStandalone();
         }
 
         public void Dispose()
         {
             GC.SuppressFinalize(this);
-            NativeApi.SpSimpleTextDestroyObject(_stoHandle);
-            _stoHandle = Win32Api.HANDLE.NULL;
+            _document.Dispose();
         }
 
-        public unsafe bool CanMeasure(string content, TextStyle textStyle)
+        public bool CanMeasure(string content, TextStyle textStyle)
         {
-            bool fPossible;
-
-            fixed (char* chPtr = textStyle.TruncatedFontFace)
-            {
-                var style = new TextStyle.MarshalledData(textStyle)
-                {
-                    _fontFace = chPtr
-                };
-                RendererApi.IFC(NativeApi.SpSimpleTextMeasurePossible(_stoHandle, content, &style, out fPossible));
-            }
-            return fPossible;
+            _document.MeasurePossible(content, ToStyleInfo(textStyle), out var possible);
+            return possible;
         }
 
-        public unsafe TextFlow Measure(
+        public TextFlow Measure(
           string content,
           LineAlignment alignment,
           TextStyle textStyle,
@@ -56,33 +46,37 @@ namespace Microsoft.Iris.Drawing
             TextFlow textFlow = new TextFlow();
             if (content == null)
                 content = string.Empty;
-            short wAlignment = 0;
-            switch (alignment)
+
+            var textAlignment = alignment switch
             {
-                case LineAlignment.Near:
-                    wAlignment = 1;
-                    break;
-                case LineAlignment.Center:
-                    wAlignment = 3;
-                    break;
-                case LineAlignment.Far:
-                    wAlignment = 2;
-                    break;
-            }
-            IntPtr hGlyphRunInfo;
-            NativeApi.RasterizeRunPacket rasterizeRunPacket;
-            fixed (char* chPtr = textStyle.TruncatedFontFace)
+                LineAlignment.Near => TextAlignment.Near,
+                LineAlignment.Center => TextAlignment.Center,
+                LineAlignment.Far => TextAlignment.Far,
+                _ => TextAlignment.Near,
+            };
+
+            var hresult = _document.Measure(content, textAlignment, ToStyleInfo(textStyle), constraint, out var glyphRunInfo);
+            if (hresult.IsSuccess() && glyphRunInfo != null)
             {
-                var style = new TextStyle.MarshalledData(textStyle)
-                {
-                    _fontFace = chPtr
-                };
-                RendererApi.IFC(NativeApi.SpSimpleTextMeasure(_stoHandle, content, wAlignment,
-                    &style, constraint, out hGlyphRunInfo, &rasterizeRunPacket));
+                var run = TextRun.FromGlyphRunInfo(glyphRunInfo, _document);
+                textFlow.Add(run);
             }
-            TextRun run = TextRun.FromRunPacket(hGlyphRunInfo, &rasterizeRunPacket, content);
-            textFlow.Add(run);
             return textFlow;
         }
+
+        private static TextStyleInfo ToStyleInfo(TextStyle textStyle) => new()
+        {
+            FontFace = textStyle.FontFace,
+            FontSize = textStyle.FontSize,
+            AltFontSize = textStyle.AltFontSize,
+            Bold = textStyle.Bold,
+            Italic = textStyle.Italic,
+            Underline = textStyle.Underline,
+            Color = textStyle.Color.RenderConvert(),
+            HasColor = textStyle.HasColor,
+            LineSpacing = textStyle.LineSpacing,
+            CharacterSpacing = textStyle.CharacterSpacing,
+            EnableKerning = textStyle.EnableKerning,
+        };
     }
 }
