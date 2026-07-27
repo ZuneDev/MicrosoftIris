@@ -6,13 +6,14 @@
 
 using Microsoft.Iris.Data;
 using System;
+using Microsoft.Iris.Debug;
 
 namespace Microsoft.Iris.OS
 {
     internal class DllResource : Resource
     {
-        private string _dll;
-        private string _identifier;
+        private readonly string _dll;
+        private readonly string _identifier;
         private IntPtr _buffer;
         private uint _length;
 
@@ -28,8 +29,21 @@ namespace Microsoft.Iris.OS
         protected override void StartAcquisition(bool forceSynchronous)
         {
             string errorDetails = null;
-            if (_buffer == IntPtr.Zero && !NativeApi.SpLoadBinaryResource(_dll, _identifier, !DllResources.StaticDllResourcesOnly, out _buffer, out _length))
-                errorDetails = string.Format("Resource not found: res://{0}!{1}", _dll, _identifier);
+            if (_buffer == IntPtr.Zero)
+            {
+                var (error, buffer, length) = LoadBinaryResource(_dll, _identifier,
+                    !DllResources.StaticDllResourcesOnly);
+                if (error is not null)
+                {
+                    errorDetails = error;
+                }
+                else
+                {
+                    _buffer = buffer;
+                    _length = length;
+                }
+            }
+
             NotifyAcquisitionComplete(_buffer, _length, false, errorDetails);
         }
 
@@ -37,6 +51,24 @@ namespace Microsoft.Iris.OS
         {
         }
 
-        public override string ToString() => _dll + "|" + _identifier.ToLowerInvariant();
+        public override string ToString() => $"{_dll}|{_identifier.ToLowerInvariant()}";
+        
+        private static (string error, nint buffer, uint length) LoadBinaryResource(string dllPath, string resourceName, bool allowDynamicResources)
+        {
+            #if WINDOWS
+            
+            if (NativeApi.SpLoadBinaryResource(dllPath, resourceName, allowDynamicResources, out var buffer, out var length))
+                return (null, buffer, length);
+            
+            return ($"Resource not found: res://{dllPath}!{resourceName}", 0, 0);
+            
+            #else
+            
+            var error = $"Cannot load Win32 resource res://{dllPath}!{resourceName} on non-Windows platforms";
+            Trace.WriteLine(TraceCategory.Resource, error);
+            return (error, 0, 0);
+            
+            #endif
+        }
     }
 }

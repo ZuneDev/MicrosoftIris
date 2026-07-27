@@ -6,6 +6,7 @@
 
 using Microsoft.Iris.OS;
 using System;
+using Microsoft.Iris.Debug;
 
 namespace Microsoft.Iris.Data
 {
@@ -109,13 +110,12 @@ namespace Microsoft.Iris.Data
             else
             {
                 _status = ResourceStatus.Error;
-                if (errorDetails == null)
-                    errorDetails = string.Format("Failed to acquire resource '{0}'", Identifier);
-                _errorDetails = errorDetails;
+                _errorDetails = errorDetails ?? $"Failed to acquire resource '{Identifier}'";
+                
+                Trace.WriteLine(TraceCategory.Resource, _errorDetails);
             }
-            if (_completeHandlers == null)
-                return;
-            _completeHandlers(this);
+
+            _completeHandlers?.Invoke(this);
         }
 
         protected static IntPtr AllocNativeBuffer(uint length) => NativeApi.MemAlloc(length, false);
