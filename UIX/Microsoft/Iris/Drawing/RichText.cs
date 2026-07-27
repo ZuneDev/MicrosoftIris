@@ -13,8 +13,8 @@ using Microsoft.Iris.Session;
 using Microsoft.Iris.ViewItems;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Microsoft.Iris.Drawing
 {
@@ -23,14 +23,16 @@ namespace Microsoft.Iris.Drawing
         public const float MaxWidthConstraint = 4095f;
         public const float MaxHeightConstraint = 8191f;
         private Win32Api.HANDLE _rtoHandle;
-        // Bound to _rtoHandle: routes SetContent/GetSimpleContent/GetNaturalBounds
-        // through the cross-platform Microsoft.Iris.Render.Text.TextDocument
-        // abstraction. Measure/Rasterize stay on NativeApi.SpRichText* directly
-        // below - TextMeasureParams' multi-range formatting doesn't fit this
-        // simplified single-style abstraction without losing fidelity. See
-        // logs/ for the rationale. Only meaningful on Windows: RichText's own
-        // constructor is native-only already (SpRichTextBuildObject), so this
-        // instance is always the Sp-backed implementation in practice.
+        // Bound to _rtoHandle on Windows: routes SetContent/GetSimpleContent/
+        // GetNaturalBounds/Measure through the cross-platform
+        // Microsoft.Iris.Render.Text.TextDocument abstraction. On non-Windows
+        // platforms this is a SixLaborsTextDocument instead - see the
+        // constructor. Either way, _textDocument only ever backs the
+        // *non-hosted* (display-only, callbacks == null) role of RichText:
+        // the interactive-editing surface below (IME, keyboard/mouse
+        // forwarding, undo, clipboard, scrollbars, timers) remains
+        // native/Windows-only regardless of platform - see logs/ for the
+        // rationale and scope decision.
         private readonly TextDocument _textDocument;
         private NativeApi.ReportRunCallback _rrcb;
         private string _currentlyMeasuringText;
@@ -57,11 +59,23 @@ namespace Microsoft.Iris.Drawing
                 _timers = new ArrayList(6);
                 _timerTickHandler = new EventHandler(OnTimerTick);
             }
+#if WINDOWS
             RendererApi.IFC(NativeApi.SpRichTextBuildObject(richTextMode, sizeMaximumSurface, callbacks, out _rtoHandle));
             _textDocument = new SpTextDocument(_rtoHandle);
+            _rrcb = new NativeApi.ReportRunCallback(OnReportRun);
+#else
+            // Interactive editing (hosted mode) still needs the native
+            // RichEdit-style control - not yet implemented cross-platform.
+            // See the "full cross-platform text engine" proposal in
+            // logs/text-abstraction.md. Display-only (non-hosted) usage -
+            // e.g. Text viewitem's shared word-wrapping/formatted-text
+            // rasterizer - works cross-platform via SixLaborsTextDocument.
+            if (_hosted)
+                throw new PlatformNotSupportedException("Interactive rich-text editing (IRichTextCallbacks) requires the native Windows RichEdit backend, which is not yet implemented cross-platform. See logs/text-abstraction.md.");
+            _textDocument = new SixLaborsTextDocument();
+#endif
             _oversampled = false;
             _lock = new object();
-            _rrcb = new NativeApi.ReportRunCallback(OnReportRun);
         }
 
         public void Dispose() => Dispose(true);
@@ -74,8 +88,10 @@ namespace Microsoft.Iris.Drawing
             lock (_lock)
             {
                 _textDocument.Dispose();
+#if WINDOWS
                 NativeApi.SpRichTextDestroyObject(_rtoHandle);
                 _rtoHandle.h = IntPtr.Zero;
+#endif
             }
             if (_timers == null)
                 return;
@@ -113,8 +129,13 @@ namespace Microsoft.Iris.Drawing
             {
                 if (_oversampled == value)
                     return;
+#if WINDOWS
                 lock (_lock)
                     RendererApi.IFC(NativeApi.SpRichTextSetOversampleMode(_rtoHandle, value));
+#endif
+                // TODO: SixLaborsTextDocument's rasterizer has no oversampled
+                // (higher-res antialiasing) mode yet; the flag is tracked but
+                // has no effect on non-Windows platforms.
                 _oversampled = value;
             }
             get => _oversampled;
@@ -170,6 +191,7 @@ namespace Microsoft.Iris.Drawing
                 RendererApi.IFC(NativeApi.SpRichTextSetSelectionRange(_rtoHandle, selectionStart, selectionEnd));
         }
 
+#if WINDOWS
         public unsafe TextFlow Measure(string content, ref TextMeasureParams measureParams)
         {
             TextFlow textFlow = new TextFlow();
@@ -199,6 +221,100 @@ namespace Microsoft.Iris.Drawing
             _currentlyMeasuringText = null;
             return textFlow;
         }
+#else
+        // Cross-platform counterpart of the block above, routed through the
+        // TextDocument abstraction instead of NativeApi.SpRichTextMeasure.
+        // Only reachable in non-hosted (display-only) mode - see the
+        // constructor - so measureParams' edit-mode-only fields
+        // (SetEditMode/SetPasswordChar/TrimLeftSideBearing) are not honored
+        // here; that's an accepted gap, not a silent behavior change, since
+        // hosted mode already can't be constructed on this platform.
+        public TextFlow Measure(string content, ref TextMeasureParams measureParams)
+        {
+            if (_hosted)
+                throw new PlatformNotSupportedException("Interactive rich-text editing requires the native Windows RichEdit backend, which is not yet implemented cross-platform. See logs/text-abstraction.md.");
+
+            content ??= string.Empty;
+            var baseStyle = ToStyleInfo(measureParams._textStyle);
+            var alignment = measureParams._data._alignment switch
+            {
+                1 => TextAlignment.Near,
+                3 => TextAlignment.Center,
+                2 => TextAlignment.Far,
+                _ => TextAlignment.Near,
+            };
+            var constraint = new Size((int)measureParams._data._constraint.Width, (int)measureParams._data._constraint.Height);
+            var wordWrap = (measureParams._data._flags & TextMeasureParams.MeasureFlags.WordWrap) != 0
+                && (measureParams._data._flags & TextMeasureParams.MeasureFlags.WordWrapValue) != 0;
+
+            List<TextStyleRun> formattedRanges = null;
+            if (measureParams._formattedRanges is { Length: > 0 })
+            {
+                formattedRanges = new List<TextStyleRun>(measureParams._formattedRanges.Length);
+                foreach (var range in measureParams._formattedRanges)
+                {
+                    TextStyleInfo rangeStyle = null;
+                    if (measureParams._formattedRangeStyles != null && (uint)range.StyleIndex < (uint)measureParams._formattedRangeStyles.Length)
+                        rangeStyle = ToStyleInfo(measureParams._formattedRangeStyles[range.StyleIndex]);
+                    formattedRanges.Add(new TextStyleRun
+                    {
+                        FirstCharacter = range.FirstCharacter,
+                        LastCharacter = range.LastCharacter,
+                        Style = rangeStyle,
+                    });
+                }
+            }
+
+            RendererApi.IFC(new HRESULT(_textDocument.Measure(content, alignment, baseStyle, formattedRanges, constraint, wordWrap, out var glyphRuns).Int));
+
+            var textFlow = new TextFlow();
+            foreach (var glyphRun in glyphRuns)
+                textFlow.Add(TextRun.FromGlyphRunInfo(glyphRun, _textDocument));
+            return textFlow;
+        }
+
+        private static TextStyleInfo ToStyleInfo(TextStyle style)
+        {
+            if (style == null)
+                return null;
+            return new TextStyleInfo
+            {
+                FontFace = style.FontFace,
+                FontSize = style.FontSize,
+                AltFontSize = style.AltFontSize,
+                Bold = style.Bold,
+                Italic = style.Italic,
+                Underline = style.Underline,
+                Color = style.Color.RenderConvert(),
+                HasColor = style.HasColor,
+                LineSpacing = style.LineSpacing,
+                CharacterSpacing = style.CharacterSpacing,
+                EnableKerning = style.EnableKerning,
+            };
+        }
+
+        // TextStyle.MarshalledData is plain pinned managed memory here (built
+        // by TextMeasureParams.SetFormattedRangeStyle), not native/P-Invoke
+        // state, so reading it back on any platform is safe.
+        private static unsafe TextStyleInfo ToStyleInfo(in TextStyle.MarshalledData marshalled)
+        {
+            var flags = (TextStyle.SetFlags)marshalled._flags;
+            return new TextStyleInfo
+            {
+                FontFace = marshalled._fontFace != null ? new string(marshalled._fontFace) : null,
+                FontSize = marshalled._fontHeightPts,
+                AltFontSize = flags.HasFlag(TextStyle.SetFlags.AltFontHeight) ? marshalled._altFontHeightPts : 0f,
+                Bold = flags.HasFlag(TextStyle.SetFlags.BoldValue),
+                Italic = flags.HasFlag(TextStyle.SetFlags.ItalicValue),
+                Underline = flags.HasFlag(TextStyle.SetFlags.UnderlineValue),
+                Color = marshalled._textColor.RenderConvert(),
+                HasColor = flags.HasFlag(TextStyle.SetFlags.TextColor),
+                LineSpacing = marshalled._lineSpacing,
+                CharacterSpacing = marshalled._characterSpacing,
+                EnableKerning = flags.HasFlag(TextStyle.SetFlags.EnableKerningValue),
+            };
+        }
+#endif
 
         public void NotifyOfFocusChange(bool gainingFocus)
         {

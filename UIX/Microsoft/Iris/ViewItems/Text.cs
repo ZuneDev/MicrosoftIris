@@ -158,7 +158,7 @@ namespace Microsoft.Iris.ViewItems
                 {
                     s_sharedOversampledRasterizer = new RichText(true);
                     s_sharedOversampledRasterizer.Oversample = true;
-                    s_simpleTextMeasureAvailable = NativeApi.SpSimpleTextIsAvailable();
+                    s_simpleTextMeasureAvailable = IsSimpleTextMeasureAvailable();
                 }
                 return s_sharedOversampledRasterizer;
             }
@@ -171,10 +171,28 @@ namespace Microsoft.Iris.ViewItems
                 if (s_sharedNonOversampledRasterizer == null)
                 {
                     s_sharedNonOversampledRasterizer = new RichText(true);
-                    s_simpleTextMeasureAvailable = NativeApi.SpSimpleTextIsAvailable();
+                    s_simpleTextMeasureAvailable = IsSimpleTextMeasureAvailable();
                 }
                 return s_sharedNonOversampledRasterizer;
             }
+        }
+
+        // NativeApi.SpSimpleTextIsAvailable() probes whether the native STO
+        // fast-measure family is available on this build/version of
+        // UIXRender.dll (see NativeApi.cs) - Windows-only by construction, no
+        // #if guard on the P/Invoke declaration itself, per this file's
+        // established "compiles everywhere, fails only if invoked on the
+        // wrong OS" convention. On non-Windows there is no such gap to probe:
+        // Microsoft.Iris.Drawing.SimpleText's fast-measure path already works
+        // unconditionally there via TextDocumentFactory's SixLaborsTextDocument
+        // fallback (see SimpleText.cs), so it's always available.
+        private static bool IsSimpleTextMeasureAvailable()
+        {
+#if WINDOWS
+            return NativeApi.SpSimpleTextIsAvailable();
+#else
+            return true;
+#endif
         }
 
         public string Content
