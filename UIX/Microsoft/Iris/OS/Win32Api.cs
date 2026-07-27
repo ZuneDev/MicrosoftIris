@@ -250,8 +250,11 @@ namespace Microsoft.Iris.OS
 
         public static int GetCaretWidth()
         {
+            // TODO: What APIs are available on non-Windows platforms to get text caret width?
             int pParam;
-            if (!SystemParametersInfo(8198U, 0U, out pParam, 0))
+#if WINDOWS
+            if (!SystemParametersInfo(0x2006U, 0U, out pParam, 0))
+#endif
                 pParam = 1;
             return pParam;
         }
@@ -265,7 +268,9 @@ namespace Microsoft.Iris.OS
         public static int GetDefaultKeyDelay()
         {
             int pParam;
-            if (!SystemParametersInfo(22U, 0U, out pParam, 0))
+#if WINDOWS
+            if (!SystemParametersInfo(0x16U, 0U, out pParam, 0))
+#endif
                 pParam = 1;
             return (pParam + 1) * 250;
         }
@@ -273,7 +278,9 @@ namespace Microsoft.Iris.OS
         public static int GetDefaultKeyRepeat()
         {
             int pParam;
-            if (!SystemParametersInfo(10U, 0U, out pParam, 0))
+#if WINDOWS
+            if (!SystemParametersInfo(0xAU, 0U, out pParam, 0))
+#endif
                 pParam = 1;
             return 31000 / (62 + 28 * pParam);
         }
@@ -281,7 +288,9 @@ namespace Microsoft.Iris.OS
         public static bool GetMenuDropAlignment()
         {
             bool pParam;
-            if (!SystemParametersInfo(27U, 0U, out pParam, 0))
+#if WINDOWS
+            if (!SystemParametersInfo(0x1BU, 0U, out pParam, 0))
+#endif
                 pParam = false;
             return pParam;
         }
