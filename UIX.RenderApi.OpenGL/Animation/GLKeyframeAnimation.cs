@@ -14,7 +14,7 @@ namespace Microsoft.Iris.Render.OpenGL
     /// progress/value events are recorded but not yet dispatched — see the log for why
     /// (their targets require the render-internal IActivatableObject).
     /// </remarks>
-    public sealed class GLKeyframeAnimation : GLAnimation, IKeyframeAnimation
+    internal sealed class GLKeyframeAnimation : GLAnimation, IKeyframeAnimation
     {
         private static readonly LinearInterpolation s_defaultInterpolation = new LinearInterpolation();
 

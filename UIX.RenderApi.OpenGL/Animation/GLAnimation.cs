@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Microsoft.Iris.Render.Animation;
+using Microsoft.Iris.Render.Protocol;
 
 namespace Microsoft.Iris.Render.OpenGL
 {
@@ -6,7 +8,7 @@ namespace Microsoft.Iris.Render.OpenGL
     /// Shared state machine for animations: play/pause/reset, repeat and the async-notify
     /// event. Time evaluation lives in the concrete subclasses (see <see cref="GLKeyframeAnimation"/>).
     /// </summary>
-    public abstract class GLAnimation : SharedRenderObject, IAnimation
+    internal abstract class GLAnimation : SharedRenderObject, IAnimation, IActivatableObject
     {
         public int RepeatCount { get; set; }
         public bool IsPlaying { get; protected set; }
@@ -46,6 +48,13 @@ namespace Microsoft.Iris.Render.OpenGL
 
         /// <summary>Advance internal time by <paramref name="advanceMs"/>. Driven by the system's pulse.</summary>
         internal abstract void Advance(int advanceMs);
+
+        public RENDERHANDLE GetObjectId() => default;
+
+        public uint GetMethodId(string methodName)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
     /// <summary>
@@ -53,7 +62,7 @@ namespace Microsoft.Iris.Render.OpenGL
     /// to add members (IAnimationGroup has no members beyond IAnimation), so membership is
     /// only available internally; kept for lifecycle parity.
     /// </summary>
-    public sealed class GLAnimationGroup : GLAnimation, IAnimationGroup
+    internal sealed class GLAnimationGroup : GLAnimation, IAnimationGroup
     {
         private readonly List<GLAnimation> m_members = new List<GLAnimation>();
 
