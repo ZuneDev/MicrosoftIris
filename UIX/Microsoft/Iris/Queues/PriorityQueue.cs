@@ -5,6 +5,7 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using System;
+using Microsoft.Iris.Debug;
 
 namespace Microsoft.Iris.Queues
 {
@@ -131,36 +132,49 @@ namespace Microsoft.Iris.Queues
 
         private QueueItem GetNextItemWorker(int subsetMask, bool ignoreLocks)
         {
-            int mask = BeginReadLoop(subsetMask, ignoreLocks);
+            #if DEBUG
+            for (var q = 0; q < _queues.Length; q++)
+            {
+                var queue = _queues[q];
+                var isEmpty = queue switch
+                {
+                    Input.InputQueue inputQueue => inputQueue.IsEmpty,
+                    SimpleQueue simpleQueue => simpleQueue.IsEmpty,
+                    _ => throw new Exception()
+                };
+
+                if (!isEmpty)
+                    Trace.WriteLine(TraceCategory.Queues, "Queue {0} has items", q);
+            }
+            #endif
+            
+            var mask = BeginReadLoop(subsetMask, ignoreLocks);
             QueueItem queueItem = null;
             while (mask != 0)
             {
-                int lowestBit = FindLowestBit(mask);
+                var lowestBit = FindLowestBit(mask);
+                Trace.WriteLine(TraceCategory.Queues, "Checking Queue {0}", lowestBit);
+                
                 queueItem = _queues[lowestBit].GetNextItem();
-                if (queueItem == null)
-                {
-                    SetWake(lowestBit, false);
-                    PriorityQueue.HookProc drainHook = _drainHooks[lowestBit];
-                    if (drainHook != null)
-                    {
-                        bool didWork;
-                        bool abort;
-                        drainHook(out didWork, out abort);
-                        if (!abort)
-                        {
-                            if (didWork)
-                            {
-                                mask = BeginReadLoop(subsetMask, ignoreLocks);
-                                continue;
-                            }
-                        }
-                        else
-                            break;
-                    }
-                    mask &= ~(1 << lowestBit);
-                }
-                else
+                if (queueItem != null)
                     break;
+
+                SetWake(lowestBit, false);
+                var drainHook = _drainHooks[lowestBit];
+                if (drainHook != null)
+                {
+                    drainHook(out var didWork, out var abort);
+                    if (abort)
+                        break;
+
+                    if (didWork)
+                    {
+                        mask = BeginReadLoop(subsetMask, ignoreLocks);
+                        continue;
+                    }
+                }
+
+                mask &= ~(1 << lowestBit);
             }
             return queueItem;
         }
@@ -170,15 +184,13 @@ namespace Microsoft.Iris.Queues
             if (!ignoreLocks)
                 subsetMask &= ~_lockMask;
             subsetMask &= _wakeMask | _hookMask;
-            if (subsetMask != 0 && _loopHook != null)
-            {
-                bool didWork;
-                bool abort;
-                _loopHook(out didWork, out abort);
-                if (abort)
-                    subsetMask = 0;
-            }
-            return subsetMask;
+            
+            if (subsetMask == 0 || _loopHook == null)
+                return subsetMask;
+            
+            _loopHook(out _, out var abort);
+            
+            return abort ? 0 : subsetMask;
         }
 
         private void SetWake(int priority, bool value)
