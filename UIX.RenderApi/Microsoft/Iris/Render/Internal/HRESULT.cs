@@ -8,31 +8,39 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.Iris.Render.Internal
 {
-    internal struct HRESULT
+    public struct HRESULT
     {
-        public int hr;
+        internal int hr;
 
         public HRESULT(int hr) => this.hr = hr;
 
         public static bool operator ==(HRESULT hrA, HRESULT hrB) => hrA.hr == hrB.hr;
 
         public static bool operator !=(HRESULT hrA, HRESULT hrB) => hrA.hr != hrB.hr;
+        
+        public static implicit operator HRESULT(int hr) => new(hr);
+        public static implicit operator HRESULT(uint hr) => new(unchecked((int)hr));
+        public static implicit operator int(HRESULT hr) => hr.Int;
 
-        public override bool Equals(object oCompare) => oCompare is HRESULT hresult && this.hr == hresult.hr;
+        public override bool Equals(object oCompare) => oCompare is HRESULT hresult && hr == hresult.hr;
 
-        public override int GetHashCode() => this.hr;
+        public override int GetHashCode() => hr;
 
-        public bool IsError() => this.hr < 0;
+        public bool IsError() => hr < 0;
 
-        public bool IsSuccess() => this.hr >= 0;
+        public bool IsSuccess() => hr >= 0;
 
         public void HandleError()
         {
-            if (!this.IsError())
+            if (!IsError())
                 return;
-            Marshal.ThrowExceptionForHR(this.hr);
+            
+            Marshal.ThrowExceptionForHR(hr);
         }
 
-        public int Int => this.hr;
+        public int Int => hr;
+        
+        public static HRESULT S_OK => new(0);
+        public static HRESULT E_FAIL => 0x80004005;
     }
 }

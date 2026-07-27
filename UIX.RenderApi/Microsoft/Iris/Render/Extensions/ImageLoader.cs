@@ -8,11 +8,21 @@ using Microsoft.Iris.Render.Common;
 using Microsoft.Iris.Render.Internal;
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Iris.Render.Bitmaps;
 
 namespace Microsoft.Iris.Render.Extensions
 {
     public static class ImageLoader
     {
+        private static BitmapInformation CreateBitmapInformation()
+        {
+#if WINDOWS
+            return new SpBitmapInformation();
+#else
+            return new ImageSharpBitmapInformation();
+#endif
+        }
+        
         public static bool LoadHeader(IntPtr rgData, int length, out ImageHeader header) =>
             LoadHeader(rgData, length, new ImageRequirements(), out header);
 
@@ -26,17 +36,16 @@ namespace Microsoft.Iris.Render.Extensions
             Debug2.Validate(length > 0, typeof(ArgumentOutOfRangeException), "Must provide non-zero length data to load");
             Debug2.Validate(req != null, typeof(ArgumentNullException), "Must provide valid ImageRequirements");
 
-            var bitmapInformation = new BitmapInformation();
-            var hresult = new HRESULT(-1);
+            var bitmapInformation = CreateBitmapInformation();
+            HRESULT hresult = -1;
             
             try
             {
-                hresult = ExtensionsApi.SpBitmapLoadBuffer(rgData, (uint)length, req, ExtensionsApi.BitmapOptions.None,
-                    out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+                hresult = bitmapInformation.LoadBuffer(rgData, length, req);
                 
                 header = !hresult.IsSuccess()
                     ? new ImageHeader()
-                    : bitmapInformation.imageInfo.Header;
+                    : bitmapInformation.ImageInfo.Header;
             }
             finally
             {
@@ -65,14 +74,9 @@ namespace Microsoft.Iris.Render.Extensions
                 AntialiasEdges = antialiasEdges,
                 MaximumSize = maxSize
             };
-            
-            var nOptions = ExtensionsApi.BitmapOptions.Decode;
-            if (flipRTL)
-                nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            
-            var bitmapInformation = new BitmapInformation();
-            var hresult = ExtensionsApi.SpBitmapLoadFile(filename, req, nOptions,
-                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+
+            var bitmapInformation = CreateBitmapInformation();
+            var hresult = bitmapInformation.LoadFile(filename, req);
             if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
@@ -80,10 +84,10 @@ namespace Microsoft.Iris.Render.Extensions
             }
 
             var loadSuccess = image.LoadContent(
-                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
-                bitmapInformation.imageInfo.Header.sizeActualPxl,
-                bitmapInformation.imageInfo.Header.nStride,
-                bitmapInformation.imageInfo.Data.rgData);
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.ImageInfo.Header.nFormat),
+                bitmapInformation.ImageInfo.Header.sizeActualPxl,
+                bitmapInformation.ImageInfo.Header.nStride,
+                bitmapInformation.ImageInfo.Data.rgData);
             
             if (loadSuccess)
             {
@@ -119,20 +123,8 @@ namespace Microsoft.Iris.Render.Extensions
                 MaximumSize = maxSize
             };
             
-            var hinst = ModuleManager.Instance.LoadModule(moduleName);
-            if (hinst == Win32Api.HINSTANCE.NULL)
-            {
-                bitmapInfo = null;
-                return false;
-            }
-            
-            var nOptions = ExtensionsApi.BitmapOptions.Decode;
-            if (flipRTL)
-                nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            
-            var bitmapInformation = new BitmapInformation();
-            var hresult = ExtensionsApi.SpBitmapLoadResource(hinst, resourceID, 10, req, nOptions,
-                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            var bitmapInformation = CreateBitmapInformation();
+            var hresult = bitmapInformation.LoadResource(moduleName, resourceID, req);
             if (hresult.IsError())
             {
                 bitmapInfo = null;
@@ -140,10 +132,10 @@ namespace Microsoft.Iris.Render.Extensions
             }
             
             var loadSuccess = image.LoadContent(
-                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
-                bitmapInformation.imageInfo.Header.sizeActualPxl,
-                bitmapInformation.imageInfo.Header.nStride,
-                bitmapInformation.imageInfo.Data.rgData);
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.ImageInfo.Header.nFormat),
+                bitmapInformation.ImageInfo.Header.sizeActualPxl,
+                bitmapInformation.ImageInfo.Header.nStride,
+                bitmapInformation.ImageInfo.Data.rgData);
             
             if (loadSuccess)
             {
@@ -180,13 +172,8 @@ namespace Microsoft.Iris.Render.Extensions
                 MaximumSize = maxSize
             };
             
-            var nOptions = ExtensionsApi.BitmapOptions.Decode;
-            if (flipRTL)
-                nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            
-            var bitmapInformation = new BitmapInformation();
-            var hresult = ExtensionsApi.SpBitmapLoadBuffer(buffer, (uint)length, req, nOptions,
-                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            var bitmapInformation = CreateBitmapInformation();
+            var hresult = bitmapInformation.LoadBuffer(buffer, length, req);
             if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
@@ -194,10 +181,10 @@ namespace Microsoft.Iris.Render.Extensions
             }
             
             var loadSuccess = image.LoadContent(
-                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
-                bitmapInformation.imageInfo.Header.sizeActualPxl,
-                bitmapInformation.imageInfo.Header.nStride,
-                bitmapInformation.imageInfo.Data.rgData);
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.ImageInfo.Header.nFormat),
+                bitmapInformation.ImageInfo.Header.sizeActualPxl,
+                bitmapInformation.ImageInfo.Header.nStride,
+                bitmapInformation.ImageInfo.Data.rgData);
             
             if (loadSuccess)
             {
@@ -236,13 +223,8 @@ namespace Microsoft.Iris.Render.Extensions
                 MaximumSize = maxSize
             };
             
-            var nOptions = ExtensionsApi.BitmapOptions.Decode;
-            if (flipRTL)
-                nOptions |= ExtensionsApi.BitmapOptions.Flip;
-            
-            var bitmapInformation = new BitmapInformation();
-            var hresult = ExtensionsApi.SpBitmapLoadRaw(imageSize, stride, format, buffer, req, nOptions,
-                out bitmapInformation.hBitmap, out bitmapInformation.imageInfo);
+            var bitmapInformation = CreateBitmapInformation();
+            var hresult = bitmapInformation.LoadRaw(imageSize, stride, format, buffer, req);
             if (!hresult.IsSuccess())
             {
                 bitmapInfo = null;
@@ -250,10 +232,10 @@ namespace Microsoft.Iris.Render.Extensions
             }
             
             var loadSuccess = image.LoadContent(
-                SurfaceFormatInfo.ToImageFormat(bitmapInformation.imageInfo.Header.nFormat),
-                bitmapInformation.imageInfo.Header.sizeActualPxl,
-                bitmapInformation.imageInfo.Header.nStride,
-                bitmapInformation.imageInfo.Data.rgData);
+                SurfaceFormatInfo.ToImageFormat(bitmapInformation.ImageInfo.Header.nFormat),
+                bitmapInformation.ImageInfo.Header.sizeActualPxl,
+                bitmapInformation.ImageInfo.Header.nStride,
+                bitmapInformation.ImageInfo.Data.rgData);
             
             if (loadSuccess)
             {

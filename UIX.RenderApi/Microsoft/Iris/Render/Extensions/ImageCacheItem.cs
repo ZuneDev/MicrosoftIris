@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using Microsoft.Iris.Render.Bitmaps;
 
 namespace Microsoft.Iris.Render.Extensions
 {
@@ -254,7 +255,7 @@ namespace Microsoft.Iris.Render.Extensions
                 return false;
             
             m_info = bitmapInfo;
-            SetSize(m_info.imageInfo.Header.sizeActualPxl);
+            SetSize(m_info.ImageInfo.Header.sizeActualPxl);
             return true;
         }
 
