@@ -383,7 +383,8 @@ public sealed class SixLaborsTextDocument : TextDocument
         var brush = new SolidBrush(color);
         var richTextOptions = new RichTextOptions(font) { Origin = PointF.Empty };
 
-        using var image = new Image<Rgba32>(width, height);
+        // OpenGL is configured to use BGRA32
+        using var image = new Image<Bgra32>(width, height);
         image.Mutate(ctx => ctx.Paint(canvas => canvas.DrawText(richTextOptions, glyphRun.Content ?? string.Empty, brush, null)));
 
         var byteCount = width * height * 4;
