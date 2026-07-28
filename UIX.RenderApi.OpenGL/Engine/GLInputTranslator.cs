@@ -132,20 +132,20 @@ namespace Microsoft.Iris.Render.OpenGL
 
         private void OnMouseDown(IMouse mouse, SilkMouseButton button)
         {
-            var message = MapSilkMouseButton(button, out var iris);
+            var message = MapSilkMouseButton(button, down: true, out var iris);
             if (message != 0)
                 DispatchMouse(mouse, message, iris, 0);
         }
 
-        private static uint MapSilkMouseButton(SilkMouseButton button, out MouseButtons iris)
+        private static uint MapSilkMouseButton(SilkMouseButton button, bool down, out MouseButtons iris)
         {
             (var message, iris) = button switch
             {
-                SilkMouseButton.Left => (WM_LBUTTONDOWN, MouseButtons.Left),
-                SilkMouseButton.Right => (WM_RBUTTONDOWN, MouseButtons.Right),
-                SilkMouseButton.Middle => (WM_MBUTTONDOWN, MouseButtons.Middle),
-                SilkMouseButton.Button4 => (WM_XBUTTONDOWN, MouseButtons.XButton1),
-                SilkMouseButton.Button5 => (WM_XBUTTONDOWN, MouseButtons.XButton2),
+                SilkMouseButton.Left => (down ? WM_LBUTTONDOWN : WM_LBUTTONUP, MouseButtons.Left),
+                SilkMouseButton.Right => (down ? WM_RBUTTONDOWN : WM_RBUTTONUP, MouseButtons.Right),
+                SilkMouseButton.Middle => (down ? WM_MBUTTONDOWN : WM_MBUTTONUP, MouseButtons.Middle),
+                SilkMouseButton.Button4 => (down ? WM_XBUTTONDOWN : WM_XBUTTONUP, MouseButtons.XButton1),
+                SilkMouseButton.Button5 => (down ? WM_XBUTTONDOWN : WM_XBUTTONUP, MouseButtons.XButton2),
                 _ => (0u, MouseButtons.None),
             };
             return message;
@@ -153,14 +153,14 @@ namespace Microsoft.Iris.Render.OpenGL
 
         private void OnMouseUp(IMouse mouse, SilkMouseButton button)
         {
-            var message = MapSilkMouseButton(button, out var iris);
+            var message = MapSilkMouseButton(button, down: false, out var iris);
             if (message != 0)
                 DispatchMouse(mouse, message, iris, 0);
         }
 
         private void OnDoubleClick(IMouse mouse, SilkMouseButton button, System.Numerics.Vector2 position)
         {
-            var message = MapSilkMouseButton(button, out var iris);
+            var message = MapSilkMouseButton(button, down: true, out var iris);
             if (message != 0)
                 DispatchMouse(mouse, message, iris, 0, doubleClick: true);
         }
