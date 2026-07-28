@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.Text;
+using Microsoft.Iris.Data.Registry;
 
 #nullable disable
 namespace UIXControls
