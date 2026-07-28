@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Iris.Render.Internal;
+using Microsoft.Iris.Render.Monitors;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -410,16 +411,22 @@ public sealed class SixLaborsTextDocument : TextDocument
     private static bool TryResolveFont(TextStyleInfo style, out Font font)
     {
         font = null;
-        if (!SixLaborsFontRegistry.TryGetFamily(style?.FontFace, out var family))
+        if (style is null)
+            return false;
+        
+        if (!SixLaborsFontRegistry.TryGetFamily(style.FontFace, out var family))
             return false;
 
-        var fontStyle = (style is { Bold: true, Italic: true }) ? FontStyle.BoldItalic
-            : style?.Bold == true ? FontStyle.Bold
-            : style?.Italic == true ? FontStyle.Italic
-            : FontStyle.Regular;
-
-        var size = style?.FontSize > 0 ? style.FontSize : 12f;
-        font = family.CreateFont(size, fontStyle);
+        var fontStyle = style switch
+        {
+            { Bold: true, Italic: true } => FontStyle.BoldItalic,
+            { Bold: true } => FontStyle.Bold,
+            { Italic: true } => FontStyle.Italic,
+            _ => FontStyle.Regular,
+        };
+        
+        var size = style.FontSize > 0 ? style.FontSize : 12f;
+        font = family.CreateFont(size * 1.33f, fontStyle);
         return true;
     }
 
@@ -432,7 +439,11 @@ public sealed class SixLaborsTextDocument : TextDocument
             return 0x80070490; // ERROR_NOT_FOUND
         }
 
-        var options = new TextOptions(font);
+        var options = new TextOptions(font)
+        {
+            Dpi = MonitorSystem.Instance.GetDpi(),
+        };
+
         if (constraint.Width > 0)
             options.WrappingLength = constraint.Width;
 

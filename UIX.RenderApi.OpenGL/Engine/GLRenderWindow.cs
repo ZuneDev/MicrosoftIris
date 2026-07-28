@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Iris.Input;
 using Silk.NET.Maths;
+using Silk.NET.Windowing;
 using SilkWindow = Silk.NET.Windowing.IWindow;
 using SilkWindowState = Silk.NET.Windowing.WindowState;
 
@@ -134,7 +135,15 @@ namespace Microsoft.Iris.Render.OpenGL
 
         public void SetIcon(string sModuleName, uint nResourceID, IconFlags nOptions) { /* TODO(stage 3): load icon */ }
         public void SetEdgeImages(bool fActiveEdges, ShadowEdgePart[] edges) { /* TODO(stage 3): window shadow edges */ }
-        public void SetWindowOptions(WindowOptions options, bool enable) { /* TODO(stage 3): map to Silk window flags */ }
+
+        public void SetWindowOptions(WindowOptions options, bool enable)
+        {
+            if (options.HasFlag(WindowOptions.FreeformResize))
+            {
+                m_window.WindowBorder = enable ? WindowBorder.Resizable : WindowBorder.Fixed;
+            }
+        }
+        
         public void SetMouseIdleOptions(Size sizeMouseIdleTolerance, uint nMouseIdleDelay) { }
         public void SetCapture(IRawInputSite captureSite, bool state)
             => ((GLInputSystem)m_session.InputSystem).CaptureSite = state ? captureSite : null;

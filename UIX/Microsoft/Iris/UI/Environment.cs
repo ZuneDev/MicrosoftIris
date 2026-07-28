@@ -6,10 +6,10 @@
 
 using Microsoft.Iris.Library;
 using Microsoft.Iris.Markup;
-using Microsoft.Iris.OS;
 using Microsoft.Iris.Render;
 using Microsoft.Iris.Session;
 using System;
+using Microsoft.Iris.Render.Monitors;
 
 namespace Microsoft.Iris.UI
 {
@@ -19,19 +19,7 @@ namespace Microsoft.Iris.UI
         private bool _soundEffectsEnabledFlag;
         private ColorScheme _currentColorScheme;
         private static Environment s_instance;
-        private static float s_dpiScale = Math.Max(1f, GetDisplayScale());
-
-        private static unsafe float GetDisplayScale()
-        {
-#if WINDOWS
-            return NativeApi.SpGetDpi() / 96f;
-#else
-            var glfw = Silk.NET.GLFW.Glfw.GetApi();
-            var monitor = glfw.GetPrimaryMonitor();
-            glfw.GetMonitorContentScale(monitor, out var xscale, out _);
-            return xscale;
-#endif
-        }
+        private static float s_dpiScale = Math.Max(1f, MonitorSystem.Instance.GetDisplayScale());
 
         private Environment() => _soundEffectsEnabledFlag = true;
 

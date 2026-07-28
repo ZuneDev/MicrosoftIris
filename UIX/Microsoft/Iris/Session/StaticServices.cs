@@ -4,13 +4,27 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
+using Microsoft.Iris.OS;
+using Microsoft.Iris.Render.Monitors;
+using Microsoft.Iris.Render.OpenGL.Engine;
 using Microsoft.Iris.ViewItems;
 
 namespace Microsoft.Iris.Session
 {
     internal static class StaticServices
     {
-        public static void Initialize() => Text.Initialize();
+        public static void Initialize()
+        {
+            var monitorSystem =
+#if WINDOWS
+                new Win32MonitorSystem();
+#else
+                new GlfwMonitorSystem();
+#endif
+            MonitorSystem.Initialize(monitorSystem);
+            
+            Text.Initialize();
+        }
 
         public static void Uninitialize() => Text.Uninitialize();
     }
