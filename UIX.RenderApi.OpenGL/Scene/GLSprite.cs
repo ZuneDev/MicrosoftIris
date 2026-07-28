@@ -35,9 +35,24 @@ namespace Microsoft.Iris.Render.OpenGL
             // drawn as a single stretched quad regardless of these insets.
         }
 
+        // ISprite.RelativeSize (set widely -- ViewItem's background sprite, Graphic's
+        // image content, TextRunRenderer's highlight sprite) means Size is a fraction of
+        // ParentContainer.Size rather than absolute device pixels; RelativeSize=true with
+        // Size=(1,1) (Vector2.UnitVector) means "100% of my parent container" -- the
+        // usual "stretch to fill" case. Resolve it here rather than in Size's getter/
+        // setter: the parent (and its Size) can change after this sprite's Size is set,
+        // and ParentContainer isn't known until AddChild runs.
+        private Vector2 EffectiveSize => RelativeSize && ParentContainer != null
+            ? new Vector2(Size.X * ParentContainer.Size.X, Size.Y * ParentContainer.Size.Y)
+            : Size;
+
         internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha)
         {
             if (!Visible || Size.X <= 0f || Size.Y <= 0f)
+                return;
+
+            Vector2 size = EffectiveSize;
+            if (size.X <= 0f || size.Y <= 0f)
                 return;
 
             Matrix4X4<float> matrix = LocalMatrix * parentMatrix;
@@ -47,11 +62,11 @@ namespace Microsoft.Iris.Render.OpenGL
             GLImage? image = effect?.PrimaryImage;
             if (image != null)
             {
-                renderer.DrawTexturedQuad(matrix, Size.X, Size.Y, image, alpha);
+                renderer.DrawTexturedQuad(matrix, size.X, size.Y, image, alpha);
             }
             else if (effect?.PrimaryColor is ColorF fill)
             {
-                renderer.DrawColoredQuad(matrix, Size.X, Size.Y, fill, alpha);
+                renderer.DrawColoredQuad(matrix, size.X, size.Y, fill, alpha);
             }
             else
             {
@@ -59,7 +74,7 @@ namespace Microsoft.Iris.Render.OpenGL
                 // A zeroed ColorF would be fully transparent black; only draw when the
                 // caller actually assigned a debug color.
                 if (c.A > 0f)
-                    renderer.DrawColoredQuad(matrix, Size.X, Size.Y, c, alpha);
+                    renderer.DrawColoredQuad(matrix, size.X, size.Y, c, alpha);
             }
         }
 
@@ -68,7 +83,7 @@ namespace Microsoft.Iris.Render.OpenGL
             if (!Visible || (MouseOptions & MouseOptions.Hittable) == 0)
                 return null;
             Matrix4X4<float> world = LocalMatrix * parentMatrix;
-            return ContainsPoint(screenPoint, world) ? this : null;
+            return ContainsPoint(screenPoint, world, EffectiveSize) ? this : null;
         }
     }
 }

@@ -123,17 +123,22 @@ namespace Microsoft.Iris.Render.OpenGL
         /// </summary>
         internal abstract GLVisual? HitTest(Vector2 screenPoint, Matrix4X4<float> parentMatrix);
 
-        /// <summary>Is the client-space point inside this visual's local quad?</summary>
-        private protected bool ContainsPoint(Vector2 screenPoint, Matrix4X4<float> worldMatrix)
+        /// <summary>
+        /// Is the client-space point inside a local quad of the given <paramref name="size"/>?
+        /// Takes size explicitly (rather than reading <see cref="Size"/> directly) because
+        /// <see cref="GLSprite"/>'s effective size depends on its own ISprite.RelativeSize
+        /// resolution against its parent container, not just the raw Size value.
+        /// </summary>
+        private protected bool ContainsPoint(Vector2 screenPoint, Matrix4X4<float> worldMatrix, Vector2 size)
         {
-            if (Size.X <= 0f || Size.Y <= 0f)
+            if (size.X <= 0f || size.Y <= 0f)
                 return false;
             if (!Matrix4X4.Invert(worldMatrix, out Matrix4X4<float> inverse))
                 return false;
             // Our world matrix maps local -> screen as (local * world) under the
             // renderer's convention, so the inverse maps screen -> local the same way.
             Vector3D<float> local = Vector3D.Transform(new Vector3D<float>(screenPoint.X, screenPoint.Y, 0f), inverse);
-            return local.X >= 0f && local.X <= Size.X && local.Y >= 0f && local.Y <= Size.Y;
+            return local.X >= 0f && local.X <= size.X && local.Y >= 0f && local.Y <= size.Y;
         }
     }
 }

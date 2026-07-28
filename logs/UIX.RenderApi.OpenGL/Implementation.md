@@ -2,6 +2,162 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-27 (later still, cont'd) — RelativeSize fix confirmed correct, but window now renders solid BLACK: a separate, pre-existing bug outside the render backend, in Iris's markup script/data-binding engine
+
+After the `RelativeSize` fix (previous entry, below) the user reported the window was
+now solid **black** instead of white -- a different symptom, meaning the fix changed
+something real. Re-ran `ZuneHost` for real (screen wasn't locked this time) and confirmed
+visually via `spectacle` screenshot: solid black "OpenZune" window.
+
+### Diagnosis method
+
+Added temporary tracing again (reverted after; confirmed via `git diff` that
+`GLSprite.cs`/`GLVisual.cs` only retain the `RelativeSize` fix itself, no debug leftovers)
+to `GLSprite.Render`, logging every quad's resolved position/size. Confirmed the
+`RelativeSize` fix itself is correct: sizes now resolve to real, sane values (root
+container 1012x693 matching the actual window; `Wizard.Background.Highlight.png` at
+627x693; text captions at their real glyph-run sizes; etc.) -- so that fix stands.
+
+One outlier: a `DrawColoredQuad` at `pos=(-9902,-9999) size=(20625,20691)
+color=(0,0,0,1)`, drawn partway through the frame. Fully opaque, solid black, and its
+bounds (`x: -9902..10723, y: -9999..10692`) comfortably cover the entire 1012x693
+viewport regardless of the odd off-screen anchor -- explains the solid black.
+
+Used reflection on the sprite's `OwnerData`/`ParentContainer.OwnerData` chain (temporary,
+reverted) to identify the owning managed objects without needing a `.uib` decompiler:
+`Microsoft.Iris.ViewItems.Panel` named `"ColorFill"`, parented under another `Panel`
+named `"ColorFill"`, in turn parented under a `Panel` named `**"ModalLayer"**`. Dumping
+`LayoutBounds`/`VisualSize` via reflection showed the huge size (`20625 x 20691`) is set
+directly on the *managed* `ViewItem`/`Panel` itself, at `VisualPosition=(0,0,0)` -- i.e.
+this is a genuine bug in the `UIX`/`ZuneShell` layout/markup layer, not a GL-side
+marshaling or sizing bug.
+
+### Root cause
+
+`grep -rl "ModalLayer"` found the readable markup source at
+`libs/ZuneUIXTools/test/2.1/POPUPLAYER.UIX` (`PopupLayer.uix`, referenced as
+`res://ZuneShellResources!Popup.uix`'s sibling), the always-present layer that dims the
+screen behind an active popup/modal dialog:
+```xml
+<Script>
+  bool isModal = [PopupManager.IsModal];
+  ...
+  ModalLayer.Visible = isModal;
+  ...
+</Script>
+...
+<Panel Name="ModalLayer" Visible="true" MouseInteractive="true"/>
+```
+`ModalLayer.Visible` starts `true` in markup and is meant to be continuously data-bound
+to `PopupManager.IsModal` via that `<Script>` block -- `false` whenever nothing is
+actually showing a modal popup, which is the case on the setup wizard screen we're
+looking at. Runtime confirmed `ModalLayer.Visible == True` regardless, meaning that
+script/binding is never (re-)evaluating -- the element is stuck at its markup-authored
+initial value forever. `ModalLayer`'s own child background sprite (`"ColorFill"`, the
+generic name `ViewItem`'s background-fill mechanism uses for every panel, not something
+`PopupLayer.uix` names itself) then paints solid black across whatever its `RelativeSize`
+resolves against.
+
+This is a bug in Iris's markup script-execution / data-binding engine
+(`UIX/Microsoft/Iris/Markup/ScriptRunScheduler.cs` and the surrounding `Script`/trigger
+infrastructure), which predates the OpenGL port entirely and is unrelated to the render
+backend -- any renderer would show the same stuck-visible modal layer. The
+`20625 x 20691` size itself is a separate, so-far-unexplained detail of *why* an
+always-`Visible=true`-by-default `ModalLayer` ends up that particular huge size rather
+than, say, the full window size (0,0)-(1012,693) -- not yet root-caused; whatever
+mechanism sizes `ModalLayer` (likely meant to cover the current top-level window, or
+historically the whole multi-monitor desktop for true modal dimming) is also computing a
+wrong value, though this may be moot once the `Visible` binding is fixed and the layer
+correctly hides itself when no popup is active.
+
+**Deliberately did not attempt a workaround in the GL render backend** (e.g. special-
+casing `Panel` named `"ModalLayer"`, or clipping children to parent bounds as a general
+fix) -- the actual bug is that a real feature (data-bound `Visible`) isn't running, and
+papering over its symptom in the renderer would mask that AND break the real modal-
+dimming behavior once popups/dialogs are used deliberately. This needs the markup
+script/binding engine itself fixed, which is a distinctly separate, likely substantial
+piece of work from the OpenGL rendering fixes done so far this session -- flagged to the
+user rather than diving into rewriting `ScriptRunScheduler`/trigger evaluation blind.
+
+## 2026-07-27 (later still) — Window still all-white after the stride fix: real root cause, `ISprite.RelativeSize` silently ignored by the whole GL scene graph
+
+User reported the window was still all white after the `ImageSharpBitmapInformation`
+stride fix (previous entry, below). This time the session's desktop wasn't locked, so
+instead of reasoning from code alone, actually built and ran `ZuneHost`
+(`dotnet build ZuneHost/ZuneHost.csproj -f net8.0` then ran the produced binary with
+`DISPLAY=:0`) and took a real screenshot (`spectacle -b -n -f -o ...`) -- confirmed the
+"OpenZune" window really does render as flat solid white, not an inference.
+
+### Diagnosis method
+
+Added temporary `Console.Error.WriteLine` tracing (reverted after, confirmed via
+`git diff`/`git status` showing no residual changes to `GLImage.cs`/`SceneRenderer.cs`)
+to `GLImage.LoadContent` (pixel sample + whether all pixels were identical),
+`SceneRenderer.DrawColoredQuad`/`DrawTexturedQuad` (call counts + the width/height they
+were invoked with), and `GLSprite.Render` (Position/Size/Scale/matrix). Ran `ZuneHost`
+headless-piped-to-log for a few seconds. The image pixel data itself looked fine (real,
+varying byte content, not the all-zero or all-same patterns that would indicate a decode
+bug) -- but **every single `DrawColoredQuad`/`DrawTexturedQuad` call reported
+`size=(1,1)`**, except a handful of text-caption images which had correct real pixel
+dimensions (e.g. `size=(186.44678,15.196289)`). Adding `Scale` to the trace showed it was
+*also* stuck at `(1,1)` (`Vector3.UnitVector`, `GLVisual`'s field default) for literally
+every sprite. So nearly everything in the UI -- every `ViewItem` background fill, every
+button, every non-text image -- was being drawn as a genuine 1x1-device-pixel quad. That
+is indistinguishable from "nothing rendered" at any normal window size, and explains
+"all white" far better than a pixel-format bug would (a bad format/stride produces
+visible garbage, not literal invisibility).
+
+### Root cause
+
+`grep -rn "RelativeSize"` across the whole solution turned up `ISprite.RelativeSize`
+(`UIX.RenderApi/Microsoft/Iris/Render/ISprite.cs`) being set to `true` in several places
+in the managed `UIX` project that predate the GL backend entirely:
+- `UIX/Microsoft/Iris/UI/ViewItem.cs:467-468` -- every `ViewItem`'s background sprite:
+  `_backgroundSprite.RelativeSize = true; _backgroundSprite.Size = Vector2.UnitVector;`
+- `UIX/Microsoft/Iris/ViewItems/Graphic.cs:341,372,378` -- image content sprites, toggled
+  based on stretch mode.
+- `UIX/Microsoft/Iris/ViewItems/TextRunRenderer.cs:106` -- text highlight sprites.
+
+The contract (confirmed via the original Dx9-era `Visual.cs`/`RemoteVisual.cs`, which
+marshal a `SendSetRelativeSize` message to the native renderer) is: when
+`RelativeSize == true`, `Size` is a **fraction of the parent container's size**, not
+absolute device pixels -- `Size = Vector2.UnitVector` (1,1) means "100% of
+`ParentContainer.Size`" (the normal stretch-to-fill case). `GLSprite` (added from scratch
+for this port, with no native/original counterpart) declared the `RelativeSize` property
+to satisfy the `ISprite` interface but never once *read* it anywhere -- `GLSprite.Render`
+and `GLVisual.ContainsPoint` both always treated `Size` as literal device pixels. So
+every relatively-sized sprite (nearly all chrome in the app) rendered as a literal 1x1
+quad.
+
+### Fix
+
+`UIX.RenderApi.OpenGL/Scene/GLSprite.cs`: added a private `EffectiveSize` computed
+property -- `RelativeSize && ParentContainer != null ? Size * ParentContainer.Size
+(component-wise) : Size` -- and used it in `Render` (for both `DrawTexturedQuad`/
+`DrawColoredQuad`) and `HitTest`. `IVisualContainer`/`GLVisualContainer` doesn't have a
+`RelativeSize` concept (it's `ISprite`-only per the interface), so containers keep using
+their own absolute `Size` as before -- confirmed by `ViewItem.cs:198`
+(`_container.SetSize(value, bit)`) always being called with absolute layout bounds.
+
+`UIX.RenderApi.OpenGL/Scene/GLVisual.cs`: `ContainsPoint` used to read `Size` off `this`
+internally; changed it to take an explicit `size` parameter so `GLSprite.HitTest` can
+pass its resolved `EffectiveSize` while `GLVisualContainer.HitTest` keeps passing its own
+(always-absolute) `Size` -- otherwise hit-testing would have stayed broken (a 1x1 dead
+zone) even after the rendering fix.
+
+This is purely additive to the GL backend (`UIX.RenderApi.OpenGL`); no decompiled/stage-1
+code (`ISprite`, `ViewItem`, `Graphic`, etc.) was touched, consistent with the project's
+stage discipline -- we're just now honoring a contract those callers were already relying
+on.
+
+`dotnet build ZuneHost/ZuneHost.csproj -f net8.0` succeeds (0 errors). Could not get a
+second screenshot after this fix -- the desktop session locked itself again partway
+through this investigation (same intermittent environment limitation noted in earlier
+entries in this log), so this fix is verified by the trace evidence above and the
+`RelativeSize` contract cross-referenced against `ViewItem`/`Graphic`/`Visual`/
+`RemoteVisual`, not a before/after screenshot comparison. Asked the user to rebuild and
+confirm.
+
 ## 2026-07-27 (later still) — Images load without erroring but render as (near-)solid white: third bug, bogus stride in `ImageSharpBitmapInformation`
 
 User report, after the two fixes immediately below got `GLImage.LoadContent` actually

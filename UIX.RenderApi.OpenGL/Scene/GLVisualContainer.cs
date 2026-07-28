@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Silk.NET.Maths;
 
 namespace Microsoft.Iris.Render.OpenGL
@@ -64,6 +65,27 @@ namespace Microsoft.Iris.Render.OpenGL
                 RemoveChild(child);
         }
 
+        /// <summary>
+        /// Sorts children back-to-front for painting: ascending by <see cref="GLVisual.Layer"/>
+        /// (higher layer paints later, i.e. on top -- the ordinary convention, kept as-is), with
+        /// ties broken by *reverse* insertion/declaration order. The first child added to a
+        /// container (e.g. markup's first-declared &lt;Children&gt; entry -- confirmed against
+        /// PageStack.uix, whose "ForegroundUI"/"BackgroundUI" pair is declared in exactly that
+        /// order, "Foreground" first) paints last, i.e. on top -- the opposite of the more common
+        /// "later sibling wins" convention, but matches what PageStack.uix's declared naming and
+        /// intent requires (Foreground must render over Background despite coming first). Uses a
+        /// stable sort (List&lt;T&gt;.Sort is not stable) so same-layer ties resolve
+        /// deterministically by original order, not sort-algorithm shuffling.
+        /// </summary>
+        private List<GLVisual> BackToFrontOrder()
+        {
+            return m_children.Select((v, i) => (v, i))
+                .OrderBy(t => t.v.Layer)
+                .ThenByDescending(t => t.i)
+                .Select(t => t.v)
+                .ToList();
+        }
+
         internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha)
         {
             if (!Visible)
@@ -72,10 +94,7 @@ namespace Microsoft.Iris.Render.OpenGL
             Matrix4X4<float> matrix = LocalMatrix * parentMatrix;
             float alpha = inheritedAlpha * Alpha;
 
-            // Draw children back-to-front by layer. OrderBy is stable, preserving
-            // insertion order within a layer.
-            m_children.Sort((a, b) => a.Layer.CompareTo(b.Layer));
-            foreach (var child in m_children)
+            foreach (var child in BackToFrontOrder())
                 child.Render(renderer, matrix, alpha);
         }
 
@@ -86,18 +105,19 @@ namespace Microsoft.Iris.Render.OpenGL
 
             Matrix4X4<float> world = LocalMatrix * parentMatrix;
 
-            // Children draw ascending by layer (back-to-front), so the frontmost hit is
-            // found by testing in reverse order.
-            m_children.Sort((a, b) => a.Layer.CompareTo(b.Layer));
-            for (int i = m_children.Count - 1; i >= 0; i--)
+            // Frontmost (last painted) first: same order BackToFrontOrder paints in,
+            // reversed, since that method already lists back-to-front (painted first-to-last).
+            var frontToBack = BackToFrontOrder();
+            frontToBack.Reverse();
+            foreach (var child in frontToBack)
             {
-                var hit = m_children[i].HitTest(screenPoint, world);
+                var hit = child.HitTest(screenPoint, world);
                 if (hit != null)
                     return hit;
             }
 
             // Otherwise the container itself, if it is hittable and has extent.
-            if ((MouseOptions & MouseOptions.Hittable) != 0 && ContainsPoint(screenPoint, world))
+            if ((MouseOptions & MouseOptions.Hittable) != 0 && ContainsPoint(screenPoint, world, Size))
                 return this;
 
             return null;
