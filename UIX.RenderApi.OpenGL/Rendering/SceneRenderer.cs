@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
@@ -10,45 +11,6 @@ namespace Microsoft.Iris.Render.OpenGL
     /// </summary>
     internal sealed unsafe class SceneRenderer : IDisposable
     {
-        private const string VertexSource =
-            """
-            #version 330 core
-            layout(location = 0) in vec2 aPos;
-            layout(location = 1) in vec2 aTex;
-            uniform mat4 uModel;
-            uniform mat4 uProj;
-            uniform vec2 uSize;
-            out vec2 vTex;
-            void main()
-            {
-                vTex = aTex;
-                gl_Position = uProj * uModel * vec4(aPos * uSize, 0.0, 1.0);
-            }
-""";
-
-        private const string FragmentSource =
-            """
-            #version 330 core
-            in vec2 vTex;
-            out vec4 fragColor;
-            uniform sampler2D uTex;
-            uniform int uUseTexture;
-            uniform vec4 uColor;
-            uniform float uAlpha;
-            void main()
-            {
-              if (uUseTexture == 1)
-              {
-                  vec4 t = texture(uTex, vTex);
-                  fragColor = vec4(t.rgb, t.a * uAlpha);
-              }
-              else
-              {
-                  fragColor = vec4(uColor.rgb, uColor.a * uAlpha);
-              }
-            }
-            """;
-
         private readonly GL m_gl;
         private readonly uint m_program;
         private readonly uint m_vao;
@@ -171,13 +133,13 @@ namespace Microsoft.Iris.Render.OpenGL
 
         private static uint BuildProgram(GL gl)
         {
-            uint vs = CompileShader(gl, ShaderType.VertexShader, VertexSource);
-            uint fs = CompileShader(gl, ShaderType.FragmentShader, FragmentSource);
-            uint program = gl.CreateProgram();
+            var vs = CompileShader(gl, ShaderType.VertexShader, ReadShader("VertexShader"));
+            var fs = CompileShader(gl, ShaderType.FragmentShader, ReadShader("FragmentShader"));
+            var program = gl.CreateProgram();
             gl.AttachShader(program, vs);
             gl.AttachShader(program, fs);
             gl.LinkProgram(program);
-            gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out int linked);
+            gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out var linked);
             if (linked == 0)
                 throw new InvalidOperationException("Shader link failed: " + gl.GetProgramInfoLog(program));
             gl.DetachShader(program, vs);
@@ -187,15 +149,23 @@ namespace Microsoft.Iris.Render.OpenGL
             return program;
         }
 
+        private static string ReadShader(string shaderName)
+        {
+            var o = Shaders.Shaders.ResourceManager.GetObject(shaderName);
+            return o is byte[] data
+                ? System.Text.Encoding.UTF8.GetString(data)
+                : throw new FileNotFoundException($"Failed to load {shaderName}");
+        }
+
         private static uint CompileShader(GL gl, ShaderType type, string source)
         {
-            uint shader = gl.CreateShader(type);
+            var shader = gl.CreateShader(type);
             gl.ShaderSource(shader, source);
             gl.CompileShader(shader);
-            gl.GetShader(shader, ShaderParameterName.CompileStatus, out int status);
-            if (status == 0)
-                throw new InvalidOperationException($"{type} compile failed: " + gl.GetShaderInfoLog(shader));
-            return shader;
+            gl.GetShader(shader, ShaderParameterName.CompileStatus, out var status);
+            return status != 0
+                ? shader
+                : throw new InvalidOperationException($"{type} compile failed: " + gl.GetShaderInfoLog(shader));
         }
 
         public void Dispose()

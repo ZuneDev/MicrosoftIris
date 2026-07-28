@@ -11,16 +11,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj" />
-        
+        <ProjectReference Include="..\UIX.RenderApi\UIX.RenderApi.csproj"/>
+
         <!-- Silk.NET provides the windowing/GL/input abstractions and OpenGL bindings.
              The meta-packages register the GLFW/SDL backends automatically. -->
-        <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Input.Sdl" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Windowing" Version="2.23.0" />
-        <PackageReference Include="Silk.NET.Windowing.Sdl" Version="2.23.0" />
+        <PackageReference Include="Silk.NET.Input" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Input.Sdl" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Maths" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Windowing" Version="2.23.0"/>
+        <PackageReference Include="Silk.NET.Windowing.Sdl" Version="2.23.0"/>
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) ">
@@ -28,5 +28,17 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Shaders\Shaders.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Shaders.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <Compile Update="Shaders\Shaders.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Shaders.resx</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>
