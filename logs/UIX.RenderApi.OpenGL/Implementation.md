@@ -2,6 +2,143 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-27 (later still) — Images load without erroring but render as (near-)solid white: third bug, bogus stride in `ImageSharpBitmapInformation`
+
+User report, after the two fixes immediately below got `GLImage.LoadContent` actually
+being called: images are loading successfully now (per user's own instrumentation), but
+the window is all white.
+
+### Root cause
+
+`ImageSharpBitmapInformation.UpdateImageInfo(ImageInfo imageInfo, nint buffer)`
+(`UIX.RenderApi/Microsoft/Iris/Render/Bitmaps/ImageSharpBitmapInformation.cs`) computed:
+```
+nStride = imageInfo.PixelType.BitsPerPixel / 8
+```
+Two independent problems, verified against ImageSharp 4.0.0's own
+`ImageInfo.GetPixelMemorySize()` (`SixLabors.ImageSharp.dll`, decompiled via ilspy MCP):
+that method computes total buffer size as
+`Size.Width * Size.Height * (PixelType.BitsPerPixel / 8)`, confirming stride (bytes per
+*row*) must be `width * bytesPerPixel` -- the code above was missing the `* width`
+entirely, giving bytes-per-*pixel* instead (e.g. `4`, not `width * 4`). Separately,
+`imageInfo.PixelType` here comes from `ImageInfo`'s constructor reading
+`metadata.GetDecodedPixelTypeInfo()` off the *original* decoded file's metadata (e.g. 24bpp
+for a JPEG, 8bpp indexed for some PNGs) -- not the 32bpp `Bgra32` buffer that
+`UpdateImageInfo(Image)` actually converts to and hands a pointer into.
+
+Net effect on `GLImage.LoadContent`'s row loop (`row = data + y * stride`): with stride
+wrong by roughly a factor of `width`, each row advanced by only a few bytes instead of a
+full scanline, so for any image wider than one pixel, every row past the first read pixel
+data from the wrong offset (effectively walking a diagonal/wrapped slice of the flat
+buffer instead of real rows). For icons/thumbnails with light padding or borders, reading
+scrambled data like this plausibly washes out to a near-uniform pale result -- consistent
+with "images load, but the window is white."
+
+### Fix
+
+Hardcoded `nStride`/`nFormat` in that method instead of deriving them from
+`imageInfo.PixelType`: the buffer this overload is *always* called with is the
+Bgra32-converted clone from `UpdateImageInfo(Image)`, guaranteed contiguous (that's the
+precondition `DangerousTryGetSinglePixelMemory` + `PreferContiguousImageBuffers` enforce)
+and always 4 bytes/pixel by construction. Set `nStride = imageSize.Width * 4` and
+`nFormat = SurfaceFormat.ARGB32` (which maps to `ImageFormat.A8R8G8B8` via
+`SurfaceFormatInfo.ToImageFormat`, matching Bgra32's B,G,R,A byte order exactly -- the
+same layout `GLImage.LoadContent`'s default branch already assumes).
+
+`dotnet build UIX.RenderApi.OpenGL/UIX.RenderApi.OpenGL.csproj` succeeds (0 errors). Not
+yet visually confirmed in a real window (same environment limitation as prior entries in
+this log) -- confirmed via the ImageSharp API contract (`GetPixelMemorySize`'s formula)
+and the `GLImage.LoadContent`/`SurfaceFormatInfo` byte-order match, not a screenshot.
+
+## 2026-07-27 (later) — Images never render FIXED: GLImage never requested content, and requesting it the naive way (defaulting `ImageCacheItem.m_fFullLoadRequested = true`) stack-overflowed
+
+User report: after the ColorElem.Color fix (below) made solid fills render, images still
+never appear. Traced one concrete case (an `ImageCacheItem`-backed image) and found
+`GLImage.LoadContent` is never called, so `GLImage.EnsureUploaded` always bails (texture
+pointer/pixel buffer null). Root: `ImageCacheItem.ProcessBuffer` only calls the cheap
+`DoHeaderLoad()` (dimensions only, no pixels) unless `m_fFullLoadRequested` is true, and
+nothing on the GL side ever sets that flag. Defaulting the field to `true` to test this
+caused a stack overflow instead of loading anything.
+
+### Root cause 1: Acquire/Release notification fired backwards, causing the stack overflow
+
+Compared `UIX.RenderApi.OpenGL/Scene/GLImage.cs` against the original decompiled D3D
+`Image` class (`UIX.RenderApi/Microsoft/Iris/Render/Graphics/Image.cs`), which is the
+only other implementor of the same `ContentNotifyHandler` contract
+(`UIX.RenderApi/Microsoft/Iris/Render/ContentNotifyHandler.cs`). In `Image`,
+`ContentNotification.Acquire` is a *request* sent by the image itself, from
+`OnUsageChange`/`AcquireContent()` (`Image.cs:173-188`), meaning "I have no content, load
+me" -- and `IImage.LoadContent(...)` is the *response* the owner (`ImageCacheItem`,
+via `ImageLoader.FromBuffer`/`FromFile`) sends back to fulfill that request.
+`Release` is sent later, once the owner's data buffer is done being consumed
+(`Image.OnDataBufferConsumed`), telling `ImageCacheItem.ReloadImage` to run
+`EndLoadImageData()` and free its tracking state.
+
+`GLImage.LoadContent` (as first written) instead invoked
+`m_notify?.Invoke(ContentNotification.Acquire, this, data)` itself, at the *end* of
+`LoadContent`, after storing the pixels -- i.e. it fired the request notification as a
+response, and nothing else ever fired a real request. That's why `LoadContent` was never
+called with `m_fFullLoadRequested` defaulting to `false` (no Acquire ever reached
+`ImageCacheItem.ReloadImage`). Forcing `m_fFullLoadRequested = true` instead made
+`ImageCacheItem.ProcessBuffer` eagerly call `DoImageLoad()` -> `ImageLoader.FromBuffer()`
+-> `GLImage.LoadContent()` on every load attempt; `LoadContent`'s own (backwards) Acquire
+call then re-entered `ImageCacheItem.ReloadImage(Acquire, ...)` -> `LoadBuffer()` ->
+`ProcessBuffer()` (now permanently in full-load mode) -> `DoImageLoad()` ->
+`LoadContent()` again, unconditionally, forever -- the observed stack overflow.
+
+Fix (`UIX.RenderApi.OpenGL/Scene/GLImage.cs`): removed the erroneous Acquire call from
+`LoadContent`. Added the real request point to `EnsureUploaded` (called once per frame
+per drawn image from `SceneRenderer.DrawTexturedQuad`): the first time it's asked to
+upload an image with no pixel data yet, it fires `Acquire` itself (guarded by a
+`m_loadRequested` flag so it only asks once), then fires `Release` right after --
+*after* the Acquire call has fully returned, i.e. entirely outside `LoadContent`'s own
+call stack, so there is no reentrancy. (`ImageCacheItem.ReloadImage`'s `Release` handler
+`EndLoadImageData()` never reads the `data` parameter, so passing `IntPtr.Zero` there is
+faithful to the original contract.) Left `m_fFullLoadRequested`'s default at `false` --
+the real fix is that something now actually requests the full load; flipping that
+default is unnecessary and was only ever a symptom-not-cause workaround.
+
+Did not port the original `SharedResource`/`ResourceTracker`/`AddActiveUser` machinery
+that drives `Image.OnUsageChange` in the D3D backend -- that's a materially bigger,
+separate "is this resource visible in the active scene graph this frame" abstraction
+that doesn't exist anywhere in the GL renderer yet, and the GL scene graph doesn't need
+it to fix this bug: `EnsureUploaded` already only runs for images that are actually being
+drawn, which is a faithful-enough substitute for "acquire on first real use" here.
+**TODO**: cache invalidation / resize-driven reloads (`ImageCacheItem.RemoveData()`,
+`GutterSize` growth, D3D's `OnRestoreContent`) are not wired up on the GL side --
+`m_loadRequested` never resets, so a `GLImage` that needs to be reloaded after its first
+load won't be. Not needed for the "nothing renders at all" bug; flagging for whoever
+implements dynamic image resizing/eviction next.
+
+### Root cause 2 (independent, would still corrupt images after fixing #1): dangling pixel pointer in `ImageSharpBitmapInformation`
+
+`UIX.RenderApi/Microsoft/Iris/Render/Bitmaps/ImageSharpBitmapInformation.cs`'s
+`UpdateImageInfo(Image image)` called `image.CloneAs<Bgra32>(...)` and immediately
+pinned pixel memory from that clone via `DangerousTryGetSinglePixelMemory(...).Pin()`,
+without ever storing a reference to the clone anywhere. The clone was a bare expression
+result (not even a local variable), so nothing rooted it for the GC; the JIT can
+consider a reference dead as soon as its last IL use passes, which here is before the
+pointer stashed in `ImageInfo.Data.rgData` is done being read by callers
+(`ImageLoader.FromBuffer`/`FromFile` -> `IImage.LoadContent`, which reads it
+synchronously but from several frames up the call stack). This is a classic
+missing-GC-root/premature-collection bug: timing-dependent, so it would show up as
+garbage pixels, a blank image, or an intermittent crash rather than something
+deterministic -- consistent with "black window" even once bug #1 above is fixed.
+
+Fix: `UpdateImageInfo` now stores the Bgra32-converted image in the `_image` field
+(disposing whatever `_image` held before, if different) so it stays alive until the
+next load or `Dispose()`, and stores the `MemoryHandle` from `.Pin()` in a new
+`_pixelHandle` field so it's disposed explicitly rather than discarded. Also removed
+`_LoadBuffer`'s now-redundant pre-emptive `.CloneAs<Bgra32>()` (the shared
+`UpdateImageInfo` helper already converts to `Bgra32`), since keeping two separate
+conversion sites made it easy to fix one and miss the other.
+
+Verified: `dotnet build UIX.RenderApi.OpenGL/UIX.RenderApi.OpenGL.csproj` succeeds (0
+errors; only pre-existing decompiled-code warnings, none in the touched files). Not
+visually confirmed end-to-end in a real window yet -- same `DISPLAY`/lock-screen
+limitation noted in the entry below; the fix is confirmed by code-path tracing against
+the reference `Image`/`ImageCacheItem`/`ImageLoader` implementations, not a screenshot.
+
 ## 2026-07-27 — Blank/white window FIXED: solid-color "ColorElem.Color" effect fills were never rendered
 
 User report: after the WaitForWork fix (below) got the app past the dispatcher stall

@@ -11,10 +11,12 @@ namespace Microsoft.Iris.Render.OpenGL
     /// </summary>
     public sealed class GLImage : SharedRenderObject, IImage
     {
+        private static uint freeTextureId = 1;
+        
         private readonly ContentNotifyHandler? m_notify;
         private byte[]? m_pixelsBgra;   // always stored as tightly-packed BGRA (A8R8G8B8 little-endian)
-        private bool m_dirty;
-        private uint m_texture;
+        private bool m_dirty = true;
+        private bool m_loadRequested;
 
         public GLImage(string identifier, ContentNotifyHandler? notify)
         {
@@ -25,12 +27,12 @@ namespace Microsoft.Iris.Render.OpenGL
         public Size Size { get; private set; }
         public ImageFormat Format { get; private set; } = ImageFormat.None;
         public string Identifier { get; }
+        
+        internal uint TextureId { get; private set; } = freeTextureId++;
 
-        internal uint TextureId => m_texture;
-
-        public bool LoadContent(ImageFormat format, Size size, int Stride, IntPtr Data)
+        public bool LoadContent(ImageFormat format, Size size, int stride, IntPtr data)
         {
-            if (Data == IntPtr.Zero || size.Width <= 0 || size.Height <= 0)
+            if (data == IntPtr.Zero || size.Width <= 0 || size.Height <= 0)
                 return false;
 
             int bpp = format == ImageFormat.A8 ? 1 : 4;
@@ -38,7 +40,7 @@ namespace Microsoft.Iris.Render.OpenGL
 
             for (int y = 0; y < size.Height; y++)
             {
-                IntPtr row = Data + y * Stride;
+                IntPtr row = data + y * stride;
                 for (int x = 0; x < size.Width; x++)
                 {
                     int dst = (y * size.Width + x) * 4;
@@ -69,21 +71,35 @@ namespace Microsoft.Iris.Render.OpenGL
             Size = size;
             Format = format;
             m_dirty = true;
-            m_notify?.Invoke(ContentNotification.Acquire, this, Data);
             return true;
         }
 
         /// <summary>Upload pending pixel content to the GPU. Must run on the GL thread.</summary>
         internal unsafe void EnsureUploaded(GL gl)
         {
+            // Content is loaded lazily: request it the first time it's actually needed for
+            // drawing, mirroring the original Image.OnUsageChange -> AcquireContent request/
+            // response contract (Acquire = "please load me", LoadContent = the response).
+            // Firing Acquire from inside LoadContent itself (as this used to) re-enters
+            // ImageCacheItem.ReloadImage -> LoadBuffer -> ImageLoader.FromBuffer -> LoadContent
+            // and recurses forever, so Release is raised here too, after the Acquire call has
+            // fully returned, never from within LoadContent's own call stack.
+            if (m_pixelsBgra == null && !m_loadRequested)
+            {
+                m_loadRequested = true;
+                m_notify?.Invoke(ContentNotification.Acquire, this, IntPtr.Zero);
+                if (m_pixelsBgra != null)
+                    m_notify?.Invoke(ContentNotification.Release, this, IntPtr.Zero);
+            }
+
             if (!m_dirty || m_pixelsBgra == null)
                 return;
             m_dirty = false;
 
-            if (m_texture == 0)
-                m_texture = gl.GenTexture();
+            if (TextureId == 0)
+                TextureId = gl.GenTexture();
 
-            gl.BindTexture(TextureTarget.Texture2D, m_texture);
+            gl.BindTexture(TextureTarget.Texture2D, TextureId);
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
@@ -100,10 +116,10 @@ namespace Microsoft.Iris.Render.OpenGL
 
         internal void DeleteTexture(GL gl)
         {
-            if (m_texture != 0)
+            if (TextureId != 0)
             {
-                gl.DeleteTexture(m_texture);
-                m_texture = 0;
+                gl.DeleteTexture(TextureId);
+                TextureId = 0;
             }
         }
     }

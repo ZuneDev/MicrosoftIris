@@ -1,8 +1,10 @@
 using System;
+using System.Buffers;
 using System.IO;
 using Microsoft.Iris.Render.Extensions;
 using Microsoft.Iris.Render.Internal;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 namespace Microsoft.Iris.Render.Bitmaps;
@@ -10,6 +12,7 @@ namespace Microsoft.Iris.Render.Bitmaps;
 public sealed class ImageSharpBitmapInformation : BitmapInformation
 {
     private Image _image;
+    private MemoryHandle? _pixelHandle;
 
     public override HRESULT LoadFile(string filename, ImageRequirements req) =>
         Try(() => _LoadFile(filename, req));
@@ -28,6 +31,8 @@ public sealed class ImageSharpBitmapInformation : BitmapInformation
 
     public override void Dispose()
     {
+        _pixelHandle?.Dispose();
+        _pixelHandle = null;
         _image?.Dispose();
         _image = null;
     }
@@ -35,7 +40,7 @@ public sealed class ImageSharpBitmapInformation : BitmapInformation
     private void _LoadFile(string filename, ImageRequirements req)
     {
         _image = Image.Load(filename);
-        
+
         ApplyImageTransitions(req);
         UpdateImageInfo(_image);
     }
@@ -48,8 +53,8 @@ public sealed class ImageSharpBitmapInformation : BitmapInformation
     private unsafe void _LoadBuffer(nint pvSrc, int cbSize, ImageRequirements req)
     {
         ReadOnlySpan<byte> fileBuffer = new(pvSrc.ToPointer(), cbSize);
-        _image = Image.Load(fileBuffer).Clone(_ => {});
-        
+        _image = Image.Load(fileBuffer);
+
         ApplyImageTransitions(req);
         UpdateImageInfo(_image);
     }
@@ -61,10 +66,13 @@ public sealed class ImageSharpBitmapInformation : BitmapInformation
     
     private unsafe void _LoadHeader(nint pvSrc, int cbSize, ImageRequirements req)
     {
+        _LoadBuffer(pvSrc, cbSize, req);
+        return;
+        
         ReadOnlySpan<byte> fileBuffer = new(pvSrc.ToPointer(), cbSize);
         var imageInfo = Image.Identify(fileBuffer);
         
-        UpdateImageInfo(imageInfo);
+        UpdateImageInfo(imageInfo, 0);
     }
     
     private void ApplyImageTransitions(ImageRequirements req)
@@ -73,25 +81,53 @@ public sealed class ImageSharpBitmapInformation : BitmapInformation
             _image.Mutate(x => x.Flip(FlipMode.Horizontal));
     }
 
-    private void UpdateImageInfo(Image image) => UpdateImageInfo(new ImageInfo(image.Size, image.Metadata));
-    
-    private void UpdateImageInfo(ImageInfo imageInfo)
+    private unsafe void UpdateImageInfo(Image image)
+    {
+        // Must clone into a field (not a bare expression result): DangerousTryGetSinglePixelMemory
+        // hands back a pointer into the image's own backing buffer, so the image has to outlive
+        // the pointer. A clone with no surviving reference is eligible for GC as soon as its last
+        // IL use passes, which can be before callers are done reading through the raw pointer we
+        // hand back via ImageInfo.Data.rgData - producing garbage pixels or a crash, not reliably.
+        var converted = image.CloneAs<Bgra32>(new Configuration { PreferContiguousImageBuffers = true });
+        if (!ReferenceEquals(converted, image))
+            image.Dispose();
+        _image = converted;
+
+        _pixelHandle?.Dispose();
+        _pixelHandle = null;
+        if (!converted.DangerousTryGetSinglePixelMemory(out var memory))
+            return;
+
+        _pixelHandle = memory.Pin();
+        UpdateImageInfo(new ImageInfo(converted.Size, converted.Metadata), (nint)_pixelHandle.Value.Pointer);
+    }
+
+    private void UpdateImageInfo(ImageInfo imageInfo, nint buffer)
     {
         Size imageSize = new(imageInfo.Width, imageInfo.Height);
-        
-        // TODO: Read pixel data format
-        SurfaceFormat format = SurfaceFormat.None;
-        
+
+        // This overload is only ever called with the Bgra32-converted clone's Size/Metadata
+        // (see UpdateImageInfo(Image)) and a pointer into that same clone's tightly-packed
+        // buffer (DangerousTryGetSinglePixelMemory only succeeds when contiguous, since we
+        // request PreferContiguousImageBuffers), so both format and stride are fixed: 4
+        // bytes/pixel, no row padding. imageInfo.PixelType reflects the *original* decoded
+        // file's bit depth (e.g. 24bpp JPEG, 8bpp indexed PNG), not this buffer's -- using it
+        // here previously produced a bogus stride (and it was bytes-per-pixel, not
+        // bytes-per-row, missing the "* width" besides), so every row past the first read
+        // from the wrong offset.
         ImageInfo = new ImageInformation
         {
             Header = new ImageHeader
             {
                 sizeActualPxl = imageSize,
                 sizeOriginalPxl = imageSize,
-                nStride = imageInfo.PixelType.BitsPerPixel / 8,
-                nFormat = format
+                nStride = imageSize.Width * 4,
+                nFormat = SurfaceFormat.ARGB32
             },
-            Data = default
+            Data = new ImageData
+            {
+                rgData = buffer
+            }
         };
     }
     
