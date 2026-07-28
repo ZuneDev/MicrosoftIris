@@ -11,8 +11,6 @@ namespace Microsoft.Iris.Render.OpenGL
     /// </summary>
     public sealed class GLImage : SharedRenderObject, IImage
     {
-        private static uint freeTextureId = 1;
-        
         private readonly ContentNotifyHandler? m_notify;
         private byte[]? m_pixelsBgra;   // always stored as tightly-packed BGRA (A8R8G8B8 little-endian)
         private bool m_dirty = true;
@@ -28,7 +26,7 @@ namespace Microsoft.Iris.Render.OpenGL
         public ImageFormat Format { get; private set; } = ImageFormat.None;
         public string Identifier { get; }
         
-        internal uint TextureId { get; private set; } = freeTextureId++;
+        internal uint TextureId { get; private set; }
 
         public bool LoadContent(ImageFormat format, Size size, int stride, IntPtr data)
         {
