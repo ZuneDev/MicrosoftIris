@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Iris.Input;
 using Silk.NET.Input;
 using SilkKey = Silk.NET.Input.Key;
 using SilkMouseButton = Silk.NET.Input.MouseButton;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// Translates Silk.NET.Input keyboard/mouse events into the render API's raw-input

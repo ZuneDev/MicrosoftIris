@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Microsoft.Iris.Render.Animation;
+using Microsoft.Iris.Render.OpenGL.Scene;
 using Microsoft.Iris.Render.Protocol;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// Shared state machine for animations: play/pause/reset, repeat and the async-notify

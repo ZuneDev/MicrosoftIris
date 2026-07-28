@@ -1,6 +1,6 @@
 using Microsoft.Iris.Input;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// Holds the current raw-input callback sink and mouse-capture site. The input

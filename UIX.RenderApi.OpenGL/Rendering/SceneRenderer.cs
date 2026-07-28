@@ -1,9 +1,10 @@
 using System;
 using System.IO;
+using Microsoft.Iris.Render.OpenGL.Scene;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Rendering
 {
     /// <summary>
     /// Immediate-mode style GL renderer for the visual tree. Draws each sprite as a quad

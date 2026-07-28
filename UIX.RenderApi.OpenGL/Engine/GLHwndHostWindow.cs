@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// Placeholder host-window used to embed native HWND content inside the scene.

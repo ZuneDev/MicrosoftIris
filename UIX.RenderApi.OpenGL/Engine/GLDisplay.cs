@@ -1,7 +1,7 @@
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// A monitor, described from a Silk.NET <see cref="IMonitor"/>. Resolution changes are

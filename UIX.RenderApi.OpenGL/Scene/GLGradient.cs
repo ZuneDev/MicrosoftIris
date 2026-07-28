@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// An alpha/color gradient that can be attached to a visual. We record the stops and

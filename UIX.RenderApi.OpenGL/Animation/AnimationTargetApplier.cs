@@ -1,6 +1,7 @@
 using System;
+using Microsoft.Iris.Render.OpenGL.Scene;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// Writes a resolved <see cref="AnimValue"/> onto a target render object's named

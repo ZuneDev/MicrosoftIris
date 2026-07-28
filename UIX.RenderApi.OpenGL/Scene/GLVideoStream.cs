@@ -1,4 +1,4 @@
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// Placeholder video stream. Metadata is tracked but no decoding/presentation is

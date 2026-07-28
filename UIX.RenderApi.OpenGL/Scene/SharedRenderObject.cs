@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// Common base for render objects that participate in the reference-counted

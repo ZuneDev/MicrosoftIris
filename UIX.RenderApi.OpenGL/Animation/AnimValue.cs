@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// A resolved animation value as up to four float channels plus its logical type.

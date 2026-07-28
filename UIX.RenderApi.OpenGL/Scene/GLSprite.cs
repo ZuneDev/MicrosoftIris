@@ -1,6 +1,8 @@
+using Microsoft.Iris.Render.OpenGL.Engine;
+using Microsoft.Iris.Render.OpenGL.Rendering;
 using Silk.NET.Maths;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// A leaf visual that paints a textured/colored quad. Content comes from its

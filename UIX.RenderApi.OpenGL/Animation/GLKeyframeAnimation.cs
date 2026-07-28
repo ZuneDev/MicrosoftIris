@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// Time-driven keyframe animation. On each pulse it advances its clock, finds the

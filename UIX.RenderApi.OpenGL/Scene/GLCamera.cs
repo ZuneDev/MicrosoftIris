@@ -1,4 +1,4 @@
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// Camera parameters for a visual container. Stored verbatim; the current renderer

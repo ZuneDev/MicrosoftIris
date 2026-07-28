@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// An image backed by an OpenGL texture. Pixel content supplied through

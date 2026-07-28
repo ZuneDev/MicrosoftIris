@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Iris.Render.OpenGL.Engine;
+using Microsoft.Iris.Render.OpenGL.Rendering;
 using Silk.NET.Maths;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// A transform/grouping node in the visual tree. Renders its children in

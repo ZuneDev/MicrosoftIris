@@ -1,11 +1,12 @@
 using System;
 using Microsoft.Iris.Input;
+using Microsoft.Iris.Render.OpenGL.Scene;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using SilkWindow = Silk.NET.Windowing.IWindow;
 using SilkWindowState = Silk.NET.Windowing.WindowState;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// <see cref="IRenderWindow"/> implemented over a Silk.NET window. Owns the root

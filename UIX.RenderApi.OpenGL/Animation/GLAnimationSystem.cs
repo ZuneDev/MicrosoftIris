@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// Owns the set of live animations and advances them on each pulse. Pause/step/resume

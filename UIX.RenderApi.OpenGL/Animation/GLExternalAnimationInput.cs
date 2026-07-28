@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using Microsoft.Iris.Render.OpenGL.Scene;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// An externally-driven animation input. Providers publish named values that

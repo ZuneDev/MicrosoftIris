@@ -1,4 +1,6 @@
-namespace Microsoft.Iris.Render.OpenGL
+using Microsoft.Iris.Render.OpenGL.Scene;
+
+namespace Microsoft.Iris.Render.OpenGL.Sound
 {
     /// <summary>
     /// Silent sound device. Volume/mute state is tracked so callers behave, but no audio

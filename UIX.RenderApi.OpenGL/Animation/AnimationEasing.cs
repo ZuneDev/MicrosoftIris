@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Animation
 {
     /// <summary>
     /// Maps a keyframe's <see cref="AnimationInterpolation"/> to an eased factor in

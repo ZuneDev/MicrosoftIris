@@ -1,5 +1,7 @@
 using System;
 using System.Threading;
+using Microsoft.Iris.Render.OpenGL.Rendering;
+using Microsoft.Iris.Render.OpenGL.Sound;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -8,7 +10,7 @@ using Silk.NET.Windowing;
 using SilkWindowOptions = Silk.NET.Windowing.WindowOptions;
 using SilkWindowFactory = Silk.NET.Windowing.Window;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// In-process, OpenGL-backed render engine. Owns a single Silk.NET window and its GL

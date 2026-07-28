@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using Microsoft.Iris.Render.OpenGL.Engine;
+using Microsoft.Iris.Render.OpenGL.Rendering;
 using Silk.NET.Maths;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Scene
 {
     /// <summary>
     /// Base class shared by <see cref="GLVisualContainer"/> and <see cref="GLSprite"/>.

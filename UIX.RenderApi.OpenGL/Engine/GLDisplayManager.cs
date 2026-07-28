@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Silk.NET.Windowing;
 
-namespace Microsoft.Iris.Render.OpenGL
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// Enumerates monitors via Silk.NET and exposes them as <see cref="IDisplay"/>s.

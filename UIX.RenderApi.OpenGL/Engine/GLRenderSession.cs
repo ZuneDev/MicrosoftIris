@@ -1,4 +1,7 @@
-namespace Microsoft.Iris.Render.OpenGL
+using Microsoft.Iris.Render.OpenGL.Animation;
+using Microsoft.Iris.Render.OpenGL.Scene;
+
+namespace Microsoft.Iris.Render.OpenGL.Engine
 {
     /// <summary>
     /// Thin factory that produces the render objects (visuals, sprites, images, effects,
