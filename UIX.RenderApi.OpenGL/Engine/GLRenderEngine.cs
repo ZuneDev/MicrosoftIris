@@ -51,12 +51,12 @@ namespace Microsoft.Iris.Render.OpenGL
             m_silkWindow.Load += OnLoad;
             m_silkWindow.Initialize();
             m_windowLoaded.Wait();
-            
+
             m_silkWindow.Render += OnRender;
-            m_silkWindow.Resize += _ => m_window.RaiseResize();
-            m_silkWindow.Move += _ => m_window.RaiseMove();
-            m_silkWindow.Closing += m_window.RaiseClose;
-            m_silkWindow.FocusChanged += m_window.RaiseActivation;
+            m_silkWindow.Resize += _ => { m_window.RaiseResize(); WakeWaitLoop(); };
+            m_silkWindow.Move += _ => { m_window.RaiseMove(); WakeWaitLoop(); };
+            m_silkWindow.Closing += () => { m_window.RaiseClose(); WakeWaitLoop(); };
+            m_silkWindow.FocusChanged += active => { m_window.RaiseActivation(active); WakeWaitLoop(); };
         }
 
         public IRenderSession Session => m_session;
@@ -82,7 +82,7 @@ namespace Microsoft.Iris.Render.OpenGL
             m_session.GraphicsDevice = new GLGraphicsDevice(m_gl, m_quality, RenderNow);
             m_session.SoundDevice = new GLSoundDevice(m_soundType);
             m_inputContext = m_silkWindow.CreateInput();
-            m_inputTranslator = new GLInputTranslator(m_inputContext, (GLInputSystem)m_session.InputSystem, m_window);
+            m_inputTranslator = new GLInputTranslator(m_inputContext, (GLInputSystem)m_session.InputSystem, m_window, WakeWaitLoop);
 
             m_windowLoaded.Set();
             // Do NOT raise Load here: this runs during the engine constructor, before
@@ -124,11 +124,22 @@ namespace Microsoft.Iris.Render.OpenGL
         public void WaitForWork(uint nTimeoutInMsecs)
         {
             // There's no native message queue to block on here (in-process GL engine),
-            // so approximate the original's SpWaitMessage: block until InterThreadWake
-            // signals us or the timeout elapses, polling Silk's event pump on a short
-            // cadence in between so window/input events aren't starved for the whole
-            // wait. uint.MaxValue is TimeoutManager's "no pending timeout" sentinel
-            // (see TimeoutManager.NextTimeoutMillis) -- treat it as "wait until woken".
+            // so approximate the original's SpWaitMessage: block until WakeWaitLoop is
+            // called (cross-thread via InterThreadWake, or same-thread by a native
+            // window/input event that DoEvents() just pumped -- see below) or the
+            // timeout elapses, polling Silk's event pump on a short cadence in between
+            // so window/input events aren't starved for the whole wait. uint.MaxValue is
+            // TimeoutManager's "no pending timeout" sentinel (see
+            // TimeoutManager.NextTimeoutMillis) -- treat it as "wait until woken".
+            //
+            // nTimeoutInMsecs can legitimately be very large (a distant scheduled
+            // timeout, e.g. >100s) when nothing is due soon. Silk's input/window
+            // callbacks run synchronously inside DoEvents(), so GLInputTranslator and
+            // the window-event lambdas above call WakeWaitLoop() as soon as they hand
+            // work to the dispatcher's queues -- that flips m_wakeRequested, which the
+            // loop condition below observes on its very next check. Without that, a
+            // mouse click or keypress during a long wait would sit queued but unseen by
+            // the dispatcher until the full timeout elapsed, making the UI look hung.
             const int pollSliceMs = 15;
             long deadline = nTimeoutInMsecs >= int.MaxValue
                 ? long.MaxValue
@@ -151,7 +162,15 @@ namespace Microsoft.Iris.Render.OpenGL
             m_didWork = true;
         }
 
-        public void InterThreadWake()
+        public void InterThreadWake() => WakeWaitLoop();
+
+        /// <summary>
+        /// Ends a pending <see cref="WaitForWork"/> early. Called both cross-thread (the
+        /// dispatcher's <c>InterThreadWake</c> contract) and same-thread, from within
+        /// <see cref="ProcessNativeEvents"/>'s Silk callbacks, whenever a native event
+        /// just handed the dispatcher new work.
+        /// </summary>
+        private void WakeWaitLoop()
         {
             m_wakeRequested = true;
             m_wakeEvent.Set();

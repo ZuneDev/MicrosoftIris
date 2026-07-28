@@ -65,5 +65,15 @@ namespace Microsoft.Iris.Render.OpenGL
                 return null;
             }
         }
+
+        // "ColorElem.Color" is the property key EffectManager.ColorEffectTemplate/
+        // CreateColorFillEffect (UIX/Microsoft/Iris/Session/EffectManager.cs) builds its
+        // single-color fill effect around, and it's what ViewItem.OnPaint sets on every
+        // view item's background sprite (UIX/Microsoft/Iris/UI/ViewItem.cs) whenever the
+        // item has a non-transparent background color -- i.e. most of the visible UI.
+        // GLEffectTemplate doesn't compile real shader programs (stage-3 TODO), so this
+        // is the one property path GLSprite needs to special-case for solid fills.
+        internal ColorF? PrimaryColor
+            => m_values.TryGetValue("ColorElem.Color", out var v) && v is ColorF c ? c : null;
     }
 }

@@ -27,16 +27,24 @@ namespace Microsoft.Iris.Render.OpenGL
         private readonly IInputContext m_context;
         private readonly GLInputSystem m_input;
         private readonly GLRenderWindow m_window;
+        private readonly Action m_onInputDelivered;
 
         // Per-key repeat counters so RawKeyboardData._repCount reflects auto-repeat,
         // which the InputManager uses for key coalescing.
         private readonly Dictionary<SilkKey, uint> m_repeat = new Dictionary<SilkKey, uint>();
 
-        public GLInputTranslator(IInputContext context, GLInputSystem input, GLRenderWindow window)
+        /// <param name="onInputDelivered">
+        /// Invoked whenever a raw input event was just handed to the dispatcher's input
+        /// queue, so a caller blocked in <see cref="Microsoft.Iris.Render.IRenderEngine.WaitForWork"/>
+        /// (these callbacks run synchronously from its Silk.NET event pump) can wake up
+        /// immediately instead of leaving the new work unseen until its timeout elapses.
+        /// </param>
+        public GLInputTranslator(IInputContext context, GLInputSystem input, GLRenderWindow window, Action onInputDelivered)
         {
             m_context = context;
             m_input = input;
             m_window = window;
+            m_onInputDelivered = onInputDelivered;
 
             foreach (var keyboard in context.Keyboards)
                 Hook(keyboard);
@@ -86,6 +94,7 @@ namespace Microsoft.Iris.Render.OpenGL
             uint message = (uint)(system ? KeyboardMessageId.SysDown : KeyboardMessageId.Down);
             var data = new RawKeyboardData(MapKey(key), scanCode, repeat, 0, InputDeviceType.Keyboard);
             cb.HandleRawKeyboardInput(message, ComputeModifiers(), ref data);
+            m_onInputDelivered();
         }
 
         private void OnKeyUp(IKeyboard keyboard, SilkKey key, int scanCode)
@@ -100,6 +109,7 @@ namespace Microsoft.Iris.Render.OpenGL
             uint message = (uint)(system ? KeyboardMessageId.SysUp : KeyboardMessageId.Up);
             var data = new RawKeyboardData(MapKey(key), scanCode, 1, 0, InputDeviceType.Keyboard);
             cb.HandleRawKeyboardInput(message, ComputeModifiers(), ref data);
+            m_onInputDelivered();
         }
 
         private void OnKeyChar(IKeyboard keyboard, char character)
@@ -113,6 +123,7 @@ namespace Microsoft.Iris.Render.OpenGL
             // Character messages carry the char in _virtualKey (see KeyboardDevice.OnRawKeyCharacter).
             var data = new RawKeyboardData((Keys)character, 0, 1, 0, InputDeviceType.Keyboard);
             cb.HandleRawKeyboardInput(message, ComputeModifiers(), ref data);
+            m_onInputDelivered();
         }
 
         // ---- Mouse ---------------------------------------------------------------
@@ -189,6 +200,7 @@ namespace Microsoft.Iris.Render.OpenGL
                 modifiers |= InputModifiers.DoubleClick;
 
             cb.HandleRawMouseInput(message, modifiers, ref data);
+            m_onInputDelivered();
         }
 
         // ---- Modifiers -----------------------------------------------------------

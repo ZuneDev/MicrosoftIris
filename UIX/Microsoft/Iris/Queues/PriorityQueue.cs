@@ -132,29 +132,11 @@ namespace Microsoft.Iris.Queues
 
         private QueueItem GetNextItemWorker(int subsetMask, bool ignoreLocks)
         {
-            #if DEBUG
-            for (var q = 0; q < _queues.Length; q++)
-            {
-                var queue = _queues[q];
-                var isEmpty = queue switch
-                {
-                    Input.InputQueue inputQueue => inputQueue.IsEmpty,
-                    SimpleQueue simpleQueue => simpleQueue.IsEmpty,
-                    _ => throw new Exception()
-                };
-
-                if (!isEmpty)
-                    Trace.WriteLine(TraceCategory.Queues, "Queue {0} has items", q);
-            }
-            #endif
-            
             var mask = BeginReadLoop(subsetMask, ignoreLocks);
             QueueItem queueItem = null;
             while (mask != 0)
             {
                 var lowestBit = FindLowestBit(mask);
-                Trace.WriteLine(TraceCategory.Queues, "Checking Queue {0}", lowestBit);
-                
                 queueItem = _queues[lowestBit].GetNextItem();
                 if (queueItem != null)
                     break;

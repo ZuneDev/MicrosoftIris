@@ -43,10 +43,15 @@ namespace Microsoft.Iris.Render.OpenGL
             Matrix4X4<float> matrix = LocalMatrix * parentMatrix;
             float alpha = inheritedAlpha * Alpha;
 
-            GLImage? image = (Effect as GLEffect)?.PrimaryImage;
+            GLEffect? effect = Effect as GLEffect;
+            GLImage? image = effect?.PrimaryImage;
             if (image != null)
             {
                 renderer.DrawTexturedQuad(matrix, Size.X, Size.Y, image, alpha);
+            }
+            else if (effect?.PrimaryColor is ColorF fill)
+            {
+                renderer.DrawColoredQuad(matrix, Size.X, Size.Y, fill, alpha);
             }
             else
             {

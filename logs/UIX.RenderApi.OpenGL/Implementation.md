@@ -2,6 +2,137 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-27 — Blank/white window FIXED: solid-color "ColorElem.Color" effect fills were never rendered
+
+User report: after the WaitForWork fix (below) got the app past the dispatcher stall
+and rendering, the window is still all white.
+
+### Diagnosis method
+
+Same empirical approach as the 2026-07-26 entry: temporarily instrumented (again
+`Console.Error.WriteLine`, all reverted afterward, verified via `git diff` showing zero
+residual changes to the instrumented files) `GLRenderEngine`'s ctor/`OnLoad`/`OnRender`/
+`RenderNow`, `GLRenderWindow.Initialize`/`RaiseLoad`, and `UIForm.OnLoad`. Built and ran
+`ZuneHost` (`dotnet build ZuneHost/ZuneHost.csproj -f net8.0` then the produced apphost
+directly) on the same Linux desktop as before.
+
+Trace showed the full Load chain completing without any exception --
+`Graphic.EnsureFallbackImages()` (the previously-suspected `UIXRender.dll` blocker) did
+**not** throw on this path, `UIForm.OnLoad` ran to completion, and `OnRender` fired with
+`rootChildren=1`, i.e. rendering genuinely happens. The window's actual clear color
+printed as `R0.9529412,G0.9372549,B0.94509804,A1` -- RGB(243,239,241), a near-white gray
+that reads as "white" to the eye but isn't the GL default; it's `GLRenderWindow`'s own
+`BackgroundColor`. So the base canvas paints correctly -- the bug is that nothing else
+ever paints on top of it.
+
+(Tried to get an actual visual screenshot via `spectacle`/`import` on the real desktop
+to corroborate, but the session's `DISPLAY` turned out to be a locked lock-screen, not
+the desktop the app would show on -- `wmctrl -l` / `xwininfo` never listed an "Iris"
+window either. Diagnosis relied on the code trace, not a visual capture.)
+
+### Root cause
+
+`Microsoft.Iris.UI.ViewItem.OnPaint` (`UIX/Microsoft/Iris/UI/ViewItem.cs:434`) paints
+every view item's background the same way, whenever `_backgroundColor.A != 0`:
+```
+_backgroundSprite.Effect.SetProperty("ColorElem.Color", _backgroundColor.RenderConvert());
+```
+`"ColorElem.Color"` is `EffectManager.ColorEffectProperty`
+(`UIX/Microsoft/Iris/Session/EffectManager.cs:15`), the fixed property key the built-in
+solid-fill effect template is built around (`ColorEffectTemplate`/
+`CreateColorFillEffect`, same file) -- this is the single most common paint path in the
+whole UI (any panel/button/control background with a plain color, not an image).
+
+`GLEffect` (`UIX.RenderApi.OpenGL/Scene/GLEffect.cs`) stores effect properties in an
+untyped `Dictionary<string, object>` but only ever exposed `PrimaryImage` (scans for
+`GLImage`/`IImage[]` values). `GLSprite.Render()` (`UIX.RenderApi.OpenGL/Scene/GLSprite.cs`)
+used `PrimaryImage`, and falling back to `DebugColor` when absent -- but `DebugColor` is
+a separate developer-debug-only property (see its doc comment) that markup/`ViewItem`
+never sets. Net effect: every `"ColorElem.Color"` fill -- i.e. most of the visible
+chrome -- was silently dropped, leaving only `GLRenderWindow.BackgroundColor` (the
+near-white base clear color) visible. Images (`GLSprite` with a real `GLImage`) would
+still have rendered fine; this bug is specific to the color-fill path.
+
+### Fix
+
+`GLEffect.cs`: added `internal ColorF? PrimaryColor` reading `"ColorElem.Color"` out of
+the property dictionary, mirroring `PrimaryImage`'s pattern but keyed to the one
+property name `ViewItem`/`EffectManager` actually use for solid fills (not a generic
+"any ColorF property" scan -- other effects, e.g. `PointLight2D`/`Sepia`, hold `ColorF`
+values for unrelated post-process purposes that don't belong on a sprite's own quad).
+
+`GLSprite.cs`: `Render()` now tries, in order: textured quad (real image) -> colored
+quad using `effect.PrimaryColor` (the `ColorElem.Color` fill) -> colored quad using
+`DebugColor` (unchanged last-resort fallback, kept for whatever already relied on it).
+
+Verified: `dotnet build ZuneHost/ZuneHost.csproj -f net8.0` clean (0 errors), ran the
+apphost directly -- reaches the same `OnRender`-with-content state as before with no
+new exceptions or trace regressions. Could not visually confirm actual on-screen pixels
+in this environment (see above) -- if the window is still visually wrong after this,
+next things to check: (1) whether `_backgroundColor.RenderConvert()`/`Color` values
+coming out of `Styles.uix` are themselves wrong (the "Unreferenced namespace generic"
+warning on that file every run might be masking a real style-resolution problem, not
+just noise), (2) whether non-background sprite paints (borders, glyph/text rendering --
+`SceneRenderer` only draws flat-colored/textured quads, no text path yet as far as this
+pass checked) are similarly falling through a gap like this one.
+
+## 2026-07-26 — Dispatcher stall FIXED: premature Load event + busy-spin WaitForWork
+
+User report: `GLRenderEngine.WaitForWork` seems to block the message queue far more
+than it should — `nTimeoutInMsecs` is often quite large (e.g. 113995ms), and waiting
+for that whole period is not acceptable.
+
+### Root cause
+
+`TimeoutManager.NextTimeoutMillis` (`UIX/Microsoft/Iris/Session/TimeoutManager.cs:31`)
+only returns `uint.MaxValue` when there is *no* pending timeout; a large-but-finite
+value like 113995 is legitimate — it means some queue item really is scheduled ~114s
+out. That much isn't a bug by itself: on real Windows, `WaitForWork`'s native
+equivalent (`MsgWaitForMultipleObjectsEx`-style message wait) blocks for up to that
+long too, but wakes immediately the instant *any* window message arrives, regardless
+of how far away the scheduled timeout is.
+
+`GLRenderEngine.WaitForWork` (as fixed 2026-07-26, see below) approximates that with a
+poll loop: `Wait(15ms) → DoEvents() → repeat`, breaking early only when
+`m_wakeRequested` is set by `InterThreadWake()` — which is exclusively a *cross-thread*
+signal (`UIDispatcher.WakeDispatchThread` → `UISession.InterThreadWake()` →
+`_engine.InterThreadWake()`). But `m_silkWindow.DoEvents()` inside that same loop pumps
+Silk.NET's native event queue *synchronously on the same thread* — mouse/keyboard
+input goes through `GLInputTranslator` → `IRawInputCallbacks.HandleRawMouseInput`/
+`HandleRawKeyboardInput` (`UIX/Microsoft/Iris/Input/InputManager.cs:189` /`:178`), which
+posts straight onto `InputManager`'s `_inputQueue` (wired into `UIDispatcher`'s master
+queue at `queues[6]`, see `UIDispatcher.cs:45`) with no interthread marshaling needed,
+since it's already on the UI thread. Window events (resize/move/close/focus) work the
+same way via `GLRenderWindow.Raise*`. None of this ever set `m_wakeRequested`, so a
+mouse click or keypress that arrived via `DoEvents()` sat queued but invisible to
+`WaitForWork`'s loop condition — the loop kept sleeping in 15ms slices all the way to
+the full timeout (or an unrelated cross-thread wake) before the dispatcher got a chance
+to look at the queue again. Net effect: input could be delayed by up to
+`nTimeoutInMsecs`, i.e. the UI looked hung whenever a distant timeout happened to be
+pending.
+
+### Fix
+
+`GLRenderEngine.cs`: factored the wake logic out of `InterThreadWake()` into a private
+`WakeWaitLoop()` (sets `m_wakeRequested` + signals `m_wakeEvent`, same as before).
+`InterThreadWake()` now just calls it — no behavior change for the cross-thread path.
+Additionally call `WakeWaitLoop()` from:
+- the `Resize`/`Move`/`Closing`/`FocusChanged` Silk window-event lambdas in the
+  constructor (previously just re-raised the Iris window event with no wake), and
+- `GLInputTranslator`, via a new `Action onInputDelivered` constructor parameter
+  (`GLInputTranslator.cs`) invoked right after each `cb.HandleRawKeyboardInput`/
+  `HandleRawMouseInput` call (`OnKeyDown`, `OnKeyUp`, `OnKeyChar`, and the shared
+  `DispatchMouse` used by move/down/up/scroll/double-click).
+
+Since `WakeWaitLoop()` runs synchronously inside the `DoEvents()` call that's already
+inside `WaitForWork`'s loop body, the very next loop-condition check
+(`!m_wakeRequested`) sees it and exits immediately instead of waiting out the rest of
+the poll slice, let alone the full timeout. Verified with
+`dotnet build UIX.RenderApi.OpenGL.csproj` (0 errors, only pre-existing warnings) — no
+runtime input trace was re-captured for this pass; if input still feels laggy after
+this, check whether `IWindow.DoEvents()` itself is buffering/coalescing before invoking
+Silk callbacks (Silk.NET/GLFW internals, not our code).
+
 ## 2026-07-26 — Dispatcher stall FIXED: premature Load event + busy-spin WaitForWork
 
 User report (console ZuneHost on Linux): everything initializes with no errors, but
