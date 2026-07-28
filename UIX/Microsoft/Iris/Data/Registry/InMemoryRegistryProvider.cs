@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Win32;
 
 namespace Microsoft.Iris.Data.Registry
 {
@@ -10,6 +11,31 @@ namespace Microsoft.Iris.Data.Registry
     // no-op stub behavior except that values round-trip within a single run.
     internal sealed class InMemoryRegistryProvider : IRegistryProvider
     {
+        // Root providers are shared per (hive, path) rather than created fresh
+        // per call, since some callers (e.g. UIXControls.RegistryHelper) open
+        // and close a key on every Get/Save the way the real registry does;
+        // without sharing, every such call would see an empty, disconnected
+        // store instead of the values a previous call wrote.
+        private static readonly Dictionary<(RegistryHive, string), InMemoryRegistryProvider> s_roots = new();
+        private static readonly object s_rootsLock = new();
+
+        internal static InMemoryRegistryProvider GetOrCreate(RegistryHive hive, string subKeyPath)
+        {
+            (RegistryHive, string) key = (hive, subKeyPath.ToUpperInvariant());
+            lock (s_rootsLock)
+            {
+                if (!s_roots.TryGetValue(key, out InMemoryRegistryProvider? root))
+                    s_roots[key] = root = new InMemoryRegistryProvider();
+                return root;
+            }
+        }
+
+        internal static InMemoryRegistryProvider? TryGet(RegistryHive hive, string subKeyPath)
+        {
+            lock (s_rootsLock)
+                return s_roots.TryGetValue((hive, subKeyPath.ToUpperInvariant()), out InMemoryRegistryProvider? root) ? root : null;
+        }
+
         private readonly Dictionary<string, object> m_values = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, InMemoryRegistryProvider> m_subKeys = new(StringComparer.OrdinalIgnoreCase);
 

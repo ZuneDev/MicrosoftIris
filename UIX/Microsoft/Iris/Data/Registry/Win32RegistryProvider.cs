@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 
-namespace ZuneDBApi.Abstractions
+namespace Microsoft.Iris.Data.Registry
 {
     /// <summary>
     /// Real <see cref="IRegistryProvider"/> implementation that passes through

@@ -4,11 +4,10 @@ using System.Collections.Generic;
 namespace Microsoft.Iris.Data.Registry
 {
     /// <summary>
-    /// Abstraction over the named-value store backing a single
-    /// <see cref="CConfigurationManagedBase"/> instance. Decouples configuration
-    /// classes from any specific persistence mechanism (Windows registry,
-    /// in-memory, etc), so the same property-getter/setter logic works on every
-    /// platform.
+    /// Abstraction over a single named-value store (a "key" in Windows registry
+    /// terms). Decouples configuration/settings consumers from any specific
+    /// persistence mechanism (Windows registry, in-memory, etc), so the same
+    /// property-getter/setter logic works on every platform.
     /// </summary>
     public interface IRegistryProvider : IDisposable
     {

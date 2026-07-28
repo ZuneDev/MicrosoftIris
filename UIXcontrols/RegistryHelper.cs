@@ -4,7 +4,6 @@
 // MVID: 78800EA5-2757-404C-BA30-C33FCFC2852A
 // Assembly location: C:\Program Files\Zune\UIXcontrols.dll
 
-using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Globalization;
@@ -24,36 +23,50 @@ namespace UIXControls
             set => s_settingsRegistryPath = value;
         }
 
+        // Opens (and closes) the key fresh per call rather than caching a
+        // handle, matching how Registry.GetValue/SetValue behaved before this
+        // was ported to IRegistryProvider — SettingsRegistryPath can change at
+        // any time, and the real registry has no cost advantage to keeping a
+        // handle open.
+        private static IRegistryProvider OpenForWrite() =>
+            string.IsNullOrEmpty(SettingsRegistryPath) ? null : RegistryProviderFactory.TryOpen(SettingsRegistryPath, writable: true, createIfMissing: true);
+
+        private static IRegistryProvider OpenForRead() =>
+            string.IsNullOrEmpty(SettingsRegistryPath) ? null : RegistryProviderFactory.TryOpen(SettingsRegistryPath, writable: false, createIfMissing: false);
+
         public static void SaveString(string keyName, string value)
         {
-            if (string.IsNullOrEmpty(SettingsRegistryPath))
-                return;
-            Registry.SetValue(SettingsRegistryPath, keyName, value);
+            using IRegistryProvider key = OpenForWrite();
+            key?.SetStringValue(keyName, value);
         }
 
         public static string GetString(string keyName, string defaultValue)
         {
-            string str = null;
-            if (!string.IsNullOrEmpty(SettingsRegistryPath))
-                str = Registry.GetValue(SettingsRegistryPath, keyName, defaultValue) as string;
-            return str ?? defaultValue;
+            using IRegistryProvider key = OpenForRead();
+            return key?.GetStringValue(keyName, defaultValue) ?? defaultValue;
         }
 
         public static void SaveInt(string keyName, int value)
         {
-            if (string.IsNullOrEmpty(SettingsRegistryPath))
-                return;
-            Registry.SetValue(SettingsRegistryPath, keyName, value);
+            using IRegistryProvider key = OpenForWrite();
+            key?.SetIntValue(keyName, value);
         }
 
         public static int GetInt(string keyName, int min, int max, int defaultValue)
         {
-            return string.IsNullOrEmpty(keyName) || string.IsNullOrEmpty(SettingsRegistryPath) || !(Registry.GetValue(SettingsRegistryPath, keyName, defaultValue) is int num) || num < min || num > max ? defaultValue : num;
+            if (string.IsNullOrEmpty(keyName))
+                return defaultValue;
+            using IRegistryProvider key = OpenForRead();
+            if (key == null)
+                return defaultValue;
+            int num = key.GetIntValue(keyName, defaultValue);
+            return num < min || num > max ? defaultValue : num;
         }
 
         private static void SaveList(string keyName, IList values, RegistryHelper.ToStringer toString)
         {
-            if (string.IsNullOrEmpty(SettingsRegistryPath))
+            using IRegistryProvider key = OpenForWrite();
+            if (key == null)
                 return;
             StringBuilder stringBuilder = new StringBuilder();
             foreach (object obj in (IEnumerable)values)
@@ -62,7 +75,7 @@ namespace UIXControls
                     stringBuilder.Append(';');
                 stringBuilder.Append(toString(obj));
             }
-            Registry.SetValue(SettingsRegistryPath, keyName, stringBuilder.ToString());
+            key.SetStringValue(keyName, stringBuilder.ToString());
         }
 
         public static void SaveIntList(string keyName, IList values)
@@ -80,9 +93,8 @@ namespace UIXControls
           int expectedCount,
           RegistryHelper.TryParser tryParse)
         {
-            if (string.IsNullOrEmpty(SettingsRegistryPath))
-                return null;
-            string str = Registry.GetValue(SettingsRegistryPath, keyName, null) as string;
+            using IRegistryProvider key = OpenForRead();
+            string str = key?.GetStringValue(keyName, null);
             if (string.IsNullOrEmpty(str))
                 return null;
             string[] strArray = str.Split(';');
