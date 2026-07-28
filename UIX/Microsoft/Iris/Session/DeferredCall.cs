@@ -158,7 +158,7 @@ namespace Microsoft.Iris.Session
 
         public override string ToDebugPacketString()
         {
-            if (_target.Target is DeferredInvokeProxy deferredInvokeProxy)
+            if (_target?.Target is DeferredInvokeProxy deferredInvokeProxy)
                 return $"{deferredInvokeProxy}({_param})";
             
             var packetString = _target?.Target == null
