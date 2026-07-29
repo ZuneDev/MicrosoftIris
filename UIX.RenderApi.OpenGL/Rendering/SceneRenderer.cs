@@ -111,8 +111,8 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             {
                 flags |= FragmentFlags.UseNineSlice;
                 m_gl.Uniform4(m_locNineGrid,
-                    (float)nineSlice.Value.Left / image.Size.Width, (float)nineSlice.Value.Top / image.Size.Height,
-                    (float)nineSlice.Value.Right / image.Size.Width, (float)nineSlice.Value.Bottom / image.Size.Height);
+                    (float)nineSlice.Value.Left, (float)nineSlice.Value.Top,
+                    (float)nineSlice.Value.Right, (float)nineSlice.Value.Bottom);
             }
             
             UploadMatrix(m_locModel, model);
@@ -122,7 +122,7 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.ActiveTexture(TextureUnit.Texture0);
             m_gl.BindTexture(TextureTarget.Texture2D, image.TextureId);
             m_gl.Uniform1(m_locTex, 0);
-            m_gl.Uniform2(m_locTexSize, image.Size.Width, image.Size.Height);
+            m_gl.Uniform2(m_locTexSize, (float)image.Size.Width, (float)image.Size.Height);
             DrawQuad();
         }
 

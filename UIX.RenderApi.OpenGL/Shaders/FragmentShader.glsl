@@ -26,32 +26,37 @@ void main()
 
         if (useNineSlice)
         {
-            float tl = uNineGrid.x;
-            float tt = uNineGrid.y;
-            float tr = uNineGrid.z;
-            float tb = uNineGrid.w;
+            float l = uNineGrid.x;
+            float t = uNineGrid.y;
+            float r = uNineGrid.z;
+            float b = uNineGrid.w;
+            
+            // TODO: Can this be optimized by representing as a matrix?
+            vec2 insetX = vec2(l, r);
+            vec2 insetY = vec2(t, b);
+            
+            vec2 texInsetX = insetX / uTexSize.x;
+            vec2 texInsetY = insetY / uTexSize.y;
 
-            float rl = tl * uTexSize.x / uSize.x;
-            float rt = tt * uTexSize.y / uSize.y;
-            float rr = tr * uTexSize.x / uSize.x;
-            float rb = tb * uTexSize.y / uSize.y;
+            vec2 rectInsetX = insetX / uSize.x;
+            vec2 rectInsetY = insetY / uSize.y;
             
             vec2 newUV = vTex;
             
             vec4 color1 = vec4(
                 0.0,
-                vTex.x < tl ? 1.0 : 0.0,
-                vTex.x > 1 - tr ? 1.0 : 0.0,
+                (vTex.x < rectInsetX.s) ? 0.5 : 0.0,
+                (vTex.x > 1 - rectInsetX.t) ? 0.5 : 0.0,
                 1.0
             );
             vec4 color2 = vec4(
-                vTex.y > 1 - tb ? 1.0 : 0.0,
-                vTex.y < tt ? 1.0 : 0.0,
+                (vTex.y > 1 - rectInsetY.t) ? 0.5 : 0.0,
+                (vTex.y < rectInsetY.s) ? 0.5 : 0.0,
                 0.0,
                 1.0
             );
             
-            fragColor = mix(color1, color2, 0.5);
+            fragColor = color1 + color2;
             //fragColor = vec4(newUV, 0, 1);
             //fragColor = vec4(vTex, 1.0, uAlpha);
             //fragColor = texture(uTex, newUV);
