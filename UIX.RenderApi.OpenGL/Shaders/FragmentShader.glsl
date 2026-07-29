@@ -17,6 +17,22 @@ float map(float value, float originalMin, float originalMax, float newMin, float
     return (value - originalMin) / (originalMax - originalMin) * (newMax - newMin) + newMin;
 }
 
+float processAxis(float component, vec2 recInset, vec2 texInset)
+{
+    if (component < recInset.s)
+    {
+        return map(component, 0, recInset.s, 0, texInset.s);
+    }
+    else if (component > (1 - recInset.t))
+    {
+        return map(component, 1 - recInset.t, 1.0, 1 - texInset.t, 1.0);
+    }
+    else
+    {
+        return map(component, recInset.s, 1 - recInset.t, texInset.s, 1 - texInset.t);
+    }
+}
+
 void main()
 {
     bool useTexture = (uFlags & FLAG_USETEXTURE) != 0;
@@ -26,14 +42,9 @@ void main()
 
         if (useNineSlice)
         {
-            float left = uNineGrid.x;
-            float top = uNineGrid.y;
-            float right = uNineGrid.z;
-            float bottom = uNineGrid.w;
-            
             // TODO: Can this be optimized by representing as a matrix?
-            vec2 insetX = vec2(left, right);
-            vec2 insetY = vec2(top, bottom);
+            vec2 insetX = uNineGrid.xy; /* left, right */
+            vec2 insetY = uNineGrid.zw; /* top, bottom */
             
             vec2 texInsetX = insetX / uTexSize.x;
             vec2 texInsetY = insetY / uTexSize.y;
@@ -41,17 +52,10 @@ void main()
             vec2 recInsetX = insetX / uSize.x;
             vec2 recInsetY = insetY / uSize.y;
             
-            vec2 newUV = vTex;
+            vec2 newUV = vec2(
+                processAxis(vTex.x, recInsetX, texInsetX),
+                processAxis(vTex.y, recInsetY, texInsetY));
             
-            if (vTex.x < recInsetX.s && vTex.y < recInsetY.s)
-            {
-                newUV = vec2(
-                    map(vTex.x, 0, recInsetX.s, 0, texInsetX.s),
-                    map(vTex.y, 0, recInsetY.s, 0, texInsetY.s));
-            }
-            
-            //fragColor = vec4(newUV, 0, 1);
-            //fragColor = vec4(newUV, 1.0, uAlpha);
             fragColor = texture(uTex, newUV);
         }
         else
