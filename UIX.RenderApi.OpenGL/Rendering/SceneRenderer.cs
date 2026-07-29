@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Iris.Render.OpenGL.Scene;
 using Silk.NET.Maths;
@@ -19,10 +20,12 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
 
         private readonly int m_locModel;
         private readonly int m_locProj;
+        private readonly int m_locTexSize;
         private readonly int m_locSize;
-        private readonly int m_locUseTexture;
+        private readonly int m_locFlags;
         private readonly int m_locColor;
         private readonly int m_locAlpha;
+        private readonly int m_locNineGrid;
         private readonly int m_locTex;
 
         private Matrix4X4<float> m_projection = Matrix4X4<float>.Identity;
@@ -34,10 +37,12 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_program = BuildProgram(gl);
             m_locModel = gl.GetUniformLocation(m_program, "uModel");
             m_locProj = gl.GetUniformLocation(m_program, "uProj");
+            m_locTexSize = gl.GetUniformLocation(m_program, "uTexSize");
             m_locSize = gl.GetUniformLocation(m_program, "uSize");
-            m_locUseTexture = gl.GetUniformLocation(m_program, "uUseTexture");
+            m_locFlags = gl.GetUniformLocation(m_program, "uFlags");
             m_locColor = gl.GetUniformLocation(m_program, "uColor");
             m_locAlpha = gl.GetUniformLocation(m_program, "uAlpha");
+            m_locNineGrid = gl.GetUniformLocation(m_program, "uNineGrid");
             m_locTex = gl.GetUniformLocation(m_program, "uTex");
 
             // Unit quad: interleaved position (xy) + texcoord (uv). Texcoords are
@@ -87,26 +92,37 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locModel, model);
             m_gl.Uniform2(m_locSize, width, height);
-            m_gl.Uniform1(m_locUseTexture, 0);
+            m_gl.Uniform1(m_locFlags, (int)FragmentFlags.Default);
             m_gl.Uniform4(m_locColor, color.R, color.G, color.B, color.A);
             m_gl.Uniform1(m_locAlpha, alpha);
             DrawQuad();
         }
 
-        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha)
+        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
         {
             image.EnsureUploaded(m_gl);
             if (image.TextureId == 0)
                 return;
 
             m_gl.UseProgram(m_program);
+            
+            var flags = FragmentFlags.UseTexture;
+            if (nineSlice.HasValue)
+            {
+                flags |= FragmentFlags.UseNineSlice;
+                m_gl.Uniform4(m_locNineGrid,
+                    (float)nineSlice.Value.Left / image.Size.Width, (float)nineSlice.Value.Top / image.Size.Height,
+                    (float)nineSlice.Value.Right / image.Size.Width, (float)nineSlice.Value.Bottom / image.Size.Height);
+            }
+            
             UploadMatrix(m_locModel, model);
             m_gl.Uniform2(m_locSize, width, height);
-            m_gl.Uniform1(m_locUseTexture, 1);
+            m_gl.Uniform1(m_locFlags, (int)flags);
             m_gl.Uniform1(m_locAlpha, alpha);
             m_gl.ActiveTexture(TextureUnit.Texture0);
             m_gl.BindTexture(TextureTarget.Texture2D, image.TextureId);
             m_gl.Uniform1(m_locTex, 0);
+            m_gl.Uniform2(m_locTexSize, image.Size.Width, image.Size.Height);
             DrawQuad();
         }
 
@@ -134,19 +150,34 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
 
         private static uint BuildProgram(GL gl)
         {
-            var vs = CompileShader(gl, ShaderType.VertexShader, ReadShader("VertexShader"));
-            var fs = CompileShader(gl, ShaderType.FragmentShader, ReadShader("FragmentShader"));
+            List<(ShaderType, string)> shaders =
+            [
+                (ShaderType.VertexShader, "VertexShader"),
+                (ShaderType.FragmentShader, "FragmentShader"),
+            ];
+            
             var program = gl.CreateProgram();
-            gl.AttachShader(program, vs);
-            gl.AttachShader(program, fs);
+            
+            var shaderHandles = new uint[shaders.Count];
+            for (var s = 0; s < shaders.Count; s++)
+            {
+                var (type, name) = shaders[s];
+                var shader = CompileShader(gl, type, ReadShader(name));
+                gl.AttachShader(program, shader);
+                shaderHandles[s] = shader;
+            }
+
             gl.LinkProgram(program);
             gl.GetProgram(program, ProgramPropertyARB.LinkStatus, out var linked);
             if (linked == 0)
                 throw new InvalidOperationException("Shader link failed: " + gl.GetProgramInfoLog(program));
-            gl.DetachShader(program, vs);
-            gl.DetachShader(program, fs);
-            gl.DeleteShader(vs);
-            gl.DeleteShader(fs);
+            
+            for (var s = 0; s < shaders.Count; s++)
+            {
+                gl.DetachShader(program, shaderHandles[s]);
+                gl.DeleteShader(shaderHandles[s]);
+            }
+            
             return program;
         }
 
