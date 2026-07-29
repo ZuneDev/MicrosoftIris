@@ -10,7 +10,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
     /// A transform/grouping node in the visual tree. Renders its children in
     /// ascending <see cref="GLVisual.Layer"/> order after applying its own transform.
     /// </summary>
-    public sealed class GLVisualContainer : GLVisual, IVisualContainer
+    internal sealed class GLVisualContainer : GLVisual, IVisualContainer
     {
         private readonly List<GLVisual> m_children = new List<GLVisual>();
 

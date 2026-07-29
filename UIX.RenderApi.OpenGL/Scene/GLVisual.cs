@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using Microsoft.Iris.Render.Animation;
 using Microsoft.Iris.Render.OpenGL.Engine;
 using Microsoft.Iris.Render.OpenGL.Rendering;
+using Microsoft.Iris.Render.Protocol;
 using Silk.NET.Maths;
 
 namespace Microsoft.Iris.Render.OpenGL.Scene
@@ -10,7 +12,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
     /// Holds the common 2.5D transform state (position/size/scale/rotation/alpha) and
     /// produces the local model matrix used when walking the tree during rendering.
     /// </summary>
-    public abstract class GLVisual : SharedRenderObject, IVisual
+    internal abstract class GLVisual : SharedRenderObject, IVisual, IAnimatableObject
     {
         private readonly object m_ownerData;
         protected readonly GLRenderSession Session;
@@ -141,6 +143,28 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             // renderer's convention, so the inverse maps screen -> local the same way.
             Vector3D<float> local = Vector3D.Transform(new Vector3D<float>(screenPoint.X, screenPoint.Y, 0f), inverse);
             return local.X >= 0f && local.X <= size.X && local.Y >= 0f && local.Y <= size.Y;
+        }
+
+        public RENDERHANDLE GetObjectId() => default;
+
+        public uint GetPropertyId(string propertyName)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public AnimationInputType GetPropertyType(string propertyName)
+        {
+            return propertyName switch
+            {
+                nameof(Position) or
+                nameof(Size) => AnimationInputType.Vector2,
+                nameof(Scale) => AnimationInputType.Vector3,
+                nameof(Rotation) => AnimationInputType.Vector4,
+                nameof(CenterPoint) => AnimationInputType.Vector3,
+                nameof(Alpha) => AnimationInputType.Float,
+                
+                _ => throw new System.NotImplementedException(),
+            };
         }
     }
 }

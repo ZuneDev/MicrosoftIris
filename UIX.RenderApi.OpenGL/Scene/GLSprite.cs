@@ -9,9 +9,9 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
     /// <see cref="IEffect"/> (typically an image effect); absent an image it fills
     /// with the sprite's debug color, which keeps placeholder content visible.
     /// </summary>
-    public sealed class GLSprite : GLVisual, ISprite
+    internal sealed class GLSprite : GLVisual, ISprite
     {
-        private int m_nineGridLeft, m_nineGridTop, m_nineGridRight, m_nineGridBottom;
+        private Inset? m_nineSlice;
 
         public GLSprite(GLRenderSession session, object ownerData)
             : base(session, ownerData)
@@ -29,12 +29,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
 
         public void SetNineGrid(int left, int top, int right, int bottom)
         {
-            m_nineGridLeft = left;
-            m_nineGridTop = top;
-            m_nineGridRight = right;
-            m_nineGridBottom = bottom;
-            // TODO(stage 3): implement 9-slice stretching. Currently the sprite is
-            // drawn as a single stretched quad regardless of these insets.
+            m_nineSlice = new Inset(left, top, right, bottom);
         }
 
         // ISprite.RelativeSize (set widely -- ViewItem's background sprite, Graphic's
@@ -64,7 +59,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             GLImage? image = effect?.PrimaryImage;
             if (image != null)
             {
-                renderer.DrawTexturedQuad(matrix, size.X, size.Y, image, alpha);
+                renderer.DrawTexturedQuad(matrix, size.X, size.Y, image, alpha, m_nineSlice);
             }
             else if (effect?.PrimaryColor is ColorF fill)
             {
