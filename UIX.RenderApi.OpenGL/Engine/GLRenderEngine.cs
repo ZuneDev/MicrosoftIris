@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Microsoft.Iris.Render.OpenGL.Animation;
 using Microsoft.Iris.Render.OpenGL.Rendering;
 using Microsoft.Iris.Render.OpenGL.Sound;
 using Silk.NET.Input;
@@ -100,6 +101,20 @@ namespace Microsoft.Iris.Render.OpenGL.Engine
         {
             if (m_renderer == null)
                 return;
+
+            // Nothing else in this in-process GL engine ever called
+            // IAnimationSystem.PulseTimeAdvance -- the original native engine drove that
+            // pulse itself (outside managed code, via the remote/message protocol this
+            // backend doesn't use), so every GLKeyframeAnimation sat forever at its t=0
+            // keyframe once played. Drive it here with real elapsed time instead. Clamp
+            // to avoid a pulse following a long idle gap (e.g. the user took a while to
+            // click something) jumping a freshly-started animation straight to its end
+            // state -- WaitForWork below keeps short (~15ms) pulses coming regularly
+            // once something is actually playing, so this clamp only matters for an
+            // animation's very first pulse.
+            var animMs = (int)(Math.Min(deltaSeconds, 0.1) * 1000);
+            ((GLAnimationSystem)m_session.AnimationSystem).PulseTimeAdvance(animMs);
+
             m_renderer.BeginFrame(m_window.Width, m_window.Height, m_window.BackgroundColor);
             m_window.Root.Render(m_renderer, Matrix4X4<float>.Identity, 1f);
         }
@@ -155,6 +170,13 @@ namespace Microsoft.Iris.Render.OpenGL.Engine
                 m_wakeEvent.Wait(waitMs);
                 m_wakeEvent.Reset();
                 m_silkWindow.DoEvents();
+
+                // Keep frames (and OnRender's animation pulse) coming at the poll
+                // cadence while a keyframe animation is in flight -- otherwise a
+                // playing animation only ever advances when something *else* happens
+                // to invalidate the view, instead of animating smoothly to completion.
+                if (((GLAnimationSystem)m_session.AnimationSystem).HasPlayingAnimations)
+                    RenderNow();
             }
             m_wakeRequested = false;
 

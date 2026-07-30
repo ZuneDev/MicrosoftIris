@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Iris.Render.OpenGL.Animation
 {
@@ -52,11 +53,20 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
 
         public void StepAnimations(int nAdvanceMs)
         {
-            foreach (var a in m_animations)
-                if (a.IsPlaying)
-                    a.Advance(nAdvanceMs);
+            foreach (var a in GetPlayingAnimations())
+                a.Advance(nAdvanceMs);
         }
 
         public void ResumeAnimations() => m_paused = false;
+
+        private IEnumerable<GLAnimation> GetPlayingAnimations() => m_animations.Where(a => a.IsPlaying);
+
+        /// <summary>
+        /// Whether any owned animation is currently playing. Used by the GL render engine
+        /// to keep pumping frames (and pulsing time) while a transition/keyframe animation
+        /// is in flight, instead of only rendering in response to external invalidation --
+        /// see GLRenderEngine.WaitForWork.
+        /// </summary>
+        internal bool HasPlayingAnimations => GetPlayingAnimations().Any();
     }
 }

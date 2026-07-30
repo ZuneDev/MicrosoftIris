@@ -137,7 +137,11 @@ public sealed class SixLaborsTextDocument : TextDocument
 
         var result = new List<GlyphRunInfo>();
         int groupStart = 0;
-        int line = 0;
+        // 1-based, matching the single-run Measure() overload above (Line = 1) and
+        // TextFlow.Add's `_lineBounds[run.Line - 1]` indexing -- starting at 0 here
+        // made the first formatted-range run's Line 0, so TextFlow.Add indexed
+        // _lineBounds[-1] and threw IndexOutOfRangeException on any multi-style text.
+        int line = 1;
         // Line-break detection must use the positioned *advance* rectangle,
         // not the rendered glyph ink Bounds: Bounds is tight to each glyph's
         // visible pixels (e.g. a space has near-zero height, 'l' sits higher

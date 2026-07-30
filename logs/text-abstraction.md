@@ -4,6 +4,59 @@ Append-only. Do not edit previous entries.
 
 ---
 
+## 2026-07-29 — `SixLaborsTextDocument.BuildFormattedGlyphRuns` crashed the whole app on startup: 0-based line numbering vs. `TextFlow.Add`'s 1-based indexing
+
+Found while trying to reproduce an unrelated OpenGL-side "window freezes after clicking
+Start on the FUE welcome screen" report (see
+`logs/UIX.RenderApi.OpenGL/Implementation.md`) — `ZuneHost` never got that far. It threw
+an unhandled `IndexOutOfRangeException` during the very first UI layout pass
+(`Frame.uix`), well before the FUE screen, in `Vector.get_Item` <- `TextFlow.Add` <-
+`RichText.Measure` <- `Text.DoRichEditMeasure`.
+
+### Root cause
+
+`SixLaborsTextDocument.BuildFormattedGlyphRuns` (`UIX.RenderApi/Microsoft/Iris/Render/Text/SixLaborsTextDocument.cs`,
+the multi-style/formatted-range measurement path added in the "piece 1" entry below) started
+its `line` counter at `0`:
+
+```csharp
+int groupStart = 0;
+int line = 0;   // <- bug
+```
+
+and passed that straight through to each `GlyphRunInfo.Line`. But every other producer of
+`GlyphRunInfo.Line` in this codebase is 1-based: the single-run `Measure` overload right
+above it in the same file hardcodes `Line = 1`, and the native Windows path
+(`SpTextDocument.cs`) forwards `run.nLineNumber` from `SpRichTextMeasure`, which is also
+1-based. `TextFlow.Add` (`UIX/Microsoft/Iris/Drawing/TextFlow.cs:134-142`) assumes the
+1-based convention unconditionally:
+
+```csharp
+if (_lineBounds.Count < run.Line)
+    _lineBounds.Add(run.RenderBounds);
+else
+    RectangleF lineBound = (RectangleF)_lineBounds[run.Line - 1];   // crashes when run.Line == 0
+```
+
+So the very first formatted-range (multi-style) `TextRun` ever added on this backend had
+`Line == 0`, `_lineBounds.Count (0) < run.Line (0)` was false, and `_lineBounds[-1]` threw.
+Any UIX text using mixed styles within one string (bold/color spans, not just a single
+uniform style) would hit this — apparently common enough to fire on the very first screen
+loaded (`Frame.uix`), which is why nothing ever got past startup.
+
+### Fix
+
+Changed `int line = 0;` to `int line = 1;` in `BuildFormattedGlyphRuns` — one-line fix,
+matches the sibling single-run overload's convention exactly. `line++` is only ever used
+as a monotonic per-line counter (equality comparisons in `TextFlow.IsOnLastLine`, and the
+1-based `_lineBounds` index in `TextFlow.Add`), so shifting its starting value doesn't
+change anything else about how lines are grouped — only fixes the base.
+
+Confirmed `dotnet build ZuneHost/ZuneHost.csproj -f net8.0` still succeeds (0 errors) after
+the fix; runtime confirmation (does `ZuneHost` now get past startup) is in
+`logs/UIX.RenderApi.OpenGL/Implementation.md`'s 2026-07-29 entry, since that's what this
+fix was blocking.
+
 ## 2026-07-27 — Cross-platform hosted RichText: real interactive editing, not just a stub
 
 Follow-up to "Continue the implementation with rich edit capability,

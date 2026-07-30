@@ -2,6 +2,101 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-29 — FUE "Start" button freeze: page transitions never animated because nothing ever pulsed `GLAnimationSystem`'s clock
+
+**Symptom (user report):** clicking "Start" on the FUE welcome screen made the window
+appear to freeze -- no re-render on further clicks, hover, or resize -- but with no
+crash, `SceneRenderer`'s `Draw*` methods still firing every frame as expected, and
+dispatcher traces showing hover/input events completing normally.
+
+### Reproduction
+
+Needed a live `ZuneHost` run with the user driving the actual "Start" click (I have no
+input-simulation permission in this sandbox by default -- an `xdotool` control-input
+permission prompt came up when I tried, and I deliberately left that decision to the
+user rather than granting it myself). Two unrelated, pre-existing bugs blocked even
+getting a reproduction running, fixed first and logged separately:
+- Linux `net8.0` build break (`NativeMessageBox` package mis-gated to Windows-only) --
+  `logs/ZuneUI/BuildFixes.md` (outer repo), 2026-07-29.
+- Startup crash in `SixLaborsTextDocument.BuildFormattedGlyphRuns` (0-based vs. 1-based
+  line numbering) -- `logs/text-abstraction.md`, 2026-07-29.
+
+With those out of the way, temporarily instrumented `SceneRenderer` (a `DrawCallCount`
+counter, reset each `BeginFrame`) and `GLRenderEngine.OnRender` (a per-frame trace of
+frame number/window size/draw-call count/GL error, all reverted after) and had the user
+click Start while the trace ran. Result: before the click, steady `drawCalls=33` per
+frame (the static welcome screen). After the click, `drawCalls` jumped to `68`-`70` and
+kept rendering every frame with `glErr=NoError` throughout -- i.e. **real new content
+(the next page) was being submitted and drawn correctly, every frame, with no errors** --
+yet a screenshot taken at the same moment showed the exact same "WELCOME TO ZUNE" pixels
+as before the click, including no hover-highlight on the Start button when the mouse sat
+over it. This immediately ruled out the two obvious suspects: a `SwapBuffers`/present bug
+(new frames clearly *were* being generated) and a GL error swallowing the new draws.
+
+### Root cause
+
+Zune's page/panel transitions (and, apparently, basic hover highlighting too) are driven
+by `Microsoft.Iris.Render.Animation.IAnimatableObject`/keyframe animations. On this GL
+backend that's `GLAnimationSystem`/`GLKeyframeAnimation`
+(`UIX.RenderApi.OpenGL/Animation/`), a from-scratch, correctly-written, purely in-process
+reimplementation (interpolation, easing, repeat/reset behavior -- none of that is
+suspect). But something has to call `IAnimationSystem.PulseTimeAdvance(int nAdvanceMs)`
+every frame with real elapsed time to actually advance any playing animation's clock.
+
+Traced every call site of `PulseTimeAdvance`/`AnimationManager.PulseTimeAdvance`/
+`Environment.AnimationAdvance` across `UIX` and `UIX.RenderApi.OpenGL`: **nothing calls
+it.** `AnimationManager.PulseTimeAdvance` (`UIX/Microsoft/Iris/Animations/AnimationManager.cs:67`)
+exists and forwards to `_session.AnimationSystem.PulseTimeAdvance`, but has zero callers
+anywhere in reachable code. In the original architecture this pulse was almost certainly
+driven by the native render engine's own internal timer, delivered to managed code via
+the remote/message protocol (`RemoteAnimationManager.SendPulseTimeAdvance`,
+`UIX.RenderApi/.../Protocols/Splash/Rendering/RemoteAnimationManager.cs`) -- machinery
+this in-process GL backend deliberately doesn't use. Nobody wrote an equivalent driver
+for it when the GL backend's own `GLAnimationSystem` was built, so every
+`GLKeyframeAnimation` that gets `Play()`'d sits forever at its `t=0` keyframe (i.e. its
+*initial* value -- literally the state it started in) and is evaluated fresh, at t=0,
+every single frame: nothing throws, GL renders it correctly and repeatedly, and it just
+never visibly changes. This also explains why hover highlighting looked dead too, since
+ordinary hover-state visual feedback is animation-driven the same way -- separate from
+the *dispatcher* successfully completing the underlying hover *input* event, which is
+unrelated to whether anything animated in response.
+
+### Fix
+
+`UIX.RenderApi.OpenGL/Engine/GLRenderEngine.cs`:
+- `OnRender(double deltaSeconds)` now calls
+  `((GLAnimationSystem)m_session.AnimationSystem).PulseTimeAdvance(...)` before rendering,
+  using Silk's own real per-frame `deltaSeconds` (clamped to 100ms so a pulse following a
+  long idle gap -- e.g. the user takes a while to actually click something -- can't jump a
+  freshly-started animation straight to its completed state in one step).
+- `WaitForWork`'s existing ~15ms poll loop now also calls `RenderNow()` whenever
+  `GLAnimationSystem.HasActiveAnimations` (new, backend-internal-only property, added
+  purely additively -- doesn't touch the decompiled `IAnimationSystem` contract other
+  render backends implement) is true, so a playing animation keeps getting fresh, small
+  pulses and keeps rendering every frame until it finishes, instead of only advancing
+  whenever something *else* happens to trigger a repaint.
+
+Both changes are additive/backend-internal to the GL engine; no decompiled/stage-1 API
+surface changed. Verified end-to-end by having the user click Start against the live,
+cleaned-up build: the FUE welcome screen now transitions correctly to the next page (the
+main library/Collection view) instead of freezing. All temporary trace instrumentation
+(`SceneRenderer.DrawCallCount`, the `OnRender` `Console.Error.WriteLine` trace) was
+reverted after diagnosis -- confirmed via `git diff` that only the real fix (this entry's
+`GLRenderEngine.cs`/`GLAnimationSystem.cs` changes, plus the unrelated
+`SixLaborsTextDocument.cs` line-numbering fix from the same session) remains.
+
+**Not fixed, out of scope:** a second, non-deterministic startup/layout crash surfaced
+once during a retry run --
+`System.DllNotFoundException: ... UIXRender.dll ...` from
+`Microsoft.Iris.OS.NativeApi.SpGetMouseCursorInfo`, called by
+`Microsoft.Iris.Layouts.PopupLayout.GetMouseRect` while arranging a popup-placed element.
+Same class of gap as the previously-logged `ExtensionsApi.SpBitmapLoadBuffer` one (an
+unconditional, un-gated `[DllImport("UIXRender.dll")]` in stage-1 decompiled code, no
+`#if WINDOWS`, no managed fallback) -- didn't reproduce on the other two runs this
+session (mouse-position-dependent, since it's on `PopupLayout`'s placement-rect
+computation), so left alone rather than guessing at a fix under time pressure. Worth a
+dedicated look if popups/tooltips turn out to be unreliable on Linux.
+
 ## 2026-07-27 (later still, cont'd) — RelativeSize fix confirmed correct, but window now renders solid BLACK: a separate, pre-existing bug outside the render backend, in Iris's markup script/data-binding engine
 
 After the `RelativeSize` fix (previous entry, below) the user reported the window was
