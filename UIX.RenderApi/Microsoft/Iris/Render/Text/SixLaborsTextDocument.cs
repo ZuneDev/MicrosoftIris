@@ -430,7 +430,7 @@ public sealed class SixLaborsTextDocument : TextDocument
         };
         
         var size = style.FontSize > 0 ? style.FontSize : 12f;
-        font = family.CreateFont(size * 1.33f, fontStyle);
+        font = family.CreateFont(size, fontStyle);
         return true;
     }
 
