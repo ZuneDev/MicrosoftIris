@@ -2,6 +2,39 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-30 — Gated `PopupLayout.GetMouseRect`'s `SpGetMouseCursorInfo` call behind `#if WINDOWS`
+
+Follow-up to the `SpGetMouseCursorInfo`/`UIXRender.dll` crash flagged in the 2026-07-29
+entry below (same class of gap as `ExtensionsApi.SpBitmapLoadBuffer`: an unconditional,
+un-gated `[DllImport("UIXRender.dll")]` in stage-1 decompiled code, no `#if WINDOWS`, no
+managed fallback).
+
+Decompiled `SpGetMouseCursorInfo` itself via the ZuneDesktop Ghidra project
+(`UIXrender.dll @ 0x310c0c54`, ordinal 77): it calls Win32 `GetCursorInfo`/`GetIconInfo`/
+`GetBitmapBits` on the current system cursor icon, then scans the mask bitmap to trim
+blank rows and returns the cursor's effective visible height plus a hotspot Y adjusted to
+that trimmed region. Its only caller is
+`UIX/Microsoft/Iris/Layouts/PopupLayout.cs:GetMouseRect`, which uses it only when
+`PlacementMode.UsesTargetSize` is set, to build a rectangle spanning the visible cursor
+glyph (so target-sized popups don't render on top of the pointer). The mouse *position*
+itself (`UISession.Default.InputManager.MostRecentPhysicalMousePos`) doesn't touch this
+API at all — it already comes from the per-platform input translator.
+
+Fixed by wrapping the native call in `#if WINDOWS` and falling back, on other platforms,
+to the same zero-height point rect the method already returns for
+`!placement.UsesTargetSize`. No new behavior invented: worst case on non-Windows is a
+target-sized popup rendering slightly closer to/over the cursor glyph, a minor visual
+detail, not a functional regression. Left a `// TODO` noting the real per-platform story:
+X11 has a genuine equivalent (`XFixesGetCursorImage`, which returns the same
+width/height/hotspot/pixels info for whatever cursor is currently displayed system-wide),
+but Wayland compositors deliberately don't expose another surface's cursor image at all —
+there is no general implementation possible there, not just a "not yet ported" gap.
+
+`dotnet build UIX/UIX.csproj -f net8.0` succeeds (0 errors, pre-existing warnings only).
+Windows TFM (`net8.0-windows10.0.22000`/`net48`) not build-tested in this environment
+(Linux sandbox) but the change is a pure `#if` split around the pre-existing call, matching
+the same pattern used throughout `RichText.cs`/`Win32Api.cs`/etc.
+
 ## 2026-07-29 — FUE "Start" button freeze: page transitions never animated because nothing ever pulsed `GLAnimationSystem`'s clock
 
 **Symptom (user report):** clicking "Start" on the FUE welcome screen made the window

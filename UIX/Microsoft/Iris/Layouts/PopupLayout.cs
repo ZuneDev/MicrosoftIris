@@ -221,13 +221,22 @@ namespace Microsoft.Iris.Layouts
 
         private RectangleF GetMouseRect(PlacementMode placement)
         {
-            Point physicalMousePos = UISession.Default.InputManager.MostRecentPhysicalMousePos;
-            if (!placement.UsesTargetSize)
-                return new RectangleF(physicalMousePos.X, physicalMousePos.Y, 0.0f, 0.0f);
-            int height;
-            int hotY;
-            NativeApi.SpGetMouseCursorInfo(out height, out hotY);
-            return new RectangleF(physicalMousePos.X, physicalMousePos.Y - hotY - 1, 0.0f, height + 2);
+            var physicalMousePos = UISession.Default.InputManager.MostRecentPhysicalMousePos;
+
+#if WINDOWS
+            if (placement.UsesTargetSize)
+            {
+                NativeApi.SpGetMouseCursorInfo(out var height, out var hotY);
+                return new RectangleF(physicalMousePos.X, physicalMousePos.Y - hotY - 1, 0.0f, height + 2);
+            }
+#endif
+            
+            // TODO: no cross-platform way to query the currently-displayed system cursor's
+            // bitmap/hotspot. X11 has a real equivalent (XFixesGetCursorImage), but Wayland
+            // compositors deliberately don't expose another surface's cursor image at all, so
+            // there's no general implementation possible. Fall back to the same zero-height
+            // point rect used above for placements that don't need target size.
+            return new RectangleF(physicalMousePos.X, physicalMousePos.Y, 0.0f, 0.0f);
         }
 
         private void HookMousePositionChanged(ViewItem subject, bool hook)

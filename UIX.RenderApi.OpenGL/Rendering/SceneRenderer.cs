@@ -48,14 +48,14 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             // Unit quad: interleaved position (xy) + texcoord (uv). Texcoords are
             // y-flipped so BGRA image rows (top-down) map upright in our y-down space.
             float[] verts =
-            {
+            [
                 0f, 0f, 0f, 0f,
                 1f, 0f, 1f, 0f,
                 1f, 1f, 1f, 1f,
                 0f, 0f, 0f, 0f,
                 1f, 1f, 1f, 1f,
-                0f, 1f, 0f, 1f,
-            };
+                0f, 1f, 0f, 1f
+            ];
 
             m_vao = gl.GenVertexArray();
             gl.BindVertexArray(m_vao);
@@ -81,7 +81,7 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.Enable(EnableCap.Blend);
             m_gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             m_gl.ClearColor(clear.R, clear.G, clear.B, clear.A);
-            m_gl.Clear((uint)ClearBufferMask.ColorBufferBit);
+            m_gl.Clear(ClearBufferMask.ColorBufferBit);
 
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locProj, m_projection);
