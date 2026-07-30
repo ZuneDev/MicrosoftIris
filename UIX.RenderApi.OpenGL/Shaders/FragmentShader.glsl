@@ -39,7 +39,8 @@ void main()
     if (useTexture)
     {
         bool useNineSlice = (uFlags & FLAG_USENINESLICE) != 0;
-
+        vec2 uv = vTex;
+        
         if (useNineSlice)
         {
             // TODO: Can this be optimized by representing as a matrix?
@@ -52,17 +53,13 @@ void main()
             vec2 recInsetX = insetX / uSize.x;
             vec2 recInsetY = insetY / uSize.y;
             
-            vec2 newUV = vec2(
+            uv = vec2(
                 processAxis(vTex.x, recInsetX, texInsetX),
                 processAxis(vTex.y, recInsetY, texInsetY));
-            
-            fragColor = texture(uTex, newUV);
         }
-        else
-        {
-            vec4 t = texture(uTex, vTex);
-            fragColor = vec4(t.rgb, t.a * uAlpha);
-        }
+        
+        vec4 t = texture(uTex, uv);
+        fragColor = vec4(t.rgb, t.a * uAlpha);
     }
     else
     {

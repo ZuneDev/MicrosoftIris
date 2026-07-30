@@ -2,6 +2,84 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-30 (later) — Nine-sliced images (e.g. wizard buttons) never fade out: fragment shader's nine-slice branch never applied `uAlpha`
+
+**Symptom (user report):** after clicking "Start" on the FUE welcome wizard, the wizard's
+page transitions away (the Collection page renders correctly underneath), but the two
+pink `ActionButton.Pink.png`/`ActionButton.Pink.Pressed.png` button backgrounds ("Start"/
+"change the default settings") stay fully visible on top of the new page indefinitely.
+Text captions and plain-color panels on the same wizard page correctly disappeared;
+only these two loaded-image sprites persisted.
+
+### Reproduction and diagnosis method
+
+Found `UIX.RenderApi.OpenGL/Scene/GLSprite.cs`/`GLVisualContainer.cs` already had
+uncommitted, mid-flight `Debug.WriteLine` tracing from a prior, unfinished session on
+this same bug (per `git status` on this submodule at session start) -- switched those to
+`Console.Error.WriteLine` (`Debug.WriteLine`'s default listener doesn't reliably surface
+on Linux console) and extended the trace in `GLSprite.Render` to print real numeric
+`Size`/`EffectiveSize`/`RelativeSize`/resolved world position/resolved `alpha` (the
+struct fields have no `ToString()` override, so the original trace was printing bare
+type names, not values) plus a per-frame counter in `GLRenderEngine.OnRender`.
+
+Built and ran `ZuneHost` (`dotnet build ZuneHost/ZuneHost.csproj -f net8.0`) with
+`DISPLAY=:0`, piping stderr to a log file. The user drove the actual "Start" click (no
+input-simulation permission in this sandbox, consistent with the 2026-07-29 FUE entry
+below -- an `xdotool`-via-Xwayland-bridge click worked once by luck earlier in the
+session but was unreliable enough that self-driving further repro steps wasn't trustworthy,
+so subsequent verification went through the user directly). Captured the trace for the
+frame after the click settled and grepped it for the wizard page's sprites specifically.
+
+Every wizard-page sprite reported `alpha=0` in the trace -- `DialogBody`'s black panel,
+`WELCOME TO ZUNE`, `Wizard.Background.Highlight.png`, both `ActionButton.Pink*.png`
+button backgrounds, all of it -- confirming the page's fade-out animation actually ran
+and completed correctly (the `PulseTimeAdvance` driver from the entry below is working
+as intended here). Yet the user confirmed the two pink button rectangles were still
+fully opaque on screen at that same moment. So the bug isn't a stuck `Visible` binding
+(ruled out the `ModalLayer`-class bug from the entry below -- the scene graph data here
+is correct) and isn't sprites left in the tree (also correct -- they're being redrawn
+every frame with the right, fully-transparent alpha value); the GPU side is simply not
+honoring that alpha for these two sprites specifically.
+
+### Root cause
+
+`UIX.RenderApi.OpenGL/Shaders/FragmentShader.glsl`'s nine-slice branch (taken whenever
+`GLSprite`'s `m_nineSlice` is set, i.e. whenever `ISprite.SetNineGrid` was called --
+true for resizable button/panel chrome like `ActionButton.Pink.png`, never for plain
+text-caption or flat-color quads):
+```glsl
+fragColor = texture(uTex, newUV);
+```
+This copies the sampled texture color straight to output, completely skipping the
+`t.a * uAlpha` multiply that both sibling paths -- the plain textured-quad branch
+(`fragColor = vec4(t.rgb, t.a * uAlpha)`) and the solid-color branch
+(`fragColor = vec4(uColor.rgb, uColor.a * uAlpha)`) -- already do correctly. `uAlpha` is
+uploaded correctly from `SceneRenderer.DrawTexturedQuad` every draw (verified: the C#
+side's computed `alpha` matches the trace's `alpha=0`); the shader itself just never
+reads the uniform on this one code path. Net effect: any nine-sliced image is
+permanently drawn at full texture alpha regardless of the sprite's own `Alpha`,
+parent-inherited alpha, or any fade animation driving either -- explains both why only
+*images* were affected (nine-slicing is an image-only feature; `GLSprite`'s
+`PrimaryColor` fill path was never in this branch) and why only the *button backgrounds*
+specifically were affected among all the wizard's images (they're the only nine-sliced
+sprites on that page -- the plain `Graphic`s like `WizardDropShadow.left.png` and
+`Wizard.Background.Highlight.png` use the ordinary textured-quad path and faded
+correctly, matching the trace).
+
+### Fix
+
+`UIX.RenderApi.OpenGL/Shaders/FragmentShader.glsl`: changed the nine-slice branch to
+sample into a local `vec4 t` and apply the same `vec4(t.rgb, t.a * uAlpha)` alpha
+multiply the other two branches already use. Purely a shader fix, no C#/API surface
+touched.
+
+Reverted all temporary trace instrumentation added this session (confirmed via
+`git diff --stat` showing only `Shaders/FragmentShader.glsl` changed) -- including the
+prior session's uncommitted `Debug.WriteLine` calls that were sitting in the working
+tree before this session started, since they'd served their purpose. Verified end-to-end
+with the user: rebuilt, relaunched, user clicked "Start" again, confirmed the Collection
+page now renders cleanly with no leftover wizard content.
+
 ## 2026-07-30 — Gated `PopupLayout.GetMouseRect`'s `SpGetMouseCursorInfo` call behind `#if WINDOWS`
 
 Follow-up to the `SpGetMouseCursorInfo`/`UIXRender.dll` crash flagged in the 2026-07-29
