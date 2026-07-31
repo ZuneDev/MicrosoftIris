@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
+using Microsoft.Iris.Render;
 
 namespace Microsoft.Iris.OS
 {
@@ -231,6 +232,7 @@ namespace Microsoft.Iris.OS
         {
         }
 
+#if WINDOWS
         [DllImport("user32.dll")]
         public static extern int GetSystemMetrics(int metric);
 
@@ -247,6 +249,7 @@ namespace Microsoft.Iris.OS
           uint uiParam,
           out bool pParam,
           int nWinIni);
+#endif
 
         public static int GetCaretWidth()
         {
@@ -307,6 +310,16 @@ namespace Microsoft.Iris.OS
 #endif
                 pParam = false;
             return pParam;
+        }
+
+        public static Size GetDragDeadZone()
+        {
+#if WINDOWS
+            return new Size(GetSystemMetrics(68), GetSystemMetrics(69));
+#else
+            // TODO: Non-Windows targets should return a meaningful value
+            return new Size(10, 10);
+#endif
         }
 
         [DllImport("user32.dll")]

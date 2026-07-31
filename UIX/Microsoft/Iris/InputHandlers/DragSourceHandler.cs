@@ -138,11 +138,13 @@ namespace Microsoft.Iris.InputHandlers
             }
             else if (_pendingDrag)
             {
-                if (Math.Abs(info.ScreenX - _initialX) >= Win32Api.GetSystemMetrics(68) || Math.Abs(info.ScreenY - _initialY) >= Win32Api.GetSystemMetrics(69))
+                var deadZone = Win32Api.GetDragDeadZone();
+                if (Math.Abs(info.ScreenX - _initialX) >= deadZone.Width
+                    || Math.Abs(info.ScreenY - _initialY) >= deadZone.Height)
                 {
                     _pendingDrag = false;
                     DragDropHelper.BeginDrag(this, info.Target, info.NaturalHit, 0, 0, info.Modifiers);
-                    UI.SessionInput += new SessionInputHandler(OnSessionInput);
+                    UI.SessionInput += OnSessionInput;
                     FireNotification(NotificationID.Dragging);
                     FireNotification(NotificationID.Started);
                     UpdateCursor();
@@ -150,7 +152,10 @@ namespace Microsoft.Iris.InputHandlers
                 }
             }
             else if (_dragCanceled)
+            {
                 info.MarkHandled();
+            }
+            
             base.OnMouseMove(ui, info);
         }
 

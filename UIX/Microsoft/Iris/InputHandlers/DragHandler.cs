@@ -295,21 +295,32 @@ namespace Microsoft.Iris.InputHandlers
 
         protected override void OnMouseMove(UIClass ui, MouseMoveInfo info)
         {
-            if ((info.Modifiers & InputModifiers.LeftMouse) == InputModifiers.None)
+            if (info.Modifiers.HasFlag(InputModifiers.LeftMouse))
+            {
                 EndDrag(true);
+            }
             else if (Dragging || _pendingDrag)
             {
-                Vector2 ui1 = TransformToUI(new Point(info.X, info.Y), (UIClass)info.Target);
-                Point point = new Point(info.ScreenX, info.ScreenY);
+                var uiPoint = TransformToUI(new Point(info.X, info.Y), (UIClass)info.Target);
+                var screenPoint = new Point(info.ScreenX, info.ScreenY);
                 if (Dragging)
                 {
-                    InDrag(ui1, point, GetModifiers(info.Modifiers));
+                    InDrag(uiPoint, screenPoint, GetModifiers(info.Modifiers));
                     info.MarkHandled();
                 }
-                else if (Math.Abs(point.X - _initialScreenPosition.X) >= Win32Api.GetSystemMetrics(68) || Math.Abs(point.Y - _initialScreenPosition.Y) >= Win32Api.GetSystemMetrics(69))
+                else
                 {
-                    BeginDrag(_initialPosition, TransformToRelative(ui1), _initialScreenPosition, point, GetModifiers(info.Modifiers));
-                    info.MarkHandled();
+                    var deadZone = Win32Api.GetDragDeadZone();
+
+                    if (Math.Abs(screenPoint.X - _initialScreenPosition.X) >= deadZone.Width
+                        || Math.Abs(screenPoint.Y - _initialScreenPosition.Y) >= deadZone.Height)
+                    {
+                        BeginDrag(_initialPosition, TransformToRelative(uiPoint),
+                            _initialScreenPosition, screenPoint,
+                            GetModifiers(info.Modifiers));
+                        
+                        info.MarkHandled();
+                    }
                 }
             }
             base.OnMouseMove(ui, info);
