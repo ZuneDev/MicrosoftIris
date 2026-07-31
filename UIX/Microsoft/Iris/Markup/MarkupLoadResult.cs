@@ -25,7 +25,12 @@ namespace Microsoft.Iris.Markup
         private MarkupDataMapping[] _dataMappingsTable;
         private LoadResultStatus _status;
 
-        public static LoadResult Create(string uri, Resource resource) => !CompiledMarkupLoader.IsUIB(resource) ? new SourceMarkupLoadResult(resource, uri) : (LoadResult)new CompiledMarkupLoadResult(resource, uri);
+        public static MarkupLoadResult Create(string uri, Resource resource)
+        {
+            return !CompiledMarkupLoader.IsUIB(resource)
+                ? new SourceMarkupLoadResult(resource, uri)
+                : new CompiledMarkupLoadResult(resource, uri);
+        }
 
         public MarkupLoadResult(string uri)
           : base(uri)

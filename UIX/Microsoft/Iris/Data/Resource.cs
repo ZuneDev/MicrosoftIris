@@ -131,5 +131,9 @@ namespace Microsoft.Iris.Data
         }
 
         public override string ToString() => _uri;
+        
+#if NETCOREAPP
+        public unsafe ReadOnlySpan<byte> Span => new(_buffer.ToPointer(), (int)_length);
+#endif
     }
 }
