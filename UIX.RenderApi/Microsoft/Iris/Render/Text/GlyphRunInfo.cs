@@ -12,6 +12,15 @@ public sealed class GlyphRunInfo : IDisposable
     public float RenderBoundsY { get; init; }
     public float RenderBoundsWidth { get; init; }
     public float RenderBoundsHeight { get; init; }
+
+    // The word-wrap constraint width applied when this run was measured
+    // (-1 if unconstrained/no wrap). Rasterize must reuse this exact value
+    // rather than re-deriving one from the tight ink bounding box: the ink
+    // box can be narrower than the actual glyph advances it was wrapped
+    // against, so re-wrapping against it can trigger an extra, unwanted
+    // line break that then gets clipped by the (correctly single-line-sized)
+    // bitmap.
+    public float WrapWidth { get; init; } = -1f;
     public Size NaturalExtent { get; init; }
     public int NaturalX { get; init; }
     public int NaturalY { get; init; }

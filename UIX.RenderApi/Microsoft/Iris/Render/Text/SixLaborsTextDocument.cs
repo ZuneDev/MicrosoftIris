@@ -31,7 +31,7 @@ public sealed class SixLaborsTextDocument : TextDocument
 
     public override HRESULT GetNaturalBounds(out Size bounds)
     {
-        var hresult = MeasureCore(_content, _lastStyle ?? DefaultStyle, Size.Zero, out var fontRect, out _);
+        var hresult = MeasureCore(_content, _lastStyle ?? DefaultStyle, Size.Zero, out var fontRect, out _, out _);
         bounds = hresult.IsSuccess() ? new Size((int)MathF.Ceiling(fontRect.Width), (int)MathF.Ceiling(fontRect.Height)) : Size.Zero;
         return hresult;
     }
@@ -45,7 +45,7 @@ public sealed class SixLaborsTextDocument : TextDocument
     public override HRESULT Measure(string content, TextAlignment alignment, TextStyleInfo style, Size constraint, out GlyphRunInfo glyphRun)
     {
         _lastStyle = style;
-        var hresult = MeasureCore(content, style, constraint, out var fontRect, out var font);
+        var hresult = MeasureCore(content, style, constraint, out var fontRect, out var font, out var wrapWidth);
         if (!hresult.IsSuccess())
         {
             glyphRun = null;
@@ -75,6 +75,7 @@ public sealed class SixLaborsTextDocument : TextDocument
             Line = 1,
             AscenderInset = 0,
             BaselineInset = 0,
+            WrapWidth = wrapWidth,
             BackendHandle = font,
         };
         return HRESULT.S_OK;
@@ -386,11 +387,35 @@ public sealed class SixLaborsTextDocument : TextDocument
             (byte)Math.Clamp(textColor.B * 255f, 0, 255),
             (byte)Math.Clamp(textColor.A * 255f, 0, 255)));
         var brush = new SolidBrush(color);
-        var richTextOptions = new RichTextOptions(font) { Origin = PointF.Empty };
+        
+        var richTextOptions = new RichTextOptions(font)
+        {
+            // Must match MeasureCore's Dpi, or glyphs get rasterized at the
+            // SixLabors.Fonts default of 72 DPI while the bitmap/layout box
+            // was sized for the actual screen DPI (typically 96+), leaving
+            // undersized, softly-scaled glyphs inside an oversized box.
+            Dpi = MonitorSystem.Instance.GetDpi(),
+            // The bitmap is sized to the tight ink bounding box
+            // (RenderBoundsWidth/Height starting at RenderBoundsX/Y), not the
+            // full line layout box, so the draw origin must be shifted back
+            // by that same offset or the ink clips against the bitmap edges.
+            Origin = new PointF(-glyphRun.RenderBoundsX, -glyphRun.RenderBoundsY),
+            // Must reuse the exact constraint MeasureCore wrapped against
+            // (glyphRun.WrapWidth), not the tight ink width: the ink
+            // bounding box can be a hair narrower than the actual glyph
+            // advances it was wrapped against (e.g. trailing bearing isn't
+            // "ink"), so using it here could force an extra wrap that Measure
+            // never accounted for, pushing content onto a line the bitmap
+            // has no room for (silently clipped).
+            WrappingLength = glyphRun.WrapWidth
+        };
 
         // OpenGL is configured to use BGRA32
         using var image = new Image<Bgra32>(width, height);
-        image.Mutate(ctx => ctx.Paint(canvas => canvas.DrawText(richTextOptions, glyphRun.Content ?? string.Empty, brush, null)));
+        image.Mutate(ctx =>
+        {
+            ctx.Paint(canvas => canvas.DrawText(richTextOptions, glyphRun.Content ?? string.Empty, brush, null));
+        });
 
         var byteCount = width * height * 4;
         var pBits = Marshal.AllocHGlobal(byteCount);
@@ -434,12 +459,13 @@ public sealed class SixLaborsTextDocument : TextDocument
         return true;
     }
 
-    private static HRESULT MeasureCore(string content, TextStyleInfo style, Size constraint, out FontRectangle fontRect, out Font font)
+    private static HRESULT MeasureCore(string content, TextStyleInfo style, Size constraint, out FontRectangle fontRect, out Font font, out float wrapWidth)
     {
         content ??= string.Empty;
         if (!TryResolveFont(style, out font))
         {
             fontRect = default;
+            wrapWidth = -1f;
             return 0x80070490; // ERROR_NOT_FOUND
         }
 
@@ -452,6 +478,7 @@ public sealed class SixLaborsTextDocument : TextDocument
             options.WrappingLength = constraint.Width;
 
         fontRect = TextMeasurer.MeasureBounds(content, options);
+        wrapWidth = options.WrappingLength;
         return HRESULT.S_OK;
     }
 }
