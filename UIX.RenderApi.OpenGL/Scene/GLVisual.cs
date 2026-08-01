@@ -133,6 +133,33 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         internal IReadOnlyList<GLGradient> Gradients { get { lock (Session.SyncRoot) return m_gradients.ToArray(); } }
 
         /// <summary>
+        /// Resolves this visual's own directly-attached gradients (not ancestors') against
+        /// <paramref name="size"/> -- the visual's own local extent, i.e. what
+        /// <see cref="GLGradient.Orientation"/> measures stops along -- with
+        /// <see cref="ResolvedGradient.Transform"/> left as identity, since a gradient's
+        /// own attachment point is always evaluated in its own local space. Locks
+        /// <see cref="GLRenderSession.SyncRoot"/> itself (reentrant-safe if the caller
+        /// already holds it, as <see cref="GLSprite.Render"/> does) rather than trusting
+        /// every call site to -- <see cref="GLVisualContainer.Render"/> in particular
+        /// doesn't otherwise take this lock at all.
+        /// </summary>
+        private protected List<ResolvedGradient> ResolveOwnGradients(Vector2 size)
+        {
+            GLGradient[] snapshot;
+            lock (Session.SyncRoot)
+                snapshot = m_gradients.ToArray();
+
+            var result = new List<ResolvedGradient>(snapshot.Length);
+            foreach (GLGradient g in snapshot)
+            {
+                float extent = g.Orientation == Orientation.Horizontal ? size.X : size.Y;
+                (float[] positions, float[] values) = g.ResolveStops(extent);
+                result.Add(new ResolvedGradient(Matrix4X4<float>.Identity, g.Orientation, positions, values));
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Local model transform: translate to position, rotate/scale about the center
         /// point. Matches the Iris convention where position/size are in device pixels
         /// with the y axis pointing down. Reads all four transform fields as one
@@ -163,8 +190,14 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             }
         }
 
-        /// <summary>Draw this visual (and its subtree) with the accumulated parent transform.</summary>
-        internal abstract void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha);
+        /// <summary>
+        /// Draw this visual (and its subtree) with the accumulated parent transform.
+        /// <paramref name="ambientGradients"/> are gradients attached to an ancestor
+        /// container (or further up), already expressed as "this visual's own local pixel
+        /// space -> the owning ancestor's local pixel space" -- see
+        /// <see cref="ResolvedGradient"/>.
+        /// </summary>
+        internal abstract void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha, IReadOnlyList<ResolvedGradient> ambientGradients);
 
         /// <summary>
         /// Return the frontmost hittable visual under <paramref name="screenPoint"/>

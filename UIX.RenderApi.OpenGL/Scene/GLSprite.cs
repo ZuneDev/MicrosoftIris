@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Iris.Render.OpenGL.Engine;
 using Microsoft.Iris.Render.OpenGL.Rendering;
 using Silk.NET.Maths;
@@ -66,7 +67,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             }
         }
 
-        internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha)
+        internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha, IReadOnlyList<ResolvedGradient> ambientGradients)
         {
             // One lock for the whole frame's worth of this sprite's state, so
             // Effect/size/transform/nine-slice are all read as one consistent
@@ -83,15 +84,34 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
                 Matrix4X4<float> matrix = LocalMatrix * parentMatrix;
                 float alpha = inheritedAlpha * Alpha;
 
+                // Own gradients (e.g. Text's self-attached clip fade) are evaluated in
+                // this sprite's own local space -- identity transform -- alongside any
+                // ancestor container's gradients (e.g. an EdgeFade wrapping a Scroller
+                // this sprite scrolls within), already expressed in terms of this
+                // sprite's local space by the container walk. Both are sampled per-pixel
+                // in the fragment shader, not on the CPU.
+                List<ResolvedGradient> ownGradients = ResolveOwnGradients(size);
+                List<ResolvedGradient> gradients;
+                if (ambientGradients.Count == 0)
+                {
+                    gradients = ownGradients;
+                }
+                else
+                {
+                    gradients = new List<ResolvedGradient>(ambientGradients.Count + ownGradients.Count);
+                    gradients.AddRange(ambientGradients);
+                    gradients.AddRange(ownGradients);
+                }
+
                 GLEffect? effect = Effect as GLEffect;
                 GLImage? image = effect?.PrimaryImage;
                 if (image != null)
                 {
-                    renderer.DrawTexturedQuad(matrix, size.X, size.Y, image, alpha, m_nineSlice);
+                    renderer.DrawTexturedQuad(matrix, size.X, size.Y, image, alpha, m_nineSlice, gradients);
                 }
                 else if (effect?.PrimaryColor is ColorF fill)
                 {
-                    renderer.DrawColoredQuad(matrix, size.X, size.Y, fill, alpha);
+                    renderer.DrawColoredQuad(matrix, size.X, size.Y, fill, alpha, gradients);
                 }
                 else
                 {
@@ -99,7 +119,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
                     // A zeroed ColorF would be fully transparent black; only draw when the
                     // caller actually assigned a debug color.
                     if (c.A > 0f)
-                        renderer.DrawColoredQuad(matrix, size.X, size.Y, c, alpha);
+                        renderer.DrawColoredQuad(matrix, size.X, size.Y, c, alpha, gradients);
                 }
             }
         }

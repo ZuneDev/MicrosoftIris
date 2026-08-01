@@ -125,7 +125,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             return result;
         }
 
-        internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha)
+        internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha, IReadOnlyList<ResolvedGradient> ambientGradients)
         {
             if (!Visible)
                 return;
@@ -133,8 +133,42 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             Matrix4X4<float> matrix = LocalMatrix * parentMatrix;
             float alpha = inheritedAlpha * Alpha;
 
+            // Gradients attached to *this* container (the EdgeFade pattern: e.g. a
+            // Scroller's viewport container carries an edge-fade gradient that applies to
+            // everything scrolling through it, at any depth) apply in this container's
+            // own local space -- identity transform, same as a sprite's own gradients.
+            // Combined with whatever ambient gradients this container itself inherited
+            // from further up, this is the full set descendants need to know about.
+            List<ResolvedGradient> ownGradients = ResolveOwnGradients(Size);
+            List<ResolvedGradient> combined;
+            if (ambientGradients.Count == 0)
+            {
+                combined = ownGradients;
+            }
+            else
+            {
+                combined = new List<ResolvedGradient>(ambientGradients.Count + ownGradients.Count);
+                combined.AddRange(ambientGradients);
+                combined.AddRange(ownGradients);
+            }
+
             foreach (var child in BackToFrontOrder())
-                child.Render(renderer, matrix, alpha);
+            {
+                // Re-express each entry in terms of the child's own local space: a point
+                // in the child's local space maps into this container's local space via
+                // child.LocalMatrix, then (for entries inherited from further up) on into
+                // whatever ancestor originally owns the gradient via entry.Transform --
+                // row-vector composition, same convention as `LocalMatrix * parentMatrix`.
+                List<ResolvedGradient> childGradients = combined;
+                if (combined.Count > 0)
+                {
+                    Matrix4X4<float> childLocalMatrix = child.LocalMatrix;
+                    childGradients = new List<ResolvedGradient>(combined.Count);
+                    foreach (var g in combined)
+                        childGradients.Add(g.WithTransform(childLocalMatrix * g.Transform));
+                }
+                child.Render(renderer, matrix, alpha, childGradients);
+            }
         }
 
         internal override GLVisual? HitTest(Vector2 screenPoint, Matrix4X4<float> parentMatrix)

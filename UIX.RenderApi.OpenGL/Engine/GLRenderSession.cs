@@ -62,7 +62,10 @@ namespace Microsoft.Iris.Render.OpenGL.Engine
 
         public IGradient CreateGradient(object objUser)
         {
-            var g = new GLGradient();
+            // Shares SyncRoot with the rest of the scene graph: its stops/orientation/
+            // offset are read from the render thread every frame now (see GLGradient's
+            // class doc comment), not just at RegisterUsage/UnregisterUsage time.
+            var g = new GLGradient(SyncRoot);
             g.RegisterUsage(objUser);
             return g;
         }

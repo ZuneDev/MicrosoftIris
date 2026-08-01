@@ -34,6 +34,22 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
         private readonly int m_locAlpha;
         private readonly int m_locNineGrid;
         private readonly int m_locTex;
+        private readonly int m_locGradData;
+        private readonly int m_locGradBase;
+        private readonly int m_locGradCount;
+
+        // Per-frame gradient stop/transform data lives in a GL_TEXTURE_BUFFER (core since
+        // GL 3.1, samplerBuffer/texelFetch in GLSL 330 core -- no version bump needed)
+        // rather than a fixed-size uniform array, since a draw call's gradient count
+        // (own gradients plus every ancestor container's, per EdgeFade/Text's "applies to
+        // the whole subtree" semantics -- see ResolvedGradient's doc comment) has no fixed
+        // upper bound worth guessing at. Each texel is one RGBA32F (4 floats); see
+        // BuildGradientBuffer for the exact per-gradient layout, mirrored in
+        // FragmentShader.glsl's evaluateGradients.
+        private readonly uint m_gradBuffer;
+        private readonly uint m_gradTexture;
+        private const TextureUnit GradTextureUnit = TextureUnit.Texture1;
+        private const int GradTextureUnitIndex = 1;
 
         private Matrix4X4<float> m_projection = Matrix4X4<float>.Identity;
 
@@ -46,17 +62,18 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             public readonly GLImage? Image;    // non-null => textured quad
             public readonly Inset? NineSlice;  // only meaningful when Image != null
             public readonly ColorF Color;      // only meaningful when Image == null
+            public readonly IReadOnlyList<ResolvedGradient> Gradients;
 
-            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, GLImage image, Inset? nineSlice)
+            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, GLImage image, Inset? nineSlice, IReadOnlyList<ResolvedGradient> gradients)
             {
                 Model = model; Width = width; Height = height; Alpha = alpha;
-                Image = image; NineSlice = nineSlice; Color = default;
+                Image = image; NineSlice = nineSlice; Color = default; Gradients = gradients;
             }
 
-            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, ColorF color)
+            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, ColorF color, IReadOnlyList<ResolvedGradient> gradients)
             {
                 Model = model; Width = width; Height = height; Alpha = alpha;
-                Image = null; NineSlice = null; Color = color;
+                Image = null; NineSlice = null; Color = color; Gradients = gradients;
             }
         }
 
@@ -79,6 +96,12 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_locAlpha = gl.GetUniformLocation(m_program, "uAlpha");
             m_locNineGrid = gl.GetUniformLocation(m_program, "uNineGrid");
             m_locTex = gl.GetUniformLocation(m_program, "uTex");
+            m_locGradData = gl.GetUniformLocation(m_program, "uGradData");
+            m_locGradBase = gl.GetUniformLocation(m_program, "uGradBase");
+            m_locGradCount = gl.GetUniformLocation(m_program, "uGradCount");
+
+            m_gradBuffer = gl.GenBuffer();
+            m_gradTexture = gl.GenTexture();
 
             // Unit quad: interleaved position (xy) + texcoord (uv). Texcoords are
             // y-flipped so BGRA image rows (top-down) map upright in our y-down space.
@@ -117,12 +140,12 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
         }
 
         /// <summary>Record-only: appends a command. No GL calls.</summary>
-        public void DrawColoredQuad(Matrix4X4<float> model, float width, float height, ColorF color, float alpha)
-            => m_commands.Add(new DrawCommand(model, width, height, alpha, color));
+        public void DrawColoredQuad(Matrix4X4<float> model, float width, float height, ColorF color, float alpha, IReadOnlyList<ResolvedGradient> gradients)
+            => m_commands.Add(new DrawCommand(model, width, height, alpha, color, gradients));
 
         /// <summary>Record-only: appends a command. No GL calls, no image upload/decode yet.</summary>
-        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
-            => m_commands.Add(new DrawCommand(model, width, height, alpha, image, nineSlice));
+        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice, IReadOnlyList<ResolvedGradient> gradients)
+            => m_commands.Add(new DrawCommand(model, width, height, alpha, image, nineSlice, gradients));
 
         /// <summary>
         /// Executes everything BeginFrame/DrawColoredQuad/DrawTexturedQuad recorded since
@@ -145,17 +168,92 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locProj, m_projection);
 
-            foreach (var cmd in m_commands)
+            (int[] gradBase, int[] gradCount) = BuildGradientBuffer();
+
+            // Bound once for the whole frame -- unlike uTex/Texture0 (rebound per textured
+            // quad to whichever GLImage that quad uses), this buffer texture and its
+            // sampler uniform don't change between quads.
+            m_gl.ActiveTexture(GradTextureUnit);
+            m_gl.BindTexture(TextureTarget.TextureBuffer, m_gradTexture);
+            m_gl.Uniform1(m_locGradData, GradTextureUnitIndex);
+
+            for (int i = 0; i < m_commands.Count; i++)
             {
+                DrawCommand cmd = m_commands[i];
                 if (cmd.Image != null)
-                    DrawTexturedQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Image, cmd.Alpha, cmd.NineSlice);
+                    DrawTexturedQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Image, cmd.Alpha, cmd.NineSlice, gradBase[i], gradCount[i]);
                 else
-                    DrawColoredQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Color, cmd.Alpha);
+                    DrawColoredQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Color, cmd.Alpha, gradBase[i], gradCount[i]);
             }
             m_commands.Clear();
         }
 
-        private void DrawColoredQuadImmediate(Matrix4X4<float> model, float width, float height, ColorF color, float alpha)
+        /// <summary>
+        /// Flattens every recorded command's <see cref="ResolvedGradient"/>s into one
+        /// RGBA32F texel buffer, uploads it, and returns each command's
+        /// (base texel index, gradient count) into that buffer -- what
+        /// <see cref="FragmentShader.glsl"/>'s <c>uGradBase</c>/<c>uGradCount</c> need to
+        /// walk its own slice. Per gradient, laid out sequentially as:
+        /// 4 texels (the 4 rows of <see cref="ResolvedGradient.Transform"/>, same
+        /// row-as-column-vec4 convention as <see cref="UploadMatrix"/>), 1 texel
+        /// (x = orientation as 0/1, y = stop count, zw unused), then
+        /// ceil(stopCount / 2) texels packing two (position, value) stop pairs per texel
+        /// (xy = stop 2k, zw = stop 2k+1, zw unused/zero if stopCount is odd).
+        /// </summary>
+        private (int[] GradBase, int[] GradCount) BuildGradientBuffer()
+        {
+            var data = new List<float>();
+            var gradBase = new int[m_commands.Count];
+            var gradCount = new int[m_commands.Count];
+
+            for (int i = 0; i < m_commands.Count; i++)
+            {
+                IReadOnlyList<ResolvedGradient> gradients = m_commands[i].Gradients;
+                gradBase[i] = data.Count / 4;
+                gradCount[i] = gradients.Count;
+
+                foreach (ResolvedGradient g in gradients)
+                {
+                    Matrix4X4<float> m = g.Transform;
+                    data.Add(m.M11); data.Add(m.M12); data.Add(m.M13); data.Add(m.M14);
+                    data.Add(m.M21); data.Add(m.M22); data.Add(m.M23); data.Add(m.M24);
+                    data.Add(m.M31); data.Add(m.M32); data.Add(m.M33); data.Add(m.M34);
+                    data.Add(m.M41); data.Add(m.M42); data.Add(m.M43); data.Add(m.M44);
+
+                    int stopCount = g.StopPositions.Length;
+                    data.Add(g.Orientation == Orientation.Horizontal ? 0f : 1f);
+                    data.Add(stopCount);
+                    data.Add(0f); data.Add(0f);
+
+                    for (int s = 0; s < stopCount; s += 2)
+                    {
+                        data.Add(g.StopPositions[s]);
+                        data.Add(g.StopValues[s]);
+                        bool hasNext = s + 1 < stopCount;
+                        data.Add(hasNext ? g.StopPositions[s + 1] : 0f);
+                        data.Add(hasNext ? g.StopValues[s + 1] : 0f);
+                    }
+                }
+            }
+
+            // A zero-length buffer store is legal but keeping at least one dummy texel
+            // sidesteps any driver quirks around binding a zero-size buffer to a texture;
+            // uGradCount is 0 for every command in this case, so the shader never reads it.
+            if (data.Count == 0)
+                data.AddRange(new float[4]);
+
+            float[] array = data.ToArray();
+            m_gl.BindBuffer(BufferTargetARB.TextureBuffer, m_gradBuffer);
+            fixed (float* p = array)
+                m_gl.BufferData(BufferTargetARB.TextureBuffer, (nuint)(array.Length * sizeof(float)), p, BufferUsageARB.DynamicDraw);
+            // Re-associate after every BufferData call, since some drivers don't reliably
+            // pick up a reallocated store on an already-attached buffer texture otherwise.
+            m_gl.TexBuffer(TextureTarget.TextureBuffer, SizedInternalFormat.Rgba32f, m_gradBuffer);
+
+            return (gradBase, gradCount);
+        }
+
+        private void DrawColoredQuadImmediate(Matrix4X4<float> model, float width, float height, ColorF color, float alpha, int gradBase, int gradCount)
         {
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locModel, model);
@@ -163,10 +261,12 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.Uniform1(m_locFlags, (int)FragmentFlags.Default);
             m_gl.Uniform4(m_locColor, color.R, color.G, color.B, color.A);
             m_gl.Uniform1(m_locAlpha, alpha);
+            m_gl.Uniform1(m_locGradBase, gradBase);
+            m_gl.Uniform1(m_locGradCount, gradCount);
             DrawQuad();
         }
 
-        private void DrawTexturedQuadImmediate(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
+        private void DrawTexturedQuadImmediate(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice, int gradBase, int gradCount)
         {
             // Real CPU decode work can happen here on first use (see GLImage.EnsureUploaded)
             // -- deliberately unlocked with respect to GLRenderSession.SyncRoot at this
@@ -190,6 +290,8 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             m_gl.Uniform2(m_locSize, width, height);
             m_gl.Uniform1(m_locFlags, (int)flags);
             m_gl.Uniform1(m_locAlpha, alpha);
+            m_gl.Uniform1(m_locGradBase, gradBase);
+            m_gl.Uniform1(m_locGradCount, gradCount);
             m_gl.ActiveTexture(TextureUnit.Texture0);
             m_gl.BindTexture(TextureTarget.Texture2D, image.TextureId);
             m_gl.Uniform1(m_locTex, 0);
@@ -275,6 +377,8 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
         {
             m_gl.DeleteBuffer(m_vbo);
             m_gl.DeleteVertexArray(m_vao);
+            m_gl.DeleteTexture(m_gradTexture);
+            m_gl.DeleteBuffer(m_gradBuffer);
             m_gl.DeleteProgram(m_program);
         }
     }

@@ -2,6 +2,136 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-31 (later still) — Gradients implemented as a real per-pixel GPU ramp (not the earlier CPU single-sample approach); found and fixed the actual root cause of the "widespread invisible content" regression from two entries below
+
+**Task:** implement `GLVisual.Gradients` (recorded but never composited, per the two
+entries below) for real, on the GPU as much as possible -- explicitly requested rather
+than inferred, since the two entries below left this area deliberately alone after the
+CPU single-center-sample attempt regressed the FUE wizard.
+
+### Design
+
+Per those entries' own documented follow-up ("true per-pixel fidelity would need
+gradient stops threaded into the fragment shader as uniforms"), gradients are now
+evaluated per-fragment in `FragmentShader.glsl`, not sampled once per visual/child on the
+CPU. Since a draw call's active gradient count has no fixed bound worth guessing at (a
+sprite carries its own attached gradients plus every ancestor container's, per
+`IVisualContainer.AddGradient`'s "applies to the whole subtree" semantics --
+`EdgeFade`/`Text.CreateFadeGradientsHelper`), gradient/stop data is packed into a
+`GL_TEXTURE_BUFFER` (`samplerBuffer`/`texelFetch`, core since GL 3.1 -- no version bump
+past this backend's existing GL 3.3 core context) rather than a fixed-size uniform array.
+Asked the user to pick between a fixed-size uniform-array cap and a buffer-backed
+approach; they chose the buffer.
+
+Data flow, mirroring the existing record-then-execute split (`SceneRenderer`'s class doc
+comment):
+- `GLGradient.ResolveStops(extent)`: converts recorded stops to absolute local-pixel
+  coordinates (`RelativeSpace.Min` unchanged, `RelativeSpace.Max` -- see Root cause below)
+  and sorts them, still CPU-side but cheap bookkeeping, not per-pixel work.
+- `ResolvedGradient` (new, `Rendering/ResolvedGradient.cs`): one gradient's resolved
+  stops plus a transform from the *drawing* visual's own local pixel space into the
+  *owning* visual's local space (where the stops were resolved). `GLVisual.
+  ResolveOwnGradients` builds these with an identity transform for a visual's own
+  gradients; `GLVisualContainer.Render` premultiplies inherited entries by each child's
+  own `LocalMatrix` as it recurses, composing transforms the same row-vector way
+  `LocalMatrix * parentMatrix` already does everywhere else in this backend.
+  `GLVisual.Render`'s signature grew an `ambientGradients` parameter to carry this down;
+  updated all 4 call sites (`GLSprite`, `GLVisualContainer`, its own recursive call, and
+  `GLRenderEngine.DrawFrame`'s root call).
+- `SceneRenderer.BuildGradientBuffer` (called once per `Flush()`): flattens every
+  recorded `DrawCommand`'s gradients into one RGBA32F float buffer -- per gradient, 4
+  texels (the transform's rows, same "upload row-major, GLSL reads it transposed"
+  convention `UploadMatrix` already uses), 1 texel (orientation, stop count), then
+  `ceil(stopCount/2)` texels packing two stops per texel -- and returns each command's
+  (base texel index, gradient count) as small per-draw uniforms (`uGradBase`/
+  `uGradCount`), replacing what would otherwise have been large per-draw-call array
+  uploads.
+- `FragmentShader.glsl`'s `evaluateGradients`/`sampleGradientStops`: walks
+  `uGradCount` gradients starting at `uGradBase`, computing each fragment's position in
+  the gradient's owning space (`transform * vec4(localPos, 0, 1)`, `localPos = vTex *
+  uSize`) and multiplying in a piecewise-linear stop lookup, same math as the reverted
+  CPU `Evaluate` but now genuinely per-pixel instead of one scalar per draw call.
+
+Also fixed a locking gap this change exposed: `GLGradient` previously used
+`SharedRenderObject`'s private-lock constructor (deliberate at the time, since nothing
+read its stops cross-thread -- see the "Gradients recorded but never composited" entry
+below). Now that the render thread reads `Orientation`/`Offset`/stops every frame via
+`ResolveStops`, while `AddValue`/`Clear`/the property setters are called from the app
+thread, `GLGradient` now takes and locks on the owning `GLRenderSession.SyncRoot` like
+the rest of the scene graph (`GLRenderSession.CreateGradient` updated to pass it).
+`GLVisual.ResolveOwnGradients` also now takes that lock itself (reentrant-safe, since
+`GLSprite.Render` already holds it) rather than trusting every call site to --
+`GLVisualContainer.Render` didn't take it at all before this change.
+
+### Root cause of a live regression, caught by actually running the app (not just
+compiling)
+
+`dotnet build` was clean throughout, but running `ZuneHost` surfaced two real bugs a
+build can't catch:
+
+1. **Compile-time**: used `packed` as a local GLSL variable name in
+   `sampleGradientStops` -- a reserved word (`layout(packed, ...)`), producing
+   `error: syntax error, unexpected PACKED_TOK`. Renamed to `stopTexel`.
+2. **The actual "widespread invisible content" regression reappeared** after fixing (1)
+   and getting a real window on screen -- same symptom class as the CPU attempt reverted
+   two entries below, this time from a different bug. Root-caused by re-deriving
+   `RelativeSpace.Max`'s meaning directly from `EdgeFade.UpdateFades`'s literal argument
+   values instead of trusting the earlier (never-verified-by-running) assumption
+   documented in that entry: with `MinOffset`/`MaxOffset` both 0 (the common case),
+   `EdgeFade`'s max-side stops are `AddValue(-FadeSize, 1f, Max)` /
+   `AddValue(0, 1-FadeAmount, Max)`. `ResolveStops` originally resolved
+   `RelativeSpace.Max` as `extent - Position` (this entry's and the earlier entry's
+   shared assumption, "measured backward from the far edge") -- under that formula both
+   stops land at or beyond the far edge (`extent + FadeSize` and `extent`), so every
+   real content position (< extent) falls below the *first* stop and clamps to its
+   value, which is the *reduced* (faded) alpha, not full -- collapsing nearly the entire
+   gradient-affected container to the faded value instead of just a narrow edge band.
+   The correct formula is `extent + Position`: `-FadeSize` resolves to
+   `extent - FadeSize` (full alpha, `FadeSize` pixels in from the far edge) and `0`
+   resolves to `extent` (reduced alpha, right at the edge) -- the exact mirror image of
+   the min-side stops (`RelativeSpace.Min` positions used unchanged), which was already
+   correct. Fixed in `GLGradient.ResolveStops`; confirmed by the user after rebuilding
+   and relaunching that the app renders correctly again (previously-invisible elements
+   back, no new visual regressions observed).
+
+This suggests the *same* sign error was plausibly present, undetected, in the earlier
+CPU-sampling attempt too (that entry's `Evaluate` used the same `extent - Position`
+formula) -- consistent with both attempts producing the identical "widespread invisible
+content" symptom despite using entirely different sampling strategies. Worth remembering
+for future work in this area: this class of bug is invisible to `dotnet build` and only
+showed up by actually launching the app and looking at it, which this sandbox can do
+(the process runs and a window appears) but cannot screenshot (import/ffmpeg screen
+capture attempts came back empty/failed here, consistent with the Wayland/XWayland
+capture gap noted in earlier 2026-07-30 entries) -- visual confirmation required the
+user's own eyes on the live window, not automated capture.
+
+### Known limitations / still-open, documented rather than silently shipped
+
+- `ColorMask` remains unapplied (unchanged from the earlier entry's assumption -- no new
+  evidence found this session either).
+- `RelativeSpace.Global` remains treated identically to `Min` (still no distinguishing
+  call site).
+- Gradient stop/transform data is rebuilt and re-uploaded to the texture buffer in full
+  every `Flush()` (every frame), not incrementally -- consistent with this backend's
+  existing "no dirty rects, full clear every frame" philosophy elsewhere, but worth
+  revisiting if gradient-heavy scenes ever show up as a measured perf cost (see the
+  `ZUNE_PERFTRACE` instrumentation two entries below).
+- Not investigated this session: a separate, likely unrelated issue the user flagged
+  while testing -- single-line text overflow fade (`Text.CreateFadeGradientsHelper`'s
+  `!WordWrap` branch, e.g. Collection grid album titles) didn't appear to be
+  fading *or* clipping in a quick look. That gradient is `RelativeSpace.Min`-only (not
+  the `Max` path fixed above), gated on `TextFitsWidth`/`FadeSize`, both computed
+  upstream in the text layout engine -- the user's own suspicion, which this session
+  didn't chase, is that the root cause is there (word-wrap/text-fit measurement or
+  `FadeSize` wiring), not in gradient compositing itself.
+
+`dotnet build UIX.RenderApi.OpenGL/UIX.RenderApi.OpenGL.csproj` and
+`dotnet build ZuneHost/ZuneHost.csproj -f net8.0` both clean (0 errors, only
+pre-existing warnings in untouched files). Ran the real app in this sandbox (not just
+compiled) and got explicit user confirmation of correct rendering after the fix --
+stronger verification than most entries in this log, which were usually limited to "the
+diagnostic tracing was reverted cleanly" due to the display-capture gap.
+
 ## 2026-07-31 (final for now) — Added ZUNE_PERFTRACE instrumentation instead of guessing further
 
 **Symptom (user report):** slightly better after the previous entry's fix, but still

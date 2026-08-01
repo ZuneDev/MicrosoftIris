@@ -225,7 +225,7 @@ namespace Microsoft.Iris.Render.OpenGL.Engine
                 animSystem.PulseTimeAdvance(animMs);
 
                 m_renderer.BeginFrame(m_window.Width, m_window.Height, m_window.BackgroundColor);
-                m_window.Root.Render(m_renderer, Matrix4X4<float>.Identity, 1f);
+                m_window.Root.Render(m_renderer, Matrix4X4<float>.Identity, 1f, Array.Empty<ResolvedGradient>());
 
                 keepAnimating = animSystem.HasPlayingAnimations;
             }
