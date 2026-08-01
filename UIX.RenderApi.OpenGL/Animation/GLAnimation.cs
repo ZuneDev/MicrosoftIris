@@ -11,9 +11,21 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
     /// </summary>
     internal abstract class GLAnimation : SharedRenderObject, IAnimation, IActivatableObject
     {
+        protected GLAnimation(object syncRoot) : base(syncRoot)
+        {
+        }
+
         public int RepeatCount { get; set; }
-        public bool IsPlaying { get; protected set; }
-        public bool IsActive { get; protected set; }
+
+        // Written by app-side Play/Pause/Reset *and* by the render thread's
+        // Advance/Complete path (GLKeyframeAnimation sets these directly on
+        // completion/auto-reset, called from GLAnimationSystem.StepAnimations) --
+        // and read every frame by GLAnimationSystem.GetPlayingAnimations, so both
+        // sides need the same lock rather than plain auto-properties.
+        private bool m_isPlaying;
+        private bool m_isActive;
+        public bool IsPlaying { get { lock (SyncRoot) return m_isPlaying; } protected set { lock (SyncRoot) m_isPlaying = value; } }
+        public bool IsActive { get { lock (SyncRoot) return m_isActive; } protected set { lock (SyncRoot) m_isActive = value; } }
         public bool AutoReset { get; set; }
         public AnimationResetBehavior ResetBehavior { get; set; } = AnimationResetBehavior.LeaveCurrent;
 
@@ -21,28 +33,40 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
 
         public virtual void Play()
         {
-            IsPlaying = true;
-            IsActive = true;
+            lock (SyncRoot)
+            {
+                IsPlaying = true;
+                IsActive = true;
+            }
         }
 
         public virtual void Pause()
         {
-            if (IsActive)
-                IsPlaying = false;
+            lock (SyncRoot)
+            {
+                if (IsActive)
+                    IsPlaying = false;
+            }
         }
 
         public virtual void Reset()
         {
-            IsPlaying = false;
-            IsActive = false;
+            lock (SyncRoot)
+            {
+                IsPlaying = false;
+                IsActive = false;
+            }
         }
 
         public virtual void InstantAdvance(float advanceTime) { }
 
         public virtual void InstantFinish()
         {
-            IsPlaying = false;
-            IsActive = false;
+            lock (SyncRoot)
+            {
+                IsPlaying = false;
+                IsActive = false;
+            }
         }
 
         protected void RaiseAsyncNotify(int cookie) => AsyncNotifyEvent?.Invoke(cookie);
@@ -67,34 +91,44 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
     {
         private readonly List<GLAnimation> m_members = new List<GLAnimation>();
 
+        public GLAnimationGroup(object syncRoot) : base(syncRoot)
+        {
+        }
+
         public override void Play()
         {
             base.Play();
-            foreach (GLAnimation a in m_members)
-                a.Play();
+            lock (SyncRoot)
+                foreach (GLAnimation a in m_members)
+                    a.Play();
         }
 
         public override void Pause()
         {
             base.Pause();
-            foreach (GLAnimation a in m_members)
-                a.Pause();
+            lock (SyncRoot)
+                foreach (GLAnimation a in m_members)
+                    a.Pause();
         }
 
         public override void Reset()
         {
             base.Reset();
-            foreach (GLAnimation a in m_members)
-                a.Reset();
+            lock (SyncRoot)
+                foreach (GLAnimation a in m_members)
+                    a.Reset();
         }
 
-        internal void Add(GLAnimation animation) => m_members.Add(animation);
+        internal void Add(GLAnimation animation) { lock (SyncRoot) m_members.Add(animation); }
 
         internal override void Advance(int advanceMs)
         {
-            foreach (GLAnimation a in m_members)
-                if (a.IsPlaying)
-                    a.Advance(advanceMs);
+            lock (SyncRoot)
+            {
+                foreach (GLAnimation a in m_members)
+                    if (a.IsPlaying)
+                        a.Advance(advanceMs);
+            }
         }
     }
 }

@@ -8,8 +8,15 @@ using Silk.NET.OpenGL;
 namespace Microsoft.Iris.Render.OpenGL.Rendering
 {
     /// <summary>
-    /// Immediate-mode style GL renderer for the visual tree. Draws each sprite as a quad
-    /// in an orthographic, top-left-origin, pixel-space projection with alpha blending.
+    /// Record-then-execute renderer for the visual tree: <see cref="BeginFrame"/>/
+    /// <see cref="DrawColoredQuad"/>/<see cref="DrawTexturedQuad"/> only record a quad's
+    /// parameters (called while GLRenderEngine.DrawFrame holds GLRenderSession.SyncRoot,
+    /// walking the live scene graph); <see cref="Flush"/> issues the actual GL calls
+    /// (called after that lock is released). This split exists specifically so the real
+    /// cost of a frame -- GL submission, and above all GLImage.EnsureUploaded's
+    /// synchronous first-time image decode via ImageCacheItem/ImageLoader, genuinely slow
+    /// CPU work -- never happens while every other app-thread scene mutation is blocked
+    /// waiting on the same lock. See logs/UIX.RenderApi.OpenGL/Implementation.md.
     /// </summary>
     internal sealed unsafe class SceneRenderer : IDisposable
     {
@@ -29,6 +36,34 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
         private readonly int m_locTex;
 
         private Matrix4X4<float> m_projection = Matrix4X4<float>.Identity;
+
+        private readonly struct DrawCommand
+        {
+            public readonly Matrix4X4<float> Model;
+            public readonly float Width;
+            public readonly float Height;
+            public readonly float Alpha;
+            public readonly GLImage? Image;    // non-null => textured quad
+            public readonly Inset? NineSlice;  // only meaningful when Image != null
+            public readonly ColorF Color;      // only meaningful when Image == null
+
+            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, GLImage image, Inset? nineSlice)
+            {
+                Model = model; Width = width; Height = height; Alpha = alpha;
+                Image = image; NineSlice = nineSlice; Color = default;
+            }
+
+            public DrawCommand(Matrix4X4<float> model, float width, float height, float alpha, ColorF color)
+            {
+                Model = model; Width = width; Height = height; Alpha = alpha;
+                Image = null; NineSlice = null; Color = color;
+            }
+        }
+
+        private readonly List<DrawCommand> m_commands = new();
+        private int m_pendingWidth;
+        private int m_pendingHeight;
+        private ColorF m_pendingClear;
 
         public SceneRenderer(GL gl)
         {
@@ -72,22 +107,55 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             gl.BindVertexArray(0);
         }
 
+        /// <summary>Record-only: latches frame size/clear color and resets the command list. No GL calls.</summary>
         public void BeginFrame(int widthPixels, int heightPixels, ColorF clear)
         {
-            m_projection = Matrix4X4.CreateOrthographicOffCenter(0f, widthPixels, heightPixels, 0f, -1f, 1f);
+            m_pendingWidth = widthPixels;
+            m_pendingHeight = heightPixels;
+            m_pendingClear = clear;
+            m_commands.Clear();
+        }
 
-            m_gl.Viewport(0, 0, (uint)Math.Max(1, widthPixels), (uint)Math.Max(1, heightPixels));
+        /// <summary>Record-only: appends a command. No GL calls.</summary>
+        public void DrawColoredQuad(Matrix4X4<float> model, float width, float height, ColorF color, float alpha)
+            => m_commands.Add(new DrawCommand(model, width, height, alpha, color));
+
+        /// <summary>Record-only: appends a command. No GL calls, no image upload/decode yet.</summary>
+        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
+            => m_commands.Add(new DrawCommand(model, width, height, alpha, image, nineSlice));
+
+        /// <summary>
+        /// Executes everything BeginFrame/DrawColoredQuad/DrawTexturedQuad recorded since
+        /// the last call: the actual GL viewport/clear, then each quad in order (including
+        /// GLImage.EnsureUploaded's texture upload/first-decode). Must run on the render
+        /// thread (GL-context-affine) but deliberately NOT under GLRenderSession.SyncRoot --
+        /// see the class doc comment.
+        /// </summary>
+        public void Flush()
+        {
+            m_projection = Matrix4X4.CreateOrthographicOffCenter(0f, m_pendingWidth, m_pendingHeight, 0f, -1f, 1f);
+
+            m_gl.Viewport(0, 0, (uint)Math.Max(1, m_pendingWidth), (uint)Math.Max(1, m_pendingHeight));
             m_gl.Disable(EnableCap.DepthTest);
             m_gl.Enable(EnableCap.Blend);
             m_gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            m_gl.ClearColor(clear.R, clear.G, clear.B, clear.A);
+            m_gl.ClearColor(m_pendingClear.R, m_pendingClear.G, m_pendingClear.B, m_pendingClear.A);
             m_gl.Clear(ClearBufferMask.ColorBufferBit);
 
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locProj, m_projection);
+
+            foreach (var cmd in m_commands)
+            {
+                if (cmd.Image != null)
+                    DrawTexturedQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Image, cmd.Alpha, cmd.NineSlice);
+                else
+                    DrawColoredQuadImmediate(cmd.Model, cmd.Width, cmd.Height, cmd.Color, cmd.Alpha);
+            }
+            m_commands.Clear();
         }
 
-        public void DrawColoredQuad(Matrix4X4<float> model, float width, float height, ColorF color, float alpha)
+        private void DrawColoredQuadImmediate(Matrix4X4<float> model, float width, float height, ColorF color, float alpha)
         {
             m_gl.UseProgram(m_program);
             UploadMatrix(m_locModel, model);
@@ -98,14 +166,17 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
             DrawQuad();
         }
 
-        public void DrawTexturedQuad(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
+        private void DrawTexturedQuadImmediate(Matrix4X4<float> model, float width, float height, GLImage image, float alpha, Inset? nineSlice)
         {
+            // Real CPU decode work can happen here on first use (see GLImage.EnsureUploaded)
+            // -- deliberately unlocked with respect to GLRenderSession.SyncRoot at this
+            // point; only image's own private lock is involved.
             image.EnsureUploaded(m_gl);
             if (image.TextureId == 0)
                 return;
 
             m_gl.UseProgram(m_program);
-            
+
             var flags = FragmentFlags.UseTexture;
             if (nineSlice.HasValue)
             {
@@ -114,7 +185,7 @@ namespace Microsoft.Iris.Render.OpenGL.Rendering
                     (float)nineSlice.Value.Left, (float)nineSlice.Value.Top,
                     (float)nineSlice.Value.Right, (float)nineSlice.Value.Bottom);
             }
-            
+
             UploadMatrix(m_locModel, model);
             m_gl.Uniform2(m_locSize, width, height);
             m_gl.Uniform1(m_locFlags, (int)flags);

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Iris.Render.OpenGL.Engine;
 using Microsoft.Iris.Render.OpenGL.Rendering;
 using Silk.NET.Maths;
@@ -21,7 +20,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         }
 
         public bool IsRoot { get; }
-        public int ChildCount => m_children.Count;
+        public int ChildCount { get { lock (Session.SyncRoot) return m_children.Count; } }
         public ICamera? Camera { get; set; }
 
         public void AddChild(IVisual vChild, IVisual vSibling, VisualOrder nOrder)
@@ -29,42 +28,53 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             if (vChild is not GLVisual child)
                 return;
 
-            child.ParentContainer?.RemoveChild(child);
-            child.ParentContainer = this;
-
-            int siblingIndex = vSibling is GLVisual s ? m_children.IndexOf(s) : -1;
-            switch (nOrder)
+            lock (Session.SyncRoot)
             {
-                case VisualOrder.First:
-                    m_children.Insert(0, child);
-                    break;
-                case VisualOrder.Before when siblingIndex >= 0:
-                    m_children.Insert(siblingIndex, child);
-                    break;
-                case VisualOrder.After when siblingIndex >= 0:
-                    m_children.Insert(siblingIndex + 1, child);
-                    break;
-                default: // Any, Last, or unresolved sibling
-                    m_children.Add(child);
-                    break;
-            }
+                child.ParentContainer?.RemoveChild(child);
+                child.ParentContainer = this;
 
-            child.RegisterUsage(this);
+                int siblingIndex = vSibling is GLVisual s ? m_children.IndexOf(s) : -1;
+                switch (nOrder)
+                {
+                    case VisualOrder.First:
+                        m_children.Insert(0, child);
+                        break;
+                    case VisualOrder.Before when siblingIndex >= 0:
+                        m_children.Insert(siblingIndex, child);
+                        break;
+                    case VisualOrder.After when siblingIndex >= 0:
+                        m_children.Insert(siblingIndex + 1, child);
+                        break;
+                    default: // Any, Last, or unresolved sibling
+                        m_children.Add(child);
+                        break;
+                }
+
+                child.RegisterUsage(this);
+            }
         }
 
         public void RemoveChild(IVisual vChild)
         {
-            if (vChild is not GLVisual child || !m_children.Remove(child))
+            if (vChild is not GLVisual child)
                 return;
-            child.ParentContainer = null;
-            child.UnregisterUsage(this);
+            lock (Session.SyncRoot)
+            {
+                if (!m_children.Remove(child))
+                    return;
+                child.ParentContainer = null;
+                child.UnregisterUsage(this);
+            }
         }
 
         public void RemoveAllChildren()
         {
-            // Snapshot: UnregisterUsage can trigger disposal which mutates state.
-            foreach (GLVisual child in m_children.ToArray())
-                RemoveChild(child);
+            lock (Session.SyncRoot)
+            {
+                // Snapshot: UnregisterUsage can trigger disposal which mutates state.
+                foreach (GLVisual child in m_children.ToArray())
+                    RemoveChild(child);
+            }
         }
 
         /// <summary>
@@ -81,11 +91,38 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         /// </summary>
         private List<GLVisual> BackToFrontOrder()
         {
-            return m_children.Select((v, i) => (v, i))
-                .OrderBy(t => t.v.Layer)
-                .ThenByDescending(t => t.i)
-                .Select(t => t.v)
-                .ToList();
+            // Snapshot *and* capture each child's Layer in the same lock, then sort
+            // outside it using the captured values -- not m_children.Select(...).
+            // OrderBy(t => t.v.Layer), which reads the (individually locked) Layer
+            // property from *inside* the sort comparer, i.e. after this method's own
+            // lock has already been released. That meant every single comparison
+            // during the sort was its own separate lock acquisition -- O(n log n) of
+            // them, on every hit-test (every mouse move) and every render frame, for
+            // every container. GLRenderWindow.HitTest already wraps the whole
+            // recursive hit-test walk in one lock for exactly this reason; this was
+            // the same mistake hiding one level deeper, inside the sort itself.
+            (GLVisual Visual, uint Layer, int Index)[] indexed;
+            lock (Session.SyncRoot)
+            {
+                indexed = new (GLVisual, uint, int)[m_children.Count];
+                for (int i = 0; i < m_children.Count; i++)
+                    indexed[i] = (m_children[i], m_children[i].Layer, i);
+            }
+
+            // Ascending by Layer (higher layer paints later/on top), ties broken by
+            // *reverse* index -- see this method's summary above for why. Array.Sort
+            // isn't stable, but the explicit descending-Index tiebreak makes that
+            // irrelevant (every pair compares unequal on Index alone).
+            System.Array.Sort(indexed, static (a, b) =>
+            {
+                int cmp = a.Layer.CompareTo(b.Layer);
+                return cmp != 0 ? cmp : b.Index.CompareTo(a.Index);
+            });
+
+            var result = new List<GLVisual>(indexed.Length);
+            foreach (var entry in indexed)
+                result.Add(entry.Visual);
+            return result;
         }
 
         internal override void Render(SceneRenderer renderer, Matrix4X4<float> parentMatrix, float inheritedAlpha)

@@ -14,6 +14,15 @@ namespace Microsoft.Iris.Queues
 {
     public abstract class Dispatcher
     {
+        // TEMPORARY diagnostic tracing (logs/UIX.RenderApi.OpenGL/Implementation.md,
+        // 2026-07-31 responsiveness investigation): env-gated so it's zero-cost unless
+        // opted into, matching the ZUNE_GLTRACE precedent in GLVisual.cs. Remove once
+        // the actual bottleneck (render-thread locking vs. app-side dispatch/script
+        // execution) is confirmed.
+        private static readonly bool PerfTraceEnabled = Environment.GetEnvironmentVariable("ZUNE_PERFTRACE") == "1";
+        private static readonly System.Diagnostics.Stopwatch PerfTraceClock = System.Diagnostics.Stopwatch.StartNew();
+        private const long PerfTraceThresholdMs = 8;
+
         private static Interconnect s_interconnect = new Interconnect();
         [ThreadStatic]
         private static Dispatcher s_threadDispatcher;
@@ -78,7 +87,18 @@ namespace Microsoft.Iris.Queues
                     Application.Debugger?.LogDispatcher(debugString);
                     Trace.WriteLine(TraceCategory.Queues, 0, "Dispatcher nextItem := {0}", debugString);
 
-                    nextItem.Dispatch();
+                    if (PerfTraceEnabled)
+                    {
+                        long start = PerfTraceClock.ElapsedMilliseconds;
+                        nextItem.Dispatch();
+                        long elapsed = PerfTraceClock.ElapsedMilliseconds - start;
+                        if (elapsed >= PerfTraceThresholdMs)
+                            Console.Error.WriteLine($"[PERFTRACE] Dispatcher: {elapsed}ms :: {debugString}");
+                    }
+                    else
+                    {
+                        nextItem.Dispatch();
+                    }
                 }
             }
             finally

@@ -28,7 +28,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
 
         private readonly List<GLGradient> m_gradients = new List<GLGradient>();
 
-        protected GLVisual(GLRenderSession session, object ownerData)
+        protected GLVisual(GLRenderSession session, object ownerData) : base(session.SyncRoot)
         {
             Session = session;
             m_ownerData = ownerData;
@@ -38,11 +38,30 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         public object OwnerData => m_ownerData;
 
         // IVisual
+        // MouseOptions/DebugID are only ever touched from the main thread (set from
+        // markup/session code, read by hit-testing -- also main-thread), so they're
+        // left as plain auto-properties. ParentContainer and DebugColor are read
+        // during Render (render thread) as well as written from the main thread
+        // (AddChild/RemoveChild, debug tooling), so they're locked like the
+        // transform properties above.
         public MouseOptions MouseOptions { get; set; } = MouseOptions.None;
-        public GLVisualContainer? ParentContainer { get; internal set; }
+
+        private GLVisualContainer? m_parentContainer;
+        public GLVisualContainer? ParentContainer
+        {
+            get { lock (Session.SyncRoot) return m_parentContainer; }
+            internal set { lock (Session.SyncRoot) m_parentContainer = value; }
+        }
+
         public IVisualContainer Parent => ParentContainer!;
         public string DebugID { get; set; } = string.Empty;
-        public ColorF DebugColor { get; set; }
+
+        private ColorF m_debugColor;
+        public ColorF DebugColor
+        {
+            get { lock (Session.SyncRoot) return m_debugColor; }
+            set { lock (Session.SyncRoot) m_debugColor = value; }
+        }
 
         public void Remove() => ParentContainer?.RemoveChild(this);
 
@@ -50,70 +69,97 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         {
             if (visualSource is not GLVisual src)
                 return;
-            m_position = src.m_position;
-            m_size = src.m_size;
-            m_scale = src.m_scale;
-            m_rotation = src.m_rotation;
-            m_centerPoint = src.m_centerPoint;
-            m_alpha = src.m_alpha;
-            m_visible = src.m_visible;
-            m_layer = src.m_layer;
-            MouseOptions = src.MouseOptions;
+            // src and this share the same render session, hence the same SyncRoot --
+            // one lock covers both sides of the copy atomically.
+            lock (Session.SyncRoot)
+            {
+                m_position = src.m_position;
+                m_size = src.m_size;
+                m_scale = src.m_scale;
+                m_rotation = src.m_rotation;
+                m_centerPoint = src.m_centerPoint;
+                m_alpha = src.m_alpha;
+                m_visible = src.m_visible;
+                m_layer = src.m_layer;
+                MouseOptions = src.MouseOptions;
+            }
         }
 
         // Shared transform surface (declared on both IVisualContainer and ISprite).
-        public Vector3 Position { get => m_position; set => m_position = value; }
-        public Vector2 Size { get => m_size; set => m_size = value; }
-        public Vector3 Scale { get => m_scale; set => m_scale = value; }
-        public AxisAngle Rotation { get => m_rotation; set => m_rotation = value; }
-        public Vector3 CenterPoint { get => m_centerPoint; set => m_centerPoint = value; }
-        public float Alpha { get => m_alpha; set => m_alpha = value; }
-        public bool Visible { get => m_visible; set => m_visible = value; }
-        public uint Layer { get => m_layer; set => m_layer = value; }
+        // Locked on both sides (not just writes): the render thread's animation
+        // pulse (GLKeyframeAnimation.Advance -> AnimationTargetApplier) writes these
+        // same fields every frame, and hit-testing on the main thread
+        // (GLInputTranslator -> GLVisual.HitTest) reads them outside the render
+        // thread's per-frame lock, so an unguarded read here could tear against a
+        // concurrent write.
+        public Vector3 Position { get { lock (Session.SyncRoot) return m_position; } set { lock (Session.SyncRoot) m_position = value; } }
+        public Vector2 Size { get { lock (Session.SyncRoot) return m_size; } set { lock (Session.SyncRoot) m_size = value; } }
+        public Vector3 Scale { get { lock (Session.SyncRoot) return m_scale; } set { lock (Session.SyncRoot) m_scale = value; } }
+        public AxisAngle Rotation { get { lock (Session.SyncRoot) return m_rotation; } set { lock (Session.SyncRoot) m_rotation = value; } }
+        public Vector3 CenterPoint { get { lock (Session.SyncRoot) return m_centerPoint; } set { lock (Session.SyncRoot) m_centerPoint = value; } }
+        public float Alpha { get { lock (Session.SyncRoot) return m_alpha; } set { lock (Session.SyncRoot) m_alpha = value; } }
+        public bool Visible { get { lock (Session.SyncRoot) return m_visible; } set { lock (Session.SyncRoot) m_visible = value; } }
+        public uint Layer { get { lock (Session.SyncRoot) return m_layer; } set { lock (Session.SyncRoot) m_layer = value; } }
 
         // The "force" overloads exist so callers can bypass change coalescing; our
         // implementation applies changes immediately, so force is a no-op distinction.
-        public void SetPosition(Vector3 value, bool force) => m_position = value;
-        public void SetSize(Vector2 value, bool force) => m_size = value;
-        public void SetScale(Vector3 value, bool force) => m_scale = value;
-        public void SetRotation(AxisAngle value, bool force) => m_rotation = value;
-        public void SetAlpha(float value, bool force) => m_alpha = value;
+        public void SetPosition(Vector3 value, bool force) { lock (Session.SyncRoot) m_position = value; }
+        public void SetSize(Vector2 value, bool force) { lock (Session.SyncRoot) m_size = value; }
+        public void SetScale(Vector3 value, bool force) { lock (Session.SyncRoot) m_scale = value; }
+        public void SetRotation(AxisAngle value, bool force) { lock (Session.SyncRoot) m_rotation = value; }
+        public void SetAlpha(float value, bool force) { lock (Session.SyncRoot) m_alpha = value; }
 
         public void AddGradient(IGradient gradient)
         {
             if (gradient is not GLGradient g)
                 return;
-            g.RegisterUsage(this);
-            m_gradients.Add(g);
+            lock (Session.SyncRoot)
+            {
+                g.RegisterUsage(this);
+                m_gradients.Add(g);
+            }
         }
 
         public void RemoveAllGradients()
         {
-            foreach (var g in m_gradients)
-                g.UnregisterUsage(this);
-            m_gradients.Clear();
+            lock (Session.SyncRoot)
+            {
+                foreach (var g in m_gradients)
+                    g.UnregisterUsage(this);
+                m_gradients.Clear();
+            }
         }
 
-        internal IReadOnlyList<GLGradient> Gradients => m_gradients;
+        internal IReadOnlyList<GLGradient> Gradients { get { lock (Session.SyncRoot) return m_gradients.ToArray(); } }
 
         /// <summary>
         /// Local model transform: translate to position, rotate/scale about the center
         /// point. Matches the Iris convention where position/size are in device pixels
-        /// with the y axis pointing down.
+        /// with the y axis pointing down. Reads all four transform fields as one
+        /// consistent snapshot under a single lock, rather than field-by-field, so the
+        /// render thread never composes a matrix from a torn mix of old/new values.
         /// </summary>
         internal Matrix4X4<float> LocalMatrix
         {
             get
             {
-                Vector3 c = m_centerPoint;
+                Vector3 c, position, scale;
+                AxisAngle rotation;
+                lock (Session.SyncRoot)
+                {
+                    c = m_centerPoint;
+                    position = m_position;
+                    scale = m_scale;
+                    rotation = m_rotation;
+                }
                 Matrix4X4<float> toCenter = Matrix4X4.CreateTranslation(-c.X, -c.Y, -c.Z);
-                Matrix4X4<float> scale = Matrix4X4.CreateScale(m_scale.X, m_scale.Y, m_scale.Z);
+                Matrix4X4<float> scaleMatrix = Matrix4X4.CreateScale(scale.X, scale.Y, scale.Z);
                 Matrix4X4<float> rot = Matrix4X4.CreateFromAxisAngle(
-                    new Vector3D<float>(m_rotation.Axis.X, m_rotation.Axis.Y, m_rotation.Axis.Z),
-                    m_rotation.Angle);
+                    new Vector3D<float>(rotation.Axis.X, rotation.Axis.Y, rotation.Axis.Z),
+                    rotation.Angle);
                 Matrix4X4<float> fromCenter = Matrix4X4.CreateTranslation(c.X, c.Y, c.Z);
-                Matrix4X4<float> translate = Matrix4X4.CreateTranslation(m_position.X, m_position.Y, m_position.Z);
-                return toCenter * scale * rot * fromCenter * translate;
+                Matrix4X4<float> translate = Matrix4X4.CreateTranslation(position.X, position.Y, position.Z);
+                return toCenter * scaleMatrix * rot * fromCenter * translate;
             }
         }
 

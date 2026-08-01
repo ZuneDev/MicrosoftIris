@@ -11,7 +11,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
     {
         private readonly List<string> m_properties = new List<string>();
 
-        public GLEffectTemplate(string name) => Name = name;
+        public GLEffectTemplate(object syncRoot, string name) : base(syncRoot) => Name = name;
 
         public string Name { get; }
         public bool IsBuilt { get; private set; }
@@ -26,7 +26,7 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
             return true;
         }
 
-        public IEffect CreateInstance(object objUser) => new GLEffect(this);
+        public IEffect CreateInstance(object objUser) => new GLEffect(SyncRoot, this);
     }
 
     /// <summary>Instance of an <see cref="GLEffectTemplate"/> holding property values.</summary>
@@ -34,35 +34,44 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
     {
         private readonly Dictionary<string, object> m_values = new Dictionary<string, object>();
 
-        public GLEffect(GLEffectTemplate template) => Template = template;
+        public GLEffect(object syncRoot, GLEffectTemplate template) : base(syncRoot) => Template = template;
 
         public string Name => Template.Name;
         IEffectTemplate IEffect.Template => Template;
         public GLEffectTemplate Template { get; }
 
-        public void SetProperty(string stPropertyName, int nValue) => m_values[stPropertyName] = nValue;
-        public void SetProperty(string stPropertyName, float flValue) => m_values[stPropertyName] = flValue;
-        public void SetProperty(string stPropertyName, Vector2 vValue) => m_values[stPropertyName] = vValue;
-        public void SetProperty(string stPropertyName, Vector3 vValue) => m_values[stPropertyName] = vValue;
-        public void SetProperty(string stPropertyName, Vector4 vValue) => m_values[stPropertyName] = vValue;
-        public void SetProperty(string stPropertyName, ColorF colorValue) => m_values[stPropertyName] = colorValue;
-        public void SetProperty(string stPropertyName, IImage imgValue) => m_values[stPropertyName] = imgValue;
-        public void SetProperty(string stPropertyName, IImage[] imgValue) => m_values[stPropertyName] = imgValue;
-        public void SetProperty(string stPropertyName, IVideoStream streamValue) => m_values[stPropertyName] = streamValue;
+        // m_values is written by app-side SetProperty *and* by the render thread's
+        // animation pulse (AnimationTargetApplier.Apply -> SetProperty, every frame
+        // a target animation is playing), and enumerated every frame by
+        // PrimaryImage/PrimaryColor from GLSprite.Render -- an unguarded Dictionary
+        // under that traffic is a concurrent-modification-during-enumeration crash,
+        // not just a stale-read risk.
+        public void SetProperty(string stPropertyName, int nValue) { lock (SyncRoot) m_values[stPropertyName] = nValue; }
+        public void SetProperty(string stPropertyName, float flValue) { lock (SyncRoot) m_values[stPropertyName] = flValue; }
+        public void SetProperty(string stPropertyName, Vector2 vValue) { lock (SyncRoot) m_values[stPropertyName] = vValue; }
+        public void SetProperty(string stPropertyName, Vector3 vValue) { lock (SyncRoot) m_values[stPropertyName] = vValue; }
+        public void SetProperty(string stPropertyName, Vector4 vValue) { lock (SyncRoot) m_values[stPropertyName] = vValue; }
+        public void SetProperty(string stPropertyName, ColorF colorValue) { lock (SyncRoot) m_values[stPropertyName] = colorValue; }
+        public void SetProperty(string stPropertyName, IImage imgValue) { lock (SyncRoot) m_values[stPropertyName] = imgValue; }
+        public void SetProperty(string stPropertyName, IImage[] imgValue) { lock (SyncRoot) m_values[stPropertyName] = imgValue; }
+        public void SetProperty(string stPropertyName, IVideoStream streamValue) { lock (SyncRoot) m_values[stPropertyName] = streamValue; }
 
         /// <summary>First image assigned to any property, used as the sprite's texture.</summary>
         internal GLImage? PrimaryImage
         {
             get
             {
-                foreach (var v in m_values.Values)
+                lock (SyncRoot)
                 {
-                    if (v is GLImage img)
-                        return img;
-                    if (v is IImage[] arr && arr.Length > 0 && arr[0] is GLImage first)
-                        return first;
+                    foreach (var v in m_values.Values)
+                    {
+                        if (v is GLImage img)
+                            return img;
+                        if (v is IImage[] arr && arr.Length > 0 && arr[0] is GLImage first)
+                            return first;
+                    }
+                    return null;
                 }
-                return null;
             }
         }
 
@@ -74,6 +83,8 @@ namespace Microsoft.Iris.Render.OpenGL.Scene
         // GLEffectTemplate doesn't compile real shader programs (stage-3 TODO), so this
         // is the one property path GLSprite needs to special-case for solid fills.
         internal ColorF? PrimaryColor
-            => m_values.TryGetValue("ColorElem.Color", out var v) && v is ColorF c ? c : null;
+        {
+            get { lock (SyncRoot) return m_values.TryGetValue("ColorElem.Color", out var v) && v is ColorF c ? c : null; }
+        }
     }
 }

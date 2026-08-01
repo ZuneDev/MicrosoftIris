@@ -30,8 +30,35 @@ namespace Microsoft.Iris.Render.OpenGL.Engine
         internal GLVisualContainer Root => m_root;
 
         /// <summary>Frontmost hittable visual under a client-space point, or null.</summary>
+        /// <remarks>
+        /// One lock for the whole recursive walk, not per-property: GLVisual/
+        /// GLVisualContainer's individual property getters (Visible, LocalMatrix, Alpha,
+        /// the children snapshot, ...) each take GLRenderSession.SyncRoot on their own,
+        /// so an unwrapped call here means a single mouse move on a list with several
+        /// nested containers and many items fires dozens-to-hundreds of *separate* lock
+        /// acquisitions -- each one a fresh chance to collide with the render thread,
+        /// even though the render thread itself only ever takes the lock once per frame
+        /// (see GLRenderEngine.DrawFrame). Taking it once here up front makes every
+        /// nested property access a cheap reentrant no-wait re-entry instead.
+        /// </remarks>
+        // TEMPORARY diagnostic tracing (logs/UIX.RenderApi.OpenGL/Implementation.md,
+        // 2026-07-31 responsiveness investigation): same ZUNE_PERFTRACE gate as
+        // Dispatcher.MainLoop/GLRenderEngine.DrawFrame. Remove once the actual
+        // bottleneck is confirmed.
+        private static readonly bool PerfTraceEnabled = Environment.GetEnvironmentVariable("ZUNE_PERFTRACE") == "1";
+        private const long PerfTraceThresholdMs = 8;
+
         internal GLVisual? HitTest(Vector2D<float> clientPoint)
-            => m_root.HitTest(new Vector2(clientPoint.X, clientPoint.Y), Matrix4X4<float>.Identity);
+        {
+            var sw = PerfTraceEnabled ? System.Diagnostics.Stopwatch.StartNew() : null;
+            lock (m_session.SyncRoot)
+            {
+                var result = m_root.HitTest(new Vector2(clientPoint.X, clientPoint.Y), Matrix4X4<float>.Identity);
+                if (sw != null && sw.ElapsedMilliseconds >= PerfTraceThresholdMs)
+                    Console.Error.WriteLine($"[PERFTRACE] HitTest: {sw.ElapsedMilliseconds}ms");
+                return result;
+            }
+        }
 
         // ---- Geometry ------------------------------------------------------------
         public int Left => m_window.Position.X;

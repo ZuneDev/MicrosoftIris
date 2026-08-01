@@ -2,6 +2,510 @@
 
 Reverse-chronological log (prepend new entries; never edit older ones).
 
+## 2026-07-31 (final for now) — Added ZUNE_PERFTRACE instrumentation instead of guessing further
+
+**Symptom (user report):** slightly better after the previous entry's fix, but still
+awful. The user asked a fair, overdue question: every fix in this session so far was
+found by reading code for patterns that *could* cause contention (many small lock
+acquisitions, a lock held too long), never by actually measuring where time goes. Nothing
+on the app/script side (`Microsoft.Iris.Markup`'s trigger/script execution, dispatched
+through `Dispatcher.MainLoop`) had been looked at at all -- it's entirely possible the
+real cost is there, not in anything this session touched.
+
+**Added, not a fix:** env-gated (`ZUNE_PERFTRACE=1`) timing instrumentation, off by
+default (zero cost unless opted into, same pattern as `GLVisual.TraceEnabled`/
+`ZUNE_GLTRACE`), at the three places needed to tell app-side cost apart from
+render/locking cost:
+- `UIX/Microsoft/Iris/Queues/Dispatcher.cs` (`MainLoop`): times each `QueueItem.Dispatch()`
+  call -- this is where UIX markup script/trigger execution actually runs, dispatched
+  from the same queue as everything else. Logs `[PERFTRACE] Dispatcher: {ms} :: {debug
+  string}` for anything >= 8ms.
+- `UIX.RenderApi.OpenGL/Engine/GLRenderEngine.cs` (`DrawFrame`): times the locked
+  tree-walk and the unlocked `SceneRenderer.Flush()` separately.
+- `UIX.RenderApi.OpenGL/Engine/GLRenderWindow.cs` (`HitTest`): times the whole
+  hit-test call.
+
+All four log to stderr with an 8ms threshold, marked `TEMPORARY diagnostic tracing`, to
+be removed once the actual bottleneck is confirmed rather than kept as permanent
+overhead. **Next step is on the user's machine**, not here: run with `ZUNE_PERFTRACE=1`
+set, reproduce the lag, and see which of the four categories (dispatcher/script,
+locked walk, GL flush, hit-test) is actually large. That answers the user's question
+directly instead of another round of pattern-matched locking fixes.
+
+**Verification:** `MicrosoftIris.sln` and `ZuneHost` build clean (0 errors, same
+pre-existing unrelated `SimpleDebugClient`/`SimpleIrisApp` failures only). Not
+runtime-verified -- this sandbox still can't display the app's window, so even
+`ZUNE_PERFTRACE`'s own output can't be observed from here.
+
+## 2026-07-31 (yet still later) — Still laggy: hit-testing and the child-sort both did many separate lock acquisitions instead of one
+
+**Symptom (user report), after the entry below's fix:** better, but Collection views
+still really laggy.
+
+**Diagnosis, two more instances of the same underlying mistake** (many small lock
+acquisitions where one would do -- the exact pattern `GLRenderEngine.DrawFrame` already
+avoided by locking once for the whole tree walk):
+
+1. **Hit-testing had no outer lock at all.** `GLRenderWindow.HitTest` called straight
+   into `GLVisualContainer`/`GLSprite`'s `HitTest`, each of which reads several
+   individually-locked properties (`Visible`, `LocalMatrix`, `Alpha`, `MouseOptions`) at
+   every level of the tree. For a list with several nested containers and many items, a
+   single mouse move could trigger dozens-to-hundreds of *separate*
+   `GLRenderSession.SyncRoot` acquisitions, each one an independent chance to collide
+   with the render thread -- versus the render thread's own one-acquisition-per-frame
+   pattern.
+2. **`GLVisualContainer.BackToFrontOrder` read a locked property from inside its own sort
+   comparer.** `snapshot.Select(...).OrderBy(t => t.v.Layer)...` reads `.Layer` (which
+   locks internally) *during* the LINQ sort, i.e. after the method's own snapshot lock
+   had already been released -- meaning every single comparison during the O(n log n)
+   sort was its own separate lock acquisition. This method is called on every hit-test
+   *and* every render frame, for every container in the tree -- so a list is exactly the
+   shape that makes this expensive: many children per container, many containers.
+
+**Fix:**
+1. `GLRenderWindow.HitTest` now wraps the entire recursive hit-test walk in one
+   `lock (m_session.SyncRoot)`. The nested per-property locks inside `GLVisual`/
+   `GLVisualContainer`/`GLSprite` become cheap reentrant no-wait re-entries instead of
+   independent contended acquisitions.
+2. `BackToFrontOrder` now captures each child's `Layer` value *inside* its existing
+   snapshot lock (one lock, reading `m_children[i]` and `.Layer` together while already
+   holding it -- reentrant, cheap), then sorts an array of plain `(GLVisual, uint Layer,
+   int Index)` tuples with `Array.Sort` and an explicit comparer, entirely outside any
+   lock. Same ordering semantics (ascending Layer, ties broken by descending original
+   index) as before, just without a lock acquisition per comparison. Also dropped the
+   now-unused `System.Linq` using.
+
+**Verification:** `UIX.RenderApi.OpenGL` and `ZuneHost` build clean (0 errors). Same
+caveat as every entry in this session -- this sandbox can't display the app's window, so
+this is verified by code review and the lock-acquisition-count argument, not by
+re-measuring actual latency. Asked the user for more specific repro detail (is it laggy
+with no hover/animation involved at all, e.g. just scrolling with the mouse held still?)
+in case the remaining cost turns out to be algorithmic (tree-walk/hit-test CPU cost
+itself) rather than lock-related -- worth checking before assuming another locking fix
+will help.
+
+## 2026-07-31 (still later) — Still unresponsive after the event-driven fix: the lock was still held across GL submission and first-time image decode
+
+**Symptom (user report), after the entry below's fix:** the "Not Responding" window-manager
+flag was gone, but Collection views (multiple, not just the one with the already-known
+dual-tree bug from the 2026-07-30 entries) remained heavily laggy -- choppy, delayed hover
+feedback -- and this was described as happening consistently, not just during active
+animation/hover.
+
+**Diagnosis:** the entry below only fixed *how often* the render thread took
+`GLRenderSession.SyncRoot` (event-driven instead of every vsync tick); it didn't fix *how
+long* it held the lock for each frame it did draw. `DrawFrame` still wrapped the entire
+frame -- tree walk *and* actual GL submission -- in one lock, and GL submission includes
+`GLImage.EnsureUploaded`, which on first use of an image synchronously calls into
+`ImageCacheItem.ReloadImage` -> `ImageLoader.FromBuffer`/`FromFile`, a real, potentially
+tens-of-milliseconds CPU image decode. Collection views load new album art constantly as
+you scroll or hover between items, so this path is hit constantly there specifically
+(unlike Settings, which is mostly text) -- and every single decode blocked every other
+app-thread scene mutation (property sets, hit-testing) for its full duration, regardless
+of whether the render thread was looping continuously or not.
+
+**Fix, two parts:**
+1. `SceneRenderer` (`UIX.RenderApi.OpenGL/Rendering/SceneRenderer.cs`) split from
+   immediate-mode into record-then-execute: `BeginFrame`/`DrawColoredQuad`/
+   `DrawTexturedQuad` now only append lightweight `DrawCommand` structs to a list (pure
+   CPU, no GL calls, no image work) -- call sites in `GLVisual`/`GLVisualContainer`/
+   `GLSprite`'s `Render` methods are unchanged. A new `Flush()` does the actual GL work
+   (viewport/clear/program setup, then each command's real draw call including
+   `EnsureUploaded`).
+2. `GLRenderEngine.DrawFrame` now only holds `SyncRoot` around the animation pulse and
+   the tree walk (building the command list -- matrix math and property reads, no GL, no
+   decode); `SceneRenderer.Flush()` is called *after* releasing that lock. `GLImage` also
+   stopped sharing `GLRenderSession.SyncRoot` entirely and went back to its own private
+   lock (dropped the `syncRoot` constructor parameter added in the entry two below,
+   updated `GLRenderSession.CreateImage` accordingly) -- nothing outside a `GLImage` ever
+   needed its pixel/texture state to be atomic with the rest of the scene graph, so
+   sharing the global lock there was pure cost with no correctness benefit.
+
+Net effect: the lock the app thread contends with is now held only for CPU-cheap tree
+traversal, never for GL calls or image decode. A slow-to-load image's decode cost is
+still real (still happens on the render thread, still user-visible as that specific
+image popping in late), but no longer blocks anything unrelated to it.
+
+**Verification:** `UIX.RenderApi.OpenGL` and `ZuneHost` both build clean (0 errors).
+Same caveat as every entry in this session: this sandbox cannot display the app's window
+(Wayland/XWayland capture issue, unrelated to any of this), so this is verified by code
+review and the lock-scope argument, not by re-measuring actual interaction latency. If
+Collection views are still laggy after this, the tree-walk/hit-test cost itself (not
+locking) becomes the next suspect -- worth profiling rather than guessing further.
+
+## 2026-07-31 (later) — Render thread regression: continuous vsync loop caused a lock convoy, badly regressing responsiveness
+
+**Symptom (user report), on a real machine (not this sandbox, where the app's window
+couldn't be observed at all -- see the entry below):** noticeably slower page loads in
+Settings ("takes many milliseconds"), and clicking "start" made the window-manager mark
+the window "Not Responding" for several seconds.
+
+**Root cause:** the entry below's `RenderThreadMain` ran an *unconditional* loop --
+`DrawFrame` (under `GLRenderSession.SyncRoot`) then `SwapBuffers()`, forever, regardless
+of whether anything on screen had changed -- on the theory that `SwapBuffers()` blocking
+for vsync would give the app thread enough breathing room between frames. It does, in
+isolation, but the practical effect was the opposite of the intent: the render thread was
+re-acquiring the one lock shared by the *entire* scene/animation graph roughly 60 times a
+second, permanently, even looking at a completely static settings page. Every single
+app-thread property set or tree mutation -- and a page load or a `RepeatCount`/animation
+setup on "start" easily does hundreds of them in a row -- now had to contend with a
+background thread that was trying to reacquire the same lock on a tight, regular cadence.
+That's a textbook lock convoy: individually each wait might be small, but a sequence of
+many small mutations each paying a lock-contention tax adds up to the reported
+many-millisecond page loads, and under heavier contention (a bigger transition, a slow
+first-time image decode inside `GLImage.EnsureUploaded` while still holding the lock) it
+compounds into the reported multi-second freeze. `FlushBatch`/`RenderNowIfPossible` had
+also been turned into no-ops on the assumption that "the next vsync frame picks it up
+anyway" -- true only because the loop never stopped running, which was itself the bug.
+
+**Fix:** made the render thread event-driven instead of a continuous loop. It now blocks
+on a `ManualResetEventSlim` (`m_renderRequested`) and only draws when something actually
+asks it to: `FlushBatch`/`RenderNowIfPossible` (restored to real wakes, not no-ops --
+these are the same two invalidation hooks the original single-threaded engine used,
+traced via `UISession.SyncWindowHandler`/`UIDispatcher.DoBatchFlush`), a handful of
+window events (resize, focus), or the loop itself re-arming when the frame it just drew
+still has a playing animation (`GLAnimationSystem.HasPlayingAnimations`, re-added --
+computed from the same snapshot pattern `StepAnimations` already used, still O(1) lock
+acquisitions per frame, not per-animation). The wait has a 250ms fallback timeout as a
+low-cost safety net (self-heals any invalidation path this design missed, without
+reintroducing a tight loop -- 4Hz idle polling is not remotely comparable to 60Hz lock
+contention). Net effect: while the app is idle, the render thread touches the lock zero
+times; while an animation is actually playing, it behaves the same as the entry below
+(contending during the animation's actual duration, which is expected and bounded, not
+permanent).
+
+**Verification:** rebuilt `UIX.RenderApi.OpenGL` and `ZuneHost` clean (0 errors). Could
+not re-run the responsiveness test myself -- this sandbox's display/screenshot tooling
+still can't show the window (see the entry below) -- so this fix is verified by code
+review and the lock-acquisition-frequency argument above, not by re-measuring the actual
+page-load/click latency the user reported. That measurement should happen on a machine
+that can actually show the window before considering this closed.
+
+## 2026-07-31 — Dedicated render thread: painting/animation split off the app/UI thread
+
+**Task (user):** the app/UI thread (`UIDispatcher`'s single owning thread) did window
+event pumping, animation pulsing, and GL painting all synchronously in one loop
+(`GLRenderEngine.OnRender`, driven by Silk's `Render` event / `DoRender`). A busy
+dispatcher callback stalled painting and animation with it -- exactly the bug class
+already worked around by `WaitForWork`'s 15ms poll loop. User asked to move as much of
+that onto its own thread as feasible to keep the app responsive, without necessarily
+moving everything.
+
+**Design (not everything moved, by design):** window creation, native event pumping
+(`ProcessNativeEvents`/`WaitForWork`'s `DoEvents` calls), input translation, and
+hit-testing all stay on the app/UI thread -- the project references
+`Silk.NET.Windowing.Sdl`/`Silk.NET.Input.Sdl`, and SDL's documented threading rule
+(OS-enforced on macOS specifically) is that window creation and event pumping must stay
+on the thread that initialized the video subsystem. **Not verified on an actual Mac from
+this environment** -- flagged rather than silently assumed. Only painting, animation
+pulsing, and GPU submission move to a new dedicated render thread
+(`GLRenderEngine.RenderThreadMain`), which owns the GL context after a one-time handoff
+(`IWindow.ClearContext()` on the main thread right after `OnLoad`, `IWindow.MakeCurrent()`
+as the render thread's first action -- both confirmed via ilspy against
+`Silk.NET.Core.Contexts.IGLContext`/`Silk.NET.Windowing.WindowExtensions` in the actual
+referenced package version, 2.23.0) and loops continuously, paced by the window's vsync
+(`WindowOptions.Default.VSync == true`, confirmed via ilspy), replacing Silk's own
+`Render` event/`DoRender` pump entirely.
+
+**Synchronization:** one coarse lock (`GLRenderSession.SyncRoot`), not per-object locking
+or message-passing snapshotting. Unlike the original native engine (`SpRenderThreadInit`
+ran the real Splash engine on its own thread too, per
+`UIX.RenderApi/.../Protocol/LocalChannel.cs`, but decoupled via async message-passing so
+the two sides never shared memory), this reimplementation's scene graph
+(`GLVisual`/`GLVisualContainer`/`GLSprite`/`GLEffect`/`GLImage`/animation objects) is
+directly shared, same-process mutable state -- and it's a genuine two-writer situation,
+not just reader/writer: `GLKeyframeAnimation.Advance` (now render-thread-only) writes
+straight back onto `GLVisual`/`GLEffect` properties every frame via
+`AnimationTargetApplier`, the same properties app-side markup/session code sets directly.
+A single lock held by the render thread for a whole frame (pulse + draw) and by every
+app-side mutator for the duration of its call is deliberately the simplest correct
+answer -- GPU submission time dwarfs lock hold time, and render code freely walks from
+one object into another's state (e.g. a sprite reading its parent container's size),
+which would make per-object locking deadlock-prone for no real benefit.
+
+**Two reentrancy fixes, not just locking:** `GLGraphicsDevice.RenderNowIfPossible`
+(reached from app-thread `UISession.RenderNowIfPossible`) and `GLRenderEngine.FlushBatch`
+both used to draw a frame inline on whichever thread called them -- illegal now that the
+GL context lives only on the render thread. Both became effective no-ops: the render
+thread's continuous vsync-paced loop already picks up whatever change prompted the call
+on its very next frame (well under 16ms later), so there's nothing to nudge. This is
+also a better match for the original protocol's own semantics than the previous inline
+draw was: `RemoteNtDevice.SendRenderNowIfPossible` (`UIX.RenderApi/.../RemoteNtDevice.cs`)
+fires an async, no-reply message at the separately-threaded native engine and never waits
+for a frame. `WaitForWork`'s `HasPlayingAnimations`-triggered `RenderNow()` poll-render
+hack was removed for the same reason -- the render thread no longer needs prompting to
+keep animating.
+
+**Locking footprint, scoped to where real contention exists:** `SharedRenderObject`
+(base for nearly every render object) gained a `SyncRoot` field -- a parameterless
+constructor overload gives objects outside the scene/animation graph (sound: `GLSound`/
+`GLSoundBuffer`) a private lock with zero call-site changes, while `GLVisual`/
+`GLVisualContainer`/`GLSprite`/`GLImage`/`GLEffect`/`GLEffectTemplate`/
+`GLAnimationSystem`/`GLAnimation`/`GLAnimationGroup`/`GLKeyframeAnimation` thread the
+shared `GLRenderSession.SyncRoot` through their constructors and lock every mutator (and,
+where the render thread reads them outside its own per-frame lock -- e.g. hit-testing on
+the main thread -- every getter too). `GLCamera`/`GLGradient`/`GLVideoStream` were
+deliberately left on the default private lock: confirmed by direct reading that nothing
+in the current render path applies camera perspective or evaluates gradients (gradient
+compositing was implemented and reverted two entries below, still unused), so there's no
+live cross-thread contention on them today.
+
+**Build verification:** `UIX.RenderApi.OpenGL` alone, the whole `MicrosoftIris.sln`
+(clean except the pre-existing, unrelated `SimpleDebugClient`/`SimpleIrisApp` errors
+noted in earlier entries), and the actual consuming app (`ZuneHost/ZuneHost.csproj`,
+`ZuneShell.dll` repo) all build with 0 errors on Linux.
+
+**Runtime verification, honestly reported:** could not visually confirm the running app
+in this environment. `dotnet run`'d `ZuneHost` and it stayed alive with no exceptions/
+crashes, but its window was never enumerable via `wmctrl`/`xdotool`, and screen captures
+(`ffmpeg -f x11grab`) came back solid black with no window content from *any* running
+app, not just this one -- consistent with the Wayland/XWayland disconnect already noted
+in the 2026-07-29 entry (native Wayland surfaces aren't visible to X11-based capture
+tools). To rule out a regression rather than just an environment limitation: `git stash`d
+every change in this entry, rebuilt, and ran the unmodified code as a control -- identical
+symptoms (process alive, flat/idle CPU, no enumerable window) with the original
+single-thread code too. Same behavior with and without this change is evidence against a
+new hang/deadlock, but it is not the same as watching the app actually run smoothly --
+flagged rather than claimed as a full pass. Whoever has a working display/screenshot
+path in this environment (or a Windows/macOS machine) should watch a page transition or
+similar animation while deliberately stalling the dispatcher (e.g. a long synchronous
+callback) to confirm painting keeps going -- that's the actual regression test this
+change is for.
+
+## 2026-07-30 (still later) — Collection "Gallery" hero/grid bleed-through ROOT-CAUSED: not a render-backend bug at all -- two sibling Scroller/Repeater subtrees both `Visible=True` simultaneously, same class of bug as the ModalLayer entry below
+
+Follow-up to the two entries below (gradient compositing implemented, then reverted as
+an unrelated regression). With gradients back to their pre-session no-op state, the
+user confirmed the *original* reported bug -- the enlarged "now selected" album cover in
+the Collection view showing other grid content bleeding through/around it -- was
+**still present**, proving gradients were never the actual cause.
+
+### Diagnosis method
+
+Same live-tracing pattern used throughout this log. Added temporary instrumentation to
+`GLSprite.Render` (reverted after, confirmed via `git diff` showing only this log file
+and the entries below's already-landed changes remain): for each drawn sprite, walked
+the full `ParentContainer` chain via reflection (type name + markup `Name`, deduped where
+container/sprite share `OwnerData` per the ViewItem pattern established in the
+2026-07-27 ModalLayer entry) and printed it alongside the sprite's resolved world-space
+rect/alpha/content. Iterated three times, rebuilding and asking the user to
+navigate back to the Vulfmon/"Dot" album view each time (this sandbox has a live `DISPLAY`
+this session, confirmed via `wmctrl`/`xdpyinfo`, but the ZuneHost window isn't
+enumerable via `wmctrl`/`xdotool` -- consistent with the Wayland/XWayland quirk noted in
+the 2026-07-29 entry -- so forcing a repaint required the user to hover/interact rather
+than a scripted nudge); the last pass added object-identity hash codes and per-ancestor
+local `Position`/`Size` to disambiguate structurally-identical `Repeater`-generated
+template instances (type-name-only chains looked identical between genuinely different
+items because none of the repeated items' intermediate `Host`/`Panel` wrappers carry a
+markup `Name`).
+
+Also tried decompiling `ALBUMSPANEL.UIX` and `GALLERYPANEL.UIX` via `UIXC` to read the
+real markup/script driving this, per the project's normal "read the source before
+guessing" procedure -- both throw the same
+`System.ArgumentNullException: Value cannot be null. (Parameter 'source')` inside
+`Decompiler.CreateTree`/`DecompileScript` (`UIX.DecompXml/Decompiler.Script.cs:607`/`:28`).
+This is a pre-existing bug in the `UIXC` decompiler itself (unrelated to anything in this
+session's changes), not something fixed here -- noted as a **TODO** for whoever next
+needs to read one of these two files' real markup source, since static reading wasn't an
+option this session and everything below was recovered from live object-identity tracing
+instead.
+
+### Root cause
+
+The traced ancestor chain for both the big (159x159) hero image and a normal-sized
+(86x86) grid thumbnail is identical up through a `Host` element named `"Gallery"` (same
+object-identity hash both times, `#C2C9F`), confirming both come from the same logical
+Gallery control instance, not two different controls. Immediately below that shared
+`Host"Gallery"`, the chain **splits into two different sibling `Panel` children** (distinct
+hashes each pass, e.g. `Panel#36873DD` vs `Panel#12AE185`), each hosting its own separate
+`Scroller"Scroller"`/`Panel"Background"`/`Repeater"Repeater"` subtree -- one Repeater
+generating 159-sized `Host"Button"` items (the "focused/enlarged" mode), the other
+generating 86-sized ones (the "small grid" mode). Every level of both subtrees reported
+`Visible=True` in the trace. Both subtrees are positioned `pos=(0,0)` within the shared
+`Gallery` host with near-identical sizes (`330x356`ish vs `317x356`ish), so they paint
+into the same screen rectangle -- explaining the exact reported symptom: the enlarged
+"Dot" cover (and its shadow/white-backing/hover-overlay stack, all independently verified
+compositing *correctly*, fully opaque, in the right paint order) sits directly on top of
+whatever the small grid happened to place in that same cell, with neither subtree hidden.
+
+This is architecturally the same bug class as the already-diagnosed
+**2026-07-27 "ModalLayer.Visible never re-evaluates" entry** below: a markup-authored
+`Visible` (or equivalent mode-switch) binding on one of these two Panels is supposed to be
+mutually exclusive with the other (single-focused-item "Gallery" layout vs. multi-item
+grid layout -- plausibly toggled by how many albums the selected artist has, matching
+"1 ALBUM" vs. a full grid in the original screenshot) and isn't being kept in sync,
+leaving both branches permanently visible. Like ModalLayer, this lives entirely in
+Iris's markup script-execution/data-binding engine (`UIX/Microsoft/Iris/Markup/
+ScriptRunScheduler.cs` and the surrounding `Script`/trigger infrastructure) --
+**predates the OpenGL port, is not a rendering-backend bug, and needs the same
+not-yet-written fix flagged (and deliberately not attempted) in that earlier entry.**
+No code change was made in this pass beyond reverting the diagnostic tracing; the
+`GLGradient`/`GLVisual` evaluator infrastructure from the entry below remains in place,
+unused, since it's unrelated to this bug and still a reasonable starting point for a
+future gradient-compositing attempt.
+
+`dotnet build ZuneHost/ZuneHost.csproj -f net8.0` clean (0 errors) after reverting the
+tracing; `git diff --stat` on this submodule confirms `GLSprite.cs` is back to its
+pre-session state (only `GLGradient.cs`/`GLVisual.cs`/`GLVisualContainer.cs` from the
+entry below, plus this log, remain changed).
+
+## 2026-07-30 (yet even later) — Gradient alpha compositing (previous entry) REVERTED: widespread invisible-but-hittable elements, unrelated to the original bug
+
+**Symptom (user report), immediately after the previous entry's fix:** on the FUE
+welcome wizard, many elements across the page render invisible (the black `DialogBody`
+panel, both `ActionButton.Pink*.png` buttons, associated captions) while still being
+interactive/hittable -- confirmed by the user clicking through blind. "WELCOME TO ZUNE"
+and its orange/pink underline bar remained visible. No correlation found between
+element type (image vs. text) and which ones went invisible -- ruling out a bug scoped
+to only one draw path.
+
+This is a regression from the previous entry's `EvaluateOwnGradients`/
+`EvaluateChildGradients` wiring, not related to the originally-reported Collection
+hero-panel bleed-through (which remains unconfirmed/unfixed).
+
+### Investigation before reverting
+
+Checked whether `Clip`/`EdgeFade` (the container-gradient path, previous entry's primary
+hypothesis) could be responsible: `grep -rl "<Clip" ZuneShell/Resources/RCDATA/*.UIX`
+across every checked-in UIX source in the outer repo returned **zero matches** -- no
+`<Clip>` element is used anywhere in this resource tree. So the `EdgeFade`/container-
+gradient path can't be what's hiding content on this specific page; the previous entry's
+"container gradient with wrong extent" theory doesn't explain this regression by itself.
+
+Remaining live suspect, not yet confirmed: `Text.cs`'s own self-attached gradients
+(`gradientClipLeftRight`/`gradientMultiLine`, `CreateFadeGradientsHelper`) are created
+automatically as part of text rendering -- not markup-configured via `<Clip>` -- so they
+would explain text going dark without any `<Clip>` element anywhere. Doesn't by itself
+explain non-text elements (button background images) also going dark unless those share
+a gradient-bearing ancestor container with a text sibling, which hasn't been traced yet.
+
+### Action taken
+
+Given the severity (real, currently-shipped UI content going invisible, more disruptive
+than the bug being fixed) and no display/interactive access in this sandbox to iterate
+live, reverted the *effect* without discarding the investigation: `GLSprite.Render` and
+`GLVisualContainer.Render` no longer multiply alpha by `EvaluateOwnGradients()`/
+`EvaluateChildGradients()` -- both call sites restored to their pre-fix behavior
+(`inheritedAlpha * Alpha` only). `GLGradient.Evaluate`/`GLVisual.EvaluateOwnGradients`/
+`GLVisual.EvaluateChildGradients` are left in place, unused, as a starting point for the
+next attempt -- the evaluator's piecewise-linear-ramp math may well be correct; the bug
+is more likely in *what position gets sampled against what extent* (per-visual center
+sampling, or a units/coordinate-frame mismatch between the gradient's authored stops and
+this backend's `GLVisual.Size`), not necessarily in `Evaluate` itself.
+
+`dotnet build UIX.RenderApi.OpenGL/UIX.RenderApi.OpenGL.csproj` clean (0 errors).
+
+**Not yet done:** live trace instrumentation (the pattern used successfully for every
+other bug in this log) to print, per draw call, which gradients are attached, their
+resolved stops, and the sampled position/extent/factor -- needed to find the real cause
+before re-attempting. Deferred pending the user's direction on whether to pursue that now
+or leave gradients off for the time being. The original Collection hero-panel
+bleed-through report is still open and unexplained.
+
+## 2026-07-30 (even later) — Gradients recorded but never composited: implemented alpha-ramp evaluation for edge/line fades
+
+**Symptom (user report):** in the Collection view, the enlarged "now selected" album
+cover (a mostly-black image, "Dot" by Vulfmon) showed other grid content -- other album
+thumbnails, unrelated track/album text -- faintly visible through/around it, instead of
+the grid being cleanly obscured. User explicitly ruled out a UIX markup/style issue
+(confirmed nothing relevant in the outer repo's uncommitted `STYLES.UIX` diff) and asked
+to look at rendering/resource management instead.
+
+### Diagnosis method
+
+Delegated an initial broad sweep (missing/partial back-buffer clear, dirty-rect logic,
+stale texture/render-target caching, double-buffer swap ordering) to a research agent,
+which ruled all of those out by reading `SceneRenderer.BeginFrame` (full-viewport
+`gl.Clear` every frame, no dirty rects anywhere) and confirmed zero FBOs/render targets
+exist in this backend at all. It flagged `GLVisual.Gradients` as recorded but never read
+anywhere in the backend, matching this same log's own prior TODO
+(`GLGradient`'s doc comment before this fix: "applying them as an alpha ramp during
+compositing is left as a stage-3 TODO").
+
+Independently re-verified by reading `GLSprite.Render` directly: it only ever draws a
+textured quad, a flat `PrimaryColor` quad, or a `DebugColor` fallback -- `Gradients` is
+never consulted. `grep -rn Gradient` across the whole `UIX.RenderApi.OpenGL` project
+confirmed the property (`GLVisual.cs:97`, at the time) had no reader anywhere in the
+project.
+
+Then read the decompiled call sites to recover the real semantics before implementing
+anything (per the project's "don't guess API" rule):
+- `UIX/Microsoft/Iris/RenderAPI/Drawing/EdgeFade.cs` -- the classic list/scroll edge
+  fade. Creates two gradients (`_minFadeGradient`/`_maxFadeGradient`), each with two
+  `AddValue` stops: one full-alpha (`1f`) stop positioned `FadeSize` pixels in from the
+  relevant edge, and one `(1 - FadeAmount)` stop right at the edge -- i.e. a literal
+  piecewise-linear **alpha** ramp (not a color blend) from full opacity to reduced
+  opacity as position approaches a container edge. Applied via `IVisualContainer.AddGradient`.
+- `UIX/Microsoft/Iris/ViewItems/Text.cs`/`TextFlowRenderingHelper.cs` -- text's own
+  left/right clip fade and multi-line fade, added directly to a `GLSprite`-equivalent
+  (`sprite1.AddGradient(gradientMultiLine)`) as well as to a container (`topVisual`).
+  Confirms gradients are a general `GLVisual` feature, not container-only.
+
+`RelativeSpace.Min`/`.Max` stop positions are edge-relative offsets (`Max` measured
+backward from the far edge, per `EdgeFade.UpdateFades`'s `flPosition2 - FadeSize`
+pattern); `RelativeSpace.Global` has no call site that gives it distinct meaning from
+`Min` in anything decompiled so far.
+
+### Root cause
+
+Real gap, not stub-vs-real ambiguity: gradients are a genuine, actively-used Iris
+feature (list edge-fades, text clip fades) whose OpenGL backend implementation was never
+written. `AddGradient`/`RemoveAllGradients` recorded state correctly; nothing ever
+turned that state into reduced alpha at render time. For the reported screenshot
+specifically: if the Collection hero panel's backdrop (or the grid it sits over) relies
+on an edge-fade-style gradient to visually separate the enlarged cover from the grid
+underneath, that fade silently no-opped, leaving the grid at full alpha behind it.
+
+### Fix and documented assumptions
+
+`UIX.RenderApi.OpenGL/Scene/GLGradient.cs`: added `internal float Evaluate(float
+axisPos, float extent)`, converting stops to absolute local-space coordinates
+(`Max` -> `extent - Position`) and piecewise-linearly interpolating `Value` between the
+two nearest stops (clamping outside the recorded range). Two assumptions made and
+documented in the type's doc comment rather than guessed at silently, per the "dealing
+with unknowns" procedure:
+- `Value` is used as a pure alpha multiplier. `ColorMask` (recorded, stored, has a
+  setter) is **not** applied -- no decompiled call site gives enough signal to tell
+  whether it tints the faded region toward a color or is otherwise-unused API surface,
+  and blending toward `ColorMask`'s default (opaque black) without evidence risked
+  visibly wrong output (e.g. edges fading to black instead of transparent) rather than
+  the "no worse than before" bar a documented gap should meet. Left as a `// TODO`
+  requiring a native Ghidra cross-check before implementing.
+- `RelativeSpace.Global` is treated identically to `Min` (no distinguishing call site
+  found).
+
+`UIX.RenderApi.OpenGL/Scene/GLVisual.cs`: added `EvaluateOwnGradients()` (this visual's
+own directly-attached gradients, sampled at its own local center -- covers Text's
+self-attached sprite gradients) and `EvaluateChildGradients(GLVisual child)` (this
+container's gradients, sampled at a child's center within the container's local space --
+covers EdgeFade's container-attached pattern). Both multiply together every gradient's
+`Evaluate()` result (orientation picks the X or Y axis).
+
+**Known limitation, documented in both methods' doc comments rather than silently
+shipped:** these sample at a single center point per visual/child, producing one scalar
+alpha factor per draw call -- not a true per-pixel ramp. For a visual small relative to
+the fade zone (the common case: list rows, text runs) this is a close approximation; a
+single large sprite spanning an entire fade zone (or the hero-panel backdrop itself, if
+that's what turns out to be gradient-driven here) would only get one averaged-ish alpha
+value rather than visibly fading across its own extent. True per-pixel fidelity would
+need gradient stops threaded into the fragment shader as uniforms (`SceneRenderer`
+currently has no per-fragment gradient support at all, and only a single scalar `uAlpha`
+uniform, not per-vertex/per-fragment alpha) -- a materially bigger change than this fix,
+left as a follow-up if the coarser approximation turns out insufficient once visually
+verified.
+
+`UIX.RenderApi.OpenGL/Scene/GLSprite.cs`: `Render()`'s alpha computation now multiplies
+in `EvaluateOwnGradients()`. `UIX.RenderApi.OpenGL/Scene/GLVisualContainer.cs`:
+`Render()` multiplies its own alpha by `EvaluateOwnGradients()` and each child's alpha by
+`EvaluateChildGradients(child)` before recursing.
+
+`dotnet build UIX.RenderApi.OpenGL/UIX.RenderApi.OpenGL.csproj` succeeds (0 errors; only
+pre-existing warnings in untouched files, none in the four files changed here). Not yet
+visually confirmed against the original reported screenshot -- next step is to run
+`ZuneHost` and re-check the Collection hero-panel view; if the bleed-through persists,
+the single-center-sample limitation above (or an entirely different gradient/backdrop
+not yet identified) is the most likely next place to look.
+
 ## 2026-07-30 (later) — Nine-sliced images (e.g. wizard buttons) never fade out: fragment shader's nine-slice branch never applied `uAlpha`
 
 **Symptom (user report):** after clicking "Start" on the FUE welcome wizard, the wizard's

@@ -39,7 +39,7 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
         private float m_timeSec;
         private int m_loopsCompleted;
 
-        public GLKeyframeAnimation(AnimationInput initialValue)
+        public GLKeyframeAnimation(object syncRoot, AnimationInput initialValue) : base(syncRoot)
         {
             m_initialValue = initialValue;
             Type = initialValue.InputType;
@@ -50,78 +50,115 @@ namespace Microsoft.Iris.Render.OpenGL.Animation
         /// unless it is in BackCompat mode, matching the original renderer's constructor.
         /// </summary>
         internal void AddInitialKeyframe()
-            => m_keyframes.Add(new AnimationKeyframe(0f, m_initialValue, s_defaultInterpolation));
+        {
+            lock (SyncRoot)
+                m_keyframes.Add(new AnimationKeyframe(0f, m_initialValue, s_defaultInterpolation));
+        }
 
-        public int KeyframeCount => m_keyframes.Count;
-        public AnimationInput InitialValue => m_keyframes.Count > 0 ? m_keyframes[0].Value : m_initialValue;
-        public AnimationInput Reference { get; set; } = null!;
-        public AnimationInput Scale { get; set; } = null!;
+        public int KeyframeCount { get { lock (SyncRoot) return m_keyframes.Count; } }
+        public AnimationInput InitialValue { get { lock (SyncRoot) return m_keyframes.Count > 0 ? m_keyframes[0].Value : m_initialValue; } }
+
+        // Read by the render thread every Advance (via ApplyReferenceAndScale) and
+        // written from app-side authoring code.
+        private AnimationInput m_reference = null!;
+        private AnimationInput m_scale = null!;
+        public AnimationInput Reference { get { lock (SyncRoot) return m_reference; } set { lock (SyncRoot) m_reference = value; } }
+        public AnimationInput Scale { get { lock (SyncRoot) return m_scale; } set { lock (SyncRoot) m_scale = value; } }
         public AnimationInputType Type { get; }
 
-        public void AddKeyframe(AnimationKeyframe keyframe) => m_keyframes.Add(keyframe);
-        public AnimationKeyframe GetKeyframe(int keyframeIndex) => m_keyframes[keyframeIndex];
-        public void SetKeyframe(int keyframeIndex, AnimationKeyframe keyframe) => m_keyframes[keyframeIndex] = keyframe;
+        public void AddKeyframe(AnimationKeyframe keyframe) { lock (SyncRoot) m_keyframes.Add(keyframe); }
+        public AnimationKeyframe GetKeyframe(int keyframeIndex) { lock (SyncRoot) return m_keyframes[keyframeIndex]; }
+        public void SetKeyframe(int keyframeIndex, AnimationKeyframe keyframe) { lock (SyncRoot) m_keyframes[keyframeIndex] = keyframe; }
 
         public void AddTarget(IAnimatable targetObject, string targetProperty)
-            => m_targets.Add(new Target(targetObject, targetProperty, null));
+        {
+            lock (SyncRoot)
+                m_targets.Add(new Target(targetObject, targetProperty, null));
+        }
 
         public void AddTarget(IAnimatable targetObject, string targetProperty, string targetPropertyMask)
-            => m_targets.Add(new Target(targetObject, targetProperty, targetPropertyMask));
+        {
+            lock (SyncRoot)
+                m_targets.Add(new Target(targetObject, targetProperty, targetPropertyMask));
+        }
 
         public void RemoveTarget(IAnimatable targetObject, string targetProperty, string targetPropertyMask)
-            => m_targets.RemoveAll(t => ReferenceEquals(t.Object, targetObject)
-                && t.Property == targetProperty && t.Mask == targetPropertyMask);
+        {
+            lock (SyncRoot)
+                m_targets.RemoveAll(t => ReferenceEquals(t.Object, targetObject)
+                    && t.Property == targetProperty && t.Mask == targetPropertyMask);
+        }
 
-        public void RemoveAllTargets() => m_targets.Clear();
+        public void RemoveAllTargets() { lock (SyncRoot) m_targets.Clear(); }
 
-        public void AddStageEvent(AnimationStage animationStage, AnimationEvent animationEvent) => m_events.Add(animationEvent);
-        public void AddTimeEvent(float absoluteTime, AnimationEvent animationEvent) => m_events.Add(animationEvent);
-        public void AddProgressEvent(float progress, AnimationEvent animationEvent) => m_events.Add(animationEvent);
-        public void AddValueEvent(ValueEventCondition condition, AnimationInput reference, AnimationEvent animationEvent) => m_events.Add(animationEvent);
-        public void RemoveEvent(AnimationEvent animationEvent) => m_events.Remove(animationEvent);
-        public void RemoveAllEvents() => m_events.Clear();
+        public void AddStageEvent(AnimationStage animationStage, AnimationEvent animationEvent) { lock (SyncRoot) m_events.Add(animationEvent); }
+        public void AddTimeEvent(float absoluteTime, AnimationEvent animationEvent) { lock (SyncRoot) m_events.Add(animationEvent); }
+        public void AddProgressEvent(float progress, AnimationEvent animationEvent) { lock (SyncRoot) m_events.Add(animationEvent); }
+        public void AddValueEvent(ValueEventCondition condition, AnimationInput reference, AnimationEvent animationEvent) { lock (SyncRoot) m_events.Add(animationEvent); }
+        public void RemoveEvent(AnimationEvent animationEvent) { lock (SyncRoot) m_events.Remove(animationEvent); }
+        public void RemoveAllEvents() { lock (SyncRoot) m_events.Clear(); }
 
         // ---- Lifecycle -----------------------------------------------------------
+        // Each entry point below locks its whole body; the private evaluation
+        // helpers further down (Duration/AdvanceBy/Complete/ApplyResetBehavior/
+        // ApplyAt/SampleValue/ApplyReferenceAndScale) are only ever reached through
+        // one of these, so they rely on the caller's lock rather than each taking
+        // their own.
         public override void Play()
         {
-            // Replaying after a completed run restarts from the top.
-            if (IsActive && !IsPlaying && m_timeSec >= Duration)
+            lock (SyncRoot)
             {
-                m_timeSec = 0f;
-                m_loopsCompleted = 0;
+                // Replaying after a completed run restarts from the top.
+                if (IsActive && !IsPlaying && m_timeSec >= Duration)
+                {
+                    m_timeSec = 0f;
+                    m_loopsCompleted = 0;
+                }
+                base.Play();
             }
-            base.Play();
         }
 
         public override void Reset()
         {
-            base.Reset();
-            m_timeSec = 0f;
-            m_loopsCompleted = 0;
-            ApplyResetBehavior();
+            lock (SyncRoot)
+            {
+                base.Reset();
+                m_timeSec = 0f;
+                m_loopsCompleted = 0;
+                ApplyResetBehavior();
+            }
         }
 
         public override void InstantAdvance(float advanceTime)
         {
-            if (advanceTime > 0f)
-                AdvanceBy(advanceTime);
+            lock (SyncRoot)
+            {
+                if (advanceTime > 0f)
+                    AdvanceBy(advanceTime);
+            }
         }
 
         public override void InstantFinish()
         {
-            float duration = Duration;
-            m_timeSec = duration;
-            ApplyAt(duration);
-            IsPlaying = false;
-            m_loopsCompleted = RepeatCount < 0 ? 0 : RepeatCount;
-            if (AutoReset)
-                Reset();
+            lock (SyncRoot)
+            {
+                float duration = Duration;
+                m_timeSec = duration;
+                ApplyAt(duration);
+                IsPlaying = false;
+                m_loopsCompleted = RepeatCount < 0 ? 0 : RepeatCount;
+                if (AutoReset)
+                    Reset();
+            }
         }
 
         internal override void Advance(int advanceMs)
         {
-            if (IsPlaying && advanceMs > 0)
-                AdvanceBy(advanceMs / 1000f);
+            lock (SyncRoot)
+            {
+                if (IsPlaying && advanceMs > 0)
+                    AdvanceBy(advanceMs / 1000f);
+            }
         }
 
         // ---- Evaluation ----------------------------------------------------------
