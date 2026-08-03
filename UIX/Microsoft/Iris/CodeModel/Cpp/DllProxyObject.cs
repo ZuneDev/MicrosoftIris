@@ -31,8 +31,9 @@ namespace Microsoft.Iris.CodeModel.Cpp
             s_pendingAppThreadRelease = true;
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            foreach (IDisposableObject disposableObject in s_handleTable)
-                disposableObject.Dispose(disposableObject);
+            if (s_handleTable != null)
+                foreach (IDisposableObject disposableObject in s_handleTable)
+                    disposableObject.Dispose(disposableObject);
             ReleaseFinalizedObjects();
         }
 

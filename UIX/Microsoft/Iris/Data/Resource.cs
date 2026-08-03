@@ -6,7 +6,6 @@
 
 using Microsoft.Iris.OS;
 using System;
-using System.Runtime.InteropServices;
 using Microsoft.Iris.Debug;
 
 namespace Microsoft.Iris.Data
@@ -121,14 +120,7 @@ namespace Microsoft.Iris.Data
 
         protected static IntPtr AllocNativeBuffer(uint length) => NativeApi.MemAlloc(length, false);
 
-        protected static void FreeNativeBuffer(IntPtr buffer)
-        {
-            #if WINDOWS
-            NativeApi.MemFree(buffer);
-            #else
-            Marshal.FreeHGlobal(buffer);
-            #endif
-        }
+        protected static void FreeNativeBuffer(IntPtr buffer) => NativeApi.MemFree(buffer);
 
         private void FireAcquisitionCompleteHandlers()
         {

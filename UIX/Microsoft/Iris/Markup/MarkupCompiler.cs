@@ -9,6 +9,9 @@ using Microsoft.Iris.OS;
 using Microsoft.Iris.Session;
 using System;
 using System.Runtime.InteropServices;
+#if !WINDOWS
+using System.IO;
+#endif
 
 namespace Microsoft.Iris.Markup
 {
@@ -83,9 +86,10 @@ namespace Microsoft.Iris.Markup
         private static void SaveCompiledOutput(ByteCodeWriter writer, string outputFile)
         {
             ErrorWatermark watermark = ErrorManager.Watermark;
-            IntPtr invalidHandleValue = Win32Api.INVALID_HANDLE_VALUE;
             ByteCodeReader reader = writer.CreateReader();
             reader.DeclareOwner(typeof(MarkupSystem));
+#if WINDOWS
+            IntPtr invalidHandleValue = Win32Api.INVALID_HANDLE_VALUE;
             IntPtr file = Win32Api.CreateFile(outputFile, 1073741824U, 0U, IntPtr.Zero, 2U, 0U, IntPtr.Zero);
             if (file == Win32Api.INVALID_HANDLE_VALUE)
                 ErrorManager.ReportError("Unable to open output file '{0}'.  Error code {1}", outputFile, Marshal.GetLastWin32Error());
@@ -99,6 +103,33 @@ namespace Microsoft.Iris.Markup
             }
             if (file != Win32Api.INVALID_HANDLE_VALUE)
                 Win32Api.CloseHandle(file);
+#else
+            FileStream file = null;
+            try
+            {
+                file = File.Create(outputFile);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                ErrorManager.ReportError("Unable to open output file '{0}'.  Error: {1}", outputFile, ex.Message);
+            }
+            if (!watermark.ErrorsDetected && file != null)
+            {
+                uint size = 0;
+                IntPtr intPtr = reader.ToIntPtr(out size);
+                try
+                {
+                    byte[] buffer = new byte[size];
+                    Marshal.Copy(intPtr, buffer, 0, buffer.Length);
+                    file.Write(buffer, 0, buffer.Length);
+                }
+                catch (IOException ex)
+                {
+                    ErrorManager.ReportError("An error occurred while saving data to output file '{0}'.  Error: {1}", outputFile, ex.Message);
+                }
+            }
+            file?.Dispose();
+#endif
             reader?.Dispose(typeof(MarkupSystem));
         }
 

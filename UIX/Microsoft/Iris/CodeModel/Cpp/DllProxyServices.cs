@@ -30,7 +30,9 @@ namespace Microsoft.Iris.CodeModel.Cpp
         {
             DllProxyObject.ReleaseOutstandingProxies();
             NativeMarkupDataType.ReleaseOutstandingProxies();
+#if WINDOWS
             NativeApi.SpUnregisterNativeServicesCallbacks();
+#endif
             s_stringTable = null;
         }
 

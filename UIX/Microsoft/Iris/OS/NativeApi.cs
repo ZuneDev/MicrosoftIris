@@ -80,19 +80,38 @@ namespace Microsoft.Iris.OS
         [DllImport("UIXRender.dll", CharSet = CharSet.Unicode)]
         public static extern bool SpLoadFontResource(string moduleBaseName, string resourceName);
 
+#if WINDOWS
         [DllImport("UIXRender.dll")]
         private static extern IntPtr SpMemAlloc(uint cb, bool zeroMemory);
 
         [DllImport("UIXRender.dll")]
         private static extern void SpMemFree(IntPtr pv);
+#endif
 
         public static IntPtr MemAlloc(uint cb, bool zeroMemory)
         {
+#if WINDOWS
             IntPtr num = SpMemAlloc(cb, zeroMemory);
             return !(num == IntPtr.Zero) ? num : throw new OutOfMemoryException();
+#else
+            // UIXRender.dll's allocator isn't available off Windows; the CLR's own
+            // unmanaged heap is an equivalent drop-in since callers only ever pass
+            // the resulting pointer back to MemFree (never into UIXRender.dll itself).
+            IntPtr buffer = Marshal.AllocHGlobal((int)cb);
+            if (zeroMemory)
+                new Span<byte>(buffer.ToPointer(), (int)cb).Clear();
+            return buffer;
+#endif
         }
 
-        public static void MemFree(IntPtr pv) => SpMemFree(pv);
+        public static void MemFree(IntPtr pv)
+        {
+#if WINDOWS
+            SpMemFree(pv);
+#else
+            Marshal.FreeHGlobal(pv);
+#endif
+        }
 
         [DllImport("UIXRender.dll")]
         public static extern void SpFreeDib(IntPtr hdib);
