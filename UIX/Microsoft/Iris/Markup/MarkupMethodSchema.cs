@@ -4,6 +4,7 @@
 // MVID: A56C6C9D-B7F6-46A9-8BDE-B3D9B8D60B11
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
+using System;
 using Microsoft.Iris.Markup.UIX;
 
 namespace Microsoft.Iris.Markup
@@ -102,25 +103,38 @@ namespace Microsoft.Iris.Markup
             return _isVirtualThunk ? CallVirt(markupTypeBase, parameters) : CallDirect(markupTypeBase, parameters);
         }
 
-        private object CallVirt(IMarkupTypeBase markupInstance, object[] parameters)
+        public MarkupMethodSchema FindVirtualMethod(MarkupTypeSchema instanceTypeSchema)
         {
-            MarkupTypeSchema typeSchema = (MarkupTypeSchema)markupInstance.TypeSchema;
+            if (!_isVirtualThunk)
+                throw new InvalidOperationException($"Cannot locate virtual method for non-virtual `{Owner.Name}.{Name}`");
+
+            var typeSchema = instanceTypeSchema;
             MarkupMethodSchema markupMethodSchema = null;
             while (true)
             {
-                foreach (MarkupMethodSchema virtualMethod in typeSchema.VirtualMethods)
+                foreach (var methodSchema in typeSchema.VirtualMethods)
                 {
-                    if (virtualMethod.VirtualId == _virtualId)
-                    {
-                        markupMethodSchema = virtualMethod;
-                        break;
-                    }
+                    var virtualMethod = (MarkupMethodSchema)methodSchema;
+                    if (virtualMethod.VirtualId != _virtualId)
+                        continue;
+                    
+                    markupMethodSchema = virtualMethod;
+                    break;
                 }
+                
                 if (markupMethodSchema == null)
                     typeSchema = (MarkupTypeSchema)typeSchema.Base;
                 else
                     break;
             }
+
+            return markupMethodSchema;
+        }
+
+        private object CallVirt(IMarkupTypeBase markupInstance, object[] parameters)
+        {
+            var typeSchema = (MarkupTypeSchema)markupInstance.TypeSchema;
+            var markupMethodSchema = FindVirtualMethod(typeSchema);
             return markupMethodSchema.CallDirect(markupInstance, parameters);
         }
 
