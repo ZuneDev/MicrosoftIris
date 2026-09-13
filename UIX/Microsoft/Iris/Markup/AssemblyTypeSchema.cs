@@ -336,5 +336,7 @@ namespace Microsoft.Iris.Markup
         public override bool IsRuntimeImmutable => _type.IsEnum;
 
         public override bool IsEnum => _isFrameworkEnum;
+
+        public override bool SupportsCanonicalInstance => _type.IsEnum;
     }
 }
