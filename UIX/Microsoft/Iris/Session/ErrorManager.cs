@@ -126,23 +126,29 @@ namespace Microsoft.Iris.Session
         {
             if (!IgnoringErrors)
             {
-                string str = null;
+                string contextMessage = null;
                 if (s_contextStack.Count != 0)
                 {
-                    ErrorManager.Context context = s_contextStack.Peek();
-                    str = context.Description;
+                    var context = s_contextStack.Peek();
+                    contextMessage = context.Description;
                     if (line == -1 && column == -1)
                         context.GetErrorPosition(ref line, ref column);
                 }
-                ErrorRecord errorRecord = new ErrorRecord();
-                errorRecord.Context = str;
-                errorRecord.Line = line;
-                errorRecord.Column = column;
-                errorRecord.Warning = warning;
-                errorRecord.Message = message;
-                if (s_errors == null)
-                    s_errors = new ArrayList();
+                
+                ErrorRecord errorRecord = new()
+                {
+                    Context = contextMessage,
+                    Line = line,
+                    Column = column,
+                    Warning = warning,
+                    Message = message
+                };
+                
+                s_errors ??= new ArrayList();
                 s_errors.Add(errorRecord);
+                
+                Application.Debugger?.LogInterpreterException(errorRecord);
+                
                 QueueNotify();
             }
             if (warning)

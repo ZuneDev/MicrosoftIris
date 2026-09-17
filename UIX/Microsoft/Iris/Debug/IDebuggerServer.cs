@@ -1,5 +1,6 @@
 ﻿using Microsoft.Iris.Debug.Data;
 using Microsoft.Iris.Markup;
+using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Debug;
 
@@ -33,6 +34,11 @@ public interface IDebuggerServer : IDebuggerState
     /// executed by <c>Microsoft.Iris.Markup.Interpreter</c>.
     /// </summary>
     void LogInterpreterExecute(object context, InterpreterEntry entry);
+
+    /// <summary>
+    /// Logs an exception produced from an executing UIX script.
+    /// </summary>
+    void LogInterpreterException(ErrorRecord errorRecord);
 
     /// <summary>
     /// Logs the string representation of a dispatcher step.

@@ -2,6 +2,7 @@
 using Microsoft.Iris.Markup;
 using System;
 using System.Diagnostics;
+using Microsoft.Iris.Session;
 
 namespace Microsoft.Iris.Debug;
 
@@ -12,6 +13,7 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
     public event Action<InterpreterCommand> InterpreterStateChanged;
     public event EventHandler<InterpreterInstruction> InterpreterDecode;
     public event EventHandler<InterpreterEntry> InterpreterExecute;
+    public event EventHandler<ErrorRecord> InterpreterException;
     public event EventHandler<InterpreterContext> InterpreterEnter;
     public event EventHandler<InterpreterContext> InterpreterExit;
     public event Action<string> DispatcherStep;
@@ -27,16 +29,27 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
     public void UpdateBreakpoint(Breakpoint breakpoint)
     {
         if (breakpoint.Enabled)
-            Application.DebugSettings.Breakpoints.Add(breakpoint);
+            Application.DebugSettings.AddBreakpoint(breakpoint);
         else
-            Application.DebugSettings.Breakpoints.Remove(breakpoint);
+            Application.DebugSettings.RemoveBreakpoint(breakpoint);
     }
 
     void IDebuggerServer.LogDispatcher(string message) => DispatcherStep?.Invoke(message);
 
-    void IDebuggerServer.LogInterpreterDecode(object context, InterpreterInstruction instruction) => InterpreterDecode?.Invoke(context, instruction);
+    void IDebuggerServer.LogInterpreterDecode(object context, InterpreterInstruction instruction) =>
+        InterpreterDecode?.Invoke(context, instruction);
 
-    void IDebuggerServer.LogInterpreterExecute(object context, InterpreterEntry entry) => InterpreterExecute?.Invoke(context, entry);
+    void IDebuggerServer.LogInterpreterExecute(object context, InterpreterEntry entry) =>
+        InterpreterExecute?.Invoke(context, entry);
+
+    void IDebuggerServer.LogInterpreterException(ErrorRecord errorRecord) =>
+        InterpreterException?.Invoke(this, errorRecord);
+
+    public void LogInterpreterEnter(InterpreterContext interpreterContext) =>
+        InterpreterEnter?.Invoke(this, interpreterContext);
+
+    public void LogInterpreterExit(InterpreterContext interpreterContext) =>
+        InterpreterExit?.Invoke(this, interpreterContext);
 
     MarkupLineNumberEntry[] IDebuggerServer.OnLineNumberTableRequested(string uri)
     {
@@ -45,12 +58,6 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
 
         return lineNumberTable;
     }
-
-    public void LogInterpreterEnter(InterpreterContext interpreterContext) =>
-        InterpreterEnter?.Invoke(this, interpreterContext);
-
-    public void LogInterpreterExit(InterpreterContext interpreterContext) =>
-        InterpreterExit?.Invoke(this, interpreterContext);
 
     void IDebuggerServer.WaitForContinue()
     {
