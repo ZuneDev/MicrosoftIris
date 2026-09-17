@@ -8,9 +8,6 @@ public class DebugSettings
 {
     private readonly HashSet<Breakpoint> _breakpoints = [];
     private readonly object _breakpointsLock = new();
-    
-    public bool UseDecompiler { get; set; } = false;
-    public ObservableCollection<DecompilationResult> DecompileResults { get; } = new();
 
     public TraceSettings TraceSettings { get; } = TraceSettings.Current;
 
