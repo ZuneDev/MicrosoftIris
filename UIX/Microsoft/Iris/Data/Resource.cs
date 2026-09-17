@@ -132,6 +132,29 @@ namespace Microsoft.Iris.Data
 
         public override string ToString() => _uri;
         
+        public static void ParseResource(string resource, out string host, out string identifier)
+        {
+            int length = resource.IndexOf('!');
+            if (length == -1)
+            {
+                host = null;
+                identifier = resource;
+            }
+            else
+            {
+                host = resource.Substring(0, length);
+                identifier = resource.Substring(length + 1);
+            }
+        }
+
+        public static string GetResourceFileName(string resource)
+        {
+            ParseResource(resource, out _, out var specifier);
+            return specifier.Contains('/')
+                ? specifier[(specifier.LastIndexOf('/') + 1)..]
+                : specifier;
+        }
+        
 #if NETCOREAPP
         public unsafe ReadOnlySpan<byte> Span => new(_buffer.ToPointer(), (int)_length);
 #endif

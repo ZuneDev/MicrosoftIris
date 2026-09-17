@@ -5,42 +5,37 @@
 // Assembly location: C:\Program Files\Zune\UIX.dll
 
 using Microsoft.Iris.Session;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Microsoft.Iris.Markup
 {
-    internal class InterpreterContext : IErrorContextSource
+    public class InterpreterContext : IErrorContextSource
     {
-        private MarkupTypeSchema _type;
-        private IMarkupTypeBase _instance;
-        private MarkupLoadResult _loadResult;
-        private uint _initialBytecodeOffset;
         private ParameterContext _parameterContext;
         private Map<object, object> _scopedLocals;
-        private static Stack s_cache = new();
+        private static Stack<InterpreterContext> s_cache = new();
 
         private InterpreterContext()
         {
         }
 
-        public string GetErrorContextDescription() => _type.Owner.ErrorContextUri;
+        public string GetErrorContextDescription() => MarkupType.Owner.ErrorContextUri;
 
         public void GetErrorPosition(ref int line, ref int column)
         {
-            uint currentOffset = _loadResult.ObjectSection.CurrentOffset;
+            uint currentOffset = LoadResult.ObjectSection.CurrentOffset;
             if (currentOffset > 0U)
                 --currentOffset;
-            _loadResult.LineNumberTable.TryLookup(currentOffset, out line, out column);
+            LoadResult.LineNumberTable.TryLookup(currentOffset, out line, out column);
         }
 
-        public IMarkupTypeBase Instance => _instance;
+        public IMarkupTypeBase Instance { get; private set; }
 
-        public MarkupTypeSchema MarkupType => _type;
+        public MarkupTypeSchema MarkupType { get; private set; }
 
-        public uint InitialBytecodeOffset => _initialBytecodeOffset;
+        public uint InitialBytecodeOffset { get; private set; }
 
-        public MarkupLoadResult LoadResult => _loadResult;
+        public MarkupLoadResult LoadResult { get; private set; }
 
         public object ReadSymbol(SymbolReference symbolRef)
         {
@@ -54,7 +49,7 @@ namespace Microsoft.Iris.Markup
                     obj = _parameterContext.ReadParameter(symbolRef.Symbol);
                     break;
                 default:
-                    obj = _instance.ReadSymbol(symbolRef);
+                    obj = Instance.ReadSymbol(symbolRef);
                     break;
             }
             return obj;
@@ -72,7 +67,7 @@ namespace Microsoft.Iris.Markup
                     _parameterContext.WriteParameter(symbolRef.Symbol, value);
                     break;
                 default:
-                    _instance.WriteSymbol(symbolRef, value);
+                    Instance.WriteSymbol(symbolRef, value);
                     break;
             }
         }
@@ -92,25 +87,31 @@ namespace Microsoft.Iris.Markup
         {
             InterpreterContext interpreterContext = null;
             if (s_cache.Count != 0)
-                interpreterContext = (InterpreterContext)s_cache.Pop();
+                interpreterContext = s_cache.Pop();
             interpreterContext ??= new InterpreterContext();
-            interpreterContext._instance = instance;
-            interpreterContext._initialBytecodeOffset = initialBytecodeOffset;
-            interpreterContext._type = type;
-            interpreterContext._loadResult = (MarkupLoadResult)type.Owner;
+            
+            interpreterContext.Instance = instance;
+            interpreterContext.InitialBytecodeOffset = initialBytecodeOffset;
+            interpreterContext.MarkupType = type;
+            interpreterContext.LoadResult = (MarkupLoadResult)type.Owner;
             interpreterContext._parameterContext = parameterContext;
+            
+            Application.Debugger?.LogInterpreterEnter(interpreterContext);
+            
             return interpreterContext;
         }
 
         public static void Release(InterpreterContext context)
         {
-            context._instance = null;
-            context._type = null;
-            context._loadResult = null;
-            context._initialBytecodeOffset = 0U;
+            context.Instance = null;
+            context.MarkupType = null;
+            context.LoadResult = null;
+            context.InitialBytecodeOffset = 0U;
             context._parameterContext = new ParameterContext(null, null);
-            if (context._scopedLocals != null)
-                context._scopedLocals.Clear();
+            context._scopedLocals?.Clear();
+
+            Application.Debugger?.LogInterpreterExit(context);
+
             s_cache.Push(context);
         }
 

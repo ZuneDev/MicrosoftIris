@@ -37,7 +37,7 @@ namespace Microsoft.Iris.OS
             Resource resource = null;
             string host;
             string identifier;
-            ParseResource(hierarchicalPart, out host, out identifier);
+            Resource.ParseResource(hierarchicalPart, out host, out identifier);
             if (host != null)
             {
                 string fullPath = GetFullPath(host);
@@ -72,21 +72,6 @@ namespace Microsoft.Iris.OS
                 _shortNameToFullPath[moduleName] = str;
             }
             return str;
-        }
-
-        internal static void ParseResource(string resource, out string host, out string identifier)
-        {
-            int length = resource.IndexOf('!');
-            if (length == -1)
-            {
-                host = null;
-                identifier = resource;
-            }
-            else
-            {
-                host = resource.Substring(0, length);
-                identifier = resource.Substring(length + 1);
-            }
         }
     }
 }

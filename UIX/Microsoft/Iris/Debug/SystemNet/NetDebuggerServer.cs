@@ -61,6 +61,16 @@ public class NetDebuggerServer : IDebuggerServer, IRemoteDebuggerState, IDisposa
         return lineNumberTable;
     }
 
+    public void LogInterpreterEnter(InterpreterContext interpreterContext)
+    {
+        // TODO
+    }
+
+    public void LogInterpreterExit(InterpreterContext interpreterContext)
+    {
+        // TODO
+    }
+
     public void LogInterpreterDecode(object context, InterpreterInstruction instruction)
     {
         QueueDebuggerMessage(new(0, DebuggerMessageType.InterpreterDecode, instruction, _formatter));

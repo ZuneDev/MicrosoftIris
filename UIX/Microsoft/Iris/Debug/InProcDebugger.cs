@@ -12,6 +12,8 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
     public event Action<InterpreterCommand> InterpreterStateChanged;
     public event EventHandler<InterpreterInstruction> InterpreterDecode;
     public event EventHandler<InterpreterEntry> InterpreterExecute;
+    public event EventHandler<InterpreterContext> InterpreterEnter;
+    public event EventHandler<InterpreterContext> InterpreterExit;
     public event Action<string> DispatcherStep;
 
     public void Start() { }
@@ -43,6 +45,12 @@ public class InProcDebugger : IDebuggerClient, IDebuggerServer
 
         return lineNumberTable;
     }
+
+    public void LogInterpreterEnter(InterpreterContext interpreterContext) =>
+        InterpreterEnter?.Invoke(this, interpreterContext);
+
+    public void LogInterpreterExit(InterpreterContext interpreterContext) =>
+        InterpreterExit?.Invoke(this, interpreterContext);
 
     void IDebuggerServer.WaitForContinue()
     {

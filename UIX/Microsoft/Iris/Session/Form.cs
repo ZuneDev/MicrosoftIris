@@ -271,7 +271,7 @@ namespace Microsoft.Iris.Session
                 return;
             string hierarchicalPart;
             ResourceManager.ParseUri(source, out string _, out hierarchicalPart);
-            DllResources.ParseResource(hierarchicalPart, out host, out identifier);
+            Resource.ParseResource(hierarchicalPart, out host, out identifier);
         }
 
         public bool EnableExternalDragDrop

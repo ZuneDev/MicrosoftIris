@@ -32,7 +32,7 @@ namespace Microsoft.Iris.OS
         {
             resource = null;
 
-            DllResources.ParseResource(hierarchicalPart, out string host, out string identifier);
+            Resource.ParseResource(hierarchicalPart, out var host, out var identifier);
             string specifier = null;
 
             var specifierIndex = identifier.IndexOf('/');

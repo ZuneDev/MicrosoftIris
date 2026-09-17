@@ -1,4 +1,5 @@
 ﻿using Microsoft.Iris.Debug.Data;
+using Microsoft.Iris.Markup;
 
 namespace Microsoft.Iris.Debug;
 
@@ -8,6 +9,18 @@ public interface IDebuggerServer : IDebuggerState
     /// Sends the requested line number table.
     /// </summary>
     MarkupLineNumberEntry[] OnLineNumberTableRequested(string uri);
+
+    /// <summary>
+    /// Sends the current interpreter context at the start of a new script execution or function call.
+    /// </summary>
+    /// <param name="interpreterContext"></param>
+    void LogInterpreterEnter(InterpreterContext interpreterContext);
+
+    /// <summary>
+    /// Marks the end of a script execution or function call.
+    /// </summary>
+    /// <param name="interpreterContext"></param>
+    void LogInterpreterExit(InterpreterContext interpreterContext);
 
     /// <summary>
     /// Logs the context, opcode, and operands of an instruction
