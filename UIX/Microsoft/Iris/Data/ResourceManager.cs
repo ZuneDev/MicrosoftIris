@@ -6,6 +6,7 @@
 
 using Microsoft.Iris.Session;
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Iris.Data
 {
@@ -33,60 +34,94 @@ namespace Microsoft.Iris.Data
         public Resource GetResource(string uri, bool forceSynchronous)
         {
             Resource resource = null;
-            
-            if (_redirects != null)
+
+            foreach (var uriCandidate in ApplyRedirects(uri))
             {
-                foreach (UriRedirect redirect in _redirects)
-                {
-                    if (redirect.bank is not -1 && redirect.bank != Bank)
-                        continue;
-
-                    if (uri.StartsWith(redirect.fromPrefix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (redirect.toPrefix.Equals("{ERROR}", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ErrorManager.ReportError("Resource {0} not found, but should have been located by a markup redirect", uri);
-                            return null;
-                        }
-
-                        resource = GetResourceWorker(redirect.toPrefix + uri.Substring(redirect.fromPrefix.Length), true);
-
-                        if (resource != null)
-                        {
-                            resource.Acquire();
-                            bool success = resource.Status == ResourceStatus.Available;
-                            resource.Free();
-                            if (!success)
-                                resource = null;
-                        }
-                    }
-
-                    if (resource != null)
-                        break;
-                }
+                resource = GetResourceWorker(uriCandidate, forceSynchronous);
+                if (resource is null)
+                    continue;
+                
+                resource.Acquire();
+                var success = resource.Status is ResourceStatus.Available;
+                resource.Free();
+                
+                if (!success)
+                    resource = null;
+                else
+                    break;
             }
-
-            resource ??= GetResourceWorker(uri, forceSynchronous);
+            
             return resource;
         }
 
-        private Resource GetResourceWorker(string uri, bool forceSynchronous)
+        public IEnumerable<Resource> EnumerateResources(string baseUri, bool forceSynchronous)
         {
-            Resource resource = null;
-            string scheme;
-            string hierarchicalPart;
-            ParseUri(uri, out scheme, out hierarchicalPart);
+            var resourceProvider = GetProvider(baseUri, out var baseHierarchicalPart);
+            if (resourceProvider is null)
+                return [];
+            
+            if (resourceProvider is not IEnumerableResourceProvider enumerableResourceProvider)
+            {
+                ErrorManager.ReportWarning("Resource provider `{0}` does not support enumeration for '{1}'",
+                    resourceProvider.GetType().FullName, baseUri);
+                return [];
+            }
+            
+            return enumerableResourceProvider.EnumerateResources(baseHierarchicalPart, baseUri, forceSynchronous);
+        }
+        
+        private IEnumerable<string> ApplyRedirects(string uri)
+        {
+            if (_redirects == null)
+            {
+                yield return uri;
+                yield break;
+            }
+
+            foreach (var redirect in _redirects)
+            {
+                if (redirect.bank is not -1 && redirect.bank != Bank)
+                    continue;
+
+                if (!uri.StartsWith(redirect.fromPrefix, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (redirect.toPrefix.Equals("{ERROR}", StringComparison.OrdinalIgnoreCase))
+                {
+                    ErrorManager.ReportError(
+                        "Resource {0} not found, but should have been located by a markup redirect", uri);
+                    continue;
+                }
+
+                yield return redirect.toPrefix + uri.Substring(redirect.fromPrefix.Length);
+            }
+
+            yield return uri;
+        }
+
+        private IResourceProvider GetProvider(string uri, out string hierarchicalPart)
+        {
+            ParseUri(uri, out var scheme, out hierarchicalPart);
+
             if (string.IsNullOrEmpty(scheme) || string.IsNullOrEmpty(hierarchicalPart))
             {
                 ErrorManager.ReportWarning("Invalid resource uri: '{0}'", uri);
                 return null;
             }
-            IResourceProvider resourceProvider;
-            if (_sourcesTable.TryGetValue(scheme, out resourceProvider))
-                resource = resourceProvider.GetResource(hierarchicalPart, uri, forceSynchronous);
-            else
+
+            if (!_sourcesTable.TryGetValue(scheme, out var resourceProvider))
+            {
                 ErrorManager.ReportWarning("Invalid resource protocol: '{0}'", scheme);
-            return resource;
+                return null;
+            }
+            
+            return resourceProvider;
+        }
+
+        private Resource GetResourceWorker(string uri, bool forceSynchronous)
+        {
+            var resourceProvider = GetProvider(uri, out var hierarchicalPart);
+            return resourceProvider.GetResource(hierarchicalPart, uri, forceSynchronous);
         }
 
         public static void ParseUri(string uri, out string scheme, out string hierarchicalPart)

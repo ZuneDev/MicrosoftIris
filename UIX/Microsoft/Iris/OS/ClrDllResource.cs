@@ -9,6 +9,7 @@ namespace Microsoft.Iris.OS
 {
     internal class ClrDllResource : Resource
     {
+        private ResourceManagerCore _rm;
         private Assembly _assembly;
         private string _identifier;
         private string _specifier;
@@ -16,12 +17,13 @@ namespace Microsoft.Iris.OS
         private IntPtr _buffer;
         private uint _length;
 
-        internal ClrDllResource(string uri, Assembly assembly, string identifier, string specifier)
+        internal ClrDllResource(string uri, ResourceManagerCore rm, Assembly assembly, string identifier, string specifier)
           : base(uri, true)
         {
+            _rm = rm;
             _assembly = assembly;
             _identifier = identifier.ToUpperInvariant();
-            _specifier = specifier ?? "RCDATA";
+            _specifier = specifier;
         }
 
         public override string Identifier => _identifier;
@@ -34,9 +36,7 @@ namespace Microsoft.Iris.OS
                 var error = true;
                 try
                 {
-                    var rm = new ResourceManagerCore(_specifier, _assembly);
-
-                    var data = rm.GetObject(_identifier) as byte[];
+                    var data = _rm.GetObject(_identifier) as byte[];
 
                     if (data is not null)
                     {
